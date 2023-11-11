@@ -1,0 +1,1108 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="robots" content="noindex"><meta><title>Tag: gcc - Hexo</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Hexo"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Hexo"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta property="og:type" content="blog"><meta property="og:title" content="Hexo"><meta property="og:url" content="http://example.com/"><meta property="og:site_name" content="Hexo"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://example.com/img/og_image.png"><meta property="article:author" content="John Doe"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://example.com/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://example.com"},"headline":"Hexo","image":["http://example.com/img/og_image.png"],"author":{"@type":"Person","name":"John Doe"},"publisher":{"@type":"Organization","name":"Hexo","logo":{"@type":"ImageObject","url":"http://example.com/img/logo.svg"}},"description":""}</script><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="Hexo" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">gcc</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-10-12T16:00:00.000Z" title="10/12/2023, 4:00:00 PM">2023-10-12</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-11T13:23:27.576Z" title="11/11/2023, 1:23:27 PM">2023-11-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">12 minutes read (About 1771 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/10/12/Work/Programming/3-options/gccCompilerOption/">GCC Compiler Option 1 : Optimization Options</a></p><div class="content"><h2 id="手册"><a href="#手册" class="headerlink" title="手册"></a>手册</h2><p><a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html">全体选项</a>其中一部分是<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc-4.5.2/gcc/Optimize-Options.html">Optimize-Options</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 会列出可选项</span></span><br><span class="line">g++ -march=native -m32 ... -Q --<span class="built_in">help</span>=target </span><br><span class="line"><span class="comment"># 会列出O3默认开启和关闭选项</span></span><br><span class="line">g++ -O3 -Q --<span class="built_in">help</span>=optimizers</span><br></pre></td></tr></table></figure>
+
+<p>编译时最好按照其分类有效组织, 例子如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">g++ </span><br><span class="line"><span class="comment"># Warning Options</span></span><br><span class="line">-Wall -Werror -Wno-unknown-pragmas -Wno-dangling-pointer </span><br><span class="line"><span class="comment"># Program Instrumentation Options</span></span><br><span class="line">-fno-stack-protector</span><br><span class="line"><span class="comment"># Code-Gen-Options</span></span><br><span class="line">-fno-exceptions -funwind-tables -fasynchronous-unwind-tables</span><br><span class="line"><span class="comment"># C++ Dialect</span></span><br><span class="line">-fabi-version=2 -faligned-new -fno-rtti</span><br><span class="line"><span class="comment"># define</span></span><br><span class="line">-DPIN_CRT=1 -DTARGET_IA32E -DHOST_IA32E -fPIC -DTARGET_LINUX </span><br><span class="line"><span class="comment"># include</span></span><br><span class="line">-I../../../source/include/pin </span><br><span class="line">-I../../../source/include/pin/gen </span><br><span class="line">-isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/cxx/include </span><br><span class="line">-isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include </span><br><span class="line">-isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/arch-x86_64 </span><br><span class="line">-isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/kernel/uapi </span><br><span class="line">-isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/kernel/uapi/asm-x86 </span><br><span class="line">-I../../../extras/components/include </span><br><span class="line">-I../../../extras/xed-intel64/include/xed </span><br><span class="line">-I../../../source/tools/Utils </span><br><span class="line">-I../../../source/tools/InstLib </span><br><span class="line"><span class="comment"># Optimization Options</span></span><br><span class="line">-O3 -fomit-frame-pointer -fno-strict-aliasing </span><br><span class="line">-c -o obj-intel64/inscount0.o inscount0.cpp</span><br></pre></td></tr></table></figure>
+
+<h2 id="常见选项"><a href="#常见选项" class="headerlink" title="常见选项"></a>常见选项</h2><ul>
+<li><code>-Wxxx</code> 对 xxx 启动warning， </li>
+<li><code>-fxxx</code> 启动xxx的编译器功能。<code>-fno-xxx</code> 关闭对应选项？？？</li>
+<li><code>-gxxx</code> debug 相关</li>
+<li><code>-mxxx</code> 特定机器架构的选项</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-Wall</td>
+<td>打开常见的所有warning选项</td>
+</tr>
+<tr>
+<td>-Werror</td>
+<td>把warning当成error</td>
+</tr>
+<tr>
+<td>-std&#x3D;</td>
+<td>C or C++ language standard. eg ‘c++11’ &#x3D;&#x3D; ‘c++0x’ ‘c++17’ &#x3D;&#x3D; ‘c++1z’, which ‘c++0x’,’c++17’ is develop codename</td>
+</tr>
+<tr>
+<td>-Wunknown-pragmas</td>
+<td>未知的pragma会报错（-Wno-unknown-pragmas 应该是相反的）</td>
+</tr>
+<tr>
+<td>-fomit-frame-pointer</td>
+<td>不生成栈帧指针,属于-O1优化</td>
+</tr>
+<tr>
+<td>-Wstack-protector</td>
+<td>没有防止堆栈崩溃的函数时warning (-fno-stack-protector)</td>
+</tr>
+<tr>
+<td>-MMD</td>
+<td>only user header files, not system header files.</td>
+</tr>
+<tr>
+<td>-fexceptions</td>
+<td>Enable exception handling.</td>
+</tr>
+<tr>
+<td>-funwind-tables</td>
+<td>Unwind tables contain debug frame information which is also necessary for the handling of such exceptions</td>
+</tr>
+<tr>
+<td>-fasynchronous-unwind-tables</td>
+<td>Generate unwind table in DWARF format. so it can be used for stack unwinding from asynchronous events</td>
+</tr>
+<tr>
+<td>-fabi-version&#x3D;n</td>
+<td>Use version n of the C++ ABI. The default is version 0.(Version 2 is the version of the C++ ABI that first appeared in G++ 3.4, and was the default through G++ 4.9.) ABI: an application binary interface (ABI) is an interface between two binary program modules. Often, one of these modules is a library or operating system facility, and the other is a program that is being run by a user.</td>
+</tr>
+<tr>
+<td>-fno-rtti</td>
+<td>Disable generation of information about every class with virtual functions for use by the C++ run-time type identification features (dynamic_cast and typeid). If you don’t use those parts of the language, you can <strong>save some space</strong> by using this flag</td>
+</tr>
+<tr>
+<td>-faligned-new</td>
+<td>Enable support for C++17 new of types that require more alignment than <code>void* ::operator new(std::size_t)</code> provides. A numeric argument such as <code>-faligned-new=32</code> can be used to specify how much alignment (in bytes) is provided by that function, but few users will need to override the default of <code>alignof(std::max_align_t)</code>. This flag is enabled by default for <code>-std=c++17</code>.</td>
+</tr>
+<tr>
+<td>-Wl, xxx</td>
+<td>pass xxx option to linker, e.g., <code>-Wl,-R/staff/shaojiemike/github/MultiPIM_icarus0/common/libconfig/lib</code> specify a runtime library search path for dynamic libraries (shared libraries) during the linking process.</td>
+</tr>
+</tbody></table>
+<h2 id="General-Optimization-Options"><a href="#General-Optimization-Options" class="headerlink" title="General Optimization Options"></a>General Optimization Options</h2><h3 id="O-O2-O3"><a href="#O-O2-O3" class="headerlink" title="-O, -O2, -O3"></a>-O, -O2, -O3</h3><p>-O3 turns on all optimizations specified by -O2</p>
+<p>and also turns on the -finline-functions, -funswitch-loops, -fpredictive-commoning, -fgcse-after-reload, -ftree-loop-vectorize, -ftree-loop-distribute-patterns, -ftree-slp-vectorize, -fvect-cost-model, -ftree-partial-pre and -fipa-cp-clone options</p>
+<h3 id="ffastmath"><a href="#ffastmath" class="headerlink" title="-ffastmath"></a>-ffastmath</h3><p>允许使用浮点计算获得更高的性能，但可能会略微降低精度。</p>
+<h3 id="Ofast"><a href="#Ofast" class="headerlink" title="-Ofast"></a>-Ofast</h3><p>更快但是有保证正确</p>
+<h3 id="flto"><a href="#flto" class="headerlink" title="-flto"></a>-flto</h3><p>（仅限 GNU）链接时优化，当程序链接时检查文件之间的函数调用的步骤。该标志必须用于编译和链接时。使用此标志的编译时间很长，但是根据应用程序，当与 -O* 标志结合使用时，可能会有明显的性能改进。这个标志和任何优化标志都必须传递给链接器，并且应该调用 gcc&#x2F;g++&#x2F;gfortran 进行链接而不是直接调用 ld。</p>
+<h3 id="mtune-processor"><a href="#mtune-processor" class="headerlink" title="-mtune&#x3D;processor"></a>-mtune&#x3D;processor</h3><p>此标志对特定处理器类型进行额外调整，但它不会生成额外的 SIMD 指令，因此不存在体系结构兼容性问题。调整将涉及对处理器缓存大小、首选指令顺序等的优化。</p>
+<p>在 AMD Bulldozer 节点上使用的值为 bdver1，在 AMD Epyc 节点上使用的值为 znver2。是zen ver2的简称。</p>
+<h2 id="Optimization-Options-数据预取相关"><a href="#Optimization-Options-数据预取相关" class="headerlink" title="Optimization Options: 数据预取相关"></a>Optimization Options: 数据预取相关</h2><ol>
+<li><code>-fprefetch-loop-arrays</code><ol>
+<li>如果目标机器支持，生成预取内存的指令，以提高访问大数组的循环的性能。这个选项可能产生更好或更差的代码；结果在很大程度上取决于源代码中的循环结构。</li>
+<li><code>-Os</code>禁用</li>
+</ol>
+</li>
+</ol>
+<h2 id="Optimization-Options-访存优化相关"><a href="#Optimization-Options-访存优化相关" class="headerlink" title="Optimization Options: 访存优化相关"></a>Optimization Options: 访存优化相关</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/496435946">https://zhuanlan.zhihu.com/p/496435946</a></p>
+<p>下面没有特别指明都是O3，默认开启</p>
+<h3 id="调整数据的访问顺序"><a href="#调整数据的访问顺序" class="headerlink" title="调整数据的访问顺序"></a>调整数据的访问顺序</h3><ol>
+<li><code>-ftree-loop-distribution</code><ol>
+<li>允许将一个复杂的大循环，拆开成多个循环，各自可以继续并行和向量化</li>
+</ol>
+</li>
+<li><code>-ftree-loop-distribute-patterns</code><ol>
+<li>类似上面一种？</li>
+</ol>
+</li>
+<li><code>-floop-interchange</code><ol>
+<li>允许交换多层循环次序来连续访存</li>
+</ol>
+</li>
+<li><code>-floop-unroll-and-jam</code><ol>
+<li>允许多层循环，将外循环按某种系数展开，并将产生的多个内循环融合。</li>
+</ol>
+</li>
+</ol>
+<h3 id="代码段对齐"><a href="#代码段对齐" class="headerlink" title="代码段对齐"></a>代码段对齐</h3><p>(不是计算访问的数据)</p>
+<ol>
+<li><code>-falign-functions=n:m:n2:m2</code><ol>
+<li>Enabled at levels -O2, -O3.<br>类似有一堆</li>
+</ol>
+</li>
+</ol>
+<h3 id="调整代码块的布局"><a href="#调整代码块的布局" class="headerlink" title="调整代码块的布局"></a>调整代码块的布局</h3><ol>
+<li><code>-freorder-blocks</code><ol>
+<li>函数基本块重排来，减少分支</li>
+</ol>
+</li>
+</ol>
+<h2 id="Optimization-Options-Unroll-Flags"><a href="#Optimization-Options-Unroll-Flags" class="headerlink" title="Optimization Options: Unroll Flags"></a>Optimization Options: Unroll Flags</h2><h3 id="funroll-loops"><a href="#funroll-loops" class="headerlink" title="-funroll-loops"></a>-funroll-loops</h3><p>Unroll loops whose <strong>number of iterations</strong> can be determined <strong>at compile time or upon entry to the loop</strong>. <code>-funroll-loops</code> implies <code>-frerun-cse-after-loop</code>. This option makes code larger, and may or may not make it run faster.</p>
+<h3 id="funroll-all-loops"><a href="#funroll-all-loops" class="headerlink" title="-funroll-all-loops"></a>-funroll-all-loops</h3><p>Unroll all loops, even if their number of iterations is <strong>uncertain</strong> when the loop is entered. This usually makes programs <strong>run more slowly.</strong> <code>-funroll-all-loops</code> implies the same options as <code>-funroll-loops</code>,</p>
+<h3 id="max-unrolled-insns"><a href="#max-unrolled-insns" class="headerlink" title="max-unrolled-insns"></a>max-unrolled-insns</h3><p>The maximum number of instructions that a loop should have if that loop is unrolled, and if the loop is unrolled, it determines how many times the loop code is unrolled.<br>如果循环被展开，则循环应具有的最大指令数，如果循环被展开，则它确定循环代码被展开的次数。</p>
+<h3 id="max-average-unrolled-insns"><a href="#max-average-unrolled-insns" class="headerlink" title="max-average-unrolled-insns"></a>max-average-unrolled-insns</h3><p>The maximum number of instructions biased by probabilities of their execution that a loop should have if that loop is unrolled, and if the loop is unrolled, it determines how many times the loop code is unrolled.<br>如果一个循环被展开，则根据其执行概率偏置的最大指令数，如果该循环被展开，则确定循环代码被展开的次数。</p>
+<h3 id="max-unroll-times"><a href="#max-unroll-times" class="headerlink" title="max-unroll-times"></a>max-unroll-times</h3><p>The maximum number of unrollings of a single loop.<br>单个循环的最大展开次数。</p>
+<h2 id="Optimization-Options-SIMD-Instructions"><a href="#Optimization-Options-SIMD-Instructions" class="headerlink" title="Optimization Options: SIMD Instructions"></a>Optimization Options: SIMD Instructions</h2><h3 id="march-native"><a href="#march-native" class="headerlink" title="-march&#x3D;native"></a>-march&#x3D;native</h3><p>会自动检测，但有可能检测不对。</p>
+<h3 id="march-”arch”"><a href="#march-”arch”" class="headerlink" title="-march&#x3D;”arch”"></a>-march&#x3D;”arch”</h3><p>这将为特定架构生成 SIMD 指令并应用 -mtune 优化。 arch 的有用值与上面的 -mtune 标志相同。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">g++ -march=native -m32 ... -Q --<span class="built_in">help</span>=target</span><br><span class="line"></span><br><span class="line">-mtune=                               skylake-avx512 </span><br><span class="line"></span><br><span class="line"> Known valid arguments <span class="keyword">for</span> -march= option:</span><br><span class="line">    i386 i486 i586 pentium lakemont pentium-mmx winchip-c6 winchip2 c3 samuel-2 c3-2 nehemiah c7 esther i686 pentiumpro pentium2 pentium3 pentium3m pentium-m pentium4 pentium4m prescott nocona core2 nehalem corei7 westmere sandybridge corei7-avx ivybridge core-avx-i haswell core-avx2 broadwell skylake skylake-avx512 cannonlake icelake-client icelake-server cascadelake tigerlake bonnell atom silvermont slm goldmont goldmont-plus tremont knl knm intel geode k6 k6-2 k6-3 athlon athlon-tbird athlon-4 athlon-xp athlon-mp x86-64 eden-x2 nano nano-1000 nano-2000 nano-3000 nano-x2 eden-x4 nano-x4 k8 k8-sse3 opteron opteron-sse3 athlon64 athlon64-sse3 athlon-fx amdfam10 barcelona bdver1 bdver2 bdver3 bdver4 znver1 znver2 btver1 btver2 generic native</span><br></pre></td></tr></table></figure>
+
+<h3 id="msse4-2-mavx-mavx2-march-core-avx2"><a href="#msse4-2-mavx-mavx2-march-core-avx2" class="headerlink" title="-msse4.2 -mavx -mavx2 -march&#x3D;core-avx2"></a>-msse4.2 -mavx -mavx2 -march&#x3D;core-avx2</h3><h2 id="dynamic-flags"><a href="#dynamic-flags" class="headerlink" title="dynamic flags"></a>dynamic flags</h2><h3 id="fPIC"><a href="#fPIC" class="headerlink" title="-fPIC"></a>-fPIC</h3><p><img src="https://pic.shaojiemike.top/img/20211211153406.png"></p>
+<p>position-independent code(PIC)</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/daidodo/article/details/2185222">https://blog.csdn.net/daidodo/article/details/2185222</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bu.edu/tech/support/research/software-and-programming/programming/compilers/gcc-compiler-flags/">https://www.bu.edu/tech/support/research/software-and-programming/programming/compilers/gcc-compiler-flags/</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-10-12T16:00:00.000Z" title="10/12/2023, 4:00:00 PM">2023-10-12</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-11T13:23:27.576Z" title="11/11/2023, 1:23:27 PM">2023-11-11</time></span><span class="level-item"><a class="link-muted" href="/categories/operating-system/">operating system</a></span><span class="level-item">an hour read (About 10843 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/10/12/Work/Programming/4-compile/Cprogramcompileandrunprocess/">C program compile&amp;run process</a></p><div class="content"><h2 id="编译总流程"><a href="#编译总流程" class="headerlink" title="编译总流程"></a>编译总流程</h2><p>编译是指编译器读取源程序（字符流），对之进行词法和语法的分析，将高级语言指令转换为功能等效的汇编代码。</p>
+<ol>
+<li>预处理阶段：<ol>
+<li>把<code>#include</code>语句以及一些宏插入程序文本中，得到<code>main.i</code>和<code>sum.i</code>文件。</li>
+</ol>
+</li>
+<li>编译阶段:<ol>
+<li>将文本文件<code>main.i</code>和<code>sum.i</code>编译成文本文件<code>main.s</code>和<code>sum.c</code>的汇编语言程序。<br>低级的汇编语言为不同的高级语言提供了通用输出语言。</li>
+</ol>
+</li>
+<li>汇编阶段:<ol>
+<li>将<code>main.s</code>和<code>sum.s</code>翻译成机器语言的二进制指令，并打包成一种叫做可重定位目标程序的格式，并将结果保存在main.o和sum.o两个文件中。这种文件格式就比较接近elf格式了。</li>
+</ol>
+</li>
+<li>链接阶段:<ol>
+<li>合并<code>main.o</code>和<code>sum.o</code>，得到可执行目标文件，就是elf格式文件。</li>
+</ol>
+</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/img/20230602165640.png"><br><img src="https://pic.shaojiemike.top/img/20220820153439.png"></p>
+<!-- ![](https://pic.shaojiemike.top/img/InkedQQ%E6%88%AA%E5%9B%BE20210802192937_LI.jpg) -->
+
+<!-- ![](https://pic.shaojiemike.top/img/Inked112521_UvDL_2430084_LI.jpg) -->
+
+<h3 id="目标文件"><a href="#目标文件" class="headerlink" title="目标文件"></a>目标文件</h3><p>目标文件有三种形式：</p>
+<ul>
+<li>可重定位目标文件。包含二进制代码和数据，其形式可以在编译时与其他可重定位目标文件合并起来，创建一个可执行目标文件。</li>
+<li>可执行目标文件。包含二进制代码和数据，其形式可以被直接复制到内存并执行。</li>
+<li>共享目标文件。一种特殊类型的可重定位目标文件，可以在加载或者运行时被动态地加载进内存并链接。</li>
+</ul>
+<h2 id="1-预处理"><a href="#1-预处理" class="headerlink" title="1 预处理"></a>1 预处理</h2><ul>
+<li>预处理器： 将<code>.c</code> 文件转化成 <code>.i</code>文件.</li>
+</ul>
+<h3 id="生成预处理文件"><a href="#生成预处理文件" class="headerlink" title="生成预处理文件"></a>生成预处理文件</h3><ul>
+<li>使用的gcc命令是：<code>gcc –E filename.cpp -o filename.i</code><ul>
+<li><code>-E  Preprocess only; do not compile, assemble or link.</code></li>
+<li>通过<code>-C</code>能保留头文件里的注释，如<code>gcc -E -C circle.c -o circle.c</code></li>
+</ul>
+</li>
+<li>另一种方式 <code>gcc -save-temps -c -o main.o main.c</code></li>
+<li>也可以调用<code>cpp filename.cpp -o filename.i</code>命令</li>
+</ul>
+<h3 id="理解预处理文件"><a href="#理解预处理文件" class="headerlink" title="理解预处理文件"></a>理解预处理文件</h3><ul>
+<li>输出文件会出现许多名叫 <code>linemarkers</code>类似<code># linenum filename flags</code>的注释，这些注释是为了让编译器能够定位到源文件的行号，以便于编译器能够在编译错误时给出正确的行号。<ul>
+<li>They mean that the following line originated in file filename at line linenum.</li>
+<li><code>flags</code> meaning<ul>
+<li>‘1’ This indicates the start of a new file.</li>
+<li>‘2’ This indicates returning to a file (after having included another file)</li>
+<li>‘3’ This indicates that the following text comes from a <strong>system header file</strong>, so certain warnings should be suppressed</li>
+<li>‘4’ This indicates that the following text should be treated as being wrapped in an implicit extern “C” block.<ul>
+<li>‘4’表示接下来的文本应被视为被包含在隐式的“extern “C””块中。在C++中，函数名和变量名可以有不同的命名空间，但是使用“extern “C””修饰时可以取消这种区别，使得函数名和变量名可以在C++和C代码之间共享。因此，在C++中使用“extern “C””来声明C函数或变量时，需要使用‘4’来指示编译器此处的文本应该被视为C代码，而不是C++代码。[来自chatGPT的解释]</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="预处理内容-过程"><a href="#预处理内容-过程" class="headerlink" title="预处理内容(过程)"></a>预处理内容(过程)</h3><p>除开注释被替换成空格，包括代码里的预处理命令：</p>
+<ol start="0">
+<li><code>#error &quot;text&quot;</code> 的作用是在编译时生成一个错误消息，它会导致编译过程中断。 同理有<code>#warning</code></li>
+<li>宏定义指令，如 <code>#define a b</code> 对于这种伪指令，预编译所要做的是将程序中的所有a用b替换，但作为字符串常量的 a则不被替换。还有 #undef，则将取消对某个宏的定义，使以后该串的出现不再被替换。</li>
+<li>条件编译指令，如<code>#ifdef SNIPER</code>，<code>#if defined SNIPER &amp;&amp; SNIPER == 0</code>,#ifndef，#else，#elif，#endif等。 这些伪指令的引入使得程序员可以通过定义不同的宏来决定编译程序对哪些代码进行处理。预编译程序将根据有关的文件，将那些不必要的代码过滤掉<ol>
+<li>gcc编译<a target="_blank" rel="noopener" href="https://www.linuxtopia.org/online_books/an_introduction_to_gcc/gccintro_34.html">使用<code>-DSNIPER=5</code></a></li>
+</ol>
+</li>
+<li>头文件包含指令，如<code>#include &quot;FileName&quot;</code>或者#include 等。<br>该指令将头文件中的定义统统都加入到它所产生的输出文件中，以供编译程序对之进行处理。</li>
+<li>特殊符号，预编译程序可以识别一些特殊的符号。<br>例如在源程序中出现的<code>LINE</code>标识将被解释为当前行号（十进制数），<code>FILE</code>则被解释为当前被编译的C源程序的名称。<br>预编译程序对于在源程序中出现的这些串将用合适的值进行替换。</li>
+</ol>
+<h3 id="头文件搜索优先级"><a href="#头文件搜索优先级" class="headerlink" title="头文件搜索优先级"></a>头文件搜索优先级</h3><p><code>#include &quot;&quot;</code> vs <code>#include &lt;&gt;</code> <a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/cpp/Search-Path.html">区别在于</a>前者会在文件的当前目录寻找，但是后者只会在编译器编译的official路径寻找</p>
+<p><a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html">通常的搜索顺序</a>是：</p>
+<ul>
+<li><p>包含指定源文件的目录（对于在 <code>#include</code> 命令中以<strong>引号</strong>包括的文件名）。</p>
+</li>
+<li><p>采用<code>-iquote</code>选项指定的目录，依照出现在命令行中的顺序进行搜索。只对 <code>#include</code> 命令中采用引号的头文件名进行搜索。</p>
+</li>
+<li><p>所有header file的搜寻会从<code>-I</code>开始, 依照出现在命令行中的顺序进行搜索。（可以使用<code>-I/path/file</code>只添加一个头文件，尤其是在编译的兼容性修改时）</p>
+</li>
+<li><p>采用环境变量 CPATH 指定的目录。</p>
+</li>
+<li><p>采用<code>-isystem</code>选项指定的目录，依照出现在命令行中的顺序进行搜索。</p>
+</li>
+<li><p>然后找环境变量 <code>C_INCLUDE_PATH,CPLUS_INCLUDE_PATH,OBJC_INCLUDE_PATH</code>指定的路径</p>
+</li>
+<li><p>再找系统默认目录<code>(/usr/include、/usr/local/include、/usr/lib/gcc-lib/i386-linux/2.95.2/include......)</code></p>
+</li>
+<li><p>通过如下命令可以查看头文件搜索目录 <code>gcc -xc -E -v - &lt; /dev/null</code> 或者 <code>g++ -xc++ -E -v - &lt; /dev/null</code>*. <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/66338913/how-to-change-default-clang-include-directory-search-paths">如果想改，需要重新编译gcc</a></p>
+</li>
+<li><p>或者在编译出错时，<code>g++ -H -v</code>查看是不是项目下的同名头文件优先级高于sys-head-file</p>
+</li>
+</ul>
+<h2 id="2-编译优化Compile"><a href="#2-编译优化Compile" class="headerlink" title="2 编译优化Compile"></a>2 编译优化Compile</h2><ul>
+<li>将经过预处理之后的程序转换成特定汇编代码(assembly code)的过程</li>
+<li>一般将<code>.c/.h</code>或者<code>.i</code>文件转换成<code>.s</code>文件，</li>
+</ul>
+<h3 id="生成汇编代码"><a href="#生成汇编代码" class="headerlink" title="生成汇编代码"></a>生成汇编代码</h3><ul>
+<li>使用的gcc命令是：<code>gcc –S filename.cpp -o filename.s</code>，对应于<ul>
+<li><code>-S   Compile only; do not assemble or link.</code></li>
+<li>理论上<code>gcc –S filename.i -o filename.s</code> 也是可行的。但是我遇到头文件冲突的问题<code>error: declaration for parameter ‘__u_char’ but no such parameter</code></li>
+</ul>
+</li>
+<li>编译命令 <code>cc –S filename.cpp -o filename.s</code>  </li>
+<li>或者<code>cc1</code>命令</li>
+</ul>
+<h3 id="编译内容（过程）"><a href="#编译内容（过程）" class="headerlink" title="编译内容（过程）"></a>编译内容（过程）</h3><ul>
+<li>词法分析、语法分析、语意分析、中间代码生成，在语法检查、类型检查之后，将其翻译成等价的<strong>中间代码表示</strong>或汇编代码</li>
+<li>优化（<code>-O3</code>）<ul>
+<li>常规优化：删除死代码、减少寄存器传输、常量折叠、提取中间量</li>
+<li>高阶优化：循环展开、指针优化、函数内联，自动SIMD向量化</li>
+</ul>
+</li>
+<li>关于内联函数<ul>
+<li>内联函数是在函数定义前加上关键字inline的函数。它用于请求编译器将函数的代码插入到每个调用该函数的地方，而不是通过函数调用来执行。这样可以减少函数调用的开销，提高程序的执行效率。</li>
+<li>内联函数一般适用于函数体较小、频繁调用的函数，但最终是<strong>编译器决定</strong>是否将函数内联，编译器可以忽略对内联函数的请求。</li>
+</ul>
+</li>
+</ul>
+<p>如果想把 C 语言变量的名称作为汇编语言语句中的注释，可以加上 <code>-fverbose-asm</code> 选项：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -S -O3 -fverbose-asm ../src/pivot.c -o pivot_O1.s</span><br><span class="line">objdump -Sd ../build/bin/pivot &gt; pivot1.s</span><br></pre></td></tr></table></figure>
+
+<h3 id="理解汇编文件"><a href="#理解汇编文件" class="headerlink" title="理解汇编文件"></a>理解汇编文件</h3><p>请阅读 GNU assembly file一文</p>
+<h2 id="3-汇编assemble"><a href="#3-汇编assemble" class="headerlink" title="3 汇编assemble"></a>3 汇编assemble</h2><p>汇编器：将.s 文件转化成 .o文件，</p>
+<h3 id="生成可重定位目标程序"><a href="#生成可重定位目标程序" class="headerlink" title="生成可重定位目标程序"></a>生成可重定位目标程序</h3><ul>
+<li>使用的gcc 命令是：<code>gcc –c</code>，<ul>
+<li><code>-c   Compile and assemble, but do not link.</code></li>
+</ul>
+</li>
+<li>汇编命令是 <code>as</code>；</li>
+</ul>
+<h3 id="汇编过程"><a href="#汇编过程" class="headerlink" title="汇编过程"></a>汇编过程</h3><ul>
+<li>汇编实际上指汇编器(as)把汇编语言代码翻译成**目标机器指令(二进制)**的过程。</li>
+<li>目标文件中所存放的也就是与源程序等效的目标的机器语言代码。</li>
+<li>目标文件由段组成。通常一个目标文件中至少有两个段：</li>
+</ul>
+<ol>
+<li>代码段：该段中所包含的主要是程序的指令。该段一般是可读和可执行的，但一般却不可写。</li>
+<li>数据段：主要存放程序中要用到的各种全局变量或静态的数据。一般数据段都是可读，可写，可执行的。<br><img src="https://pic.shaojiemike.top/img/20230521202224.png"></li>
+</ol>
+<h3 id="查看理解"><a href="#查看理解" class="headerlink" title="查看理解"></a>查看理解</h3><ul>
+<li>查看汇编代码 <code>objdump -Sd ../build/bin/pivot &gt; pivot1.s</code><ul>
+<li><code>-S</code> 以汇编代码的形式显示C++原程序代码，如果有debug信息，会显示源代码。</li>
+</ul>
+</li>
+<li><code>nm file.o</code> 查看目标文件中的符号表</li>
+</ul>
+<p>注意，这时候的目标文件里的使用的函数可能没定义，需要链接其他目标文件<code>.a .so .o .dll</code>(Dynamic Link Library的缩写，Windows动态链接库)</p>
+<h2 id="nm-命令"><a href="#nm-命令" class="headerlink" title="nm 命令"></a>nm 命令</h2><p>List symbol names in object files.</p>
+<ol>
+<li>符号值。默认显示十六进制，也可以指定；</li>
+<li>符号类型。小写表示是本地符号，大写表示全局符号(external);</li>
+<li>符号名称。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>符号类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A</td>
+<td>符号值是绝对的。在进一步的连接中，不会被改变。</td>
+</tr>
+<tr>
+<td>B</td>
+<td>符号位于未初始化数据段(known as BSS).</td>
+</tr>
+<tr>
+<td>C</td>
+<td>共用(common)符号. 共用符号是未初始化的数据。在连接时，多个共用符号可能采用一个同样的名字，如果这个符号在某个地方被定义，共用符号被认为是未定义的引用.</td>
+</tr>
+<tr>
+<td>D</td>
+<td>已初始化数据段的符号</td>
+</tr>
+<tr>
+<td>G</td>
+<td>已初始化数据段中的小目标(small objective)符号. 一些目标文件格式允许更有效的访问小目标数据，比如一个全局的int变量相对于一个大的全局数组。</td>
+</tr>
+<tr>
+<td>I</td>
+<td>其他符号的直接应用，这是GNU扩展的，很少用了. N 调试符号.</td>
+</tr>
+<tr>
+<td>R</td>
+<td>只读数据段符号. S 未初始化数据段中的小目标(small object)符号.</td>
+</tr>
+<tr>
+<td>T</td>
+<td>代码段的符号.</td>
+</tr>
+<tr>
+<td>U</td>
+<td>未定义符号.</td>
+</tr>
+<tr>
+<td>V</td>
+<td>弱对象(weak object)符号. 当一个已定义的弱符号被连接到一个普通定义符号，普通定义符号可以正常使用，当一个未定义的弱对象被连接到一个未定义的符号，弱符号的值为0.</td>
+</tr>
+<tr>
+<td>W</td>
+<td>一个没有被指定一个弱对象符号的弱符号(weak symbol)。 - a.out目标文件中的刺符号(stabs symbol). 这种情况下，打印的下一个值是其他字段，描述字段，和类型。刺符号用于保留调试信息.</td>
+</tr>
+<tr>
+<td>?</td>
+<td>未知符号类型，或者目标文件特有的符号类型.</td>
+</tr>
+</tbody></table>
+<h2 id="4-链接过程"><a href="#4-链接过程" class="headerlink" title="4 链接过程"></a>4 链接过程</h2><p>通过使用<code>ld</code>命令，将编译好的目标文件连接成一个可执行文件或动态库。</p>
+<ul>
+<li>链接器的核心工作就是符号表解析、重定位和库文件链接三个部分。(具体细节看<a target="_blank" rel="noopener" href="https://hansimov.gitbook.io/csapp/part2/ch07-linking/7.7-relocation">CSAPP7.5-7.7</a>)<ul>
+<li><strong>符号解析</strong><ul>
+<li>每个可重定位目标程序中都存在符号表的数据结构，包含了一些被声明的函数和变量的符号。依上例，main.o和sum.o都有一个这样的结构。符号表中的每一项都包含一个符号名字和一个符号定义的地址。</li>
+<li>符号解析的任务就是将这些符号和它们所在的源文件、库文件中的定义进行匹配。这个过程会生成符号表，用于给链接器在后续的重定位中找到函数所在的地址。</li>
+<li>对于符号解析有<strong>重载</strong>（不同的类，函数名相同）的特殊情况，比如<code>Foo::bar(int,long)</code>会变成<code>bar__3Fooil</code>。其中3是名字字符数</li>
+</ul>
+</li>
+<li><strong>重定位</strong>：在符号解析完成后，链接器会把不同的目标文件合并在一起，此时就需要对目标代码进行地址的修正，使得各个目标文件之间的函数调用或者变量访问都可以正确。这个过程叫做重定位。链接器会根据符号表信息，将每个函数调用位置中的符号替换成实际的地址。</li>
+<li><strong>库文件链接</strong>：链接器还需要为程序链接不同的库文件，包括系统库和用户库。这些库文件可能是静态库或者动态库。<ul>
+<li>如果是静态库，链接器会从库文件中提取目标代码并将其与目标文件合并成一个可执行文件。</li>
+<li>如果是动态库，则需要在运行时动态加载库文件，并将其链接到应用程序中。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="符号和符号表"><a href="#符号和符号表" class="headerlink" title="符号和符号表"></a>符号和符号表</h3><p>见 Linux Executable file: Structure &amp; Running</p>
+<h3 id="符号解析"><a href="#符号解析" class="headerlink" title="符号解析"></a>符号解析</h3><ul>
+<li>局部变量<ul>
+<li>编译器只允许每个模块中每个局部符号有一个定义。同时确保它们拥有唯一的名字。</li>
+</ul>
+</li>
+<li>全局变量<ul>
+<li>缺失情况：当编译器遇到一个不是在当前模块中定义的符号（变量或函数名）时，会假设该符号是在其他某个模块中定义的，生成一个链接器符号表条目，并把它交给链接器处理。如果链接器在它的任何输入模块中都找不到这个被引用符号的定义，就输出<code>undefined reference to</code></li>
+<li>同名情况：编译器报错或者选择一个，<ul>
+<li>函数和已初始化的全局变量是强符号，</li>
+<li>未初始化的全局变量是弱符号。</li>
+</ul>
+</li>
+<li>选择规则：<ul>
+<li>规则 1：不允许有多个同名的强符号。</li>
+<li>规则 2：如果有一个强符号和多个弱符号同名，那么选择强符号。</li>
+<li>规则 3：如果有多个弱符号同名，那么从这些弱符号中任意选择一个。</li>
+<li>规则 2 和规则 3 的应用会造成一些不易察觉的运行时错误，对于不警觉的程序员来说，是很难理解的，尤其是如果重复的符号定义还有不同的类型时。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="重定位"><a href="#重定位" class="headerlink" title="重定位"></a>重定位</h3><p>一旦链接器完成了符号解析这一步，就把代码中的每个符号引用和正好一个符号定义（即它的一个输入目标模块中的一个符号表条目）关联起来。此时，链接器就知道它的输入目标模块中的<strong>代码节和数据节</strong>的确切大小。现在就可以开始重定位步骤了，在这个步骤中，将合并输入模块，并为每个符号分配运行时地址。重定位由两步组成：</p>
+<ul>
+<li><strong>重定位节和符号定义</strong>。<ul>
+<li>在这一步中，链接器将所有相同类型的节合并为同一类型的新的聚合节。<ul>
+<li>例如，来自所有输入模块的<code>.data</code> 节被全部合并成一个节，这个节成为输出的可执行目标文件的<code>.data</code> 节。</li>
+<li>然后，链接器将<strong>运行时内存地址</strong>赋给新的聚合节，赋给输入模块定义的每个节，以及赋给输入模块定义的每个符号。</li>
+<li>当这一步完成时，程序中的每条指令和全局变量都有唯一的运行时内存地址了。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>重定位节中的符号引用</strong>。<ul>
+<li>在这一步中，链接器修改代码节和数据节中对每个符号的引用，使得它们指向正确的运行时地址。</li>
+<li>要执行这一步，链接器依赖于可重定位目标模块中称为重定位条目（relocation entry）的数据结构，我们接下来将会描述这种数据结构。</li>
+</ul>
+</li>
+</ul>
+<h4 id="重定位条目"><a href="#重定位条目" class="headerlink" title="重定位条目"></a>重定位条目</h4><p>当汇编器生成一个目标模块时，它并不知道数据和代码最终将放在内存中的什么位置。它也不知道这个模块引用的任何外部定义的函数或者全局变量的位置。所以，无论何时汇编器遇到对最终位置未知的目标引用，它就会生成一个重定位条目，告诉链接器在将目标文件合并成可执行文件时如何修改这个引用。</p>
+<p>代码的重定位条目放在 <code>.rel.text</code> 中。已初始化数据的重定位条目放在 <code>.rel.data</code> 中。</p>
+<p>下面 展示了 ELF 重定位条目的格式。</p>
+<ol>
+<li>offset 是需要被修改的引用的节偏移。</li>
+<li>symbol 标识被修改引用应该指向的符号。</li>
+<li>type 告知链接器如何修改新的引用。<ol>
+<li>ELF 定义了 32 种不同的重定位类型，有些相当隐秘。我们只关心其中两种最基本的重定位类型：<ol>
+<li><code>R_X86_64_PC32</code>。重定位一个使用 32 位 PC 相对地址的引用。回想一下 3.6.3 节，一个 PC 相对地址就是距程序计数器（PC）的当前运行时值的偏移量。当 CPU 执行一条使用 PC 相对寻址的指令时，它就将在指令中编码的 32 位值加上 PC 的当前运行时值，得到有效地址（如 call 指令的目标），PC 值通常是下一条指令在内存中的地址。(将 PC 压入栈中来使用)</li>
+<li><code>R_X86_64_32</code>。重定位一个使用 32 位绝对地址的引用。通过绝对寻址，CPU 直接使用在指令中编码的 32 位值作为有效地址，不需要进一步修改。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>addend 是一个有符号常数，一些类型的重定位要使用它对被修改引用的值做偏移调整。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">long</span> offset;    <span class="comment">/* Offset of the reference to relocate */</span></span><br><span class="line">    <span class="type">long</span> type:<span class="number">32</span>,   <span class="comment">/* Relocation type */</span></span><br><span class="line">         symbol:<span class="number">32</span>; <span class="comment">/* Symbol table index */</span></span><br><span class="line">    <span class="type">long</span> addend;    <span class="comment">/* Constant part of relocation expression */</span></span><br><span class="line">&#125; Elf64_Rela;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="目标文件与库的位置"><a href="#目标文件与库的位置" class="headerlink" title="目标文件与库的位置"></a>目标文件与库的位置</h3><p><img src="https://pic.shaojiemike.top/img/20211214150609.png"><br><img src="https://pic.shaojiemike.top/img/20211214150641.png"><br><img src="https://pic.shaojiemike.top/img/20211213234151.png"></p>
+<h2 id="4-1-静态链接"><a href="#4-1-静态链接" class="headerlink" title="4.1 静态链接"></a>4.1 静态链接</h2><p><strong>静态库static library</strong>就是将相关的目标模块打包形成的单独的文件。使用ar命令。</p>
+<ul>
+<li>在Linux系统中，静态库以一种称为存档(archive)的特殊文件格式存放在磁盘中。</li>
+<li>存档文件是一组连接起来的可重定位目标文件的集合，有一个头部用来描述每个成员目标文件的大小和位置。</li>
+<li>存档文件名由后缀.a标识。</li>
+</ul>
+<h3 id="优点与问题"><a href="#优点与问题" class="headerlink" title="优点与问题"></a>优点与问题</h3><p>静态库的优点在于：</p>
+<ul>
+<li>程序员不需要显式的指定所有需要链接的目标模块，因为指定是一个耗时且容易出错的过程；</li>
+<li>链接时，连接程序只从静态库中拷贝被程序引用的目标模块，这样就减小了可执行文件在磁盘和内存中的大小。</li>
+</ul>
+<p>问题：</p>
+<ul>
+<li>几乎所有程序都需要printf这样的库函数，每个可执行文件都包含该模块的代码段和数据段，浪费磁盘空间。</li>
+<li>linux采用虚拟内存管理内存分配，每个进程的内存空间是独立的，运行时所有程序都要把这些库函数代码段和数据段加载到自己的内存里，浪费内存。</li>
+<li>静态库和所有的软件一样，需要定期维护和更新。如果应用程序员想要使用一个库的最新版本，他们必须以某种方式了解到该库的更新情况，然后显式地将他们的程序与更新了的库重新链接。</li>
+</ul>
+<h3 id="静态链接过程"><a href="#静态链接过程" class="headerlink" title="静态链接过程"></a>静态链接过程</h3><p>深入理解计算机系统P477,静态库例子</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -static -o prog2c main2.o -L. -lvector</span><br></pre></td></tr></table></figure>
+
+<p>图 7-8 概括了链接器的行为。<code>-static</code> 参数告诉编译器驱动程序，链接器应该构建一个完全链接的可执行目标文件，它可以加载到内存并运行，在加载时无须更进一步的链接。<code>-lvector</code> 参数是 <code>libvector.a</code> 的缩写，-L. 参数告诉链接器在当前目录下查找 libvector.a。</p>
+<p><img src="https://1087580735-files.gitbook.io/~/files/v0/b/gitbook-legacy-files/o/assets%2F-MHt_spaxGgCbp2POnfq%2F-MI8p7rbEV-s_nV5Ru6X%2F-MI8pkPoBiVWj0eMXoIA%2F07-08%20%E4%B8%8E%E9%9D%99%E6%80%81%E5%BA%93%E9%93%BE%E6%8E%A5.png?alt=media&token=fcb51f44-d9fc-4e95-8889-4888b9f920ae"></p>
+<!-- ![](https://pic.shaojiemike.top/img/20211213233758.png) -->
+
+<ul>
+<li>当链接器运行时，它判定 main2.o 引用了 addvec.o 定义的 addvec 符号，所以复制 addvec.o 到可执行文件。</li>
+<li>因为程序不引用任何由 multvec.o 定义的符号，所以链接器就不会复制这个模块到可执行文件。</li>
+<li>链接器还会复制 libc.a 中的 printf.o 模块，以及许多 C 运行时系统中的其他模块。</li>
+</ul>
+<h2 id="4-2-动态链接"><a href="#4-2-动态链接" class="headerlink" title="4.2 动态链接"></a>4.2 动态链接</h2><ul>
+<li>共享库（shared library）是致力于解决静态库缺陷的一个现代创新产物。共享库是一个目标模块，在运行或加载时，可以加载到任意的内存地址，并和一个在内存中的程序链接起来。<ul>
+<li>共享库也称为共享目标（shared object），在 Linux 系统中通常用 .so 后缀来表示。微软的操作系统大量地使用了共享库，它们称为 DLL（动态链接库）。</li>
+</ul>
+</li>
+<li>这个过程称为动态链接（dynamic linking），是由一个叫做动态链接器（dynamic linker）的程序来执行的。</li>
+</ul>
+<p>共享库是以两种不同的方式来“共享”的：</p>
+<ul>
+<li>首先，在任何给定的文件系统中，对于一个库只有一个. so 文件。所有引用该库的可执行目标文件共享这个 .so 文件中的代码和数据，而不是像静态库的内容那样被复制和嵌入到引用它们的可执行的文件中。</li>
+<li>其次，在内存中，一个共享库的 .text 节的一个副本可以被不同的正在运行的进程共享</li>
+</ul>
+<p><img src="https://1087580735-files.gitbook.io/~/files/v0/b/gitbook-legacy-files/o/assets%2F-MHt_spaxGgCbp2POnfq%2F-MI8qpMNa8rVv2h1gw56%2F-MI8r4myxZNQCTrFzKsH%2F07-16%20%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%85%B1%E4%BA%AB%E5%BA%93.png?alt=media&token=0901e781-87bf-4e4f-b1f9-31ca05c51f7c" alt="ld-link"></p>
+<!-- ![](https://pic.shaojiemike.top/img/20220106154610.png)
+![](https://pic.shaojiemike.top/img/20220106154641.png)
+![](https://pic.shaojiemike.top/img/20220106154652.png) -->
+<!-- ![](https://pic.shaojiemike.top/img/20220106161412.png) -->
+
+<p>如上创建了一个可执行目标文件 prog2l，而此文件的形式使得它在运行时可以和 libvector.so 链接。基本的思路是：</p>
+<ul>
+<li>当创建可执行文件时，静态执行一些链接<ul>
+<li>此时，没有任何 libvector.so 的代码和数据节真的被复制到可执行文件 prog2l 中。反之，链接器复制了一些重定位和符号表信息，它们使得运行时可以解析对 libvector.so 中代码和数据的引用。</li>
+</ul>
+</li>
+<li>然后在程序加载时，动态完成链接过程。<ul>
+<li>动态链接可以在可执行文件第一次加载和运行时发生（加载时链接）<ul>
+<li>Common case for Linux,handled automatically by the dynamic linker (ld-linux.so).</li>
+<li>Standard C library (libc.so)usually dynamically linked.</li>
+</ul>
+</li>
+<li>动态链接也可以在程序开始运行后发生（运行时链接）.<ul>
+<li>In Linux,this is done by calls to the <code>dlopen()</code> <a target="_blank" rel="noopener" href="https://hansimov.gitbook.io/csapp/part2/ch07-linking/7.11-loading-and-linking-shared-libraries-from-applications">interface.</a><ul>
+<li>Distributing software.</li>
+<li>High-performance web servers.</li>
+<li>Runtime library interpositioning.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="加载情况一"><a href="#加载情况一" class="headerlink" title="加载情况一"></a>加载情况一</h3><p>情况：在应用程序被加载后执行前时，动态链接器加载和链接共享库的情景。</p>
+<p>核心思想：由动态链接器接管，加载管理和关闭共享库（比如，如果没有其他共享库还在使用这个共享库，dlclose函数就卸载该共享库。）。</p>
+<ol>
+<li>首先，加载部分链接的可执行文件 prog2l。</li>
+<li>prog2l 包含一个 <code>.interp</code> 节，这一节包含动态链接器的路径名，动态链接器本身就是一个共享目标（如在 Linux 系统上的 ld-linux.so）. 加载器不会像它通常所做地那样将控制传递给应用，而是加载和运行这个动态链接器。然后，动态链接器通过执行下面的重定位完成链接任务：<ol>
+<li>重定位 libc.so 的文本和数据到某个内存段。</li>
+<li>重定位 libvector.so 的文本和数据到另一个内存段。</li>
+<li>重定位 prog2l 中所有对由 libc.so 和 libvector.so 定义的符号的引用。</li>
+</ol>
+</li>
+</ol>
+<p>最后，动态链接器将控制传递给应用程序。从这个时刻开始，共享库的位置就固定了，并且在程序执行的过程中都不会改变。</p>
+<h3 id="加载情况二"><a href="#加载情况二" class="headerlink" title="加载情况二"></a>加载情况二</h3><p>情况：应用程序在运行时要求动态链接器加载和链接某个共享库，而无需在编译时将那些库链接到应用。</p>
+<p>实际应用情况：</p>
+<ul>
+<li>分发软件。微软 Wmdows 应用的开发者常常利用共享库来分发软件更新。他们生成一个共库的新版本，然后用户可以下载，并用它替代当前的版本。下一次他们运行应用程序时，应用将自动链接和加载新的共享库。</li>
+<li>构建高性能 Web 服务器。<ul>
+<li>许多 Web 服务器生成动态内容，比如个性化的 Web 页面、账户余额和广告标语</li>
+<li>早期的 Web 服务器通过使用 fork 和 execve 创建一个子进程，并在该子进程的上下文中运行 CGI 程序来生成动态内容。</li>
+<li>然而，现代高性能的 Web 服务器可以使用基于动态链接的更有效和完善的方法来生成动态内容。</li>
+</ul>
+</li>
+</ul>
+<p>思路是将每个生成动态内容的函数打包在共享库中。</p>
+<ol>
+<li>当一个来自 Web 浏览器的请求到达时，服务器动态地加载和链接适当的函数，然后直接调用它，而不是使用 fork 和 execve 在子进程的上下文中运行函数。</li>
+<li>函数会一直缓存在服务器的地址空间中，所以只要一个简单的函数调用的开销就可以处理随后的请求了。这对一个繁忙的网站来说是有很大影响的。更进一步地说，在运行时无需停止服务器，就可以更新已存在的函数，以及添加新的函数。</li>
+</ol>
+<h3 id="动态库的优点"><a href="#动态库的优点" class="headerlink" title="动态库的优点"></a>动态库的优点</h3><ul>
+<li>更新动态库，无需重新链接；对于大系统，重新链接是一个非常耗时的过程；</li>
+<li>运行中可供多个程序使用，内存中只需要有一份，节省内存。运行时一个共享库的代码段和数据段在物理内存中只有一份，但映射到多个虚拟内存片段上，供不同程序使用。其中代码段是只读的，整个操作系统绝对只有一份。但数据段有可能被修改，在修改的时候则会复制一个副本，每个进程有自己的一个内存副本。</li>
+<li>共享库是.so文件，不会和我们自己的代码一起合并成可执行文件，不占磁盘空间。</li>
+</ul>
+<h2 id="动态链接"><a href="#动态链接" class="headerlink" title="动态链接"></a>动态链接</h2><h2 id="fPIC，fPIE"><a href="#fPIC，fPIE" class="headerlink" title="fPIC，fPIE"></a>fPIC，fPIE</h2><p>编译器<code>yasm</code>的参数<code>-DPIE</code></p>
+<p>如果同一份代码可能被加载到进程空间的任意虚拟地址上执行(如共享库和动态加载代码),那么就需要使用-fPIC生成位置无关代码。</p>
+<h3 id="如何实现动态链接"><a href="#如何实现动态链接" class="headerlink" title="如何实现动态链接"></a>如何实现动态链接</h3><ol>
+<li>共享库是.so文件，不会和我们自己的代码一起合并成可执行文件，不占磁盘空间。</li>
+<li>运行时一个共享库的代码段和数据段在物理内存中只有一份，但映射到多个虚拟内存片段上，供不同程序使用。<ol>
+<li>其中代码段是只读的，整个操作系统绝对只有一份。</li>
+<li>但数据段有可能被修改，在修改的时候则会复制一个副本，每个进程有自己的一个内存副本。</li>
+</ol>
+</li>
+<li>共享库的代码段和数据段加载到任意的内存段中，位置不固定。</li>
+<li>加载完成后，进行符号重定位。回想一下之前说过的重定位过程，需要修改所有符号引用的地址。<ol>
+<li>由于动态链接在运行时才确定共享库代码段和数据段的内存地址，所以在运行时才能进行重定位。</li>
+<li>运行时修改代码，想想就觉得不优雅。而且Linux不允许在运行时修改代码段。</li>
+</ol>
+</li>
+<li>由此，要完成动态链接，还需要引入了最后一个重要的概念，位置无关代码，即在加载时无需重定位的代码。</li>
+</ol>
+<h2 id="位置无关代码（Position-Independent-Code-PIC）"><a href="#位置无关代码（Position-Independent-Code-PIC）" class="headerlink" title="位置无关代码（Position-Independent Code, PIC）"></a>位置无关代码（Position-Independent Code, PIC）</h2><ul>
+<li><p>问题：多个进程是如何共享程序的一个副本的呢？</p>
+<ul>
+<li>一种方法是给每个共享库分配一个事先预备的专用的(虚拟)地址空间片，然后要求加载器总是在这个地址加载共享库。</li>
+<li>问题。<ul>
+<li>地址空间的使用效率不高，因为即使一个进程不使用这个库，那部分空间还是会被分配出来。</li>
+<li>难以管理。我们必须保证没有片会重叠。<ul>
+<li>库修改了之后，我们必须确认已分配给它的片还适合它的大小。如果不适合了，必须找一个新的片。</li>
+<li>创建了一个新的库，我们还必须为它寻找空间。随着时间的进展，假设在一个系统中有了成百个库和库的各个版本库，就很难避免地址空间分裂成大量小的、未使用而又不再能使用的小洞。</li>
+<li>更糟的是，对每个系统而言，库在内存中的分配都是不同的，这就引起了更多令人头痛的管理问题。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>可以加载而无需重定位的代码称为位置无关代码（Position-Independent Code，PIC）</p>
+<ul>
+<li>无限多个进程可以共享一个共享模块的代码段的单一副本。（当然，每个进程仍然会有它自己的读&#x2F;写数据块。）</li>
+</ul>
+</li>
+<li><p>在一个 x86-64 系统中，对同一个目标模块中<strong>符号的引用</strong>是不需要特殊处理使之成为 PIC。可以用 PC 相对寻址来编译这些引用，构造目标文件时由静态链接器重定位。</p>
+</li>
+<li><p>然而，对共享模块定义的<strong>外部过程</strong>和对<strong>全局变量的引用</strong>需要一些特殊的技巧，接下来我们会谈到。</p>
+</li>
+</ul>
+<h3 id="PIC-数据引用"><a href="#PIC-数据引用" class="headerlink" title="PIC 数据引用"></a>PIC 数据引用</h3><ul>
+<li>目标：生成对全局变量的 PIC 引用</li>
+<li>思想：无论我们在内存中的何处加载一个目标模块（包括共享目标模块），数据段与代码段的距离总是保持不变。因此，代码段中任何指令和数据段中任何变量之间的距离都是一个运行时常量，与代码段和数据段的绝对内存位置是无关的。由于数据段是可以在运行时修改的，所以可以把对代码段的修改转化为对数据段的修改。</li>
+<li>实现：在数据段前面加入一个数据结构，全局偏移量表（Global Offset Table，GOT）。每一个被该模块引用的全局数据目标（过程或全局变量），都在GOT里有一个8字节条目，并为每个条目生成一个重定位条目。</li>
+<li>实际使用：在加载时，动态链接器会重定位 GOT 中的每个条目，使得它包含目标的正确的绝对地址。然后程序执行时就能正确访问正确的绝对地址了。</li>
+</ul>
+<h3 id="PIC-函数调用"><a href="#PIC-函数调用" class="headerlink" title="PIC 函数调用"></a>PIC 函数调用</h3><ul>
+<li>情况：假设程序调用一个由共享库定义的函数。编译器没有办法预测这个函数的运行时地址，因为定义它的共享模块在运行时可以加载到任意位置。</li>
+<li>简单方法：为该引用生成一条重定位记录，然后动态链接器在程序加载的时候再解析它。不过，这种方法并不是 PIC，因为它需要链接器修改调用模块的代码段。</li>
+</ul>
+<p>解决方法：延迟绑定（lazy binding），将过程地址的绑定推迟到第一次调用该过程时。</p>
+<p>动机：使用延迟绑定的动机是对于一个像 libc.so 这样的共享库输出的成百上千个函数中，一个典型的应用程序只会使用其中很少的一部分。把函数地址的解析推迟到它实际被调用的地方，能避免动态链接器在加载时进行成百上千个其实并不需要的重定位。</p>
+<p>结果：第一次调用过程的运行时开销很大，但是其后的每次调用都只会花费一条指令和一个间接的内存引用。</p>
+<p>实现：延迟绑定是通过两个数据结构之间简洁但又有些复杂的交互来实现的，这两个数据结构是：GOT 和过程链接表（Procedure Linkage Table，PLT）。如果一个目标模块调用定义在共享库中的任何函数，那么它就有自己的 GOT 和 PLT。GOT 是数据段的一部分，而 PLT 是代码段的一部分。</p>
+<p>首先，让我们介绍这两个表的内容。</p>
+<ul>
+<li>过程链接表（PLT）。PLT 是一个数组，其中每个条目是 16 字节代码。<ul>
+<li><code>PLT[0]</code> 是一个特殊条目，它跳转到动态链接器中。</li>
+<li>每个被可执行程序调用的库函数都有它自己的 PLT 条目。每个条目都负责调用一个具体的函数。</li>
+<li><code>PLT[1]</code>（图中未显示）调用系统启动函数（<code>__libc_start_main</code>），它初始化执行环境，调用 main 函数并处理其返回值从 PLT[2] 开始的条目调用用户代码调用的函数。在我们的例子中，PLT[2] 调用 addvec，PLT[3]（图中未显示）调用 printf。</li>
+</ul>
+</li>
+<li>全局偏移量表（GOT）。正如我们看到的，GOT 是一个数组，其中每个条目是 8 字节地址。<ul>
+<li>和 PLT 联合使用时，GOT[O] 和 GOT[1] 包含动态链接器在解析函数地址时会使用的信息。GOT[2] 是动态链接器在 ld-linux.so 模块中的入口点。</li>
+<li>其余的每个条目对应于一个被调用的函数，其地址需要在运行时被解析。每个条目都有一个相匹配的 PLT 条目。例如，GOT[4] 和 PLT[2] 对应于 addvec。初始时，每个 GOT 条目都指向对应 PLT 条目的第二条指令。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://1087580735-files.gitbook.io/~/files/v0/b/gitbook-legacy-files/o/assets%2F-MHt_spaxGgCbp2POnfq%2F-MI8rhjF1mF76R_jsq8k%2F-MI8rvz0lzamUy-llAv6%2F07-19%20%E7%94%A8PLT%E5%92%8CGOT%E8%B0%83%E7%94%A8%E5%A4%96%E9%83%A8%E5%87%BD%E6%95%B0.png?alt=media&token=df2fe32e-88f9-4bfd-b4ed-9de49f30fe2a" alt="PLT"></p>
+<p>上图a 展示了 GOT 和 PLT 如何协同工作，在 addvec 被第一次调用时，延迟解析它的运行时地址：</p>
+<ol>
+<li>第 1 步。不直接调用 addvec，程序调用进入 PLT[2]，这是 addvec 的 PLT 条目。</li>
+<li>第 2 步。第一条 PLT 指令通过 GOT[4] 进行间接跳转。因为每个 GOT 条目初始时都指向它对应的 PLT 条目的第二条指令，这个间接跳转只是简单地把控制传送回 PLT[2] 中的下一条指令。</li>
+<li>第 3 步。在把 addvec 的 ID（0x1）压入栈中之后，PLT[2] 跳转到 PLT[0]。</li>
+<li>第 4 步。PLT[0] 通过 GOT[1] 间接地把动态链接器的一个参数压入栈中，然后通过 GOT[2] 间接跳转进动态链接器中。动态链接器使用两个栈条目来确定 addvec 的运行时位置，用这个地址重写 GOT[4]，再把控制传递给 addvec。</li>
+</ol>
+<p>上图b 给出的是后续再调用 addvec 时的控制流：</p>
+<ol>
+<li>第 1 步。和前面一样，控制传递到 PLT[2]。</li>
+<li>第 2 步。不过这次通过 GOT[4] 的间接跳转会将控制直接转移到 addvec。</li>
+</ol>
+<h4 id="库搜索优先级"><a href="#库搜索优先级" class="headerlink" title="库搜索优先级"></a>库搜索优先级</h4><p>静态库</p>
+<ol>
+<li>gcc先从-L寻找；</li>
+<li>再找环境变量LIBRARY_PATH指定的搜索路径；</li>
+<li>再找内定目录 &#x2F;lib &#x2F;usr&#x2F;lib &#x2F;usr&#x2F;local&#x2F;lib 这是当初compile gcc时写在程序内的。</li>
+</ol>
+<p>动态库</p>
+<ol>
+<li>编译目标代码时指定的动态库搜索路径-L；</li>
+<li>环境变量LD_LIBRARY_PATH指定的动态库搜索路径；</li>
+<li>配置文件&#x2F;etc&#x2F;ld.so.conf中指定的动态库搜索路径；</li>
+<li>默认的动态库搜索路径&#x2F;lib &#x2F;usr&#x2F;lib&#x2F; &#x2F;usr&#x2F;local&#x2F;lib</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">shaojiemike@snode6 /lib/modules/5.4.0-107-generic/build  [06:32:26]</span><br><span class="line">&gt; gcc -print-search-dirs</span><br><span class="line">install: /usr/lib/gcc/x86_64-linux-gnu/9/</span><br><span class="line">programs: =/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/bin/</span><br><span class="line">libraries: =/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib/:/lib/x86_64-linux-gnu/9/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/9/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/lib/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../:/lib/:/usr/lib/</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-加载器"><a href="#5-加载器" class="headerlink" title="5. 加载器"></a>5. 加载器</h2><p>加载器：将可执行程序加载到内存并进行执行，loader和ld-linux.so。</p>
+<p>将可执行文件加载运行</p>
+<h2 id="其他技巧：GNU用于理解和处理目标文件的相关命令"><a href="#其他技巧：GNU用于理解和处理目标文件的相关命令" class="headerlink" title="其他技巧：GNU用于理解和处理目标文件的相关命令"></a>其他技巧：GNU用于理解和处理目标文件的相关命令</h2><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ar</td>
+<td>创建静态库，插入、删除、列出和提取成员；</td>
+</tr>
+<tr>
+<td>stringd</td>
+<td>列出目标文件中所有可以打印的字符串；</td>
+</tr>
+<tr>
+<td>strip</td>
+<td>从目标文件中删除符号表信息；</td>
+</tr>
+<tr>
+<td><strong>nm</strong></td>
+<td>列出目标文件符号表中定义的符号；</td>
+</tr>
+<tr>
+<td>size</td>
+<td>列出目标文件中节的名字和大小；</td>
+</tr>
+<tr>
+<td><strong>readelf</strong></td>
+<td>显示一个目标文件的完整结构，包括ELF 头中编码的所有信息。</td>
+</tr>
+<tr>
+<td>objdump</td>
+<td>显示目标文件的所有信息，最有用的功能是反汇编.text节中的二进制指令。</td>
+</tr>
+<tr>
+<td><strong>ldd</strong></td>
+<td>列出可执行文件在运行时需要的共享库。</td>
+</tr>
+</tbody></table>
+<h2 id="动态查看进程调用命令"><a href="#动态查看进程调用命令" class="headerlink" title="动态查看进程调用命令"></a>动态查看进程调用命令</h2><p>ltrace 跟踪进程调用库函数过程<br>strace 系统调用的追踪或信号产生的情况<br>Relyze 图形化收费试用</p>
+<h2 id="debugging-symbols"><a href="#debugging-symbols" class="headerlink" title="debugging symbols"></a>debugging symbols</h2><ul>
+<li>编译时加入<code>-g</code>选项，可以生成调试信息，这样在gdb中可以查看源代码。</li>
+<li>但是在复杂的编译过程中，最后可执行文件丢失了debugging symbols，所以研究一下怎么生成debugging symbols， 编译过程中的传递，以及如何查看。</li>
+</ul>
+<h3 id="debugging-symbols的内容"><a href="#debugging-symbols的内容" class="headerlink" title="debugging symbols的内容"></a>debugging symbols的内容</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">objdump -g &lt;archive_file&gt;.a</span><br><span class="line"><span class="comment"># 如果.o文件有debugging symbols，会输出各section详细信息</span></span><br><span class="line">Contents of the .debug_aranges section (loaded from predict-c.o):</span><br><span class="line"><span class="comment"># 没有则如下</span></span><br><span class="line">cabac-a.o:     file format elf64-x86-64</span><br><span class="line"></span><br><span class="line">dct-a.o:     file format elf64-x86-64</span><br><span class="line"></span><br><span class="line">deblock-a.o:     file format elf64-x86-64</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="生成debugging-symbols"><a href="#生成debugging-symbols" class="headerlink" title="生成debugging symbols"></a>生成debugging symbols</h3><ul>
+<li>预处理过程<ul>
+<li>应该会保留debugging symbols所需的信息，在实验后发现，执行<code>gcc -E -g testBigExe.cpp -o testDebug.i</code>相对于无<code>-g</code>的命令，只会多一行信息<code># 1 &quot;/staff/shaojiemike/test/OS//&quot;</code></li>
+</ul>
+</li>
+<li>编译过程<ul>
+<li>执行<code>gcc -S -g testBigExe.cpp -o testDebug.s</code>，对比之前的汇编文件，由72行变成9760行。具体解析参考 GNU assembly file一文</li>
+<li><img src="https://pic.shaojiemike.top/img/20230521195333.png" alt="-g前后"></li>
+</ul>
+</li>
+<li>汇编过程：保留了debug信息的汇编代码生成带debug信息的目标文件<br><img src="https://pic.shaojiemike.top/img/20230521201900.png"></li>
+<li>链接(Linker)</li>
+</ul>
+<h2 id="编译代码中OpenMP实现"><a href="#编译代码中OpenMP实现" class="headerlink" title="编译代码中OpenMP实现"></a>编译代码中OpenMP实现</h2><p>简单的<code>#pragma omp for</code>，编译后多出汇编代码如下。当前可以创建多少个线程默认汇编并没有显示的汇编指令。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">call omp_get_num_threads@PLT</span><br><span class="line">movl %eax, %ebx</span><br><span class="line">call omp_get_thread_num@PLT</span><br><span class="line">movl %eax, %ecx</span><br><span class="line"></span><br><span class="line">call	GOMP_barrier@PLT</span><br></pre></td></tr></table></figure>
+
+<p>某些atomic的导语会变成<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/12366806/assembly-instruction-to-replace-openmp-critical-region">对应汇编</a></p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><ul>
+<li>chatGPT说：后端阶段（例如汇编器和连接器），则主要是对汇编代码和目标代码进行优化，例如指令调度、地址计算、代码缩减等。但是我持严重怀疑态度, 链接过程有这么多优化吗？</li>
+</ul>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><p>基础不牢，地动山摇。ya 了。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/LiuYanYGZ/p/5574601.html">https://www.cnblogs.com/LiuYanYGZ/p/5574601.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://hansimov.gitbook.io/csapp/part2/ch07-linking/7.5-symbols-and-symbol-tables">https://hansimov.gitbook.io/csapp/part2/ch07-linking/7.5-symbols-and-symbol-tables</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-10-10T16:00:00.000Z" title="10/10/2023, 4:00:00 PM">2023-10-10</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-11T13:23:27.576Z" title="11/11/2023, 1:23:27 PM">2023-11-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">3 minutes read (About 408 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/10/10/Work/Programming/3-options/gccCompilerPreprocessorOption/">GCC Compiler Option 2 : Preprocessor Options</a></p><div class="content"><h2 id="Mxxx"><a href="#Mxxx" class="headerlink" title="-Mxxx"></a>-Mxxx</h2><ul>
+<li><code>-M</code> option is designed for auto-generate <strong>Makefile rules</strong> from g++ command.</li>
+<li>默认包含<code>-E</code> option to STOP after preprocessor during the compilation</li>
+<li>默认包含<code>-w</code> option to DISABLE&#x2F;suppress all warnings.</li>
+</ul>
+<p>Using a complex g++ command as an example:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">g++ -Wall -Werror -Wno-unknown-pragmas -DPIN_CRT=1 -fno-stack-protector -fno-exceptions -funwind-tables -fasynchronous-unwind-tables -fno-rtti -DTARGET_IA32E -DHOST_IA32E -fPIC -DTARGET_LINUX -fabi-version=2 -faligned-new -I../../../source/include/pin -I../../../source/include/pin/gen -isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/cxx/include -isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include -isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/arch-x86_64 -isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/kernel/uapi -isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/kernel/uapi/asm-x86 -I../../../extras/components/include -I../../../extras/xed-intel64/include/xed -I../../../source/tools/Utils -I../../../source/tools/InstLib -O3 -fomit-frame-pointer -fno-strict-aliasing -Wno-dangling-pointer </span><br><span class="line">-M inscount0.cpp -o Makefile_bk</span><br></pre></td></tr></table></figure>
+
+<p>In <code>Makefile_bk</code></p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">inscount0.o: inscount0.cpp \</span></span><br><span class="line"> <span class="comment"># sys header</span></span><br><span class="line"> /usr/<span class="keyword">include</span>/stdc-predef.h \</span><br><span class="line"> /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/cxx/<span class="keyword">include</span>/iostream \</span><br><span class="line"> /usr/lib/gcc/x86_64-linux-gnu/11/<span class="keyword">include</span>/float.h</span><br><span class="line"> <span class="comment"># usr header</span></span><br><span class="line"> ../../../source/<span class="keyword">include</span>/pin/pin.H \</span><br><span class="line"> ../../../extras/xed-intel64/<span class="keyword">include</span>/xed/xed-interface.h \</span><br><span class="line"> ... more header files</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>-MM</code> not include sys header file<ul>
+<li>e.g., the first 3 header will be disapear.</li>
+</ul>
+</li>
+<li><code>-MF filename</code> config the Makefile rules write to which file instead of to stdout.</li>
+<li><code>-M -MG</code> is designed to generate Makefile rules when there is header file <strong>missing</strong>, treated it as generated in normal.</li>
+<li><code>-M -MP</code> will generated M-rules for dependency between header files<ul>
+<li>e.g., <code>header1.h</code> includes <code>header2.h</code>. So <code>header1.h: header2.h</code> in Makefile</li>
+</ul>
+</li>
+<li><code>-MD</code> &#x3D;&#x3D; <code>-M -MF file</code> without default option <code>-E</code><ul>
+<li>the default <code>file</code> has a suffix of <code>.d</code>, e.g., <code>inscount0.d</code> for <code>-c inscount0.cpp</code></li>
+</ul>
+</li>
+<li><code>-MMD</code> &#x3D;&#x3D; <code>-MD</code> not include sys header file</li>
+</ul>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-15T12:35:22.000Z" title="8/15/2022, 12:35:22 PM">2022-08-15</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-11T13:23:27.576Z" title="11/11/2023, 1:23:27 PM">2023-11-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">17 minutes read (About 2592 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/15/Work/Programming/2.1-Assembly/assemblyInline/">Inline Assembly</a></p><div class="content"><h2 id="GCC内联汇编"><a href="#GCC内联汇编" class="headerlink" title="GCC内联汇编"></a>GCC内联汇编</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__asm__　__volatile__(&quot;Instruction List&quot; : Output : Input : Clobber/Modify);</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><code>__asm__</code>或asm 用来声明一个内联汇编表达式，所以任何一个内联汇编表达式都是以它开头的，是必不可少的。</li>
+<li><code>__volatile__</code>或volatile 是可选的。如果用了它，则是向GCC 声明不允许对该内联汇编优化，否则当 使用了优化选项(-O)进行编译时，GCC 将会根据自己的判断决定是否将这个内联汇编表达式中的指令优化掉。</li>
+<li>Instruction List 是汇编指令序列。它可以是空的，比如：<code>__asm__ __volatile__(&quot;&quot;)</code>; 或 <code>__asm__ (&quot;&quot;)</code>;都是完全合法的内联汇编表达式，只不过这两条语句没有什么意义。<ol>
+<li>但并非所有Instruction List 为空的内联汇编表达式都是没有意义的，比如：<code>__asm__ (&quot;&quot;:::&quot;memory&quot;)</code>;就非常有意义，它向GCC 声明：“内存作了改动”，GCC 在编译的时候，会将此因素考虑进去。</li>
+<li>当在”Instruction List”中有多条指令的时候，需要用分号（；）或换行符（\n）将它们分开。</li>
+<li>指令中的操作数可以使用占位符引用C语言变量,<strong>操作数占位符</strong>最多10个,名称如下:<code>%0,%1,…,%9</code>。指令中使用占位符表示的操作数,总被视为long型(4个字节),<ol>
+<li>但对其施加的操作根据指令可以是字或者字节,当把操作数当作字或者字节使用时,<strong>默认为低字或者低字节</strong>。</li>
+<li>对字节操作可以显式的<strong>指明是低字节还是次字节</strong>。方法是在%和序号之间插入一个字母,”b”代表低字节,”h”代表高字节,例如:<code>%h1</code>。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Output&#x2F;Input <ol>
+<li>格式为形如<code>&quot;constraint&quot;(variable)</code>的列表（逗号分隔)。按照出现的顺序分别与指令操作数”%0”，”%1”对应</li>
+<li>每个输出操作数的限定字符串必须包含”&#x3D;”表示他是一个输出操作数。例子<code>&quot;=r&quot; (value)</code></li>
+</ol>
+</li>
+<li>Clobber&#x2F;Modify(由逗号格开的字符串组成)<ol>
+<li>在Input&#x2F;Output操作表达式所指定的寄存器，或当你为一些Input&#x2F;Output操作表达式使用”r”约束，让GCC为你选择一个寄存器时，GCC知道这些寄存器是被修改的，你根本不需要在Clobber&#x2F;Modify域再声明它们。</li>
+<li>但是对于”Instruction List”中的临时寄存器，需要在Clobber&#x2F;Modify域声明这些寄存器或内存，让GCC知道修改了他们<ol>
+<li>例子:<code>__asm__ (&quot;mov R0, #0x34&quot; : : : &quot;R0&quot;);</code>寄存器R0出现在”Instruction List中”，并且被mov指令修改，但却未被任何Input&#x2F;Output操作表达式指定，所以你需要在Clobber&#x2F;Modify域指定”R0”，以让GCC知道这一点。</li>
+</ol>
+</li>
+<li>Clobber&#x2F;Modify域存在”memory”，那么GCC会保证在此内联汇编之前，如果某个内存的内容被装入了寄存器，那么在这个内联汇编之后，如果需要使用这个内存处的内容，就会<strong>直接到这个内存处重新读取，而不是使用被存放在寄存器中的拷贝</strong>。因为这个 时候寄存器中的拷贝已经很可能和内存处的内容不一致了。</li>
+</ol>
+</li>
+</ol>
+<h2 id="输入输出与指令的对应关系"><a href="#输入输出与指令的对应关系" class="headerlink" title="输入输出与指令的对应关系"></a>输入输出与指令的对应关系</h2><h3 id="寄存器约束符Operation-Constraint"><a href="#寄存器约束符Operation-Constraint" class="headerlink" title="寄存器约束符Operation Constraint"></a>寄存器约束符Operation Constraint</h3><p>每一个Input和Output表达式都必须指定自己的操作约束Operation Constraint，这里将讨论在80386平台上所可能使用的操作约束。</p>
+<p>当前的输入或输出需要借助一个寄存器时，需要为其指定一个寄存器约束，可以直接指定一个寄存器的名字。</p>
+<p>常用的寄存器约束的缩写 </p>
+<table>
+<thead>
+<tr>
+<th>约束</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>r</td>
+<td>表示使用一个通用寄存器，由 GCC  在%eax&#x2F;%ax&#x2F;%al,%ebx&#x2F;%bx&#x2F;%bl,%ecx&#x2F;%cx&#x2F;%cl,%edx&#x2F;%dx&#x2F;%dl中选取一个GCC认为合适的。</td>
+</tr>
+<tr>
+<td>g</td>
+<td>表示使用任意一个寄存器，由GCC在所有的可以使用的寄存器中选取一个GCC认为合适的。</td>
+</tr>
+<tr>
+<td>q</td>
+<td>表示使用一个通用寄存器，和约束r的意义相同。</td>
+</tr>
+<tr>
+<td>a</td>
+<td>表示使用%eax&#x2F;%ax&#x2F;%al</td>
+</tr>
+<tr>
+<td>b</td>
+<td>表示使用%ebx&#x2F;%bx&#x2F;%bl</td>
+</tr>
+<tr>
+<td>c</td>
+<td>表示使用%ecx&#x2F;%cx&#x2F;%cl</td>
+</tr>
+<tr>
+<td>d</td>
+<td>表示使用%edx&#x2F;%dx&#x2F;%dl</td>
+</tr>
+<tr>
+<td>D</td>
+<td>表示使用%edi&#x2F;%di</td>
+</tr>
+<tr>
+<td>S</td>
+<td>表示使用%esi&#x2F;%si</td>
+</tr>
+<tr>
+<td>f</td>
+<td>表示使用浮点寄存器</td>
+</tr>
+<tr>
+<td>t</td>
+<td>表示使用第一个浮点寄存器</td>
+</tr>
+<tr>
+<td>u</td>
+<td>表示使用第二个浮点寄存器</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>分类</th>
+<th>限定符</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>通用寄存器</td>
+<td>“a”</td>
+<td>将输入变量放入eax 这里有一个问题:假设eax已经被使用,那怎么办?其实很简单:因为GCC 知道eax 已经被使用,它在这段汇编代码的起始处插入一条语句pushl %eax,将eax 内容保存到堆栈,然 后在这段代码结束处再增加一条语句popl %eax,恢复eax的内容</td>
+</tr>
+<tr>
+<td></td>
+<td>“b”</td>
+<td>将输入变量放入ebx</td>
+</tr>
+<tr>
+<td></td>
+<td>“c”</td>
+<td>将输入变量放入ecx</td>
+</tr>
+<tr>
+<td></td>
+<td>“d”</td>
+<td>将输入变量放入edx</td>
+</tr>
+<tr>
+<td></td>
+<td>“s”</td>
+<td>将输入变量放入esi</td>
+</tr>
+<tr>
+<td></td>
+<td>“d”</td>
+<td>将输入变量放入edi</td>
+</tr>
+<tr>
+<td></td>
+<td>“q”</td>
+<td>将输入变量放入eax,ebx,ecx,edx中的一个</td>
+</tr>
+<tr>
+<td></td>
+<td>“r”</td>
+<td>将输入变量放入通用寄存器,也就是eax,ebx,ecx,edx,esi,edi中的一个</td>
+</tr>
+<tr>
+<td></td>
+<td>“A”</td>
+<td>把eax和edx合成一个64 位的寄存器(use long longs)</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>“m”</td>
+<td>内存变量</td>
+</tr>
+<tr>
+<td></td>
+<td>“o”</td>
+<td>操作数为内存变量,但是其寻址方式是偏移量类型, 也即是基址寻址,或者是基址加变址寻址</td>
+</tr>
+<tr>
+<td></td>
+<td>“V”</td>
+<td>操作数为内存变量,但寻址方式不是偏移量类型</td>
+</tr>
+<tr>
+<td></td>
+<td>“ “</td>
+<td>操作数为内存变量,但寻址方式为自动增量</td>
+</tr>
+<tr>
+<td></td>
+<td>“p”</td>
+<td>操作数是一个合法的内存地址(指针)</td>
+</tr>
+<tr>
+<td>寄存器或内存</td>
+<td>“g”</td>
+<td>将输入变量放入eax,ebx,ecx,edx中的一个 或者作为内存变量</td>
+</tr>
+<tr>
+<td></td>
+<td>“X”</td>
+<td>操作数可以是任何类型</td>
+</tr>
+<tr>
+<td>立即数</td>
+<td>“I”</td>
+<td>0-31之间的立即数(用于32位移位指令)</td>
+</tr>
+<tr>
+<td></td>
+<td>“J”</td>
+<td>0-63之间的立即数(用于64位移位指令)</td>
+</tr>
+<tr>
+<td></td>
+<td>“N”</td>
+<td>0-255之间的立即数(用于out指令)</td>
+</tr>
+<tr>
+<td></td>
+<td>“i”</td>
+<td>立即数</td>
+</tr>
+<tr>
+<td></td>
+<td>“n”</td>
+<td>立即数,有些系统不支持除字以外的立即数, 这些系统应该使用”n”而不是”i”</td>
+</tr>
+<tr>
+<td>匹配</td>
+<td>“ 0 “,“1” …“9”</td>
+<td>,	表示用它限制的操作数与某个指定的操作数匹配,也即该操作数就是指定的那个操作数,例如”0”去描述”%1”操作数,那么”%1”引用的其实就是”%0”操作数,注意作为限定符字母的0-9 与 指令中的”%0”-“%9”的区别,前者描述操作数,后者代表操作数。</td>
+</tr>
+<tr>
+<td></td>
+<td>&amp;;</td>
+<td>该输出操作数不能使用过和输入操作数相同的寄存器</td>
+</tr>
+<tr>
+<td>操作数类型</td>
+<td>“&#x3D;”</td>
+<td>操作数在指令中是只写的(输出操作数)</td>
+</tr>
+<tr>
+<td></td>
+<td>“+”</td>
+<td>操作数在指令中是读写类型的(输入输出操作数)</td>
+</tr>
+<tr>
+<td>浮点数</td>
+<td>“f”</td>
+<td>浮点寄存器</td>
+</tr>
+<tr>
+<td></td>
+<td>“t”</td>
+<td>第一个浮点寄存器</td>
+</tr>
+<tr>
+<td></td>
+<td>“u”</td>
+<td>第二个浮点寄存器</td>
+</tr>
+<tr>
+<td></td>
+<td>“G”</td>
+<td>标准的80387浮点常数</td>
+</tr>
+<tr>
+<td></td>
+<td>%</td>
+<td>该操作数可以和下一个操作数交换位置.例如addl的两个操作数可以交换顺序 (当然两个操作数都不能是立即数)</td>
+</tr>
+<tr>
+<td></td>
+<td>#</td>
+<td>部分注释,从该字符到其后的逗号之间所有字母被忽略</td>
+</tr>
+<tr>
+<td></td>
+<td>*</td>
+<td>表示如果选用寄存器,则其后的字母被忽略</td>
+</tr>
+</tbody></table>
+<h3 id="内存约束"><a href="#内存约束" class="headerlink" title="内存约束"></a>内存约束</h3><p>如果一个Input&#x2F;Output  操作表达式的C&#x2F;C++表达式表现为一个内存地址，不想借助于任何寄存器，则可以使用内存约束。比如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">__asm__(&quot;lidt%0&quot;:&quot;=m&quot;(__idt_addr));</span><br><span class="line">__asm__(&quot;lidt%0&quot;::&quot;m&quot;(__idt_addr));</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>输入&#x2F;输出</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x3D;</td>
+<td>O</td>
+<td>表示此Output操作表达式是Write-Only的。</td>
+</tr>
+</tbody></table>
+<ul>
+<li><pre><code>           | O               |表示此Output操作表达式是Read-Write的。
+</code></pre>
+</li>
+</ul>
+<p>&amp;                | O               |表示此Output操作表达式独占为其指定的寄存器。<br>%               | I                 |表示此Input  操作表达式中的C&#x2F;C++表达式可以和下一 个Input操作表达式中的C&#x2F;C++表达式互换</p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Static __inline__ void __set_bit(int nr, volatile void * addr)</span><br><span class="line">&#123;</span><br><span class="line">         __asm__(</span><br><span class="line">                         &quot;btsl %1,%0&quot;</span><br><span class="line">                         :&quot;=m&quot; (ADDR)</span><br><span class="line">                         :&quot;Ir&quot; (nr));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第一个占位符%0与C 语言变量ADDR对应,第二个占位符%1与C语言变量nr对应。因此上面的汇编语句代码与下面的伪代码等价:btsl nr, ADDR</p>
+<h2 id="Clobber-Modify域存在”memory”的其他影响"><a href="#Clobber-Modify域存在”memory”的其他影响" class="headerlink" title="Clobber&#x2F;Modify域存在”memory”的其他影响"></a>Clobber&#x2F;Modify域存在”memory”的其他影响</h2><p>使用”memory”是向GCC声明内存发生了变化，而内存发生变化带来的影响并不止这一点。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int main(int __argc, char* __argv[]) </span><br><span class="line">&#123; </span><br><span class="line">    int* __p = (int*)__argc; </span><br><span class="line">    (*__p) = 9999; </span><br><span class="line">    __asm__(&quot;&quot;:::&quot;memory&quot;); </span><br><span class="line">    if((*__p) == 9999) </span><br><span class="line">        return 5; </span><br><span class="line">    return (*__p); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>本例中，如果没有那条内联汇编语句，那个if语句的判断条件就完全是一句废话。GCC在优化时会意识到这一点，而直接只生成return 5的汇编代码，而不会再生成if语句的相关代码，而不会生成return (*__p)的相关代码。</p>
+<p>但你加上了这条内联汇编语句，它除了声明内存变化之外，什么都没有做。</p>
+<p>但GCC此时就不能简单的认为它不需要判断都知道 (*__p)一定与9999相等，它只有老老实实生成这条if语句的汇编代码，一起相关的两个return语句相关代码。</p>
+<p>另外在linux内核中内存屏障也是基于它实现的include&#x2F;asm&#x2F;system.h中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># define barrier() _asm__volatile_(&quot;&quot;: : :&quot;memory&quot;)</span><br></pre></td></tr></table></figure>
+<p>主要是保证程序的执行遵循顺序一致性。呵呵，有的时候你写代码的顺序，不一定是终执行的顺序，这个是处理器有关的。</p>
+<h2 id="Linux-源码例子"><a href="#Linux-源码例子" class="headerlink" title="Linux 源码例子"></a>Linux 源码例子</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">static inline char * strcpy(char * dest, const char *src)</span><br><span class="line">&#123;</span><br><span class="line">	char *xdest = dest;</span><br><span class="line">	__asm__ __volatile__</span><br><span class="line">	(&quot;1: \tmoeb %1@+, %0@+\n\t&quot;   &quot;jne 1b&quot;  //这个冒号不是分隔符</span><br><span class="line">	: &quot;=a&quot; (dest) , &quot;=a&quot; (stc)</span><br><span class="line">	: &quot;0&quot;(dest), &quot;1&quot; (src)</span><br><span class="line">	 : &quot;memory&quot;);</span><br><span class="line">	return xdest;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yi412/article/details/80846083">https://blog.csdn.net/yi412/article/details/80846083</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/elnino/p/4313340.html">https://www.cnblogs.com/elnino/p/4313340.html</a></p>
+</div></article></div></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.png" alt="Your name"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Your name</p><p class="is-size-6 is-block">Your title</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Your location</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">335</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">28</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">470</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/ppoffice" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/ppoffice"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://hexo.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Hexo</span></span><span class="level-right"><span class="level-item tag">hexo.io</span></span></a></li><li><a class="level is-mobile" href="https://bulma.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Bulma</span></span><span class="level-right"><span class="level-item tag">bulma.io</span></span></a></li></ul></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OutOfWork/"><span class="level-start"><span class="level-item">OutOfWork</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">20</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/thiking/"><span class="level-start"><span class="level-item">thiking</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">46</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-11T13:23:27.588Z">2023-11-11</time></p><p class="title"><a href="/2023/11/11/Work/software/network/clash/"> </a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-11T09:55:04.000Z">2023-11-11</time></p><p class="title"><a href="/2023/11/11/OutOfWork/3-homepage/blogBuilder/hexo/">Hexo</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-11T00:19:53.000Z">2023-11-11</time></p><p class="title"><a href="/2023/11/11/OutOfWork/3-homepage/deployment/mediawiki2local/">Deploy Mediawiki to localhost</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-09T02:07:37.000Z">2023-11-09</time></p><p class="title"><a href="/2023/11/09/diary/3-EfficientLife/teamLabOrganization/">(Research) Team/Lab Organization</a></p><p class="categories"><a href="/categories/thiking/">thiking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-09T00:52:52.000Z">2023-11-09</time></p><p class="title"><a href="/2023/11/09/Work/software/visualization/exampleGraph2learn/">Graph Examples Yet to Be Explored</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">196</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/"><span class="level-start"><span class="level-item">2022</span></span><span class="level-end"><span class="level-item tag">67</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/"><span class="level-start"><span class="level-item">2021</span></span><span class="level-end"><span class="level-item tag">72</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/C/"><span class="tag">C++</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CCD/"><span class="tag">CCD</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CCX/"><span class="tag">CCX</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CISC/"><span class="tag">CISC</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CPU-Thread-Socket/"><span class="tag">CPU Thread Socket</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CV/"><span class="tag">CV</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Calling-Conventions/"><span class="tag">Calling Conventions</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Career/"><span class="tag">Career</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Cloudflare/"><span class="tag">Cloudflare</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codeforces/"><span class="tag">Codeforces</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Compiler/"><span class="tag">Compiler</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Conference/"><span class="tag">Conference</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Crawler/"><span class="tag">Crawler</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DDR/"><span class="tag">DDR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DLP/"><span class="tag">DLP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DNS/"><span class="tag">DNS</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DP/"><span class="tag">DP</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DRAM/"><span class="tag">DRAM</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DV-certificate/"><span class="tag">DV certificate</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Database/"><span class="tag">Database</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Databases/"><span class="tag">Databases</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-Learning/"><span class="tag">Deep Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deepfake/"><span class="tag">Deepfake</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed/"><span class="tag">Distributed</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dynamic-Programming/"><span class="tag">Dynamic Programming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ECC/"><span class="tag">ECC</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Echart/"><span class="tag">Echart</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ed2k/"><span class="tag">Ed2k</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Executable-file/"><span class="tag">Executable file</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/FMA/"><span class="tag">FMA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/FurtherStudy/"><span class="tag">FurtherStudy</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GCN/"><span class="tag">GCN</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GDDR6x/"><span class="tag">GDDR6x</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GIL/"><span class="tag">GIL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GLIBC/"><span class="tag">GLIBC</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GNN/"><span class="tag">GNN</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GNU/"><span class="tag">GNU</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GPT/"><span class="tag">GPT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Game/"><span class="tag">Game</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/HDMI/"><span class="tag">HDMI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/HPCAI/"><span class="tag">HPCAI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/HPL/"><span class="tag">HPL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/HPL-PL/"><span class="tag">HPL-PL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hopper/"><span class="tag">Hopper</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ILP/"><span class="tag">ILP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IP/"><span class="tag">IP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IPCC/"><span class="tag">IPCC</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Image/"><span class="tag">Image</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Jellyfin/"><span class="tag">Jellyfin</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Jupyter/"><span class="tag">Jupyter</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Komga/"><span class="tag">Komga</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Kunpeng/"><span class="tag">Kunpeng</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LDA/"><span class="tag">LDA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LeetCode/"><span class="tag">LeetCode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Leetcode/"><span class="tag">Leetcode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LegacyBugs/"><span class="tag">LegacyBugs</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linking/"><span class="tag">Linking</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Live2d/"><span class="tag">Live2d</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Lock/"><span class="tag">Lock</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCA/"><span class="tag">MCA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MILAN/"><span class="tag">MILAN</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MIPS/"><span class="tag">MIPS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MLP/"><span class="tag">MLP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MPI/"><span class="tag">MPI</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MPI-option/"><span class="tag">MPI option</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MPI-Init/"><span class="tag">MPI_Init</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Mesh-Interconnect-Architecture/"><span class="tag">Mesh Interconnect Architecture</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Micro/"><span class="tag">Micro</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Micro-Fusion/"><span class="tag">Micro-Fusion</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Micro-architecture/"><span class="tag">Micro-architecture</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Microarchitecture/"><span class="tag">Microarchitecture</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Module/"><span class="tag">Module</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Mount/"><span class="tag">Mount</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Mov-Elimination/"><span class="tag">Mov-Elimination</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NAS/"><span class="tag">NAS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NLP/"><span class="tag">NLP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NUMA/"><span class="tag">NUMA</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NV/"><span class="tag">NV</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Nas/"><span class="tag">Nas</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Nvidia/"><span class="tag">Nvidia</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/O2/"><span class="tag">O2</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/O3/"><span class="tag">O3</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OS/"><span class="tag">OS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OSS/"><span class="tag">OSS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenLDAP/"><span class="tag">OpenLDAP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenMP/"><span class="tag">OpenMP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenWRT/"><span class="tag">OpenWRT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Openssl/"><span class="tag">Openssl</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Options/"><span class="tag">Options</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OutOfOrder/"><span class="tag">OutOfOrder</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PIM/"><span class="tag">PIM</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PKI/"><span class="tag">PKI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PML/"><span class="tag">PML</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PT/"><span class="tag">PT</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PTX/"><span class="tag">PTX</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Pagerank/"><span class="tag">Pagerank</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Parallel/"><span class="tag">Parallel</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Perf/"><span class="tag">Perf</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PicBed/"><span class="tag">PicBed</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PicGo/"><span class="tag">PicGo</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Pin/"><span class="tag">Pin</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Pipeline/"><span class="tag">Pipeline</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Powershell/"><span class="tag">Powershell</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Presentation/"><span class="tag">Presentation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Probability-Theory/"><span class="tag">Probability Theory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PyG/"><span class="tag">PyG</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PyTorch/"><span class="tag">PyTorch</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Pytorch/"><span class="tag">Pytorch</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/QiNiu/"><span class="tag">QiNiu</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/RAID/"><span class="tag">RAID</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/RAW/"><span class="tag">RAW</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/RGB-Lab/"><span class="tag">RGB Lab</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/RISC/"><span class="tag">RISC</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/RISC-V/"><span class="tag">RISC-V</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ROMA/"><span class="tag">ROMA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/RTX-3090/"><span class="tag">RTX 3090</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ramulator/"><span class="tag">Ramulator</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Register-Renaming/"><span class="tag">Register-Renaming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Rust/"><span class="tag">Rust</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SASS/"><span class="tag">SASS</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SIMD/"><span class="tag">SIMD</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SLIC/"><span class="tag">SLIC</span><span class="tag">13</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SSE/"><span class="tag">SSE</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SWAP/"><span class="tag">SWAP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Server/"><span class="tag">Server</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Services/"><span class="tag">Services</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skylake/"><span class="tag">Skylake</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Slurm/"><span class="tag">Slurm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SuperPixel/"><span class="tag">SuperPixel</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Systemclt/"><span class="tag">Systemclt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Systemd/"><span class="tag">Systemd</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/TLB/"><span class="tag">TLB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/TLP/"><span class="tag">TLP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Terminal/"><span class="tag">Terminal</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Thunderbolt/"><span class="tag">Thunderbolt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Topcoder/"><span class="tag">Topcoder</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Type-C/"><span class="tag">Type-C</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ubuntu/"><span class="tag">Ubuntu</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Unreal/"><span class="tag">Unreal</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/VNC/"><span class="tag">VNC</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/VPN/"><span class="tag">VPN</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vectorization/"><span class="tag">Vectorization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Video/"><span class="tag">Video</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Virtual-memory/"><span class="tag">Virtual memory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Visualization/"><span class="tag">Visualization</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vscode/"><span class="tag">Vscode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vue/"><span class="tag">Vue</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WAR/"><span class="tag">WAR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WAW/"><span class="tag">WAW</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WLAN/"><span class="tag">WLAN</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Windows/"><span class="tag">Windows</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/X86/"><span class="tag">X86</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Xeon/"><span class="tag">Xeon</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Zero-Idiom/"><span class="tag">Zero-Idiom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Zsim/"><span class="tag">Zsim</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/abi/"><span class="tag">abi</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ai/"><span class="tag">ai</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/amd/"><span class="tag">amd</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ampere/"><span class="tag">ampere</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/anaconda/"><span class="tag">anaconda</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/anime/"><span class="tag">anime</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/aocc/"><span class="tag">aocc</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/apache/"><span class="tag">apache</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/apple/"><span class="tag">apple</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/apt/"><span class="tag">apt</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/architecture/"><span class="tag">architecture</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/arm/"><span class="tag">arm</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/array/"><span class="tag">array</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/assembly/"><span class="tag">assembly</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/auto/"><span class="tag">auto</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/avx/"><span class="tag">avx</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/avx256/"><span class="tag">avx256</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/bank/"><span class="tag">bank</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/batch/"><span class="tag">batch</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/benchmark/"><span class="tag">benchmark</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/bilibili/"><span class="tag">bilibili</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/blog/"><span class="tag">blog</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/broadcast/"><span class="tag">broadcast</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/bug/"><span class="tag">bug</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/bugs/"><span class="tag">bugs</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/business/"><span class="tag">business</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/c/"><span class="tag">c</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/c/"><span class="tag">c++</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cache/"><span class="tag">cache</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/calloc/"><span class="tag">calloc</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cat/"><span class="tag">cat</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/chatgpt/"><span class="tag">chatgpt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/chivier/"><span class="tag">chivier</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/chsh/"><span class="tag">chsh</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/clang/"><span class="tag">clang</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/clash/"><span class="tag">clash</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/class/"><span class="tag">class</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cloud/"><span class="tag">cloud</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/clustering/"><span class="tag">clustering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cmake/"><span class="tag">cmake</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/code/"><span class="tag">code</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/color/"><span class="tag">color</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/comic/"><span class="tag">comic</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/command/"><span class="tag">command</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/commands/"><span class="tag">commands</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/compile/"><span class="tag">compile</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/compile-options/"><span class="tag">compile options</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/compression/"><span class="tag">compression</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/conda/"><span class="tag">conda</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/context-switch/"><span class="tag">context switch</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cpp/"><span class="tag">cpp</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cpu/"><span class="tag">cpu</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cpu-flags/"><span class="tag">cpu flags</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/crontab/"><span class="tag">crontab</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cs/"><span class="tag">cs</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/css/"><span class="tag">css</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ctags/"><span class="tag">ctags</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cuda/"><span class="tag">cuda</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cuobjdump/"><span class="tag">cuobjdump</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ddns/"><span class="tag">ddns</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/debug/"><span class="tag">debug</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/disassembly/"><span class="tag">disassembly</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/disk/"><span class="tag">disk</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/display/"><span class="tag">display</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/div/"><span class="tag">div</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/dnat/"><span class="tag">dnat</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/docker/"><span class="tag">docker</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/domain/"><span class="tag">domain</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/dram/"><span class="tag">dram</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/email/"><span class="tag">email</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/enter/"><span class="tag">enter</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/entertainment/"><span class="tag">entertainment</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/epic/"><span class="tag">epic</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/epyc/"><span class="tag">epyc</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ethernet/"><span class="tag">ethernet</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/family/"><span class="tag">family</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/filesystem/"><span class="tag">filesystem</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/firewall/"><span class="tag">firewall</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/firewalld/"><span class="tag">firewalld</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/flags/"><span class="tag">flags</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/flood-fill/"><span class="tag">flood fill</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/fork/"><span class="tag">fork</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/forward/"><span class="tag">forward</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/fpic/"><span class="tag">fpic</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/fstab/"><span class="tag">fstab</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ftp/"><span class="tag">ftp</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/fun/"><span class="tag">fun</span><span class="tag">51</span></a></div><div class="control"><a class="tags has-addons" href="/tags/function-call/"><span class="tag">function call</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/game/"><span class="tag">game</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gateway/"><span class="tag">gateway</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gcc/"><span class="tag">gcc</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gdb/"><span class="tag">gdb</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gdbgui/"><span class="tag">gdbgui</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gef/"><span class="tag">gef</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gem5/"><span class="tag">gem5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gif/"><span class="tag">gif</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/git/"><span class="tag">git</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/github/"><span class="tag">github</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/github-action/"><span class="tag">github action</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/glibc/"><span class="tag">glibc</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gnu/"><span class="tag">gnu</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/go/"><span class="tag">go</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/golang/"><span class="tag">golang</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gprof/"><span class="tag">gprof</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gpt/"><span class="tag">gpt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gpu/"><span class="tag">gpu</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/graph/"><span class="tag">graph</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/group/"><span class="tag">group</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/gzip/"><span class="tag">gzip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/h265/"><span class="tag">h265</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/hash/"><span class="tag">hash</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/header/"><span class="tag">header</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/heap/"><span class="tag">heap</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/hexo/"><span class="tag">hexo</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/home/"><span class="tag">home</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/homepage/"><span class="tag">homepage</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/hpc/"><span class="tag">hpc</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/html/"><span class="tag">html</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/htop/"><span class="tag">htop</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/http/"><span class="tag">http</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/huawei/"><span class="tag">huawei</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/hugo/"><span class="tag">hugo</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/icc/"><span class="tag">icc</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/icpc/"><span class="tag">icpc</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/incomplete/"><span class="tag">incomplete</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/initd/"><span class="tag">initd</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/intel/"><span class="tag">intel</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ip/"><span class="tag">ip</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ipcc/"><span class="tag">ipcc</span><span class="tag">16</span></a></div><div class="control"><a class="tags has-addons" href="/tags/iptable/"><span class="tag">iptable</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/iptables/"><span class="tag">iptables</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ipv6/"><span class="tag">ipv6</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ispc/"><span class="tag">ispc</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/java/"><span class="tag">java</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/job/"><span class="tag">job</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/jpg/"><span class="tag">jpg</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/k-fold-cross-validation/"><span class="tag">k-fold cross validation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kill/"><span class="tag">kill</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kunpeng-920/"><span class="tag">kunpeng 920</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/latex/"><span class="tag">latex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/linux/"><span class="tag">linux</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/live2d/"><span class="tag">live2d</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/llm/"><span class="tag">llm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/llvm/"><span class="tag">llvm</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/llvm-mca/"><span class="tag">llvm-mca</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/localhost/"><span class="tag">localhost</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/logic-core/"><span class="tag">logic core</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/loop/"><span class="tag">loop</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/lscpu/"><span class="tag">lscpu</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/lsof/"><span class="tag">lsof</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/macbook/"><span class="tag">macbook</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/make/"><span class="tag">make</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/malloc/"><span class="tag">malloc</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/map/"><span class="tag">map</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/master/"><span class="tag">master</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/mca/"><span class="tag">mca</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/memory/"><span class="tag">memory</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/micro-op-fusions/"><span class="tag">micro-op fusions</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/minicoda/"><span class="tag">minicoda</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/mkdocs/"><span class="tag">mkdocs</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/moonlight/"><span class="tag">moonlight</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/mount/"><span class="tag">mount</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/mpi/"><span class="tag">mpi</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/mpicc/"><span class="tag">mpicc</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/mpiicc/"><span class="tag">mpiicc</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/mtr/"><span class="tag">mtr</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/name/"><span class="tag">name</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/nas/"><span class="tag">nas</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/nasm/"><span class="tag">nasm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/neon/"><span class="tag">neon</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/network/"><span class="tag">network</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/networkmanager/"><span class="tag">networkmanager</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/newline/"><span class="tag">newline</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/nginx/"><span class="tag">nginx</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/npm/"><span class="tag">npm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/nsight/"><span class="tag">nsight</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/nvidia/"><span class="tag">nvidia</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/nvprof/"><span class="tag">nvprof</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oneApi/"><span class="tag">oneApi</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openmp/"><span class="tag">openmp</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openmpi/"><span class="tag">openmpi</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openvpn/"><span class="tag">openvpn</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/optimization/"><span class="tag">optimization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/optimize/"><span class="tag">optimize</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/optimizer/"><span class="tag">optimizer</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/page-table/"><span class="tag">page table</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pam/"><span class="tag">pam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/paper/"><span class="tag">paper</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/parallel/"><span class="tag">parallel</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/password/"><span class="tag">password</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pdf/"><span class="tag">pdf</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/perf/"><span class="tag">perf</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/piano/"><span class="tag">piano</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ping/"><span class="tag">ping</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pip/"><span class="tag">pip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/png/"><span class="tag">png</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/port/"><span class="tag">port</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ppt/"><span class="tag">ppt</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/prefetch/"><span class="tag">prefetch</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/process/"><span class="tag">process</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/proxy/"><span class="tag">proxy</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ps/"><span class="tag">ps</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pyc/"><span class="tag">pyc</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pyo/"><span class="tag">pyo</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pypy/"><span class="tag">pypy</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/python/"><span class="tag">python</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/qt/"><span class="tag">qt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/queue/"><span class="tag">queue</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ram/"><span class="tag">ram</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ranking/"><span class="tag">ranking</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/rar/"><span class="tag">rar</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/rating/"><span class="tag">rating</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/readelf/"><span class="tag">readelf</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/reboot/"><span class="tag">reboot</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/reduce/"><span class="tag">reduce</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/regex/"><span class="tag">regex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/register/"><span class="tag">register</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/registers/"><span class="tag">registers</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/report/"><span class="tag">report</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/route/"><span class="tag">route</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/router/"><span class="tag">router</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/safety/"><span class="tag">safety</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/scons/"><span class="tag">scons</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/scss/"><span class="tag">scss</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/search-bar/"><span class="tag">search bar</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/security/"><span class="tag">security</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/segmentation-fault/"><span class="tag">segmentation fault</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/server/"><span class="tag">server</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/sh/"><span class="tag">sh</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/simd/"><span class="tag">simd</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/smb/"><span class="tag">smb</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/snap/"><span class="tag">snap</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/snat/"><span class="tag">snat</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/socket/"><span class="tag">socket</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/speaking/"><span class="tag">speaking</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/sql/"><span class="tag">sql</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/sram/"><span class="tag">sram</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ssh/"><span class="tag">ssh</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ssl/"><span class="tag">ssl</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/stack/"><span class="tag">stack</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/stencil/"><span class="tag">stencil</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/stream/"><span class="tag">stream</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/switch/"><span class="tag">switch</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/synology/"><span class="tag">synology</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/systemctl/"><span class="tag">systemctl</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/systemd/"><span class="tag">systemd</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tar/"><span class="tag">tar</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tcp/"><span class="tag">tcp</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tcpdump/"><span class="tag">tcpdump</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/terminal/"><span class="tag">terminal</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/thread/"><span class="tag">thread</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tick/"><span class="tag">tick</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tips/"><span class="tag">tips</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tlb/"><span class="tag">tlb</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tmm/"><span class="tag">tmm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tmpfs/"><span class="tag">tmpfs</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tools/"><span class="tag">tools</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/top/"><span class="tag">top</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/topology/"><span class="tag">topology</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/traceroute/"><span class="tag">traceroute</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/uTorrent/"><span class="tag">uTorrent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/udp/"><span class="tag">udp</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ufw/"><span class="tag">ufw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/unravel/"><span class="tag">unravel</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/usb/"><span class="tag">usb</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/user/"><span class="tag">user</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/useradd/"><span class="tag">useradd</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/usermod/"><span class="tag">usermod</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/vector/"><span class="tag">vector</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/vectorization/"><span class="tag">vectorization</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/video/"><span class="tag">video</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/vim/"><span class="tag">vim</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/visualization/"><span class="tag">visualization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/vpn/"><span class="tag">vpn</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/vscode/"><span class="tag">vscode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/vscode-debug/"><span class="tag">vscode debug</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/vtune/"><span class="tag">vtune</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/wake/"><span class="tag">wake</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/warp/"><span class="tag">warp</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/webdav/"><span class="tag">webdav</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/wget/"><span class="tag">wget</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/wifi/"><span class="tag">wifi</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/windows/"><span class="tag">windows</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/wireguard/"><span class="tag">wireguard</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/wireshark/"><span class="tag">wireshark</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/wlt/"><span class="tag">wlt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/workflow/"><span class="tag">workflow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/x11/"><span class="tag">x11</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/x86/"><span class="tag">x86</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/youtube/"><span class="tag">youtube</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/zen2/"><span class="tag">zen2</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/zero-idioms/"><span class="tag">zero-idioms</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/zip/"><span class="tag">zip</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/zsim/"><span class="tag">zsim</span><span class="tag">2</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget"><div class="card-content"><div class="notification is-danger">You need to set <code>client_id</code> and <code>slot_id</code> to show this AD unit. Please set it in <code>_config.yml</code>.</div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="Hexo" height="28"></a><p class="is-size-7"><span>&copy; 2023 John Doe</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
