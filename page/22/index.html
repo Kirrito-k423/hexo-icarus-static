@@ -29,7 +29,262 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-09-20T09:13:47.000Z" title="9/20/2022, 9:13:47 AM">2022-09-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.053Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">16 minutes read (About 2456 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/09/20/Work/Architecture/microHardware/RAM/">RAM</a></p><div class="content"><h2 id="RAM"><a href="#RAM" class="headerlink" title="RAM"></a>RAM</h2><p>RAM, 中文名叫随机存储器， 随机是什么意思呢？ 意思是， 给定一个地址， 可以立即访问到数据（访问时间和位置无关）</p>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-10-08T08:51:46.000Z" title="10/8/2022, 8:51:46 AM">2022-10-08</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.354Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">7 minutes read (About 1113 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/10/08/Work/Architecture/microHardware/DRAM_types/">DRAM types: Size, Latency, Bandwidth, Energy Consumption</a></p><div class="content"><h2 id="DRAM-设计提速的考虑"><a href="#DRAM-设计提速的考虑" class="headerlink" title="DRAM 设计提速的考虑"></a>DRAM 设计提速的考虑</h2><ol>
+<li>bank-level parallelism<ol>
+<li>一味的提高会带来 access latency的增加</li>
+</ol>
+</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/img/20221010151433.png"><br><img src="https://pic.shaojiemike.top/img/20221101195453.png"></p>
+<p>首先 ChannelWidth应该改成(ChannelWidth或者 Rank width)</p>
+<p>由于DDR上下沿的技术（GDDR5 有等效4个上下沿） megatransfers per second (MT&#x2F;s) &#x3D; 2 * Clock Freq</p>
+<p>Bandwidth &#x3D; Data Rate <em>(ChannelWidth或者 Rank width)</em> Channels&#x2F;Ranks per Channel &#x2F; (8bits&#x2F;B)</p>
+<p>比如： 68.3 GB&#x2F;s &#x3D; 2.133GT&#x2F;s <em>64bits</em> 4 &#x2F; 8bits&#x2F;byte</p>
+<p>IO speed &#x3D; Data Rate</p>
+<p>1000 MT&#x2F;s &#x3D; 1Gbps</p>
+<p>IO数 &#x3D;  (ChannelWidth或者 Rank width) * Channels&#x2F;Ranks per Channel</p>
+<h2 id="DDR3-DDR4"><a href="#DDR3-DDR4" class="headerlink" title="DDR3 DDR4"></a>DDR3 DDR4</h2><p><img src="https://pic.shaojiemike.top/img/20221103184210.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20221101192406.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20221101192433.png"></p>
+<h2 id="GDDR5"><a href="#GDDR5" class="headerlink" title="GDDR5"></a>GDDR5</h2><p>Graphics DDR5 (GDDR5)</p>
+<p><img src="https://pic.shaojiemike.top/img/20221101195932.png"></p>
+<h2 id="LPDDR3-and-LPDDR4"><a href="#LPDDR3-and-LPDDR4" class="headerlink" title="LPDDR3 and LPDDR4"></a>LPDDR3 and LPDDR4</h2><p>low-power (LP)</p>
+<p><img src="https://pic.shaojiemike.top/img/20221121215511.png"></p>
+<h2 id="3D-Stacked-DRAM"><a href="#3D-Stacked-DRAM" class="headerlink" title="3D-Stacked DRAM"></a>3D-Stacked DRAM</h2><p>通过多层的DRAM堆叠，through-silicon vias(TSV)和垂直的互联来实现高带宽。</p>
+<h3 id="片上集成技术的好处"><a href="#片上集成技术的好处" class="headerlink" title="片上集成技术的好处"></a>片上集成技术的好处</h3><ol>
+<li>节能<ol>
+<li>传统DRAM 与 soc间的连接数只有 384条。为了提高性能只能提高频率</li>
+<li>频率的增加带来的是巨大的功耗增加</li>
+</ol>
+</li>
+<li>片上集成能大大增加连接数(HBM 1 stack 1024 I&#x2F;O)<ol>
+<li>频率也不需要那么高(3.2Gb&#x2F;s&#x2F;pin)</li>
+</ol>
+</li>
+</ol>
+<h3 id="Wide-I-O-and-Wide-I-O-2"><a href="#Wide-I-O-and-Wide-I-O-2" class="headerlink" title="Wide I&#x2F;O, and Wide I&#x2F;O 2"></a>Wide I&#x2F;O, and Wide I&#x2F;O 2</h3><p>目标是 low-power设备</p>
+<h3 id="Hybrid-Memory-Cube-HMC"><a href="#Hybrid-Memory-Cube-HMC" class="headerlink" title="Hybrid Memory Cube (HMC)"></a>Hybrid Memory Cube (HMC)</h3><p>MICRON(美光)于2011年推出的</p>
+<p><img src="https://pic.shaojiemike.top/img/20221102170617.png"></p>
+<p>Maximum <strong>vault</strong> data bandwidth 10 GB&#x2F;s (80 Gb&#x2F;s)</p>
+<p><strong>quadrant</strong>, whose vaults share a single external link.</p>
+<p>each external link is a <strong>16- (full-width)</strong> or eight-lane (half-width) connection that supports <strong>full-duplex</strong> serialized communication across each bit lane with configurable speeds of 10, 12.5, or 15 Gbps.</p>
+<p> a eight-link full-width HMC device whose link operates at 15 Gbps has a maximum bandwidth of</p>
+<p> 8link×16lanes&#x2F;link×15Gbps×2 full duplex &#x3D; 480GB&#x2F;s<br><img src="https://pic.shaojiemike.top/img/20221102170058.png"></p>
+<p>有几个显著的特点</p>
+<ol>
+<li>为了增大并行性，采用了更多的banks数(256个在HMC v2.1).但是带来了延迟的增加</li>
+<li>将memory controller(i.e., vault controller)集成到logic layer,相互之间通过network-on-chip (NoC)连接。CPU只需要发送FIFO的requests就行。</li>
+<li>为了方便管理logic，将其划分成vaults。每个由许多垂直的memory切片组成。<ol>
+<li>为了实现这点，memory（page size还是行大小）由4-8kB变成256bytes(导致 spatial locality 不好，重复密集访问？)</li>
+</ol>
+</li>
+</ol>
+<h3 id="HMC2-1"><a href="#HMC2-1" class="headerlink" title="HMC2.1"></a>HMC2.1</h3><p><img src="https://pic.shaojiemike.top/img/20221104153728.png"></p>
+<h3 id="HMC2-1的Atomic-Request-Commands"><a href="#HMC2-1的Atomic-Request-Commands" class="headerlink" title="HMC2.1的Atomic Request Commands"></a>HMC2.1的Atomic Request Commands</h3><p>Atomic requests 从DRAM读取 16bytes(由request ADRS&#x2F;address确定), 对数据进行一次16位命令的操作之后，写回DRAM的相同位置。</p>
+<p>The <strong>read-update-write</strong> sequence occurs<br><strong>atomically</strong>, meaning that subsequent requests to the same bank are scheduled after the write of the atomic request is complete</p>
+<p><img src="https://pic.shaojiemike.top/img/20221104155825.png"></p>
+<h3 id="HMC与DDR的区别"><a href="#HMC与DDR的区别" class="headerlink" title="HMC与DDR的区别"></a>HMC与DDR的区别</h3><p>Many of the traditional functions found in a DRAM have <strong>been moved to</strong> <strong>the logic layer</strong>, including the high-speed host interface, data distribution, address&#x2F;control, refresh control and array repair functions</p>
+<h3 id="HMC与HBM的区别"><a href="#HMC与HBM的区别" class="headerlink" title="HMC与HBM的区别"></a>HMC与HBM的区别</h3><p><strong>HBM</strong> are limited in terms of scalability and bandwidth which is due to their wide buses and the use of the <strong>standard DDRx protocol</strong>. Therefore, a generation of 3D-stacked memories with <strong>packet-based communication</strong> has been introduced and is currently implemented in the Hybrid Memory Cube, or <strong>HMC</strong></p>
+<p>The HMC interface utilizes a packet-based communication protocol implemented with high speed serialization&#x2F;deserialization (SerDes) circuits.</p>
+<h3 id="High-Bandwidth-Memory-HBM"><a href="#High-Bandwidth-Memory-HBM" class="headerlink" title="High Bandwidth Memory (HBM)"></a>High Bandwidth Memory (HBM)</h3><p>Advanced Micro Devices(AMD) 2013年提出的技术(SK海力士 (SK Hynix)貌似也有参与)：目标是提升GPU的带宽，频率虽然低于GDDR5，但是采用了更多的four to eight memory channels</p>
+<p>现在是HBM3<br><img src="https://pic.shaojiemike.top/img/20221008182746.png"><br><img src="https://pic.shaojiemike.top/img/20221008183810.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20221008185309.png"></p>
+<p>IO speed &#x3D; Data Rate</p>
+<p>1000 MT&#x2F;s &#x3D; 1Gbps</p>
+<p>IO数 &#x3D;  (ChannelWidth或者 Rank width) * Channels&#x2F;Ranks per Channel</p>
+<p>Bandwidth &#x3D; IO speed * IO数  &#x2F; (8bits&#x2F;B)</p>
+<p><img src="https://pic.shaojiemike.top/img/20221101170218.png"></p>
+<!-- ![](https://pic.shaojiemike.top/img/20221008183226.png)
+
+![](https://pic.shaojiemike.top/img/20221008182903.png) -->
+<p>Compared to GDDR5, HBM can fit the same amount of memory in <strong>94% less space!</strong></p>
+<h2 id="Nvidia-历代显卡-HBM"><a href="#Nvidia-历代显卡-HBM" class="headerlink" title="Nvidia 历代显卡 HBM"></a>Nvidia 历代显卡 HBM</h2><p><img src="https://pic.shaojiemike.top/img/20221115224557.png"></p>
+<p>H100显存只用了五颗，最新一代HBM3，容量80GB(16*5)，位宽5120-bit，带宽高达3TB&#x2F;s，相比A100多了一半。</p>
+<p>IO Speed &#x3D; 3*1024*8&#x2F; 5120 &#x3D; 4.8 Gbps</p>
+<h2 id="GDDR6X-vs-HBM3"><a href="#GDDR6X-vs-HBM3" class="headerlink" title="GDDR6X vs HBM3"></a>GDDR6X vs HBM3</h2><p><img src="https://pic.shaojiemike.top/img/20221115225422.png"></p>
+<p>4090 带宽 &#x3D; 21 * 384 &#x2F;8 &#x3D; 1008 GB&#x2F;s &lt;&lt; H100 3TB&#x2F;s</p>
+<p>4080 带宽 &#x3D; 22.4 * 256 &#x2F;8 &#x3D; 716.8 GB&#x2F;s</p>
+<h2 id="HBM2e"><a href="#HBM2e" class="headerlink" title="HBM2e"></a>HBM2e</h2><p>micron的标准</p>
+<h3 id="基本结构参数"><a href="#基本结构参数" class="headerlink" title="基本结构参数"></a>基本结构参数</h3><p><img src="https://pic.shaojiemike.top/img/20221101170707.png"></p>
+<p>The division of channels among the DRAM die within a <strong>stack</strong> is irrelevant to the memory controller. The example above, with the memory for <strong>two channels</strong> implemented on each die, is not a required organization.</p>
+<p>Because <strong>each channel is independent</strong>。 A channel provides access to a discrete pool of memory. Channels are <strong>individually</strong> clocked and need not to operate synchronously.</p>
+<p><img src="https://pic.shaojiemike.top/img/20221101200727.png"></p>
+<h3 id="Channel-Architecture"><a href="#Channel-Architecture" class="headerlink" title="Channel Architecture"></a>Channel Architecture</h3><p>无论是8GB还是16GB的，都是A-H共8个channel。各自的command&#x2F;address, clock, data interface。 8层的HBM只是将每个channel的大小扩大一倍。</p>
+<p><img src="https://pic.shaojiemike.top/img/20221101201235.png"></p>
+<h2 id="HBM3"><a href="#HBM3" class="headerlink" title="HBM3"></a>HBM3</h2><p>SAMSUNG的标准  6.4Gbps 819GB&#x2F;s.</p>
+<p>HBM3 Icebolt stacks 12 layers of 10nm-class 16 Gb DRAM dies for 24GB of memory</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.amd.com/system/files/documents/high-bandwidth-memory-hbm.pdf">https://www.amd.com/system/files/documents/high-bandwidth-memory-hbm.pdf</a></p>
+<p><a target="_blank" rel="noopener" href="https://media-www.micron.com/-/media/client/global/documents/src/product-information/micron_hbm2e_memory_wp.pdf?la=en&amp;rev=e6da28047dbb4a06ac2736fc273846bc">https://media-www.micron.com/-/media/client/global/documents/src/product-information/micron_hbm2e_memory_wp.pdf?la=en&amp;rev=e6da28047dbb4a06ac2736fc273846bc</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.micron.com/-/media/client/global/documents/products/data-sheet/hmc/gen2/hmc_gen2.pdf">https://www.micron.com/-/media/client/global/documents/products/data-sheet/hmc/gen2/hmc_gen2.pdf</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-10-05T16:00:00.000Z" title="10/5/2022, 4:00:00 PM">2022-10-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.350Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">10 minutes read (About 1480 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/10/05/OutOfWork/3-homepage/background/PersonalWebsiteDomain/">PersonalWebsiteDomain</a></p><div class="content"><h2 id="Ubuntu-下Apache-域名绑定设置"><a href="#Ubuntu-下Apache-域名绑定设置" class="headerlink" title="Ubuntu 下Apache 域名绑定设置"></a>Ubuntu 下Apache 域名绑定设置</h2><h3 id="在-HuaWei-Cloud-购买域名"><a href="#在-HuaWei-Cloud-购买域名" class="headerlink" title="在 HuaWei Cloud 购买域名"></a>在 HuaWei Cloud 购买域名</h3><ol>
+<li><p>购买 shaojiemike.top</p>
+</li>
+<li><p>自动在华为DNS服务器上进行DNS解析（ip与域名对应）</p>
+</li>
+<li><p>实名认证</p>
+</li>
+<li><p>网站报备</p>
+</li>
+<li><p>网站解析<br> 当您想在Internet上通过域名访问您的网站时，可以通过华为云的云解析服务为域名添加解析记录。</p>
+<p> 例如，搭建一个网站服务器，采用IPv4格式的弹性IP地址。如果想要实现通过域名“example.com”及其子域名“<a href="http://www.example.com”访问该网站，需要配置如下解析记录：">www.example.com”访问该网站，需要配置如下解析记录：</a></p>
+<pre><code> A：添加域名“example.com”到弹性IP地址的解析记录。
+ A：添加子域名“www.example.com”到弹性IP地址的解析记录。
+</code></pre>
+</li>
+<li><p>修改DNS服务器为华为<br><img src="https://pic.shaojiemike.top/img/20221105212832.png"><br>不要修改成域名解析的<br><img src="https://pic.shaojiemike.top/img/20221105212921.png"></p>
+</li>
+</ol>
+<h2 id="DNS域名解析查看"><a href="#DNS域名解析查看" class="headerlink" title="DNS域名解析查看"></a>DNS域名解析查看</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ node6 in ~ [21:24:21]</span></span><br><span class="line">$ dig +trace shaojiemike.us.to</span><br><span class="line"></span><br><span class="line">; &lt;&lt;&gt;&gt; DiG 9.16.1-Ubuntu &lt;&lt;&gt;&gt; +trace shaojiemike.us.to</span><br><span class="line">;; global options: +cmd</span><br><span class="line">.                       184     IN      NS      f.root-servers.net.</span><br><span class="line">.                       184     IN      NS      h.root-servers.net.</span><br><span class="line">.                       184     IN      NS      c.root-servers.net.</span><br><span class="line">.                       184     IN      NS      m.root-servers.net.</span><br><span class="line">.                       184     IN      NS      g.root-servers.net.</span><br><span class="line">.                       184     IN      NS      j.root-servers.net.</span><br><span class="line">.                       184     IN      NS      a.root-servers.net.</span><br><span class="line">.                       184     IN      NS      i.root-servers.net.</span><br><span class="line">.                       184     IN      NS      l.root-servers.net.</span><br><span class="line">.                       184     IN      NS      k.root-servers.net.</span><br><span class="line">.                       184     IN      NS      d.root-servers.net.</span><br><span class="line">.                       184     IN      NS      e.root-servers.net.</span><br><span class="line">.                       184     IN      NS      b.root-servers.net.</span><br><span class="line">;; Received 262 bytes from 127.0.0.53<span class="comment">#53(127.0.0.53) in 0 ms</span></span><br><span class="line"></span><br><span class="line">to.                     172800  IN      NS      frankfurt.tonic.to.</span><br><span class="line">to.                     172800  IN      NS      singapore.tonic.to.</span><br><span class="line">to.                     172800  IN      NS      tonic.to.</span><br><span class="line">to.                     172800  IN      NS      newyork.tonic.to.</span><br><span class="line">to.                     172800  IN      NS      colo.tonic.to.</span><br><span class="line">to.                     172800  IN      NS      sydney.tonic.to.</span><br><span class="line">to.                     172800  IN      NS      helsinki.tonic.to.</span><br><span class="line">to.                     86400   IN      NSEC    today. NS RRSIG NSEC</span><br><span class="line">to.                     86400   IN      RRSIG   NSEC 8 1 86400 20221118050000 20221105040000 18733 . zYyPgXiUoIoPzZsXi8WD0aT0Ps7ajmQYA/blzyfNG6Pl1NdONShc/3T1 3p2rAfr2a7NI6SI+yeEyiRYeeI86RuNv1u4aAJD2QXZapKlogP+hveb/ SYztzsr70Ha6/7RQAqQqY+ctHOZXIzUMhpNxFneTXcJ2CVhQmGIYG0sa 0BmaDKH0kxFHtbJZvENMpo4WrE0KTNzFsYlHZQGZV0OQeU/MpcSkPt5I DefxNVBMqMS8lF0Wzg8ESwEDddE7WvMlCNlnBLE7LHk0ZdQGU5Qg/8Ot CpNKEjCoROXA7sA/CkrGEdhW3CZnJYOdQ6UcH2pDwYYVIOsE7L8QJV/r RC9/tA==</span><br><span class="line">;; Received 653 bytes from 199.7.83.42<span class="comment">#53(l.root-servers.net) in 60 ms</span></span><br><span class="line"></span><br><span class="line">us.to.                  86400   IN      NS      NS4.AFRAID.ORG.</span><br><span class="line">us.to.                  86400   IN      NS      NS3.AFRAID.ORG.</span><br><span class="line">us.to.                  86400   IN      NS      NS1.AFRAID.ORG.</span><br><span class="line">us.to.                  86400   IN      NS      NS2.AFRAID.ORG.</span><br><span class="line">;; Received 156 bytes from 95.216.159.42<span class="comment">#53(helsinki.tonic.to) in 272 ms</span></span><br><span class="line"></span><br><span class="line">us.to.                  3600    IN      SOA     ns1.afraid.org. dnsadmin.afraid.org. 2211050595 86400 7200 2419200 3600</span><br><span class="line">;; Received 133 bytes from 2001:1850:1:5:800::6b<span class="comment">#53(NS2.AFRAID.ORG) in 260 ms</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到13个根DNS服务器到<code>to</code>子服务器再到<code>us.to</code>的解析过程。</p>
+<h3 id="在-HuaWei-Cloud-配置域名解析"><a href="#在-HuaWei-Cloud-配置域名解析" class="headerlink" title="在 HuaWei Cloud 配置域名解析"></a>在 HuaWei Cloud 配置域名解析</h3><h4 id="为域名添加A记录集"><a href="#为域名添加A记录集" class="headerlink" title="为域名添加A记录集"></a>为域名添加A记录集</h4><p>在“公网域名”页面的域名列表的“域名”列，单击域名的名称“example.com”。<br>进入“解析记录”页面。</p>
+<p>在页面右上角，单击“添加记录集”。<br>在“添加记录集”页面，根据界面提示为域名“example.com”设置A记录集参数。</p>
+<p><img src="https://support.huaweicloud.com/qs-dns/zh-cn_image_0262937392.png" alt="解析"></p>
+<h4 id="为子域名添加A记录集"><a href="#为子域名添加A记录集" class="headerlink" title="为子域名添加A记录集"></a>为子域名添加A记录集</h4><p>主机记录：设置为“www”，表示解析的域名为子域名“<a target="_blank" rel="noopener" href="http://www.example.com”./">www.example.com”。</a></p>
+<p>测试域名解析是否生效</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">D:\OneDrive - mail.ustc.edu.cn\homepage&gt; nslookup shaojiemike.top ns1.huaweicloud-dns.org</span><br><span class="line">Server:  ecs-159-138-77-159.compute.hwclouds-dns.com</span><br><span class="line">Address:  159.138.77.159</span><br><span class="line"></span><br><span class="line">Name:    shaojiemike.top</span><br><span class="line">Address:  202.38.73.26</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://support.huaweicloud.com/qs-dns/zh-cn_image_0262938117.png" alt="解析2"></p>
+<h3 id="ECS"><a href="#ECS" class="headerlink" title="ECS"></a>ECS</h3><p>云服务器Elastic Compute Service（ECS）是阿里云提供的一种基础云计算服务。它能帮助您快速的构建更稳定、安全的应用，提高运维效率，降低IT成本</p>
+<h3 id="如何判断自己IP是内网IP还是外网IP"><a href="#如何判断自己IP是内网IP还是外网IP" class="headerlink" title="如何判断自己IP是内网IP还是外网IP"></a>如何判断自己IP是内网IP还是外网IP</h3><h4 id="局域网，内网IP"><a href="#局域网，内网IP" class="headerlink" title="局域网，内网IP"></a>局域网，内网IP</h4><ol>
+<li>tcp&#x2F;ip协议中，专门保留了三个IP地址区域作为私有地址，其地址范围如下： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">10.0.0.0/8：10.0.0.0～10.255.255.255</span><br><span class="line">172.16.0.0/12：172.16.0.0～172.31.255.255</span><br><span class="line">192.168.0.0/16：192.168.0.0～192.168.255.255</span><br></pre></td></tr></table></figure></li>
+<li>一些宽带运营商尽管也使用了非私有地址分配给用户使用，但是由于路由设置的原因，Internet上的其他用户并不能访问到这些ip。</li>
+</ol>
+<p>有这么一种情况：拉的联通的带宽，分配的IP只能在联通内部访问，移动网络不能访问。这个IP最多只能算是“联通内的公网IP”，不是真的公网IP。</p>
+<p>上面几部分IP都可称为内网IP</p>
+<h4 id="动态公网IP"><a href="#动态公网IP" class="headerlink" title="动态公网IP"></a>动态公网IP</h4><p>貌似node5 与 node6 挂了网络通，是动态公网IP(chivier说的)</p>
+<p>node5 ip: 202.38.73.26</p>
+<p>IPv4封了许多端口(至少ssh的22端口是不行的)</p>
+<p>IPv6是直接可以ssh访问的</p>
+<h3 id="公网IP是IPv4-IPv6"><a href="#公网IP是IPv4-IPv6" class="headerlink" title="公网IP是IPv4&#x2F;IPv6"></a>公网IP是IPv4&#x2F;IPv6</h3><p>ipv4是32位地址，分成4段，每段之间都有”.”分开，而每段之间有8位，从0-255<br>最普遍看到的就是ipv4</p>
+<p>ipv6是128位地址，每个数目等于4位（0-f）16位进制，4个一组，每段之间由“：”隔开，共有8段，其中如果有连续性的”0”<br>如fe80:0000:0000:0000:0000:0000:0000:de4f</p>
+<h3 id="修改机器的DNS服务器"><a href="#修改机器的DNS服务器" class="headerlink" title="修改机器的DNS服务器"></a>修改机器的DNS服务器</h3><p>IPv4DNS服务器能根据IP修改，但是我不知道华为DNS服务器的IP。</p>
+<p>ns1.huaweicloud-dns.com：中国大陆各区域DNS地址<br>ns1.huaweicloud-dns.cn：中国大陆各区域DNS地址<br>ns1.huaweicloud-dns.net：除中国大陆之外国家或地区DNS地址<br>ns1.huaweicloud-dns.org：除中国大陆之外国家或地区DNS地址</p>
+<h2 id="Further-Study"><a href="#Further-Study" class="headerlink" title="Further Study"></a>Further Study</h2><p>动态公网IP，可以使用nat123动态域名解析解决公网IP不固定的问题</p>
+<p>node6配置没用80端口，不能直接IP访问</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>还是不能直接访问shaojiemike.top(TTL为300,需要时间？)<br>第二天可以了。</p>
+<h2 id="chivier-建议"><a href="#chivier-建议" class="headerlink" title="chivier 建议"></a>chivier 建议</h2><p><a target="_blank" rel="noopener" href="https://ngx.hk/2019/01/27/%E4%BD%BF%E7%94%A8acme-sh%E4%B8%8E%E9%98%BF%E9%87%8C%E4%BA%91dns%E7%AD%BE%E5%8F%91lets-encrypt%E7%9A%84%E5%85%8D%E8%B4%B9%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6.html">https://ngx.hk/2019/01/27/%E4%BD%BF%E7%94%A8acme-sh%E4%B8%8E%E9%98%BF%E9%87%8C%E4%BA%91dns%E7%AD%BE%E5%8F%91lets-encrypt%E7%9A%84%E5%85%8D%E8%B4%B9%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6.html</a></p>
+<p>我用阿里的域名，用这个教程，把我的IP挂到阿里DNS上面去了</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://support.huaweicloud.com/qs-dns/dns_qs_0002.html">https://support.huaweicloud.com/qs-dns/dns_qs_0002.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/meitesiluyuan/article/details/58588216">https://blog.csdn.net/meitesiluyuan/article/details/58588216</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/bennny/article/details/86319768?utm_medium=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromMachineLearnPai2~default-1.baidujs&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromMachineLearnPai2~default-1.baidujs">https://blog.csdn.net/bennny/article/details/86319768?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.baidujs&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.baidujs</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/bennny/article/details/82988260">https://blog.csdn.net/bennny/article/details/82988260</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.nazhumi.com/">域名价格对比</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-10-05T16:00:00.000Z" title="10/5/2022, 4:00:00 PM">2022-10-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.374Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Network/">Network</a></span><span class="level-item">15 minutes read (About 2194 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/10/05/Work/software/linux-apps/SSHForward/">SSHForward</a></p><div class="content"><h2 id="四类ssh转发"><a href="#四类ssh转发" class="headerlink" title="四类ssh转发"></a>四类ssh转发</h2><p>SSH 端口转发自然需要 SSH 连接，而<strong>SSH 连接是有方向</strong>的，从 SSH Client 到 SSH Server 。</p>
+<p>而我们所要<strong>访问的应用也是有方向</strong>的，应用连接的方向也是从应用的 Client 端连接到应用的 Server 端。比如需要我们要访问Internet上的Web站点时，Http应用的方向就是从我们自己这台主机(Client)到远处的Web Server。</p>
+<h3 id="本地转发Local-Forward"><a href="#本地转发Local-Forward" class="headerlink" title="本地转发Local Forward"></a>本地转发Local Forward</h3><p>如果SSH连接和应用的连接这两个连接的<strong>方向一致</strong>，那我们就说它是本地转发。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ssh -L [bind_address:]port:host:hostport &lt;SSH hostname&gt;</span><br><span class="line">ssh -L 3333:127.0.0.1:2333 -vN -f -l shaojiemike 222.195.72.218</span><br><span class="line">debug1: Local connections to LOCALHOST:3333 forwarded to remote address(222.195.72.218) 127.0.0.1:2333</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic.shaojiemike.top/img/LocalForward-new.jpg"><br>本地转发在本地这台机器上监听一个端口，然后所有访问这个端口的数据都会通过ssh 隧道传输到远端的对应端口上。命令中的 host 和 <code>&lt;SSH hostname&gt;</code> 可以是不同的主机。</p>
+<p><img src="https://pic.shaojiemike.top/img/LocalForward.jpg"></p>
+<h3 id="远程转发Remote-Forward"><a href="#远程转发Remote-Forward" class="headerlink" title="远程转发Remote Forward"></a>远程转发Remote Forward</h3><p>如果SSH连接和应用的连接这两个连接的<strong>方向不同</strong>，那我们就说它是远程转发。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -R [bind_address:]port:host:hostport &lt;SSH hostname&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic.shaojiemike.top/img/RemoteForward-new.jpg"></p>
+<p>远程转发与本地转发正好相反，打开ssh隧道以后，在远端服务器监听一个端口，所有访问远端服务器指定端口都会通过隧道传输到本地的对应端口上，下面是例子。</p>
+<p><img src="https://pic.shaojiemike.top/img/InkedRemoteForward_LI.jpg"></p>
+<h3 id="动态转发"><a href="#动态转发" class="headerlink" title="动态转发"></a>动态转发</h3><p>有待学习。</p>
+<h3 id="X转发"><a href="#X转发" class="headerlink" title="X转发"></a>X转发</h3><p>有待学习。</p>
+<h2 id="实用参数"><a href="#实用参数" class="headerlink" title="实用参数"></a>实用参数</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-C：压缩数据传输。</span><br><span class="line">-f ：后台认证用户/密码，通常和-N连用，不用登录到远程主机。</span><br><span class="line">-N ：不执行脚本或命令，通常与-f连用。</span><br><span class="line">-g ：在-L/-R/-D参数中，允许远程主机连接到建立的转发的端口，如果不加这个参数，只允许本地主机建立连接。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-f      Requests ssh to go to background just before command execution.  This is useful if ssh is going to ask for passwords or</span><br><span class="line">             passphrases, but the user wants it in the background.  This implies -n.  The recommended way to start X11 programs at a remote</span><br><span class="line">             site is with something like ssh -f host xterm.</span><br><span class="line"></span><br><span class="line">             If the ExitOnForwardFailure configuration option is set to &quot;yes&quot;, then a client started with -f will wait for all remote port</span><br><span class="line">             forwards to be successfully established before placing itself in the background.</span><br></pre></td></tr></table></figure>
+
+<h2 id="常见例子"><a href="#常见例子" class="headerlink" title="常见例子"></a>常见例子</h2><h3 id="将发往本机的80端口访问转发到174-139-9-66的8080端口"><a href="#将发往本机的80端口访问转发到174-139-9-66的8080端口" class="headerlink" title="将发往本机的80端口访问转发到174.139.9.66的8080端口"></a>将发往本机的80端口访问转发到174.139.9.66的8080端口</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -C -f -N -g -L 80:174.139.9.66:8080 master@174.139.9.66</span><br></pre></td></tr></table></figure>
+
+<h3 id="将发往174-139-9-66的8080访问转发到本机的80端口"><a href="#将发往174-139-9-66的8080访问转发到本机的80端口" class="headerlink" title="将发往174.139.9.66的8080访问转发到本机的80端口"></a>将发往174.139.9.66的8080访问转发到本机的80端口</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -C -f -N -g -R 80:174.139.9.66:8080 master@174.139.9.66</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用远程管理服务器上的MySQL"><a href="#使用远程管理服务器上的MySQL" class="headerlink" title="使用远程管理服务器上的MySQL"></a>使用远程管理服务器上的MySQL</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -C -f -N -g -L 80:174.139.9.66:8080 master@174.139.9.66</span><br></pre></td></tr></table></figure>
+
+<h3 id="一次同时映射多个端口"><a href="#一次同时映射多个端口" class="headerlink" title="一次同时映射多个端口"></a>一次同时映射多个端口</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -L 8888:www.host.com:80 -L 110:mail.host.com:110 -L    25:mail.host.com:25 user@host -N  </span><br></pre></td></tr></table></figure>
+
+<h3 id="反向隧道技术-节假日需要回公司加班。但是公司是内网，使用NAT，所以没办法连回去。"><a href="#反向隧道技术-节假日需要回公司加班。但是公司是内网，使用NAT，所以没办法连回去。" class="headerlink" title="反向隧道技术:节假日需要回公司加班。但是公司是内网，使用NAT，所以没办法连回去。"></a>反向隧道技术:节假日需要回公司加班。但是公司是内网，使用NAT，所以没办法连回去。</h3><ol>
+<li>先在公司机器(LAN_ip)上执行<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -NfR 2222:localhost:22 home_ip</span><br></pre></td></tr></table></figure>
+
+-R : 建立反向连接 将 home_ip port转发</li>
+<li>然后到home_ip上面<br>ssh localhost -p 2222</li>
+</ol>
+<h3 id="端口转发-本机不允许访问www-xxx-com这个网站，但是远程主机-remote-ip-可以。"><a href="#端口转发-本机不允许访问www-xxx-com这个网站，但是远程主机-remote-ip-可以。" class="headerlink" title="端口转发:本机不允许访问www.xxx.com这个网站，但是远程主机(remote_ip)可以。"></a>端口转发:本机不允许访问<a target="_blank" rel="noopener" href="http://www.xxx.com这个网站,但是远程主机(remote_ip)可以./">www.xxx.com这个网站，但是远程主机(remote_ip)可以。</a></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -f -N -L 31609:www.xxx.com:80 user@remote_ip</span><br></pre></td></tr></table></figure>
+
+<p>现在我们就可以在本地打开 <a target="_blank" rel="noopener" href="http://localhost:31609/">http://localhost:31609</a> 访问<a target="_blank" rel="noopener" href="http://www.xxx.com了./">www.xxx.com了。</a></p>
+<h3 id="SOCKS代理-本机不允许访问某些网站，但是远程主机-remote-ip-可以，并且公司没有组织你连接remote-ip。"><a href="#SOCKS代理-本机不允许访问某些网站，但是远程主机-remote-ip-可以，并且公司没有组织你连接remote-ip。" class="headerlink" title="SOCKS代理:本机不允许访问某些网站，但是远程主机(remote_ip)可以，并且公司没有组织你连接remote_ip。"></a>SOCKS代理:本机不允许访问某些网站，但是远程主机(remote_ip)可以，并且公司没有组织你连接remote_ip。</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -NfD 8888 user@remote_ip</span><br></pre></td></tr></table></figure>
+
+<p>现在在浏览器socks 5 proxy设置为localhost:8888,所有之前无法访问的网站现在都可以访问了。</p>
+<h3 id="假设本地主机A提供了HTTP服务，主机B无网络"><a href="#假设本地主机A提供了HTTP服务，主机B无网络" class="headerlink" title="假设本地主机A提供了HTTP服务，主机B无网络"></a>假设本地主机A提供了HTTP服务，主机B无网络</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -fNgR 80:localhost:80 root@host-B</span><br></pre></td></tr></table></figure>
+
+<p>通过访问 <a target="_blank" rel="noopener" href="http://host-b/">http://host-B</a> 来访问主机A上的HTTP服务了。</p>
+<p>如果没有主机B的root账号，则只能远程转发到1024以后的端口号</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -fNgR 8080:localhost:80 lige@host-B</span><br></pre></td></tr></table></figure>
+
+<p>通过访问<a target="_blank" rel="noopener" href="http://host-b:8080/">http://host-B:8080</a> 来访问主机A上的HTTP服务</p>
+<h3 id="假设本地主机A无网络，主机B提供了HTTP服务"><a href="#假设本地主机A无网络，主机B提供了HTTP服务" class="headerlink" title="假设本地主机A无网络，主机B提供了HTTP服务"></a>假设本地主机A无网络，主机B提供了HTTP服务</h3><p>但是由于怕防火墙屏蔽，而不想直接访问</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -fNgL 80:localhost:80 root@host-B</span><br></pre></td></tr></table></figure>
+
+<h2 id="ssh-config设置技巧"><a href="#ssh-config设置技巧" class="headerlink" title="ssh_config设置技巧"></a>ssh_config设置技巧</h2><h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><p><code>.ssh/config</code>修改</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">Host *</span><br><span class="line">    ControlPersist yes</span><br><span class="line">    ControlMaster auto</span><br><span class="line">    ControlPath /tmp/sshcontrol-%C</span><br><span class="line">    ControlPersist 1d</span><br><span class="line">    # 以上四条配合使用，实现多条ssh连接共享，而且保持1天内ssh存在。再次执行ssh命令几乎秒连</span><br><span class="line">    TCPKeepAlive=yes</span><br><span class="line">    # 发送空TCP包来保持连接，但是可能被防火墙过滤</span><br><span class="line">    ServerAliveInterval 30</span><br><span class="line">    # 表示每隔多少秒（30秒），从客户端向服务器发送一次心跳（alive检测）</span><br><span class="line">    # 心跳具体格式： debug1: client_input_global_request: rtype keepalive@openssh.com want_reply 1</span><br><span class="line">    ServerAliveCountMax 240 </span><br><span class="line">    # 表示服务端多少次（240次）心跳无响应后， 客户端才会认为与服务器到SSH链接已经断开，然后断开连接。</span><br><span class="line">  </span><br><span class="line">    Port 443</span><br><span class="line"></span><br><span class="line">Host *</span><br><span class="line">   ForwardAgent yes</span><br><span class="line">   # 可以讓本地的 SSH Key 在遠端 Server 上進行轉送，也就是经过跳板机Server1，使用本地key访问Server2，不用把key传到Server1上导致泄露</span><br><span class="line">   # 虽然Server1不会获得key，但是可以使用key。所以该选项不宜用于Host *，应该只添加您信任的服务器以及打算用于代理转发的服务器。</span><br><span class="line">   # 注意跳板机需要设置允许代理转发， /etc/ssh/sshd_config 将AllowAgentForwarding的值设置为yes， 并重启服务</span><br><span class="line">   AddKeysToAgent yes</span><br><span class="line">   ForwardX11 yes</span><br><span class="line">   ForwardX11Trusted yes</span><br><span class="line">   Compression yes</span><br><span class="line">   # 压缩，加快数据传输速度</span><br></pre></td></tr></table></figure>
+
+<h3 id="服务器端"><a href="#服务器端" class="headerlink" title="服务器端"></a>服务器端</h3><p>更改ssh服务器的配置文件&#x2F;etc&#x2F;ssh&#x2F;sshd_config</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ClientAliveInterval 60</span><br><span class="line"># 默认是0，不发送</span><br><span class="line">ClientAliveCountMax 3</span><br></pre></td></tr></table></figure>
+
+<p>原理同上<br>重启ssh服务以使配置生效</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart sshd</span><br></pre></td></tr></table></figure>
+
+<h3 id="服务器端如何将端口绑定到外部地址上"><a href="#服务器端如何将端口绑定到外部地址上" class="headerlink" title="服务器端如何将端口绑定到外部地址上"></a>服务器端如何将端口绑定到外部地址上</h3><p>我们可以把这个映射的端口绑定在0.0.0.0的接口上，方法是加上参数-b 0.0.0.0。</p>
+<p>同时修改SSH服务器端 <code>/etc/sshd_config</code>中 <code>GatewayPorts no</code>为 <code>GatewayPorts yes</code>来打开它。</p>
+<h3 id="自动重连-保持长时间连接"><a href="#自动重连-保持长时间连接" class="headerlink" title="自动重连&#x2F;保持长时间连接"></a>自动重连&#x2F;保持长时间连接</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Host *</span><br><span class="line">  ServerAliveInterval 60</span><br></pre></td></tr></table></figure>
+
+<h3 id="检查隧道状态"><a href="#检查隧道状态" class="headerlink" title="检查隧道状态"></a>检查隧道状态</h3><p><a target="_blank" rel="noopener" href="https://www.wenjiangs.com/group/topic-788198.html">https://www.wenjiangs.com/group/topic-788198.html</a></p>
+<ol>
+<li>netstat</li>
+<li>ps</li>
+<li>autossh</li>
+</ol>
+<h2 id="服务器网站端口转发到本地"><a href="#服务器网站端口转发到本地" class="headerlink" title="服务器网站端口转发到本地"></a>服务器网站端口转发到本地</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -L 6006:127.0.0.1:6006 -N -f -l acsacom snode6.swangeese.fun</span><br></pre></td></tr></table></figure>
+<h2 id="姜师兄本地网络代理到服务器"><a href="#姜师兄本地网络代理到服务器" class="headerlink" title="姜师兄本地网络代理到服务器"></a>姜师兄本地网络代理到服务器</h2><p>服务器git下载设置代理端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">export http_proxy=http://127.0.0.1:7333</span><br><span class="line"># wget 正常使用</span><br><span class="line">export all_proxy=socks5://127.0.0.1:7333</span><br><span class="line"># git 正常使用</span><br><span class="line">unset http_proxy</span><br><span class="line">unset all_proxy</span><br></pre></td></tr></table></figure>
+
+<p>本地</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh -fNgR 7333:127.0.0.1:7890 shaojiemike@222.195.72.218</span><br><span class="line">ssh -fNgR 7333:127.0.0.1:80 shaojiemike@222.195.72.218</span><br></pre></td></tr></table></figure>
+
+<p>7333数字不要太小，以免冲突。7890是本地clash端口，80也可以。</p>
+<p>两个都是7890最稳，其余的有时候不行。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#YJH proxy</span><br><span class="line">export proxy_addr=localhost</span><br><span class="line">export proxy_http_port=7890</span><br><span class="line">export proxy_socks_port=7890</span><br><span class="line">function set_proxy() &#123;</span><br><span class="line">    export http_proxy=http://$proxy_addr:$proxy_http_port #如果使用git 不行，这两个http和https改成socks5就行</span><br><span class="line">    export https_proxy=http://$proxy_addr:$proxy_http_port</span><br><span class="line">    export all_proxy=socks5://$proxy_addr:$proxy_socks_port</span><br><span class="line">&#125;</span><br><span class="line">function unset_proxy() &#123;</span><br><span class="line">    unset http_proxy</span><br><span class="line">    unset https_proxy</span><br><span class="line">    unset all_proxy</span><br><span class="line">&#125;</span><br><span class="line">function test_proxy() &#123;</span><br><span class="line">   curl -v -x http://$proxy_addr:$proxy_http_port https://www.google.com | egrep &#x27;HTTP/(2|1.1) 200&#x27;</span><br><span class="line">   # socks5h://$proxy_addr:$proxy_socks_port</span><br><span class="line">&#125;</span><br><span class="line"># set_proxy # 如果要登陆时默认启用代理则取消注释这句</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可能需要软件设置代理</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git config --global https.proxy http://127.0.0.1:1080</span><br><span class="line">git config --global https.proxy https://127.0.0.1:1080</span><br><span class="line">git config --global http.proxy &#x27;socks5://127.0.0.1:1080&#x27;</span><br><span class="line">git config --global https.proxy &#x27;socks5://127.0.0.1:1080&#x27;</span><br><span class="line"></span><br><span class="line">git config --global --unset http.proxy</span><br><span class="line">git config --global --unset https.proxy</span><br></pre></td></tr></table></figure>
+
+<h2 id="Debug-mac上转发失败"><a href="#Debug-mac上转发失败" class="headerlink" title="Debug: mac上转发失败"></a>Debug: mac上转发失败</h2><h3 id="首先看看Windows上的输出"><a href="#首先看看Windows上的输出" class="headerlink" title="首先看看Windows上的输出"></a>首先看看Windows上的输出</h3><p><img src="https://pic.shaojiemike.top/img/20220331151947.png"><br><img src="https://pic.shaojiemike.top/img/20220331152133.png"></p>
+<h3 id="Mac的错误"><a href="#Mac的错误" class="headerlink" title="Mac的错误"></a>Mac的错误</h3><p><img src="https://pic.shaojiemike.top/img/20220331162843.png"><br>在完成windows所有输出后，</p>
+<ol>
+<li>首先调用了shell</li>
+<li>错误</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">debug1: Remote: Forwarding listen address &quot;localhost&quot; overridden by server GatewayPorts</span><br><span class="line">debug1: remote forward failure for: listen 7890, connect 127.0.0.1:7890</span><br><span class="line">Warning: remote port forwarding failed for listen port 7890</span><br></pre></td></tr></table></figure>
+
+<h3 id="应该是已经端口占用了"><a href="#应该是已经端口占用了" class="headerlink" title="应该是已经端口占用了"></a>应该是已经端口占用了</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -nat |grep -i &#x27;7233&#x27;</span><br></pre></td></tr></table></figure>
+<p><img src="https://pic.shaojiemike.top/img/20220331163621.png"></p>
+<h3 id="1-可以选择换端口"><a href="#1-可以选择换端口" class="headerlink" title="1 可以选择换端口"></a>1 可以选择换端口</h3><p>换成 7233<br><img src="https://pic.shaojiemike.top/img/20220331170136.png"><br>success</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo lsof -i TCP:7233</span><br></pre></td></tr></table></figure>
+<ol>
+<li>进程验证<br><img src="https://pic.shaojiemike.top/img/20220331170226.png"></li>
+<li>wget验证<br><img src="https://pic.shaojiemike.top/img/20220331170529.png"></li>
+<li>curl验证（原本会走WLT）</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redirecting to http://wlt.ustc.edu.cn</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic.shaojiemike.top/img/20220331171005.png"><br><img src="https://pic.shaojiemike.top/img/20220331171159.png"></p>
+<h3 id="2-Kill掉相关进程"><a href="#2-Kill掉相关进程" class="headerlink" title="2 Kill掉相关进程"></a>2 Kill掉相关进程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo lsof -i TCP:7890</span><br><span class="line">sudo kill -9 process_id_1 process_id_2 process_id_3</span><br><span class="line">sudo ps -ef | grep &#x27;nc -X&#x27; | grep -v grep | awk &#x27;&#123;print $2&#125;&#x27; | sudo xargs -r kill -9</span><br><span class="line">sudo lsof -i TCP:7233 |grep shaojiemike| awk &#x27;&#123;print $2&#125;&#x27;|sudo xargs -r kill -9</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic.shaojiemike.top/img/20220331164212.png"><br>FD: File Descriptor number of</p>
+<p><strong>不敢kill师兄的，然后发现并没有用，寄</strong></p>
+<p>kill掉师兄的之后就行了，嘻嘻~~ 师兄不要怪我</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><p>服务器没网，姜师兄说可以转发网络请求到本地windows</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="http://blog.sina.com.cn/s/blog_704836f40100lwxh.html">http://blog.sina.com.cn/s/blog_704836f40100lwxh.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xyyangkun/article/details/7025854?utm_medium=distribute.pc_relevant_t0.none-task-blog-2~default~CTRLIST~default-1.no_search_link&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2~default~CTRLIST~default-1.no_search_link">https://blog.csdn.net/xyyangkun/article/details/7025854?utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1.no_search_link&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1.no_search_link</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-09-20T09:13:47.000Z" title="9/20/2022, 9:13:47 AM">2022-09-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.354Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">16 minutes read (About 2456 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/09/20/Work/Architecture/microHardware/RAM/">RAM</a></p><div class="content"><h2 id="RAM"><a href="#RAM" class="headerlink" title="RAM"></a>RAM</h2><p>RAM, 中文名叫随机存储器， 随机是什么意思呢？ 意思是， 给定一个地址， 可以立即访问到数据（访问时间和位置无关）</p>
 <p>而不像咱们熟悉的磁带， 知道最后一首歌在最后的位置， 却没法直接一下子跳到磁带的最后部门， 所以磁带不是随机存储器， 而是顺序存储器。</p>
 <h2 id="SRAM-vs-DRAM"><a href="#SRAM-vs-DRAM" class="headerlink" title="SRAM vs DRAM"></a>SRAM vs DRAM</h2><table>
 <thead>
@@ -221,7 +476,7 @@
 <p><a target="_blank" rel="noopener" href="https://www.micron.com/-/media/client/global/documents/products/data-sheet/dram/ddr4/4gb_ddr4_dram_2e0d.pdf">https://www.micron.com/-/media/client/global/documents/products/data-sheet/dram/ddr4/4gb_ddr4_dram_2e0d.pdf</a></p>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/420994258">https://zhuanlan.zhihu.com/p/420994258</a></p>
 <p>[^1]: Utopia: Fast and Efficient Address Translation via Hybrid Restrictive &amp; Flexible Virtual-to-Physical Address Mappings</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-09-14T00:32:02.000Z" title="9/14/2022, 12:32:02 AM">2022-09-14</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.049Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Algorithms/">Algorithms</a></span><span class="level-item">8 minutes read (About 1261 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/09/14/Work/Algorithms/datastructure/hashmap/">Hash map</a></p><div class="content"><h2 id="hash的相关基本知识"><a href="#hash的相关基本知识" class="headerlink" title="hash的相关基本知识"></a>hash的相关基本知识</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/guoben/p/13339280.html">https://www.cnblogs.com/guoben/p/13339280.html</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-09-14T00:32:02.000Z" title="9/14/2022, 12:32:02 AM">2022-09-14</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.354Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Algorithms/">Algorithms</a></span><span class="level-item">8 minutes read (About 1261 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/09/14/Work/Algorithms/datastructure/hashmap/">Hash map</a></p><div class="content"><h2 id="hash的相关基本知识"><a href="#hash的相关基本知识" class="headerlink" title="hash的相关基本知识"></a>hash的相关基本知识</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/guoben/p/13339280.html">https://www.cnblogs.com/guoben/p/13339280.html</a></p>
 <p>散列表的装填因子定义为：α&#x3D; 填入表中的元素个数 &#x2F; 散列表的长度</p>
 <p>α是散列表装满程度的标志因子。由于表长是定值，α与“填入表中的元素个数”成正比，所以，α越大，填入表中的元素较多，产生冲突的可能性就越大；α越小，填入表中的元素较少，产生冲突的可能性就越小。</p>
 <h2 id="unordered-map定义"><a href="#unordered-map定义" class="headerlink" title="unordered_map定义"></a>unordered_map定义</h2><p>在<strong>插入</strong>元素时,根据待插入元素的关键码,以hashfunc计算出该元素的存储位置,在结构中按此位置进行存放</p>
@@ -267,7 +522,7 @@
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
 无
 
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-09-08T12:01:51.000Z" title="9/8/2022, 12:01:51 PM">2022-09-08</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.073Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">3 minutes read (About 506 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/09/08/Work/network/0-basic/DNS/">DNS</a></p><div class="content"><h2 id="DNS污染"><a href="#DNS污染" class="headerlink" title="DNS污染"></a>DNS污染</h2><h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p><img src="https://pic.shaojiemike.top/img/20220908200452.png"></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-09-08T12:01:51.000Z" title="9/8/2022, 12:01:51 PM">2022-09-08</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.370Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">3 minutes read (About 506 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/09/08/Work/network/0-basic/DNS/">DNS</a></p><div class="content"><h2 id="DNS污染"><a href="#DNS污染" class="headerlink" title="DNS污染"></a>DNS污染</h2><h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p><img src="https://pic.shaojiemike.top/img/20220908200452.png"></p>
 <h3 id="查看DNS地址"><a href="#查看DNS地址" class="headerlink" title="查看DNS地址"></a>查看DNS地址</h3><p>在<a target="_blank" rel="noopener" href="https://dnschecker.org/#A/api.themoviedb.org">DNS索引网站</a>查看域名的中国服务器IP地址</p>
 <p>实际ping速度，修改win10的hosts文件在<code>C:\WINDOWS\system32\drivers\etc</code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">ipconfig /all</span><br><span class="line"></span><br><span class="line">Ethernet adapter 以太网:</span><br><span class="line"></span><br><span class="line">   Connection-specific DNS Suffix  . : ustc.edu.cn</span><br><span class="line">   Description . . . . . . . . . . . : Realtek PCIe GbE Family Controller</span><br><span class="line">   Physical Address. . . . . . . . . : 00-2B-67-7D-A7-93</span><br><span class="line">   DHCP Enabled. . . . . . . . . . . : Yes</span><br><span class="line">   Autoconfiguration Enabled . . . . : Yes</span><br><span class="line">   IPv6 Address. . . . . . . . . . . : 2001:da8:d800:336:c9a6:8e7f:7035:cd(Preferred)</span><br><span class="line">   Link-local IPv6 Address . . . . . : fe80::c9a6:8e7f:7035:cd%5(Preferred)</span><br><span class="line">   IPv4 Address. . . . . . . . . . . : 202.38.78.133(Preferred)</span><br><span class="line">   Subnet Mask . . . . . . . . . . . : 255.255.255.0</span><br><span class="line">   Lease Obtained. . . . . . . . . . : 2022年9月3日 15:03:56</span><br><span class="line">   Lease Expires . . . . . . . . . . : 2022年9月11日 19:58:06</span><br><span class="line">   Default Gateway . . . . . . . . . : fe80::e683:26ff:fea3:e107%5</span><br><span class="line">                                       202.38.78.254</span><br><span class="line">   DHCP Server . . . . . . . . . . . : 202.38.64.7</span><br><span class="line">   DHCPv6 IAID . . . . . . . . . . . : 100674407</span><br><span class="line">   DHCPv6 Client DUID. . . . . . . . : 00-01-00-01-26-96-E5-7D-00-2B-67-7D-A7-93</span><br><span class="line">   DNS Servers . . . . . . . . . . . : 8.8.8.8</span><br><span class="line">   NetBIOS over Tcpip. . . . . . . . : Enabled</span><br></pre></td></tr></table></figure>
@@ -283,7 +538,7 @@
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
 无
 
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-09-02T09:07:34.000Z" title="9/2/2022, 9:07:34 AM">2022-09-02</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.077Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">6 minutes read (About 825 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/09/02/Work/software/linux/ubuntu/">Ubuntu server reInstall</a></p><div class="content"><h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><ol>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-09-02T09:07:34.000Z" title="9/2/2022, 9:07:34 AM">2022-09-02</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.374Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">6 minutes read (About 825 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/09/02/Work/software/linux/ubuntu/">Ubuntu server reInstall</a></p><div class="content"><h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><ol>
 <li>写U盘（见<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/dbe64ce09b74">网上教程</a>，注意备份U盘文件）</li>
 <li>插U盘，开机前根据机器型号使用命令(F2，F4, F12或者Del)进入boit manager，选择从U盘boot<ol>
 <li>改引导启动顺序，把U盘启动改到最前面<img src="https://pic.shaojiemike.top/img/20220902174441.png"></li>
@@ -319,7 +574,7 @@
 <h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_40018873/article/details/109537532">https://blog.csdn.net/weixin_40018873/article/details/109537532</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.ywbj.cc/?p=712">https://www.ywbj.cc/?p=712</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-16T16:00:00.000Z" title="8/16/2022, 4:00:00 PM">2022-08-16</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.049Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">a few seconds read (About 98 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/16/OutOfWork/3-homepage/SSL/3-QiNiuSSL/">QiNiuSSL</a></p><div class="content"><h2 id="SSL证书的几种申请"><a href="#SSL证书的几种申请" class="headerlink" title="SSL证书的几种申请"></a>SSL证书的几种申请</h2><ol>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-16T16:00:00.000Z" title="8/16/2022, 4:00:00 PM">2022-08-16</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.350Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">a few seconds read (About 98 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/16/OutOfWork/3-homepage/SSL/3-QiNiuSSL/">QiNiuSSL</a></p><div class="content"><h2 id="SSL证书的几种申请"><a href="#SSL证书的几种申请" class="headerlink" title="SSL证书的几种申请"></a>SSL证书的几种申请</h2><ol>
 <li><a target="_blank" rel="noopener" href="https://developer.qiniu.com/fusion/kb/3725/how-to-apply-for-and-use-free-certificate">七牛免费证书</a><br><img src="http://pic.shaojiemike.top/PicGo20210712100907.png"><br><img src="http://pic.shaojiemike.top/PicGo20210712101204.png"></li>
 <li>chivier自动更新免费脚本 </li>
 <li>GitHub 教育优惠免费一年ssl证书</li>
@@ -327,7 +582,7 @@
 <h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p> <a target="_blank" rel="noopener" href="https://developer.qiniu.com/fusion/kb/3725/how-to-apply-for-and-use-free-certificate">https://developer.qiniu.com/fusion/kb/3725/how-to-apply-for-and-use-free-certificate</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-16T16:00:00.000Z" title="8/16/2022, 4:00:00 PM">2022-08-16</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.057Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">5 minutes read (About 753 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/16/Work/HPC/MPI_OMP/MPICompilers/">MPI Compilers</a></p><div class="content"><h2 id="mpicc-vs-gcc"><a href="#mpicc-vs-gcc" class="headerlink" title="mpicc vs gcc"></a>mpicc vs gcc</h2><h3 id="OpenMPI"><a href="#OpenMPI" class="headerlink" title="OpenMPI"></a>OpenMPI</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">shaojiemike @ node5 <span class="keyword">in</span> ~ [7:20:31]</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mpicc -showme</span></span><br><span class="line">gcc -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -pthread -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi</span><br></pre></td></tr></table></figure>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-16T16:00:00.000Z" title="8/16/2022, 4:00:00 PM">2022-08-16</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.358Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">5 minutes read (About 753 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/16/Work/HPC/MPI_OMP/MPICompilers/">MPI Compilers</a></p><div class="content"><h2 id="mpicc-vs-gcc"><a href="#mpicc-vs-gcc" class="headerlink" title="mpicc vs gcc"></a>mpicc vs gcc</h2><h3 id="OpenMPI"><a href="#OpenMPI" class="headerlink" title="OpenMPI"></a>OpenMPI</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">shaojiemike @ node5 <span class="keyword">in</span> ~ [7:20:31]</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mpicc -showme</span></span><br><span class="line">gcc -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -pthread -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi</span><br></pre></td></tr></table></figure>
 <h3 id="IntelMPI"><a href="#IntelMPI" class="headerlink" title="IntelMPI"></a>IntelMPI</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">source /opt/intel/oneapi/setvars.sh</span><br><span class="line"></span><br><span class="line"># shaojiemike @ node5 in ~/github/IPCC/SLIC on git:main x [15:45:06] C:1</span><br><span class="line">$ mpicc -compile_info</span><br><span class="line">gcc -I&#x27;/opt/intel/oneapi/mpi/2021.1.1/include&#x27; -L&#x27;/opt/intel/oneapi/mpi/2021.1.1/lib/release&#x27; -L&#x27;/opt/intel/oneapi/mpi/2021.1.1/lib&#x27; -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker &#x27;/opt/intel/oneapi/mpi/2021.1.1/lib/release&#x27; -Xlinker -rpath -Xlinker &#x27;/opt/intel/oneapi/mpi/2021.1.1/lib&#x27; -lmpifort -lmpi -lrt -lpthread -Wl,-z,now -Wl,-z,relro -Wl,-z,noexecstack -Xlinker --enable-new-dtags -ldl</span><br><span class="line"></span><br><span class="line">&gt; mpicc -v                  </span><br><span class="line">mpigcc for the Intel(R) MPI Library 2021.5 for Linux*                                                                      </span><br><span class="line">Copyright Intel Corporation.</span><br><span class="line">Using built-in specs.       </span><br><span class="line">COLLECT_GCC=gcc             </span><br><span class="line">COLLECT_LTO_WRAPPER=/public1/soft/gcc/8.1.0/libexec/gcc/x86_64-pc-linux-gnu/8.1.0/lto-wrapper                              </span><br><span class="line">Target: x86_64-pc-linux-gnu </span><br><span class="line">Configured with: ./configure --prefix=/public1/soft/gcc/8.1.0 --enable-languages=c,c++,fortran --disable-multilib          </span><br><span class="line">Thread model: posix         </span><br><span class="line">gcc version 8.1.0 (GCC) </span><br><span class="line"></span><br><span class="line"># shaojiemike @ node5 in ~/github/IPCC/SLIC on git:main x [15:45:16]</span><br><span class="line">$ mpiicc -compile_info</span><br><span class="line">icc -I&#x27;/opt/intel/oneapi/mpi/2021.1.1/include&#x27; -L&#x27;/opt/intel/oneapi/mpi/2021.1.1/lib/release&#x27; -L&#x27;/opt/intel/oneapi/mpi/2021.1.1/lib&#x27; -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker &#x27;/opt/intel/oneapi/mpi/2021.1.1/lib/release&#x27; -Xlinker -rpath -Xlinker &#x27;/opt/intel/oneapi/mpi/2021.1.1/lib&#x27; -lmpifort -lmpi -ldl -lrt -lpthread</span><br><span class="line"></span><br><span class="line"># shaojiemike @ node5 in ~/github/IPCC/SLIC on git:main x [15:50:09] C:255</span><br><span class="line">$ mpiicc -show</span><br><span class="line">icc -I&#x27;/opt/intel/oneapi/mpi/2021.1.1/include&#x27; -L&#x27;/opt/intel/oneapi/mpi/2021.1.1/lib/release&#x27; -L&#x27;/opt/intel/oneapi/mpi/2021.1.1/lib&#x27; -Xlinker --enable-new-dtags -Xlinker -rpath -Xlinker &#x27;/opt/intel/oneapi/mpi/2021.1.1/lib/release&#x27; -Xlinker -rpath -Xlinker &#x27;/opt/intel/oneapi/mpi/2021.1.1/lib&#x27; -lmpifort -lmpi -ldl -lrt -lpthread</span><br></pre></td></tr></table></figure>
 
 <h3 id="MPICH"><a href="#MPICH" class="headerlink" title="MPICH"></a>MPICH</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ipcc22_0029@ln121 ~/github/IPCC2022-preliminary/run (float_trick*) [10:49:48]</span><br><span class="line">&gt; mpicc -show         </span><br><span class="line">gcc -I/public1/soft/mpich/3.1.4-gcc8.1.0/include -L/public1/soft/mpich/3.1.4-gcc8.1.0/lib -Wl,-rpath -Wl,/public1/soft/mpich/3.1.4-gcc8.1.0/lib -Wl,--enable-new-dtags -lmpi</span><br></pre></td></tr></table></figure>
@@ -340,7 +595,7 @@
 <h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/11312719/how-to-compile-mpi-with-gcc">https://stackoverflow.com/questions/11312719/how-to-compile-mpi-with-gcc</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-16T16:00:00.000Z" title="8/16/2022, 4:00:00 PM">2022-08-16</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.057Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">4 minutes read (About 537 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/16/Work/HPC/MPI_OMP/MPI_InitSlowReason/">Why MPI_Init is slow</a></p><div class="content"><h2 id="MPI-Init的作用"><a href="#MPI-Init的作用" class="headerlink" title="MPI_Init的作用"></a>MPI_Init的作用</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MPI_Init(&amp;argc, &amp;argv);</span><br></pre></td></tr></table></figure>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-16T16:00:00.000Z" title="8/16/2022, 4:00:00 PM">2022-08-16</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.358Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">4 minutes read (About 537 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/16/Work/HPC/MPI_OMP/MPI_InitSlowReason/">Why MPI_Init is slow</a></p><div class="content"><h2 id="MPI-Init的作用"><a href="#MPI-Init的作用" class="headerlink" title="MPI_Init的作用"></a>MPI_Init的作用</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MPI_Init(&amp;argc, &amp;argv);</span><br></pre></td></tr></table></figure>
 
 <p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/11691870/what-happens-to-memory-after-i-call-mpi-init">StackOverflow的回答</a>是,Init在调用过程中初始化MPI库,并且在进程间建立通讯和编号。</p>
 <p>知乎的回答: OpenMPI会在调用MPI_Init时按照你<strong>传递给mpirun的指令新建进程</strong>，而你传递给MPI_Init的参数，会被传递给新建的进程。</p>
@@ -406,373 +661,7 @@
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
 无
 
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-16T03:18:15.000Z" title="8/16/2022, 3:18:15 AM">2022-08-16</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.061Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">2 minutes read (About 339 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/16/Work/Programming/1-env/c/oneapi/">oneApi</a></p><div class="content"><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/develop/documentation/installation-guide-for-intel-oneapi-toolkits-linux/top/installation/install-with-command-line.html#install-with-command-line">命令行安装</a></p>
-<h3 id="Intel-OneAPI-base-toolkit"><a href="#Intel-OneAPI-base-toolkit" class="headerlink" title="Intel OneAPI base toolkit"></a>Intel OneAPI base toolkit</h3><p>必须先安装base，可以看到默认安装的内容</p>
-<p><img src="https://pic.shaojiemike.top/img/20220816113819.png"></p>
-<p><img src="https://pic.shaojiemike.top/img/20220816113912.png"></p>
-<p>这个<a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/develop/documentation/debugging-dpcpp-linux/top.html">GDB</a>好像可以分析多进程</p>
-<p><img src="https://pic.shaojiemike.top/img/20220816114248.png"></p>
-<h3 id="Intel-OneAPI-HPC-toolkit"><a href="#Intel-OneAPI-HPC-toolkit" class="headerlink" title="Intel OneAPI HPC toolkit"></a>Intel OneAPI HPC toolkit</h3><p><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/hpc-toolkit.html">Intel OneAPI HPC toolkit</a>包括了icc,icpc,ifort和OpenMP,IntelMPI还有MKL(Intel® oneAPI Math Kernel Library (oneMKL))</p>
-<p>在<a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/hpc-toolkit-download.html">Download界面选择版本</a>, 选择online或者offline会有推荐指令,如下</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://registrationcenter-download.intel.com/akdlm/irc_nas/18679/l_HPCKit_p_2022.2.0.191.sh</span><br><span class="line"></span><br><span class="line">sudo sh ./l_HPCKit_p_2022.2.0.191.sh</span><br></pre></td></tr></table></figure>
-<h2 id="icx-icpx"><a href="#icx-icpx" class="headerlink" title="icx icpx"></a>icx icpx</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt; icx -v</span><br><span class="line">Intel(R) oneAPI DPC++/C++ Compiler 2022.0.0 (2022.0.0.20211123)</span><br><span class="line">Target: x86_64-unknown-linux-gnu</span><br><span class="line">Thread model: posix</span><br><span class="line">InstalledDir: /opt/intel/oneapi/compiler/2022.0.2/linux/bin-llvm</span><br><span class="line">Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/8</span><br><span class="line">Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/9</span><br><span class="line">Selected GCC installation: /usr/lib/gcc/x86_64-linux-gnu/9</span><br><span class="line">Candidate multilib: .;@m64</span><br><span class="line">Selected multilib: .;@m64</span><br><span class="line">Found CUDA installation: /usr/local/cuda-11.5, version</span><br><span class="line"></span><br><span class="line">&gt; icpx --help</span><br><span class="line">OVERVIEW: Intel(R) oneAPI DPC++/C++ Compiler</span><br><span class="line"></span><br><span class="line">USAGE: clang++ [options] file...</span><br></pre></td></tr></table></figure>
-
-<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/develop/documentation/installation-guide-for-intel-oneapi-toolkits-linux/top/prerequisites/install-intel-gpu-drivers.html">https://www.intel.com/content/www/us/en/develop/documentation/installation-guide-for-intel-oneapi-toolkits-linux/top/prerequisites/install-intel-gpu-drivers.html</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-15T12:35:22.000Z" title="8/15/2022, 12:35:22 PM">2022-08-15</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.065Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">17 minutes read (About 2592 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/15/Work/Programming/2.1-Assembly/assemblyInline/">Inline Assembly</a></p><div class="content"><h2 id="GCC内联汇编"><a href="#GCC内联汇编" class="headerlink" title="GCC内联汇编"></a>GCC内联汇编</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__asm__　__volatile__(&quot;Instruction List&quot; : Output : Input : Clobber/Modify);</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li><code>__asm__</code>或asm 用来声明一个内联汇编表达式，所以任何一个内联汇编表达式都是以它开头的，是必不可少的。</li>
-<li><code>__volatile__</code>或volatile 是可选的。如果用了它，则是向GCC 声明不允许对该内联汇编优化，否则当 使用了优化选项(-O)进行编译时，GCC 将会根据自己的判断决定是否将这个内联汇编表达式中的指令优化掉。</li>
-<li>Instruction List 是汇编指令序列。它可以是空的，比如：<code>__asm__ __volatile__(&quot;&quot;)</code>; 或 <code>__asm__ (&quot;&quot;)</code>;都是完全合法的内联汇编表达式，只不过这两条语句没有什么意义。<ol>
-<li>但并非所有Instruction List 为空的内联汇编表达式都是没有意义的，比如：<code>__asm__ (&quot;&quot;:::&quot;memory&quot;)</code>;就非常有意义，它向GCC 声明：“内存作了改动”，GCC 在编译的时候，会将此因素考虑进去。</li>
-<li>当在”Instruction List”中有多条指令的时候，需要用分号（；）或换行符（\n）将它们分开。</li>
-<li>指令中的操作数可以使用占位符引用C语言变量,<strong>操作数占位符</strong>最多10个,名称如下:<code>%0,%1,…,%9</code>。指令中使用占位符表示的操作数,总被视为long型(4个字节),<ol>
-<li>但对其施加的操作根据指令可以是字或者字节,当把操作数当作字或者字节使用时,<strong>默认为低字或者低字节</strong>。</li>
-<li>对字节操作可以显式的<strong>指明是低字节还是次字节</strong>。方法是在%和序号之间插入一个字母,”b”代表低字节,”h”代表高字节,例如:<code>%h1</code>。</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>Output&#x2F;Input <ol>
-<li>格式为形如<code>&quot;constraint&quot;(variable)</code>的列表（逗号分隔)。按照出现的顺序分别与指令操作数”%0”，”%1”对应</li>
-<li>每个输出操作数的限定字符串必须包含”&#x3D;”表示他是一个输出操作数。例子<code>&quot;=r&quot; (value)</code></li>
-</ol>
-</li>
-<li>Clobber&#x2F;Modify(由逗号格开的字符串组成)<ol>
-<li>在Input&#x2F;Output操作表达式所指定的寄存器，或当你为一些Input&#x2F;Output操作表达式使用”r”约束，让GCC为你选择一个寄存器时，GCC知道这些寄存器是被修改的，你根本不需要在Clobber&#x2F;Modify域再声明它们。</li>
-<li>但是对于”Instruction List”中的临时寄存器，需要在Clobber&#x2F;Modify域声明这些寄存器或内存，让GCC知道修改了他们<ol>
-<li>例子:<code>__asm__ (&quot;mov R0, #0x34&quot; : : : &quot;R0&quot;);</code>寄存器R0出现在”Instruction List中”，并且被mov指令修改，但却未被任何Input&#x2F;Output操作表达式指定，所以你需要在Clobber&#x2F;Modify域指定”R0”，以让GCC知道这一点。</li>
-</ol>
-</li>
-<li>Clobber&#x2F;Modify域存在”memory”，那么GCC会保证在此内联汇编之前，如果某个内存的内容被装入了寄存器，那么在这个内联汇编之后，如果需要使用这个内存处的内容，就会<strong>直接到这个内存处重新读取，而不是使用被存放在寄存器中的拷贝</strong>。因为这个 时候寄存器中的拷贝已经很可能和内存处的内容不一致了。</li>
-</ol>
-</li>
-</ol>
-<h2 id="输入输出与指令的对应关系"><a href="#输入输出与指令的对应关系" class="headerlink" title="输入输出与指令的对应关系"></a>输入输出与指令的对应关系</h2><h3 id="寄存器约束符Operation-Constraint"><a href="#寄存器约束符Operation-Constraint" class="headerlink" title="寄存器约束符Operation Constraint"></a>寄存器约束符Operation Constraint</h3><p>每一个Input和Output表达式都必须指定自己的操作约束Operation Constraint，这里将讨论在80386平台上所可能使用的操作约束。</p>
-<p>当前的输入或输出需要借助一个寄存器时，需要为其指定一个寄存器约束，可以直接指定一个寄存器的名字。</p>
-<p>常用的寄存器约束的缩写 </p>
-<table>
-<thead>
-<tr>
-<th>约束</th>
-<th>意义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>r</td>
-<td>表示使用一个通用寄存器，由 GCC  在%eax&#x2F;%ax&#x2F;%al,%ebx&#x2F;%bx&#x2F;%bl,%ecx&#x2F;%cx&#x2F;%cl,%edx&#x2F;%dx&#x2F;%dl中选取一个GCC认为合适的。</td>
-</tr>
-<tr>
-<td>g</td>
-<td>表示使用任意一个寄存器，由GCC在所有的可以使用的寄存器中选取一个GCC认为合适的。</td>
-</tr>
-<tr>
-<td>q</td>
-<td>表示使用一个通用寄存器，和约束r的意义相同。</td>
-</tr>
-<tr>
-<td>a</td>
-<td>表示使用%eax&#x2F;%ax&#x2F;%al</td>
-</tr>
-<tr>
-<td>b</td>
-<td>表示使用%ebx&#x2F;%bx&#x2F;%bl</td>
-</tr>
-<tr>
-<td>c</td>
-<td>表示使用%ecx&#x2F;%cx&#x2F;%cl</td>
-</tr>
-<tr>
-<td>d</td>
-<td>表示使用%edx&#x2F;%dx&#x2F;%dl</td>
-</tr>
-<tr>
-<td>D</td>
-<td>表示使用%edi&#x2F;%di</td>
-</tr>
-<tr>
-<td>S</td>
-<td>表示使用%esi&#x2F;%si</td>
-</tr>
-<tr>
-<td>f</td>
-<td>表示使用浮点寄存器</td>
-</tr>
-<tr>
-<td>t</td>
-<td>表示使用第一个浮点寄存器</td>
-</tr>
-<tr>
-<td>u</td>
-<td>表示使用第二个浮点寄存器</td>
-</tr>
-</tbody></table>
-<table>
-<thead>
-<tr>
-<th>分类</th>
-<th>限定符</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>通用寄存器</td>
-<td>“a”</td>
-<td>将输入变量放入eax 这里有一个问题:假设eax已经被使用,那怎么办?其实很简单:因为GCC 知道eax 已经被使用,它在这段汇编代码的起始处插入一条语句pushl %eax,将eax 内容保存到堆栈,然 后在这段代码结束处再增加一条语句popl %eax,恢复eax的内容</td>
-</tr>
-<tr>
-<td></td>
-<td>“b”</td>
-<td>将输入变量放入ebx</td>
-</tr>
-<tr>
-<td></td>
-<td>“c”</td>
-<td>将输入变量放入ecx</td>
-</tr>
-<tr>
-<td></td>
-<td>“d”</td>
-<td>将输入变量放入edx</td>
-</tr>
-<tr>
-<td></td>
-<td>“s”</td>
-<td>将输入变量放入esi</td>
-</tr>
-<tr>
-<td></td>
-<td>“d”</td>
-<td>将输入变量放入edi</td>
-</tr>
-<tr>
-<td></td>
-<td>“q”</td>
-<td>将输入变量放入eax,ebx,ecx,edx中的一个</td>
-</tr>
-<tr>
-<td></td>
-<td>“r”</td>
-<td>将输入变量放入通用寄存器,也就是eax,ebx,ecx,edx,esi,edi中的一个</td>
-</tr>
-<tr>
-<td></td>
-<td>“A”</td>
-<td>把eax和edx合成一个64 位的寄存器(use long longs)</td>
-</tr>
-<tr>
-<td>内存</td>
-<td>“m”</td>
-<td>内存变量</td>
-</tr>
-<tr>
-<td></td>
-<td>“o”</td>
-<td>操作数为内存变量,但是其寻址方式是偏移量类型, 也即是基址寻址,或者是基址加变址寻址</td>
-</tr>
-<tr>
-<td></td>
-<td>“V”</td>
-<td>操作数为内存变量,但寻址方式不是偏移量类型</td>
-</tr>
-<tr>
-<td></td>
-<td>“ “</td>
-<td>操作数为内存变量,但寻址方式为自动增量</td>
-</tr>
-<tr>
-<td></td>
-<td>“p”</td>
-<td>操作数是一个合法的内存地址(指针)</td>
-</tr>
-<tr>
-<td>寄存器或内存</td>
-<td>“g”</td>
-<td>将输入变量放入eax,ebx,ecx,edx中的一个 或者作为内存变量</td>
-</tr>
-<tr>
-<td></td>
-<td>“X”</td>
-<td>操作数可以是任何类型</td>
-</tr>
-<tr>
-<td>立即数</td>
-<td>“I”</td>
-<td>0-31之间的立即数(用于32位移位指令)</td>
-</tr>
-<tr>
-<td></td>
-<td>“J”</td>
-<td>0-63之间的立即数(用于64位移位指令)</td>
-</tr>
-<tr>
-<td></td>
-<td>“N”</td>
-<td>0-255之间的立即数(用于out指令)</td>
-</tr>
-<tr>
-<td></td>
-<td>“i”</td>
-<td>立即数</td>
-</tr>
-<tr>
-<td></td>
-<td>“n”</td>
-<td>立即数,有些系统不支持除字以外的立即数, 这些系统应该使用”n”而不是”i”</td>
-</tr>
-<tr>
-<td>匹配</td>
-<td>“ 0 “,“1” …“9”</td>
-<td>,	表示用它限制的操作数与某个指定的操作数匹配,也即该操作数就是指定的那个操作数,例如”0”去描述”%1”操作数,那么”%1”引用的其实就是”%0”操作数,注意作为限定符字母的0-9 与 指令中的”%0”-“%9”的区别,前者描述操作数,后者代表操作数。</td>
-</tr>
-<tr>
-<td></td>
-<td>&amp;;</td>
-<td>该输出操作数不能使用过和输入操作数相同的寄存器</td>
-</tr>
-<tr>
-<td>操作数类型</td>
-<td>“&#x3D;”</td>
-<td>操作数在指令中是只写的(输出操作数)</td>
-</tr>
-<tr>
-<td></td>
-<td>“+”</td>
-<td>操作数在指令中是读写类型的(输入输出操作数)</td>
-</tr>
-<tr>
-<td>浮点数</td>
-<td>“f”</td>
-<td>浮点寄存器</td>
-</tr>
-<tr>
-<td></td>
-<td>“t”</td>
-<td>第一个浮点寄存器</td>
-</tr>
-<tr>
-<td></td>
-<td>“u”</td>
-<td>第二个浮点寄存器</td>
-</tr>
-<tr>
-<td></td>
-<td>“G”</td>
-<td>标准的80387浮点常数</td>
-</tr>
-<tr>
-<td></td>
-<td>%</td>
-<td>该操作数可以和下一个操作数交换位置.例如addl的两个操作数可以交换顺序 (当然两个操作数都不能是立即数)</td>
-</tr>
-<tr>
-<td></td>
-<td>#</td>
-<td>部分注释,从该字符到其后的逗号之间所有字母被忽略</td>
-</tr>
-<tr>
-<td></td>
-<td>*</td>
-<td>表示如果选用寄存器,则其后的字母被忽略</td>
-</tr>
-</tbody></table>
-<h3 id="内存约束"><a href="#内存约束" class="headerlink" title="内存约束"></a>内存约束</h3><p>如果一个Input&#x2F;Output  操作表达式的C&#x2F;C++表达式表现为一个内存地址，不想借助于任何寄存器，则可以使用内存约束。比如：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">__asm__(&quot;lidt%0&quot;:&quot;=m&quot;(__idt_addr));</span><br><span class="line">__asm__(&quot;lidt%0&quot;::&quot;m&quot;(__idt_addr));</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th>修饰符</th>
-<th>输入&#x2F;输出</th>
-<th>意义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>&#x3D;</td>
-<td>O</td>
-<td>表示此Output操作表达式是Write-Only的。</td>
-</tr>
-</tbody></table>
-<ul>
-<li><pre><code>           | O               |表示此Output操作表达式是Read-Write的。
-</code></pre>
-</li>
-</ul>
-<p>&amp;                | O               |表示此Output操作表达式独占为其指定的寄存器。<br>%               | I                 |表示此Input  操作表达式中的C&#x2F;C++表达式可以和下一 个Input操作表达式中的C&#x2F;C++表达式互换</p>
-<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Static __inline__ void __set_bit(int nr, volatile void * addr)</span><br><span class="line">&#123;</span><br><span class="line">         __asm__(</span><br><span class="line">                         &quot;btsl %1,%0&quot;</span><br><span class="line">                         :&quot;=m&quot; (ADDR)</span><br><span class="line">                         :&quot;Ir&quot; (nr));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>第一个占位符%0与C 语言变量ADDR对应,第二个占位符%1与C语言变量nr对应。因此上面的汇编语句代码与下面的伪代码等价:btsl nr, ADDR</p>
-<h2 id="Clobber-Modify域存在”memory”的其他影响"><a href="#Clobber-Modify域存在”memory”的其他影响" class="headerlink" title="Clobber&#x2F;Modify域存在”memory”的其他影响"></a>Clobber&#x2F;Modify域存在”memory”的其他影响</h2><p>使用”memory”是向GCC声明内存发生了变化，而内存发生变化带来的影响并不止这一点。</p>
-<p>例如：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int main(int __argc, char* __argv[]) </span><br><span class="line">&#123; </span><br><span class="line">    int* __p = (int*)__argc; </span><br><span class="line">    (*__p) = 9999; </span><br><span class="line">    __asm__(&quot;&quot;:::&quot;memory&quot;); </span><br><span class="line">    if((*__p) == 9999) </span><br><span class="line">        return 5; </span><br><span class="line">    return (*__p); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>本例中，如果没有那条内联汇编语句，那个if语句的判断条件就完全是一句废话。GCC在优化时会意识到这一点，而直接只生成return 5的汇编代码，而不会再生成if语句的相关代码，而不会生成return (*__p)的相关代码。</p>
-<p>但你加上了这条内联汇编语句，它除了声明内存变化之外，什么都没有做。</p>
-<p>但GCC此时就不能简单的认为它不需要判断都知道 (*__p)一定与9999相等，它只有老老实实生成这条if语句的汇编代码，一起相关的两个return语句相关代码。</p>
-<p>另外在linux内核中内存屏障也是基于它实现的include&#x2F;asm&#x2F;system.h中</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># define barrier() _asm__volatile_(&quot;&quot;: : :&quot;memory&quot;)</span><br></pre></td></tr></table></figure>
-<p>主要是保证程序的执行遵循顺序一致性。呵呵，有的时候你写代码的顺序，不一定是终执行的顺序，这个是处理器有关的。</p>
-<h2 id="Linux-源码例子"><a href="#Linux-源码例子" class="headerlink" title="Linux 源码例子"></a>Linux 源码例子</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">static inline char * strcpy(char * dest, const char *src)</span><br><span class="line">&#123;</span><br><span class="line">	char *xdest = dest;</span><br><span class="line">	__asm__ __volatile__</span><br><span class="line">	(&quot;1: \tmoeb %1@+, %0@+\n\t&quot;   &quot;jne 1b&quot;  //这个冒号不是分隔符</span><br><span class="line">	: &quot;=a&quot; (dest) , &quot;=a&quot; (stc)</span><br><span class="line">	: &quot;0&quot;(dest), &quot;1&quot; (src)</span><br><span class="line">	 : &quot;memory&quot;);</span><br><span class="line">	return xdest;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yi412/article/details/80846083">https://blog.csdn.net/yi412/article/details/80846083</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/elnino/p/4313340.html">https://www.cnblogs.com/elnino/p/4313340.html</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-13T16:00:00.000Z" title="8/13/2022, 4:00:00 PM">2022-08-13</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.077Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">2 minutes read (About 355 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/13/Work/software/linux-apps/tarZipRar/">Tar Zip Rar</a></p><div class="content"><h2 id="各种指令的对比"><a href="#各种指令的对比" class="headerlink" title="各种指令的对比"></a>各种指令的对比</h2><table>
-<thead>
-<tr>
-<th>命令</th>
-<th>压缩空间效果</th>
-<th>压缩时间效果</th>
-<th>解压时间</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>tar -cf</td>
-<td>2.9G</td>
-<td>13.8s</td>
-<td>3.3s</td>
-<td><code>tar -cf archive.tar foo</code>归档文件，没有压缩功能</td>
-</tr>
-<tr>
-<td>tar -zcf</td>
-<td>823M</td>
-<td>1:44</td>
-<td>19s</td>
-<td><code>tar -zcf archive.tar.gz foo</code>归档并使用gzip压缩文件，gzip是zip的GNU实现，是最老的公开压缩方法</td>
-</tr>
-<tr>
-<td>zip -1r</td>
-<td>856M</td>
-<td>48.6s</td>
-<td>23.3s</td>
-<td><code>zip -1qr intel.zip intel</code>, <code>-1</code> compress faster，<code>unzip</code>解压</td>
-</tr>
-<tr>
-<td>zip -9r</td>
-<td>824M</td>
-<td>11:19</td>
-<td>24s</td>
-<td>压缩这也太慢了吧</td>
-</tr>
-<tr>
-<td>rar a</td>
-<td>683M</td>
-<td>2:02</td>
-<td>46s</td>
-<td><code>unrar x</code>解压</td>
-</tr>
-</tbody></table>
-<p>上述测试基于大小3GB的文件夹</p>
-<h2 id="关于rar"><a href="#关于rar" class="headerlink" title="关于rar"></a>关于rar</h2><p>虽然说好像有<a target="_blank" rel="noopener" href="https://www.rarlab.com/download.htm">专利的软件</a>，但是<code>sudo apt install rar</code>貌似就可以安装。但是空间效果确实还行多压1&#x2F;3,但是时间要多两倍。</p>
-<h2 id="还是建议tar-gz"><a href="#还是建议tar-gz" class="headerlink" title="还是建议tar.gz"></a>还是建议tar.gz</h2><p>因为 7z 和 zip 压缩格式都不能保留 unix 风格的文件权限，比如解压出个<strong>可执行文件</strong>要重新 chmod chown 才能恢复正常。而 tar 格式可以。而 tar 本身不提供压缩，无非就是把包括所有文件的內容和权限拼成一个文件而己，所以用另外如 gzip 格式压缩。为什么是 gzip，因为几乎所有 linux 都支持而已。</p>
-<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
-无
-
-</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/page/21/">Previous</a></div><div class="pagination-next"><a href="/page/23/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/">1</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/21/">21</a></li><li><a class="pagination-link is-current" href="/page/22/">22</a></li><li><a class="pagination-link" href="/page/23/">23</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/34/">34</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">338</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">26</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">470</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">20</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">47</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-13T01:42:31.000Z">2023-11-13</time></p><p class="title"><a href="/2023/11/13/Work/Architecture/microHardware/Predictor/">Predictor</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-12T15:27:51.000Z">2023-11-12</time></p><p class="title"><a href="/2023/11/12/OutOfWork/3-homepage/themeConfiguration/hexo-icarus/">Hexo Icarus Theme configuration</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-12T08:04:51.000Z">2023-11-12</time></p><p class="title"><a href="/2023/11/12/OutOfWork/2-selfLearning/AI-tools/openFreeMultimodelAITools/">Open &amp;Free Multimodel AI Tools</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-12T07:41:03.000Z">2023-11-12</time></p><p class="title"><a href="/2023/11/12/diary/3-EfficientLife/teamCooperation/">Team Cooperation</a></p><p class="categories"><a href="/categories/thinking/">thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-11T09:55:04.000Z">2023-11-11</time></p><p class="title"><a href="/2023/11/11/OutOfWork/3-homepage/blogBuilder/hexo/">Hexo</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">199</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/"><span class="level-start"><span class="level-item">2022</span></span><span class="level-end"><span class="level-item tag">67</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/"><span class="level-start"><span class="level-item">2021</span></span><span class="level-end"><span class="level-item tag">72</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2023 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/page/21/">Previous</a></div><div class="pagination-next"><a href="/page/23/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/">1</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/21/">21</a></li><li><a class="pagination-link is-current" href="/page/22/">22</a></li><li><a class="pagination-link" href="/page/23/">23</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/35/">35</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">341</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">26</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">470</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">20</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">49</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T07:38:50.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/HostCoreWithPIMCoreIn3DMem/">Host-Core With PIM-Core In 3D-stacked Mem</a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T03:24:26.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/AddressTranslationForPIM/">AddressTranslationForPIM</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T03:23:38.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/experimentsForPIMMotivation/">Experiments For PIM Motivation</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-13T01:42:31.000Z">2023-11-13</time></p><p class="title"><a href="/2023/11/13/Work/Architecture/microHardware/Predictor/">Predictor</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-12T15:27:51.000Z">2023-11-12</time></p><p class="title"><a href="/2023/11/12/OutOfWork/3-homepage/themeConfiguration/hexo-icarus/">Hexo Icarus Theme configuration</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">202</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/"><span class="level-start"><span class="level-item">2022</span></span><span class="level-end"><span class="level-item tag">67</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/"><span class="level-start"><span class="level-item">2021</span></span><span class="level-end"><span class="level-item tag">72</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2023 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
             article: {
                 highlight: {
                     clipboard: true,

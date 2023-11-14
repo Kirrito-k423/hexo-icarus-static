@@ -29,7 +29,373 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-13T16:00:00.000Z" title="8/13/2022, 4:00:00 PM">2022-08-13</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.077Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">15 minutes read (About 2206 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/13/Work/software/perf/vtuneAssembly/">Vtune Assembly Analysis</a></p><div class="content"><h2 id="超算机器用vtune的命令行文件分析"><a href="#超算机器用vtune的命令行文件分析" class="headerlink" title="超算机器用vtune的命令行文件分析"></a>超算机器用vtune的命令行文件分析</h2><ol>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-16T03:18:15.000Z" title="8/16/2022, 3:18:15 AM">2022-08-16</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.362Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">2 minutes read (About 339 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/16/Work/Programming/1-env/c/oneapi/">oneApi</a></p><div class="content"><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/develop/documentation/installation-guide-for-intel-oneapi-toolkits-linux/top/installation/install-with-command-line.html#install-with-command-line">命令行安装</a></p>
+<h3 id="Intel-OneAPI-base-toolkit"><a href="#Intel-OneAPI-base-toolkit" class="headerlink" title="Intel OneAPI base toolkit"></a>Intel OneAPI base toolkit</h3><p>必须先安装base，可以看到默认安装的内容</p>
+<p><img src="https://pic.shaojiemike.top/img/20220816113819.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220816113912.png"></p>
+<p>这个<a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/develop/documentation/debugging-dpcpp-linux/top.html">GDB</a>好像可以分析多进程</p>
+<p><img src="https://pic.shaojiemike.top/img/20220816114248.png"></p>
+<h3 id="Intel-OneAPI-HPC-toolkit"><a href="#Intel-OneAPI-HPC-toolkit" class="headerlink" title="Intel OneAPI HPC toolkit"></a>Intel OneAPI HPC toolkit</h3><p><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/hpc-toolkit.html">Intel OneAPI HPC toolkit</a>包括了icc,icpc,ifort和OpenMP,IntelMPI还有MKL(Intel® oneAPI Math Kernel Library (oneMKL))</p>
+<p>在<a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/hpc-toolkit-download.html">Download界面选择版本</a>, 选择online或者offline会有推荐指令,如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://registrationcenter-download.intel.com/akdlm/irc_nas/18679/l_HPCKit_p_2022.2.0.191.sh</span><br><span class="line"></span><br><span class="line">sudo sh ./l_HPCKit_p_2022.2.0.191.sh</span><br></pre></td></tr></table></figure>
+<h2 id="icx-icpx"><a href="#icx-icpx" class="headerlink" title="icx icpx"></a>icx icpx</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt; icx -v</span><br><span class="line">Intel(R) oneAPI DPC++/C++ Compiler 2022.0.0 (2022.0.0.20211123)</span><br><span class="line">Target: x86_64-unknown-linux-gnu</span><br><span class="line">Thread model: posix</span><br><span class="line">InstalledDir: /opt/intel/oneapi/compiler/2022.0.2/linux/bin-llvm</span><br><span class="line">Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/8</span><br><span class="line">Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/9</span><br><span class="line">Selected GCC installation: /usr/lib/gcc/x86_64-linux-gnu/9</span><br><span class="line">Candidate multilib: .;@m64</span><br><span class="line">Selected multilib: .;@m64</span><br><span class="line">Found CUDA installation: /usr/local/cuda-11.5, version</span><br><span class="line"></span><br><span class="line">&gt; icpx --help</span><br><span class="line">OVERVIEW: Intel(R) oneAPI DPC++/C++ Compiler</span><br><span class="line"></span><br><span class="line">USAGE: clang++ [options] file...</span><br></pre></td></tr></table></figure>
+
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/develop/documentation/installation-guide-for-intel-oneapi-toolkits-linux/top/prerequisites/install-intel-gpu-drivers.html">https://www.intel.com/content/www/us/en/develop/documentation/installation-guide-for-intel-oneapi-toolkits-linux/top/prerequisites/install-intel-gpu-drivers.html</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-15T12:35:22.000Z" title="8/15/2022, 12:35:22 PM">2022-08-15</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.366Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">17 minutes read (About 2592 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/15/Work/Programming/2.1-Assembly/assemblyInline/">Inline Assembly</a></p><div class="content"><h2 id="GCC内联汇编"><a href="#GCC内联汇编" class="headerlink" title="GCC内联汇编"></a>GCC内联汇编</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__asm__　__volatile__(&quot;Instruction List&quot; : Output : Input : Clobber/Modify);</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><code>__asm__</code>或asm 用来声明一个内联汇编表达式，所以任何一个内联汇编表达式都是以它开头的，是必不可少的。</li>
+<li><code>__volatile__</code>或volatile 是可选的。如果用了它，则是向GCC 声明不允许对该内联汇编优化，否则当 使用了优化选项(-O)进行编译时，GCC 将会根据自己的判断决定是否将这个内联汇编表达式中的指令优化掉。</li>
+<li>Instruction List 是汇编指令序列。它可以是空的，比如：<code>__asm__ __volatile__(&quot;&quot;)</code>; 或 <code>__asm__ (&quot;&quot;)</code>;都是完全合法的内联汇编表达式，只不过这两条语句没有什么意义。<ol>
+<li>但并非所有Instruction List 为空的内联汇编表达式都是没有意义的，比如：<code>__asm__ (&quot;&quot;:::&quot;memory&quot;)</code>;就非常有意义，它向GCC 声明：“内存作了改动”，GCC 在编译的时候，会将此因素考虑进去。</li>
+<li>当在”Instruction List”中有多条指令的时候，需要用分号（；）或换行符（\n）将它们分开。</li>
+<li>指令中的操作数可以使用占位符引用C语言变量,<strong>操作数占位符</strong>最多10个,名称如下:<code>%0,%1,…,%9</code>。指令中使用占位符表示的操作数,总被视为long型(4个字节),<ol>
+<li>但对其施加的操作根据指令可以是字或者字节,当把操作数当作字或者字节使用时,<strong>默认为低字或者低字节</strong>。</li>
+<li>对字节操作可以显式的<strong>指明是低字节还是次字节</strong>。方法是在%和序号之间插入一个字母,”b”代表低字节,”h”代表高字节,例如:<code>%h1</code>。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Output&#x2F;Input <ol>
+<li>格式为形如<code>&quot;constraint&quot;(variable)</code>的列表（逗号分隔)。按照出现的顺序分别与指令操作数”%0”，”%1”对应</li>
+<li>每个输出操作数的限定字符串必须包含”&#x3D;”表示他是一个输出操作数。例子<code>&quot;=r&quot; (value)</code></li>
+</ol>
+</li>
+<li>Clobber&#x2F;Modify(由逗号格开的字符串组成)<ol>
+<li>在Input&#x2F;Output操作表达式所指定的寄存器，或当你为一些Input&#x2F;Output操作表达式使用”r”约束，让GCC为你选择一个寄存器时，GCC知道这些寄存器是被修改的，你根本不需要在Clobber&#x2F;Modify域再声明它们。</li>
+<li>但是对于”Instruction List”中的临时寄存器，需要在Clobber&#x2F;Modify域声明这些寄存器或内存，让GCC知道修改了他们<ol>
+<li>例子:<code>__asm__ (&quot;mov R0, #0x34&quot; : : : &quot;R0&quot;);</code>寄存器R0出现在”Instruction List中”，并且被mov指令修改，但却未被任何Input&#x2F;Output操作表达式指定，所以你需要在Clobber&#x2F;Modify域指定”R0”，以让GCC知道这一点。</li>
+</ol>
+</li>
+<li>Clobber&#x2F;Modify域存在”memory”，那么GCC会保证在此内联汇编之前，如果某个内存的内容被装入了寄存器，那么在这个内联汇编之后，如果需要使用这个内存处的内容，就会<strong>直接到这个内存处重新读取，而不是使用被存放在寄存器中的拷贝</strong>。因为这个 时候寄存器中的拷贝已经很可能和内存处的内容不一致了。</li>
+</ol>
+</li>
+</ol>
+<h2 id="输入输出与指令的对应关系"><a href="#输入输出与指令的对应关系" class="headerlink" title="输入输出与指令的对应关系"></a>输入输出与指令的对应关系</h2><h3 id="寄存器约束符Operation-Constraint"><a href="#寄存器约束符Operation-Constraint" class="headerlink" title="寄存器约束符Operation Constraint"></a>寄存器约束符Operation Constraint</h3><p>每一个Input和Output表达式都必须指定自己的操作约束Operation Constraint，这里将讨论在80386平台上所可能使用的操作约束。</p>
+<p>当前的输入或输出需要借助一个寄存器时，需要为其指定一个寄存器约束，可以直接指定一个寄存器的名字。</p>
+<p>常用的寄存器约束的缩写 </p>
+<table>
+<thead>
+<tr>
+<th>约束</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>r</td>
+<td>表示使用一个通用寄存器，由 GCC  在%eax&#x2F;%ax&#x2F;%al,%ebx&#x2F;%bx&#x2F;%bl,%ecx&#x2F;%cx&#x2F;%cl,%edx&#x2F;%dx&#x2F;%dl中选取一个GCC认为合适的。</td>
+</tr>
+<tr>
+<td>g</td>
+<td>表示使用任意一个寄存器，由GCC在所有的可以使用的寄存器中选取一个GCC认为合适的。</td>
+</tr>
+<tr>
+<td>q</td>
+<td>表示使用一个通用寄存器，和约束r的意义相同。</td>
+</tr>
+<tr>
+<td>a</td>
+<td>表示使用%eax&#x2F;%ax&#x2F;%al</td>
+</tr>
+<tr>
+<td>b</td>
+<td>表示使用%ebx&#x2F;%bx&#x2F;%bl</td>
+</tr>
+<tr>
+<td>c</td>
+<td>表示使用%ecx&#x2F;%cx&#x2F;%cl</td>
+</tr>
+<tr>
+<td>d</td>
+<td>表示使用%edx&#x2F;%dx&#x2F;%dl</td>
+</tr>
+<tr>
+<td>D</td>
+<td>表示使用%edi&#x2F;%di</td>
+</tr>
+<tr>
+<td>S</td>
+<td>表示使用%esi&#x2F;%si</td>
+</tr>
+<tr>
+<td>f</td>
+<td>表示使用浮点寄存器</td>
+</tr>
+<tr>
+<td>t</td>
+<td>表示使用第一个浮点寄存器</td>
+</tr>
+<tr>
+<td>u</td>
+<td>表示使用第二个浮点寄存器</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>分类</th>
+<th>限定符</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>通用寄存器</td>
+<td>“a”</td>
+<td>将输入变量放入eax 这里有一个问题:假设eax已经被使用,那怎么办?其实很简单:因为GCC 知道eax 已经被使用,它在这段汇编代码的起始处插入一条语句pushl %eax,将eax 内容保存到堆栈,然 后在这段代码结束处再增加一条语句popl %eax,恢复eax的内容</td>
+</tr>
+<tr>
+<td></td>
+<td>“b”</td>
+<td>将输入变量放入ebx</td>
+</tr>
+<tr>
+<td></td>
+<td>“c”</td>
+<td>将输入变量放入ecx</td>
+</tr>
+<tr>
+<td></td>
+<td>“d”</td>
+<td>将输入变量放入edx</td>
+</tr>
+<tr>
+<td></td>
+<td>“s”</td>
+<td>将输入变量放入esi</td>
+</tr>
+<tr>
+<td></td>
+<td>“d”</td>
+<td>将输入变量放入edi</td>
+</tr>
+<tr>
+<td></td>
+<td>“q”</td>
+<td>将输入变量放入eax,ebx,ecx,edx中的一个</td>
+</tr>
+<tr>
+<td></td>
+<td>“r”</td>
+<td>将输入变量放入通用寄存器,也就是eax,ebx,ecx,edx,esi,edi中的一个</td>
+</tr>
+<tr>
+<td></td>
+<td>“A”</td>
+<td>把eax和edx合成一个64 位的寄存器(use long longs)</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>“m”</td>
+<td>内存变量</td>
+</tr>
+<tr>
+<td></td>
+<td>“o”</td>
+<td>操作数为内存变量,但是其寻址方式是偏移量类型, 也即是基址寻址,或者是基址加变址寻址</td>
+</tr>
+<tr>
+<td></td>
+<td>“V”</td>
+<td>操作数为内存变量,但寻址方式不是偏移量类型</td>
+</tr>
+<tr>
+<td></td>
+<td>“ “</td>
+<td>操作数为内存变量,但寻址方式为自动增量</td>
+</tr>
+<tr>
+<td></td>
+<td>“p”</td>
+<td>操作数是一个合法的内存地址(指针)</td>
+</tr>
+<tr>
+<td>寄存器或内存</td>
+<td>“g”</td>
+<td>将输入变量放入eax,ebx,ecx,edx中的一个 或者作为内存变量</td>
+</tr>
+<tr>
+<td></td>
+<td>“X”</td>
+<td>操作数可以是任何类型</td>
+</tr>
+<tr>
+<td>立即数</td>
+<td>“I”</td>
+<td>0-31之间的立即数(用于32位移位指令)</td>
+</tr>
+<tr>
+<td></td>
+<td>“J”</td>
+<td>0-63之间的立即数(用于64位移位指令)</td>
+</tr>
+<tr>
+<td></td>
+<td>“N”</td>
+<td>0-255之间的立即数(用于out指令)</td>
+</tr>
+<tr>
+<td></td>
+<td>“i”</td>
+<td>立即数</td>
+</tr>
+<tr>
+<td></td>
+<td>“n”</td>
+<td>立即数,有些系统不支持除字以外的立即数, 这些系统应该使用”n”而不是”i”</td>
+</tr>
+<tr>
+<td>匹配</td>
+<td>“ 0 “,“1” …“9”</td>
+<td>,	表示用它限制的操作数与某个指定的操作数匹配,也即该操作数就是指定的那个操作数,例如”0”去描述”%1”操作数,那么”%1”引用的其实就是”%0”操作数,注意作为限定符字母的0-9 与 指令中的”%0”-“%9”的区别,前者描述操作数,后者代表操作数。</td>
+</tr>
+<tr>
+<td></td>
+<td>&amp;;</td>
+<td>该输出操作数不能使用过和输入操作数相同的寄存器</td>
+</tr>
+<tr>
+<td>操作数类型</td>
+<td>“&#x3D;”</td>
+<td>操作数在指令中是只写的(输出操作数)</td>
+</tr>
+<tr>
+<td></td>
+<td>“+”</td>
+<td>操作数在指令中是读写类型的(输入输出操作数)</td>
+</tr>
+<tr>
+<td>浮点数</td>
+<td>“f”</td>
+<td>浮点寄存器</td>
+</tr>
+<tr>
+<td></td>
+<td>“t”</td>
+<td>第一个浮点寄存器</td>
+</tr>
+<tr>
+<td></td>
+<td>“u”</td>
+<td>第二个浮点寄存器</td>
+</tr>
+<tr>
+<td></td>
+<td>“G”</td>
+<td>标准的80387浮点常数</td>
+</tr>
+<tr>
+<td></td>
+<td>%</td>
+<td>该操作数可以和下一个操作数交换位置.例如addl的两个操作数可以交换顺序 (当然两个操作数都不能是立即数)</td>
+</tr>
+<tr>
+<td></td>
+<td>#</td>
+<td>部分注释,从该字符到其后的逗号之间所有字母被忽略</td>
+</tr>
+<tr>
+<td></td>
+<td>*</td>
+<td>表示如果选用寄存器,则其后的字母被忽略</td>
+</tr>
+</tbody></table>
+<h3 id="内存约束"><a href="#内存约束" class="headerlink" title="内存约束"></a>内存约束</h3><p>如果一个Input&#x2F;Output  操作表达式的C&#x2F;C++表达式表现为一个内存地址，不想借助于任何寄存器，则可以使用内存约束。比如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">__asm__(&quot;lidt%0&quot;:&quot;=m&quot;(__idt_addr));</span><br><span class="line">__asm__(&quot;lidt%0&quot;::&quot;m&quot;(__idt_addr));</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>输入&#x2F;输出</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x3D;</td>
+<td>O</td>
+<td>表示此Output操作表达式是Write-Only的。</td>
+</tr>
+</tbody></table>
+<ul>
+<li><pre><code>           | O               |表示此Output操作表达式是Read-Write的。
+</code></pre>
+</li>
+</ul>
+<p>&amp;                | O               |表示此Output操作表达式独占为其指定的寄存器。<br>%               | I                 |表示此Input  操作表达式中的C&#x2F;C++表达式可以和下一 个Input操作表达式中的C&#x2F;C++表达式互换</p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Static __inline__ void __set_bit(int nr, volatile void * addr)</span><br><span class="line">&#123;</span><br><span class="line">         __asm__(</span><br><span class="line">                         &quot;btsl %1,%0&quot;</span><br><span class="line">                         :&quot;=m&quot; (ADDR)</span><br><span class="line">                         :&quot;Ir&quot; (nr));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第一个占位符%0与C 语言变量ADDR对应,第二个占位符%1与C语言变量nr对应。因此上面的汇编语句代码与下面的伪代码等价:btsl nr, ADDR</p>
+<h2 id="Clobber-Modify域存在”memory”的其他影响"><a href="#Clobber-Modify域存在”memory”的其他影响" class="headerlink" title="Clobber&#x2F;Modify域存在”memory”的其他影响"></a>Clobber&#x2F;Modify域存在”memory”的其他影响</h2><p>使用”memory”是向GCC声明内存发生了变化，而内存发生变化带来的影响并不止这一点。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int main(int __argc, char* __argv[]) </span><br><span class="line">&#123; </span><br><span class="line">    int* __p = (int*)__argc; </span><br><span class="line">    (*__p) = 9999; </span><br><span class="line">    __asm__(&quot;&quot;:::&quot;memory&quot;); </span><br><span class="line">    if((*__p) == 9999) </span><br><span class="line">        return 5; </span><br><span class="line">    return (*__p); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>本例中，如果没有那条内联汇编语句，那个if语句的判断条件就完全是一句废话。GCC在优化时会意识到这一点，而直接只生成return 5的汇编代码，而不会再生成if语句的相关代码，而不会生成return (*__p)的相关代码。</p>
+<p>但你加上了这条内联汇编语句，它除了声明内存变化之外，什么都没有做。</p>
+<p>但GCC此时就不能简单的认为它不需要判断都知道 (*__p)一定与9999相等，它只有老老实实生成这条if语句的汇编代码，一起相关的两个return语句相关代码。</p>
+<p>另外在linux内核中内存屏障也是基于它实现的include&#x2F;asm&#x2F;system.h中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># define barrier() _asm__volatile_(&quot;&quot;: : :&quot;memory&quot;)</span><br></pre></td></tr></table></figure>
+<p>主要是保证程序的执行遵循顺序一致性。呵呵，有的时候你写代码的顺序，不一定是终执行的顺序，这个是处理器有关的。</p>
+<h2 id="Linux-源码例子"><a href="#Linux-源码例子" class="headerlink" title="Linux 源码例子"></a>Linux 源码例子</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">static inline char * strcpy(char * dest, const char *src)</span><br><span class="line">&#123;</span><br><span class="line">	char *xdest = dest;</span><br><span class="line">	__asm__ __volatile__</span><br><span class="line">	(&quot;1: \tmoeb %1@+, %0@+\n\t&quot;   &quot;jne 1b&quot;  //这个冒号不是分隔符</span><br><span class="line">	: &quot;=a&quot; (dest) , &quot;=a&quot; (stc)</span><br><span class="line">	: &quot;0&quot;(dest), &quot;1&quot; (src)</span><br><span class="line">	 : &quot;memory&quot;);</span><br><span class="line">	return xdest;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yi412/article/details/80846083">https://blog.csdn.net/yi412/article/details/80846083</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/elnino/p/4313340.html">https://www.cnblogs.com/elnino/p/4313340.html</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-13T16:00:00.000Z" title="8/13/2022, 4:00:00 PM">2022-08-13</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.374Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">2 minutes read (About 355 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/13/Work/software/linux-apps/tarZipRar/">Tar Zip Rar</a></p><div class="content"><h2 id="各种指令的对比"><a href="#各种指令的对比" class="headerlink" title="各种指令的对比"></a>各种指令的对比</h2><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>压缩空间效果</th>
+<th>压缩时间效果</th>
+<th>解压时间</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tar -cf</td>
+<td>2.9G</td>
+<td>13.8s</td>
+<td>3.3s</td>
+<td><code>tar -cf archive.tar foo</code>归档文件，没有压缩功能</td>
+</tr>
+<tr>
+<td>tar -zcf</td>
+<td>823M</td>
+<td>1:44</td>
+<td>19s</td>
+<td><code>tar -zcf archive.tar.gz foo</code>归档并使用gzip压缩文件，gzip是zip的GNU实现，是最老的公开压缩方法</td>
+</tr>
+<tr>
+<td>zip -1r</td>
+<td>856M</td>
+<td>48.6s</td>
+<td>23.3s</td>
+<td><code>zip -1qr intel.zip intel</code>, <code>-1</code> compress faster，<code>unzip</code>解压</td>
+</tr>
+<tr>
+<td>zip -9r</td>
+<td>824M</td>
+<td>11:19</td>
+<td>24s</td>
+<td>压缩这也太慢了吧</td>
+</tr>
+<tr>
+<td>rar a</td>
+<td>683M</td>
+<td>2:02</td>
+<td>46s</td>
+<td><code>unrar x</code>解压</td>
+</tr>
+</tbody></table>
+<p>上述测试基于大小3GB的文件夹</p>
+<h2 id="关于rar"><a href="#关于rar" class="headerlink" title="关于rar"></a>关于rar</h2><p>虽然说好像有<a target="_blank" rel="noopener" href="https://www.rarlab.com/download.htm">专利的软件</a>，但是<code>sudo apt install rar</code>貌似就可以安装。但是空间效果确实还行多压1&#x2F;3,但是时间要多两倍。</p>
+<h2 id="还是建议tar-gz"><a href="#还是建议tar-gz" class="headerlink" title="还是建议tar.gz"></a>还是建议tar.gz</h2><p>因为 7z 和 zip 压缩格式都不能保留 unix 风格的文件权限，比如解压出个<strong>可执行文件</strong>要重新 chmod chown 才能恢复正常。而 tar 格式可以。而 tar 本身不提供压缩，无非就是把包括所有文件的內容和权限拼成一个文件而己，所以用另外如 gzip 格式压缩。为什么是 gzip，因为几乎所有 linux 都支持而已。</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
+无
+
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-13T16:00:00.000Z" title="8/13/2022, 4:00:00 PM">2022-08-13</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.374Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">15 minutes read (About 2206 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/13/Work/software/perf/vtuneAssembly/">Vtune Assembly Analysis</a></p><div class="content"><h2 id="超算机器用vtune的命令行文件分析"><a href="#超算机器用vtune的命令行文件分析" class="headerlink" title="超算机器用vtune的命令行文件分析"></a>超算机器用vtune的命令行文件分析</h2><ol>
 <li>首先找到vtune程序<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt; module load intel/2022.1                                    </span><br><span class="line">&gt; which icc                                                        </span><br><span class="line">/public1/soft/oneAPI/2022.1/compiler/latest/linux/bin/intel64/icc                          </span><br><span class="line">&gt; cd /public1/soft/oneAPI/2022.1  </span><br><span class="line">&gt; find . -executable -type f -name &quot;*vtune*&quot;</span><br><span class="line">./vtune/2022.0.0/bin64/vtune-worker-crash-reporter</span><br><span class="line">./vtune/2022.0.0/bin64/vtune-gui.desktop</span><br><span class="line">./vtune/2022.0.0/bin64/vtune-gui</span><br><span class="line">./vtune/2022.0.0/bin64/vtune-agent</span><br><span class="line">./vtune/2022.0.0/bin64/vtune-self-checker.sh</span><br><span class="line">./vtune/2022.0.0/bin64/vtune-backend</span><br><span class="line">./vtune/2022.0.0/bin64/vtune-worker</span><br><span class="line">./vtune/2022.0.0/bin64/vtune</span><br><span class="line">./vtune/2022.0.0/bin64/vtune-set-perf-caps.sh</span><br></pre></td></tr></table></figure></li>
 <li><code>vtune-gui</code>获取可执行命令<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/opt/intel/oneapi/vtune/2021.1.1/bin64/vtune -collect hotspots -knob enable-stack-collection=true -knob stack-size=4096 -data-limit=1024000 -app-working-dir /home/shaojiemike/github/IPCC2022first/build/bin -- /home/shaojiemike/github/IPCC2022first/build/bin/pivot /home/shaojiemike/github/IPCC2022first/src/uniformvector-2dim-5h.txt</span><br></pre></td></tr></table></figure></li>
 <li>编写<code>sbatch_vtune.sh</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">#SBATCH -o ./slurmlog/job_%j_rank%t_%N_%n.out</span><br><span class="line">#SBATCH -p IPCC</span><br><span class="line">#SBATCH -t 15:00</span><br><span class="line">#SBATCH --nodes=1</span><br><span class="line">#SBATCH --exclude=</span><br><span class="line">#SBATCH --cpus-per-task=64</span><br><span class="line">#SBATCH --mail-type=FAIL</span><br><span class="line">#SBATCH --mail-user=ta1ly@mail.ustc.edu.cn</span><br><span class="line"></span><br><span class="line">source /public1/soft/modules/module.sh</span><br><span class="line">module purge</span><br><span class="line"></span><br><span class="line">module load intel/2022.1</span><br><span class="line"></span><br><span class="line">logname=vtune</span><br><span class="line">export OMP_PROC_BIND=close; export OMP_PLACES=cores</span><br><span class="line"># ./pivot |tee ./log/$logname</span><br><span class="line">/public1/soft/oneAPI/2022.1/vtune/2022.0.0/bin64/vtune -collect hotspots -knob enable-stack-collection=true -knob stack-size=4096 -data-limit=1024000 -app-working-dir /public1/home/ipcc22_0029/shaojiemike/slurm -- /public1/home/ipcc22_0029/shaojiemike/slurm/pivot /public1/home/ipcc22_0029/shaojiemike/slurm/uniformvector-2dim-5h.txt |tee ./log/$logname</span><br></pre></td></tr></table></figure></li>
@@ -206,7 +572,7 @@
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
 无
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-01T01:08:17.000Z" title="8/1/2022, 1:08:17 AM">2022-08-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.057Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">3 minutes read (About 450 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/01/Work/HPC/HPCAI/">HPCAI</a></p><div class="content"><h2 id="HPC-AI-在第一性原理分子动力学中的应用（中科院计算所）10-10规模"><a href="#HPC-AI-在第一性原理分子动力学中的应用（中科院计算所）10-10规模" class="headerlink" title="HPC - AI 在第一性原理分子动力学中的应用（中科院计算所）10^10规模"></a>HPC - AI 在第一性原理分子动力学中的应用（中科院计算所）10^10规模</h2><p>一块铁 10^22个原子</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-08-01T01:08:17.000Z" title="8/1/2022, 1:08:17 AM">2022-08-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.358Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">3 minutes read (About 450 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/08/01/Work/HPC/HPCAI/">HPCAI</a></p><div class="content"><h2 id="HPC-AI-在第一性原理分子动力学中的应用（中科院计算所）10-10规模"><a href="#HPC-AI-在第一性原理分子动力学中的应用（中科院计算所）10-10规模" class="headerlink" title="HPC - AI 在第一性原理分子动力学中的应用（中科院计算所）10^10规模"></a>HPC - AI 在第一性原理分子动力学中的应用（中科院计算所）10^10规模</h2><p>一块铁 10^22个原子</p>
 <p>高性能计算每年翻一倍 &#x3D; 超算规模 + Chip摩尔定律</p>
 <p>但是由于分子动力学的方法是O^3, 问题规模增大，每一步迭代反而变慢了（2011年GB是3天一步）。</p>
 <p>一百万内规模6次方内的专用机器 anton？ ，比一般超算快100倍。</p>
@@ -257,7 +623,7 @@
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
 无
 
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-31T06:39:15.000Z" title="7/31/2022, 6:39:15 AM">2022-07-31</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.077Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">2 minutes read (About 267 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/31/Work/software/manager/moduleCommand/">Module Command</a></p><div class="content"><h2 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h2><table>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-31T06:39:15.000Z" title="7/31/2022, 6:39:15 AM">2022-07-31</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.374Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">2 minutes read (About 267 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/31/Work/software/manager/moduleCommand/">Module Command</a></p><div class="content"><h2 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h2><table>
 <thead>
 <tr>
 <th>命令</th>
@@ -304,7 +670,7 @@
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
 无
 
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-31T03:17:21.000Z" title="7/31/2022, 3:17:21 AM">2022-07-31</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.077Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">5 minutes read (About 808 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/31/Work/software/manager/slurmCommand/">SlurmCommand</a></p><div class="content"><h2 id="PBS-vs-SLURM"><a href="#PBS-vs-SLURM" class="headerlink" title="PBS vs SLURM"></a>PBS vs SLURM</h2><p><img src="https://pic.shaojiemike.top/img/20220731115025.png"></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-31T03:17:21.000Z" title="7/31/2022, 3:17:21 AM">2022-07-31</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.374Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">5 minutes read (About 808 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/31/Work/software/manager/slurmCommand/">SlurmCommand</a></p><div class="content"><h2 id="PBS-vs-SLURM"><a href="#PBS-vs-SLURM" class="headerlink" title="PBS vs SLURM"></a>PBS vs SLURM</h2><p><img src="https://pic.shaojiemike.top/img/20220731115025.png"></p>
 <p><a target="_blank" rel="noopener" href="https://github.com/Kirrito-k423/QuickStartLinux/blob/main/cluster/slurm_PBS.txt">更详细在这里</a></p>
 <h2 id="查看仍在运行作业7454119的详细信息"><a href="#查看仍在运行作业7454119的详细信息" class="headerlink" title="查看仍在运行作业7454119的详细信息"></a>查看仍在运行作业7454119的详细信息</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scontrol show job 7454119</span><br><span class="line">squeue -u USERNAME <span class="comment">#来查看目前处于运行中的作业。</span></span><br></pre></td></tr></table></figure>
 <h2 id="sacct查询已经结束作业的相关信息"><a href="#sacct查询已经结束作业的相关信息" class="headerlink" title="sacct查询已经结束作业的相关信息"></a>sacct查询已经结束作业的相关信息</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">format=jobid,jobname,partition,nodelist,alloccpus,state,end,start,submit</span><br><span class="line">sacct --format=$format -j 7454119</span><br></pre></td></tr></table></figure>
@@ -328,7 +694,7 @@
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
 无
 
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-05T07:25:27.000Z" title="7/5/2022, 7:25:27 AM">2022-07-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.053Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">6 minutes read (About 880 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/05/Work/Architecture/PIM/processInMem/">Processing In/near Memory</a></p><div class="content"><h2 id="缘由"><a href="#缘由" class="headerlink" title="缘由"></a>缘由</h2><ol>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-05T07:25:27.000Z" title="7/5/2022, 7:25:27 AM">2022-07-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.354Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">6 minutes read (About 880 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/05/Work/Architecture/PIM/processInMem/">Processing In/near Memory</a></p><div class="content"><h2 id="缘由"><a href="#缘由" class="headerlink" title="缘由"></a>缘由</h2><ol>
 <li>指令为中心，数据移动带来的功耗墙，性能墙</li>
 <li>内存计算的经典模式<ol>
 <li>3D的内存技术<ol>
@@ -435,7 +801,7 @@
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
 无
 
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-03T16:00:00.000Z" title="7/3/2022, 4:00:00 PM">2022-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.053Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">5 minutes read (About 818 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/03/Work/Architecture/microArch/microMacroFusion/">Microarchitecture: Micro-Fusion &amp; Macro-Fusion</a></p><div class="content"><h2 id="Micro-Fusion"><a href="#Micro-Fusion" class="headerlink" title="Micro-Fusion"></a>Micro-Fusion</h2><h3 id="历史原因"><a href="#历史原因" class="headerlink" title="历史原因"></a>历史原因</h3><ol>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-03T16:00:00.000Z" title="7/3/2022, 4:00:00 PM">2022-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.354Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">5 minutes read (About 818 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/03/Work/Architecture/microArch/microMacroFusion/">Microarchitecture: Micro-Fusion &amp; Macro-Fusion</a></p><div class="content"><h2 id="Micro-Fusion"><a href="#Micro-Fusion" class="headerlink" title="Micro-Fusion"></a>Micro-Fusion</h2><h3 id="历史原因"><a href="#历史原因" class="headerlink" title="历史原因"></a>历史原因</h3><ol>
 <li>有很多对内存进行操作的指令都会被分成两个或以上的μops，如 add eax, [mem] 在解码时就会分成 mov tmp, [mem]; add eax, tmp。这类型的指令在前端只需要fetch与decode一条指令，相比原来的两条指令占用更少资源（带宽、解码资源、功耗），不过由于在解码后分成多个μops，占用资源（μop entries）增多，但是throughput相对较小，使得<strong>RAT以及RRF阶段显得更为拥堵</strong>。</li>
 <li>随着技术的发展，CPU内部指令处理单元（execution unit）以及端口（port）增多。相对，流水线中的瓶颈会出现在register renaming（RAT）以及retirement（RRF）</li>
 </ol>
@@ -476,7 +842,7 @@
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/TaigaCon/p/7702920.html">https://www.cnblogs.com/TaigaCon/p/7702920.html</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/hit_shaoqi/article/details/106630483">https://blog.csdn.net/hit_shaoqi/article/details/106630483</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-03T16:00:00.000Z" title="7/3/2022, 4:00:00 PM">2022-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.053Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">16 minutes read (About 2387 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/03/Work/Architecture/microArch/outOfOrder/">Microarchitecture: Out-Of-Order execution(OoOE/OOE) &amp; Register Renaming</a></p><div class="content"><h2 id="乱序执行的步骤"><a href="#乱序执行的步骤" class="headerlink" title="乱序执行的步骤"></a>乱序执行的步骤</h2><p><img src="https://pic.shaojiemike.top/img/20231025101139.png"></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-03T16:00:00.000Z" title="7/3/2022, 4:00:00 PM">2022-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.354Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">16 minutes read (About 2387 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/03/Work/Architecture/microArch/outOfOrder/">Microarchitecture: Out-Of-Order execution(OoOE/OOE) &amp; Register Renaming</a></p><div class="content"><h2 id="乱序执行的步骤"><a href="#乱序执行的步骤" class="headerlink" title="乱序执行的步骤"></a>乱序执行的步骤</h2><p><img src="https://pic.shaojiemike.top/img/20231025101139.png"></p>
 <p>简单来说每个阶段执行的操作如下：<a href="%5B%E5%AF%B9%E4%BA%8ECPU%E9%9B%AA%E8%97%8F%E7%9A%84%E8%87%B4%E5%91%BD%E9%97%AE%E9%A2%98%5D(https://www.ctfiot.com/140113.html)">^1</a></p>
 <p>1）获取指令，解码后存放到执行缓冲区Reservations Stations<br>2）乱序执行指令，结果保存在一个结果序列中<br>3）退休期Retired Circle，重新排列结果序列及安全检查（如地址访问的权限检查），提交结果到寄存器</p>
 <ol>
@@ -585,127 +951,7 @@
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E4%B9%B1%E5%BA%8F%E6%89%A7%E8%A1%8C">https://zh.wikipedia.org/zh-cn/%E4%B9%B1%E5%BA%8F%E6%89%A7%E8%A1%8C</a></p>
 <p><a target="_blank" rel="noopener" href="https://easyperf.net/blog/2018/04/22/What-optimizations-you-can-expect-from-CPU">https://easyperf.net/blog/2018/04/22/What-optimizations-you-can-expect-from-CPU</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-03T16:00:00.000Z" title="7/3/2022, 4:00:00 PM">2022-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.053Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">a minute read (About 115 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/03/Work/Architecture/microArch/pipelineIntel/">Microarchitecture: Pipeline of Intel Core CPUs</a></p><div class="content"><h2 id="skyLake-in-wikichip"><a href="#skyLake-in-wikichip" class="headerlink" title="skyLake in wikichip"></a>skyLake in wikichip</h2><p><img src="https://pic.shaojiemike.top/img/20220704104632.png"></p>
-<h2 id="简化图-in-uiCA"><a href="#简化图-in-uiCA" class="headerlink" title="简化图 in uiCA"></a>简化图 in uiCA</h2><p><img src="https://pic.shaojiemike.top/img/20220704104850.png"></p>
-<h2 id="名称解释"><a href="#名称解释" class="headerlink" title="名称解释"></a>名称解释</h2><ol>
-<li>Scheduler<ol>
-<li>address-generation unit (AGU),</li>
-</ol>
-</li>
-</ol>
-<h2 id="多端口发射模型"><a href="#多端口发射模型" class="headerlink" title="多端口发射模型"></a>多端口发射模型</h2><p>每个端口的函数可能一个周期执行不完。但是是形成了流水线的。可以保证每个周期accept一个新uops</p>
-<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
-无
-
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-03T16:00:00.000Z" title="7/3/2022, 4:00:00 PM">2022-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.053Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">5 minutes read (About 685 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/03/Work/Architecture/microArch/zeroIdiomMovElimination/">Microarchitecture: Zero (one) idioms &amp; Mov Elimination</a></p><div class="content"><h2 id="微架构的关系"><a href="#微架构的关系" class="headerlink" title="微架构的关系"></a>微架构的关系</h2><p>寄存器重命名是乱序执行Tomasulo算法的一部分</p>
-<p>寄存器重命名可以实现:</p>
-<ol>
-<li>部分mov消除</li>
-<li>NOPs</li>
-<li>zero (one) idioms<br>对于这些指令，无序发射到scheduler。可以直接在reorder buffer写入结果。</li>
-</ol>
-<h2 id="Zero-one-idioms"><a href="#Zero-one-idioms" class="headerlink" title="Zero (one) idioms"></a>Zero (one) idioms</h2><p>Zero (one) idioms 是不管原寄存器src值是什么，结果&#x2F;目的寄存器dst一直&#x2F;一定是0 (1)的一类指令。比如：XOR一个寄存器和自己。</p>
-<ol>
-<li>由于是在寄存器重命名阶段(Rename)时实现的<ol>
-<li>所以不需要发射到port执行单元执行，占用硬件资源。也没有延迟</li>
-<li>但是需要划分前面部分的decode的带宽，和ROB(reorder buffer)的资源<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sub eax, eax</span><br><span class="line">xor eax, eax</span><br></pre></td></tr></table></figure></li>
-</ol>
-</li>
-</ol>
-<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><p>使用<a target="_blank" rel="noopener" href="https://github.com/travisdowns/uarch-bench">uarch-bench</a></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">xor eax, eax</span><br><span class="line">dec edi</span><br><span class="line">jnz .loop</span><br></pre></td></tr></table></figure>
-<p>由于第一条指令是Zero idioms；后两条指令可以macro-fusion。</p>
-<p>所以各部分平均执行次数为</p>
-<table>
-<thead>
-<tr>
-<th>指令个数</th>
-<th>UOPS_ISSUED</th>
-<th>UOPS_EXECUTED</th>
-<th>UOPS_RETIRED</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>3</td>
-<td>2</td>
-<td>1</td>
-<td>2</td>
-</tr>
-</tbody></table>
-<h3 id="特殊的情况"><a href="#特殊的情况" class="headerlink" title="特殊的情况"></a>特殊的情况</h3><p>有些架构可能不支持srcImm0-dstReg的指令的Zero idioms</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov eax, 0 </span><br></pre></td></tr></table></figure>
-<h2 id="mov-Elimination"><a href="#mov-Elimination" class="headerlink" title="mov Elimination"></a>mov Elimination</h2><p><img src="https://pic.shaojiemike.top/img/20220704163913.png"></p>
-<ol>
-<li>由于是在寄存器重命名阶段(Rename)时实现的<ol>
-<li>所以不需要发射到port执行单元执行，占用硬件资源。也没有延迟</li>
-<li>但是需要划分前面部分的decode的带宽，和ROB(reorder buffer)的资源</li>
-</ol>
-</li>
-</ol>
-<h3 id="例子-1"><a href="#例子-1" class="headerlink" title="例子"></a>例子</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">add eax,4</span><br><span class="line">mov ebx,eax ; //寄存器重命名，ebx指向eax即可</span><br><span class="line">sub ebx,ecx</span><br><span class="line">dec edi</span><br><span class="line">jnz .loop</span><br></pre></td></tr></table></figure>
-<p>由于第二条指令是mov Elimination；后两条指令可以macro-fusion。</p>
-<p>所以各部分平均执行次数为</p>
-<table>
-<thead>
-<tr>
-<th>指令个数</th>
-<th>UOPS_ISSUED</th>
-<th>UOPS_EXECUTED</th>
-<th>UOPS_RETIRED</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>5</td>
-<td>4</td>
-<td>3</td>
-<td>4</td>
-</tr>
-</tbody></table>
-<h2 id="被覆盖的结果是否能消除"><a href="#被覆盖的结果是否能消除" class="headerlink" title="被覆盖的结果是否能消除"></a>被覆盖的结果是否能消除</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mov eax, 1 ; will be eliminated?</span><br><span class="line">mov eax, 2 </span><br><span class="line">dec edi</span><br><span class="line">jnz .loop</span><br></pre></td></tr></table></figure>
-<p>第一个mov被覆盖了。这是属于编译器的工作。CPU做不到这点(即使做得到，为了实现这点设计的硬件开销也会很大，不值得)</p>
-<h2 id="无效操作是否能消除"><a href="#无效操作是否能消除" class="headerlink" title="无效操作是否能消除"></a>无效操作是否能消除</h2><p>一般和0的立即数作用有关</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xor eax, eax </span><br><span class="line">sub ebx, eax ; will be eliminated? (eax is always 0)</span><br></pre></td></tr></table></figure>
-<p>第二条指令在IvyBridge也不会消除。这同样是编译器的工作</p>
-<p>但是llvm-mca通过ZeroRegister的实现，可以消除。</p>
-<p>类似的还有</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov eax, 0</span><br><span class="line">mov ebx, 0</span><br><span class="line">cmp eax, ebx ; eax and ebx are always equal</span><br></pre></td></tr></table></figure>
-<p>一般也不会消除。这同样是编译器的工作</p>
-<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://randomascii.wordpress.com/2012/12/29/the-surprising-subtleties-of-zeroing-a-register/">https://randomascii.wordpress.com/2012/12/29/the-surprising-subtleties-of-zeroing-a-register/</a></p>
-<p><a target="_blank" rel="noopener" href="https://easyperf.net/blog/2018/04/22/What-optimizations-you-can-expect-from-CPU">https://easyperf.net/blog/2018/04/22/What-optimizations-you-can-expect-from-CPU</a></p>
-<p><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/zh-hans/%E5%AF%84%E5%AD%98%E5%99%A8%E9%87%8D%E5%91%BD%E5%90%8D">https://zh.m.wikipedia.org/zh-hans/%E5%AF%84%E5%AD%98%E5%99%A8%E9%87%8D%E5%91%BD%E5%90%8D</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-06-27T16:00:00.000Z" title="6/27/2022, 4:00:00 PM">2022-06-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T03:20:03.049Z" title="11/14/2023, 3:20:03 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">3 minutes read (About 430 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/06/27/OutOfWork/3-homepage/deployment/gitPush2Homepage/">Git Push 2 Homepage</a></p><div class="content"><h2 id="ibug的网站部署思路"><a href="#ibug的网站部署思路" class="headerlink" title="ibug的网站部署思路"></a>ibug的网站部署思路</h2><ol>
-<li>基于<a target="_blank" rel="noopener" href="https://ibug.io/">ibug.github.io</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/iBug/image">图片</a>和<a target="_blank" rel="noopener" href="https://github.com/iBug/iBug-source">markdown</a>两个仓库</li>
-<li>对于acsa的网站<ol>
-<li>设置了action产生<code>public/*.html</code></li>
-<li>通过webhook来实现，服务器接收仓库的event信息。<ol>
-<li>acsa的nginx接收location转发snode5</li>
-<li>snode5的nginx转发到127.0.0.2:9000上</li>
-<li>webhook.service接收到信息，然后git clone。并返回信息</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-<h3 id="hugo网站的action文件"><a href="#hugo网站的action文件" class="headerlink" title="hugo网站的action文件"></a>hugo网站的action文件</h3><p>根据<a target="_blank" rel="noopener" href="https://github.com/peaceiris/actions-hugo">公开的仓库</a>，hugo的html文件会产生在<code>gh-pages</code>分支下</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">name: build</span><br><span class="line"></span><br><span class="line">on:</span><br><span class="line">  push:</span><br><span class="line">    branches: [master]</span><br><span class="line"></span><br><span class="line">jobs:</span><br><span class="line">  build:</span><br><span class="line">    runs-on: ubuntu-latest</span><br><span class="line">    steps:</span><br><span class="line">      - uses: actions/checkout@v2</span><br><span class="line">        with:</span><br><span class="line">          #submodules: true  # Fetch Hugo themes (true OR recursive)</span><br><span class="line">          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod</span><br><span class="line"></span><br><span class="line">      - name: Setup Hugo</span><br><span class="line">        uses: peaceiris/actions-hugo@v2</span><br><span class="line">        with:</span><br><span class="line">          hugo-version: &#x27;latest&#x27;</span><br><span class="line">          #extended: true</span><br><span class="line"></span><br><span class="line">      - name: Build</span><br><span class="line">        run: hugo --minify</span><br><span class="line"></span><br><span class="line">      - name: Deploy</span><br><span class="line">        uses: peaceiris/actions-gh-pages@v3</span><br><span class="line">        if: github.ref == &#x27;refs/heads/master&#x27;</span><br><span class="line">        with:</span><br><span class="line">          github_token: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125;</span><br><span class="line">          publish_dir: ./public</span><br></pre></td></tr></table></figure>
-
-<h3 id="webhook的实现"><a href="#webhook的实现" class="headerlink" title="webhook的实现"></a>webhook的实现</h3><p><img src="https://pic.shaojiemike.top/img/20220628161901.png"></p>
-<p>接收端转发到内网的机器上（通过修改<code>vim /etc/nginx/sites-enabled/default</code>）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">server&#123;</span><br><span class="line">   location /_webhook/ &#123;</span><br><span class="line">                proxy_pass http://snode5.swangeese.fun;</span><br><span class="line">                proxy_set_header Host $http_host;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>记得reload <code>systemctl reload nginx</code></p>
-<p>Nginx中location的作用是根据Url来决定怎么处理用户请求(转发请求给其他服务器处理或者查找本地文件进行处理)。location支持正则表达式，<a target="_blank" rel="noopener" href="https://www.cnblogs.com/wyy1234/p/10632108.html">配置十分灵活</a>。我们可以在一个虚拟主机(nginx中的一个server节点)下配置多个location以满足如动静分离，防盗链等需求。</p>
-<p>在snode5上nginx也需要转发</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location /_webhook/ &#123;</span><br><span class="line">        proxy_pass http://127.0.0.2:9000;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
-无
-</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/page/22/">Previous</a></div><div class="pagination-next"><a href="/page/24/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/">1</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/22/">22</a></li><li><a class="pagination-link is-current" href="/page/23/">23</a></li><li><a class="pagination-link" href="/page/24/">24</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/34/">34</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">338</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">26</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">470</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">20</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">47</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-13T01:42:31.000Z">2023-11-13</time></p><p class="title"><a href="/2023/11/13/Work/Architecture/microHardware/Predictor/">Predictor</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-12T15:27:51.000Z">2023-11-12</time></p><p class="title"><a href="/2023/11/12/OutOfWork/3-homepage/themeConfiguration/hexo-icarus/">Hexo Icarus Theme configuration</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-12T08:04:51.000Z">2023-11-12</time></p><p class="title"><a href="/2023/11/12/OutOfWork/2-selfLearning/AI-tools/openFreeMultimodelAITools/">Open &amp;Free Multimodel AI Tools</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-12T07:41:03.000Z">2023-11-12</time></p><p class="title"><a href="/2023/11/12/diary/3-EfficientLife/teamCooperation/">Team Cooperation</a></p><p class="categories"><a href="/categories/thinking/">thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-11T09:55:04.000Z">2023-11-11</time></p><p class="title"><a href="/2023/11/11/OutOfWork/3-homepage/blogBuilder/hexo/">Hexo</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">199</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/"><span class="level-start"><span class="level-item">2022</span></span><span class="level-end"><span class="level-item tag">67</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/"><span class="level-start"><span class="level-item">2021</span></span><span class="level-end"><span class="level-item tag">72</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2023 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/page/22/">Previous</a></div><div class="pagination-next"><a href="/page/24/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/">1</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/22/">22</a></li><li><a class="pagination-link is-current" href="/page/23/">23</a></li><li><a class="pagination-link" href="/page/24/">24</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/35/">35</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">341</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">26</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">470</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">20</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">49</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T07:38:50.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/HostCoreWithPIMCoreIn3DMem/">Host-Core With PIM-Core In 3D-stacked Mem</a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T03:24:26.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/AddressTranslationForPIM/">AddressTranslationForPIM</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T03:23:38.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/experimentsForPIMMotivation/">Experiments For PIM Motivation</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-13T01:42:31.000Z">2023-11-13</time></p><p class="title"><a href="/2023/11/13/Work/Architecture/microHardware/Predictor/">Predictor</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-12T15:27:51.000Z">2023-11-12</time></p><p class="title"><a href="/2023/11/12/OutOfWork/3-homepage/themeConfiguration/hexo-icarus/">Hexo Icarus Theme configuration</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">202</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/"><span class="level-start"><span class="level-item">2022</span></span><span class="level-end"><span class="level-item tag">67</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/"><span class="level-start"><span class="level-item">2021</span></span><span class="level-end"><span class="level-item tag">72</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2023 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
             article: {
                 highlight: {
                     clipboard: true,
