@@ -29,7 +29,152 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-23T16:00:00.000Z" title="7/23/2023, 4:00:00 PM">2023-07-23</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.366Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">11 minutes read (About 1621 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/23/Work/Programming/2-languageGrammar/python/pythonClass/">Python Class</a></p><div class="content"><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Python从设计之初就已经是一门面向对象的语言，正因为如此，在Python中创建一个类和对象是很容易的。</p>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-23T16:00:00.000Z" title="7/23/2023, 4:00:00 PM">2023-07-23</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-15T02:26:52.142Z" title="11/15/2023, 2:26:52 AM">2023-11-15</time></span><span class="level-item"><a class="link-muted" href="/categories/Algorithms/">Algorithms</a></span><span class="level-item">15 minutes read (About 2268 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/23/Work/Algorithms/dp/">Dynamic Programming</a></p><div class="content"><h2 id="动态规划简介"><a href="#动态规划简介" class="headerlink" title="动态规划简介"></a>动态规划简介</h2><p>将一件事情分成若干阶段，然后通过阶段之间的转移达到目标。由于转移的方向通常是多个，因此这个时候就需要决策选择具体哪一个转移方向。</p>
+<p>动态规划所要解决的事情通常是完成一个具体的目标，而这个目标往往是最优解。并且：</p>
+<ol>
+<li>阶段之间可以进行转移，这叫做动态。</li>
+<li>达到一个可行解(目标阶段) 需要不断地转移，那如何转移才能达到最优解？这叫规划。</li>
+</ol>
+<p>每个阶段抽象为状态（用圆圈来表示），状态之间可能会发生转化（用箭头表示）。可以画出类似如下的图：</p>
+<p><img src="https://pic.shaojiemike.top/img/20220222115941.png"></p>
+<p>性质：</p>
+<ol>
+<li>最优子结构<ol>
+<li>问题的最优解所包含的子问题的解也是最优的</li>
+<li>注意： 具有最优子结构也可能是适合用贪心的方法求解。</li>
+</ol>
+</li>
+<li>无后效性<ol>
+<li>已经求解的子问题，不会再受到后续(父问题)决策的影响。</li>
+<li>即子问题的解一旦确定，就不再改变，不受在这之后、包含它的问题的求解决策的影响。</li>
+</ol>
+</li>
+<li>子问题重叠<ol>
+<li>如果有大量的重叠子问题，我们可以用空间将这些子问题的解存储下来，避免重复求解相同的子问题，从而提升效率。</li>
+</ol>
+</li>
+</ol>
+<h2 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h2><p>对于一个能用动态规划解决的问题，一般采用如下思路解决：</p>
+<ul>
+<li>将原问题划分为若干 阶段，每个阶段对应若干个子问题，提取这些子问题的特征（称之为 状态）；</li>
+<li>寻找每一个状态的可能 决策，或者说是各状态间的相互转移方式（用数学的语言描述就是 状态转移方程）。</li>
+<li>按顺序求解每一个阶段的问题。<br>如果用图论的思想理解，我们建立一个 有向无环图，每个状态对应图上一个节点，决策对应节点间的连边。</li>
+</ul>
+<h2 id="难点，重点"><a href="#难点，重点" class="headerlink" title="难点，重点"></a>难点，重点</h2><p>如何找到转移关系：</p>
+<ol>
+<li>可以伸缩的维度： 一般是数组的下标，或者是字符串的下标，或者是树的节点。也可以是问题的query数值。</li>
+<li>分情况讨论的，最大值为不同情况的最大值。方案数为所有情况的总和。</li>
+</ol>
+<h2 id="DP分类"><a href="#DP分类" class="headerlink" title="DP分类"></a>DP分类</h2><ul>
+<li><p>背包DP</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://oi-wiki.org/dp/knapsack/#0-1-%E8%83%8C%E5%8C%85">0-1背包</a><ul>
+<li>定义：每个物体只有两种可能的状态（取与不取），对应二进制中的 0 和 1，这类问题便被称为「0-1 背包问题」<ul>
+<li>一般有个总cost为W来限制选择</li>
+</ul>
+</li>
+<li>基础版：可以通过滚动数组减少空间占用，但是注意遍历方向</li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV16Y411v7Y6/?vd_source=5bbdecb1838c6f684e0b823d0d4f6db3">常见变形</a>：<ul>
+<li>至多装capacity,求方案数&#x2F;最大价值和</li>
+<li><strong>恰好装capacity,求方案数&#x2F;最大&#x2F;最小价值和</strong><ul>
+<li>方案数，将转移公式最大值，改成加法。注意会多一维度数据。<a target="_blank" rel="noopener" href="https://leetcode.cn/problems/target-sum/">基础1</a>+<a target="_blank" rel="noopener" href="https://leetcode.cn/problems/ways-to-express-an-integer-as-sum-of-powers/description/">提升2</a></li>
+</ul>
+</li>
+<li>至少装capacity,求方案数&#x2F;最小价值和</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/partition-equal-subset-sum/">变种：总cost等于W时，和为half的子集是否存在</a><ul>
+<li>方法一：<ul>
+<li>背包的体积为sum &#x2F; 2</li>
+<li>每个物品 cost &#x3D; value</li>
+<li>背包如果正好装满，说明找到了总和为 sum &#x2F; 2 的子集。</li>
+</ul>
+</li>
+<li>方法二：<ul>
+<li>状态：前i个元素，和为j的子集是否存在</li>
+<li>转移关系: \( f(i,j)&#x3D;(f(i-1,j)+f(i-1,j-a[i])&gt;0)?1:0 \) 注意： <code>f[i,0]=1</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>变种：选择和为k的子集的</li>
+<li>变种2：总cost等于W时，和为half的子集的个数 <a target="_blank" rel="noopener" href="http://codefun2000.com/p/P1004">题目：2022.9.23-求和</a><ul>
+<li>状态：前i个元素，和为j的子集个数</li>
+<li>转移关系: \( f(i,j)&#x3D;f(i-1,j)+f(i-1,j-a[i]) \) 注意： <code>f[i,0]=1</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>完全背包: 每个物体可以选择多次<ul>
+<li>转移关系: 也可以由f(i, j-w)转移到f(i,j)</li>
+</ul>
+</li>
+<li>多重背包: 每个物体可以选择\( k_i \)次<ul>
+<li>朴素思路: 每步可以总\( k_i \)里选最大, \(  f_{i,j} &#x3D;  max_{k&#x3D;0}^{k_i}(f_{i-1,j - k \times w_{i}}  +  v_{i} \times k ) \)</li>
+<li>二进制分组优化<ul>
+<li>思想：多重背包，其实是有很多重复元素的0-1背包，通过二进制来唯一表示选取，来最小0-1背包的可选物品数</li>
+<li>具体操作: 方法是：将第 i 种物品分成若干件物品，其中每件物品有一个系数，这件物品的费用和价值均是原来的费用和价值乘以这个系数。使这些系数分别为\( 1,2,4,\ldots,2^{k-1},n-2^k+1 \)，且 k 是满足\( n[i]-2^k+1&gt;0 \)的最大整数。例如，如果 <code>n[i]</code> 为 13，就将这种物品分成系数分别为 1, 2, 4, 6 的 4 件物品。</li>
+<li>效果：将第 i 种物品分成了 O(log⁡n[i]) 种物品，将原问题\( O(V\times\sum n[i]) \)转化为了复杂度为\( O(V\times\sum \log n[i]) \)的 01 背包问题<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> num[maxn][<span class="number">2</span>], dp[maxn];</span><br><span class="line"><span class="type">int</span> N, V, c, w, n, tot;</span><br><span class="line"><span class="built_in">memset</span>(dp, <span class="number">0</span>, <span class="keyword">sizeof</span> dp);</span><br><span class="line">cin &gt;&gt; V &gt;&gt; N; tot = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= N; ++i)</span><br><span class="line">&#123;</span><br><span class="line">  cin &gt;&gt; c &gt;&gt; w &gt;&gt; n; <span class="comment">// 第 i 物品的费用、价值和数量</span></span><br><span class="line">  <span class="keyword">for</span>(<span class="type">int</span> k = <span class="number">1</span>; k &lt; n; k&lt;&lt;=<span class="number">1</span>)<span class="comment">//左移求下一个所需二进制数 </span></span><br><span class="line">  &#123;</span><br><span class="line">    num[tot][<span class="number">0</span>] = k*c; <span class="comment">// 添加 子物品</span></span><br><span class="line">    num[tot++][<span class="number">1</span>] = k*w;</span><br><span class="line">    n -= k;</span><br><span class="line">  &#125;</span><br><span class="line">  num[tot][<span class="number">0</span>] = n*c; <span class="comment">// 添加n[i]-2^k+1的 子物品</span></span><br><span class="line">  num[tot++][<span class="number">1</span>] = n*w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt; tot; ++i)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">for</span>(<span class="type">int</span> j = V; j &gt;= num[i][<span class="number">0</span>]; --j) <span class="comment">// 0-1 背包 滚动数组实现</span></span><br><span class="line">    dp[j] = <span class="built_in">max</span>(dp[j], dp[j-num[i][<span class="number">0</span>]]+num[i][<span class="number">1</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>单调队列优化 to finish</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>区间DP</p>
+<ul>
+<li>\( f(i,j)&#x3D;max_k{f(i,k)+f(k+1,j)+cost} \)</li>
+</ul>
+</li>
+<li><p>DAG 上的DP</p>
+<ul>
+<li>DAG(Directed Acyclic Graph) 即 有向无环图，一些实际问题中的二元关系都可使用 DAG 来建模，从而将这些问题转化为 DAG 上的最长（短）路问题。</li>
+<li>to do</li>
+</ul>
+</li>
+<li><p>树形 DP 往往需要递归DFS</p>
+<ul>
+<li>分阶段参数：当前子树的根节点</li>
+<li>转移关系：当前子树的根节点和其子节点的关系</li>
+<li>例题： to do</li>
+</ul>
+</li>
+</ul>
+<h2 id="记忆化搜索"><a href="#记忆化搜索" class="headerlink" title="记忆化搜索"></a>记忆化搜索</h2><ul>
+<li>子问题间重叠的部分会有很多，同一个子问题可能会被重复访问多次，效率还是不高。</li>
+<li>思路: 记忆化，<strong>参数一定，那么返回值也一定不会变</strong>，因此下次如果碰到相同的参数，我们就可以将上次计算过的值直接返回，而不必重新计算。这样节省的时间就等价于去除的重叠子问题的耗时。</li>
+<li>解决方法：把每个子问题的解存储下来，通过记忆化的方式，确保每个子问题只被计算一次。</li>
+</ul>
+<h3 id="如何写记忆化搜索"><a href="#如何写记忆化搜索" class="headerlink" title="如何写记忆化搜索"></a>如何写记忆化搜索</h3><ul>
+<li>方法一<ul>
+<li>把这道题的 dp 状态和方程写出来</li>
+<li>根据它们写出 dfs 函数</li>
+<li>添加记忆化数组</li>
+</ul>
+</li>
+<li>方法二<ul>
+<li>写出这道题的暴搜程序（最好是 dfs)</li>
+<li>将这个 dfs 改成「无需外部变量」的 dfs</li>
+<li>添加记忆化数组</li>
+</ul>
+</li>
+</ul>
+<h3 id="实例：朴素DFS递归，实现记忆化"><a href="#实例：朴素DFS递归，实现记忆化" class="headerlink" title="实例：朴素DFS递归，实现记忆化"></a>实例：朴素DFS递归，实现记忆化</h3><p>爬楼梯问题的暴力普通递归DFS代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">function <span class="title function_">climbStairs</span><span class="params">(n)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (n === <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> (n === <span class="number">2</span>) <span class="keyword">return</span> <span class="number">2</span>;</span><br><span class="line">  <span class="keyword">return</span> climbStairs(n - <span class="number">1</span>) + climbStairs(n - <span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>添加与DFS参数相关的记忆化数组，将这个 dfs 改成「无需外部变量」的 dfs。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">memo = &#123;&#125;</span><br><span class="line">def climbStairs(n):</span><br><span class="line">  <span class="keyword">if</span> n == <span class="number">1</span>:<span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">  <span class="keyword">if</span> n == <span class="number">2</span>: <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">  <span class="keyword">if</span> n in memo: <span class="keyword">return</span> memo[n]</span><br><span class="line">  ans = func(n - <span class="number">1</span>) + func(n<span class="number">-2</span>)</span><br><span class="line">  memo[n] = ans</span><br><span class="line">  <span class="keyword">return</span> ans</span><br><span class="line">climbStairs(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="优化技巧"><a href="#优化技巧" class="headerlink" title="优化技巧"></a>优化技巧</h2><h3 id="状态压缩-动态规划"><a href="#状态压缩-动态规划" class="headerlink" title="状态压缩 &amp; 动态规划"></a>状态压缩 &amp; 动态规划</h3><p>状压+动态规划(DP, Dynamic Programming)</p>
+<p>使用的数有限（共 10 个），并且使用到的数最多出现一次，容易想到使用「状压 DP」来求解：我们使用一个二进制数来表示具体的子集具体方案。</p>
+<p>定义 f[state] 为当前子集选择数的状态为 state 时的方案数，state 为一个长度 10 的二进制数，若 state 中的第 k 位二进制表示为 1，代表数值 p[k] 在好子集中出现过；若第 k 位二进制表示为 0 代表 p[k] 在好子集中没出现过。</p>
+<h3 id="状态压缩"><a href="#状态压缩" class="headerlink" title="状态压缩"></a>状态压缩</h3><p>状态压缩有关，比如用 4 个字节存储状态</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>动态规划 与 np完全的关系</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>视频： <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Xj411K7oF/?vd_source=5bbdecb1838c6f684e0b823d0d4f6db3">https://www.bilibili.com/video/BV1Xj411K7oF/?vd_source=5bbdecb1838c6f684e0b823d0d4f6db3</a></p>
+<p><a target="_blank" rel="noopener" href="https://oi-wiki.org/dp/basic/">https://oi-wiki.org/dp/basic/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/316416327/answer/626807333">https://www.zhihu.com/question/316416327/answer/626807333</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-23T16:00:00.000Z" title="7/23/2023, 4:00:00 PM">2023-07-23</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-15T02:26:52.154Z" title="11/15/2023, 2:26:52 AM">2023-11-15</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">11 minutes read (About 1621 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/23/Work/Programming/2-languageGrammar/python/pythonClass/">Python Class</a></p><div class="content"><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Python从设计之初就已经是一门面向对象的语言，正因为如此，在Python中创建一个类和对象是很容易的。</p>
 <h2 id="面向对象技术简介"><a href="#面向对象技术简介" class="headerlink" title="面向对象技术简介"></a>面向对象技术简介</h2><ul>
 <li><p>类(Class): 用来描述具有相同的属性和方法的对象的集合。它定义了该集合中每个对象所共有的属性和方法。对象是类的实例。</p>
 </li>
@@ -120,7 +265,7 @@
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
 <p><a target="_blank" rel="noopener" href="https://www.runoob.com/python/python-object.html">https://www.runoob.com/python/python-object.html</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-20T16:00:00.000Z" title="7/20/2023, 4:00:00 PM">2023-07-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.362Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Operating-system/">Operating system</a></span><span class="level-item">42 minutes read (About 6276 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/20/Work/Operating%20system/contextSwitch/">Context Switch</a></p><div class="content"><h2 id="上下文切换"><a href="#上下文切换" class="headerlink" title="上下文切换"></a>上下文切换</h2><ul>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-20T16:00:00.000Z" title="7/20/2023, 4:00:00 PM">2023-07-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-15T02:26:52.150Z" title="11/15/2023, 2:26:52 AM">2023-11-15</time></span><span class="level-item"><a class="link-muted" href="/categories/Operating-system/">Operating system</a></span><span class="level-item">42 minutes read (About 6276 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/20/Work/Operating%20system/contextSwitch/">Context Switch</a></p><div class="content"><h2 id="上下文切换"><a href="#上下文切换" class="headerlink" title="上下文切换"></a>上下文切换</h2><ul>
 <li>根据<a target="_blank" rel="noopener" href="https://medium.com/geekculture/linux-cpu-context-switch-deep-dive-764bfdae4f01">geekculture的博客</a>的说法</li>
 <li>上下文主要指的是CPU的寄存器状态，状态越多(上下文越多)，切换时开销就越大。<ul>
 <li>包括程序计数器(program counters,PC)，栈指针SP，通用寄存器等。还有virtual memory mappings, file descriptor bindings, and credentials.虚拟内存映射、文件描述符绑定和凭据？</li>
@@ -545,7 +690,7 @@
 <p>lmbench: Portable tools for performance analysis，1996 USENIX ATC</p>
 <p>Light-weight Contexts: An OS Abstraction for Safety and Performance</p>
 <p>参考 <a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/x86/pti.txt">kernel</a> 文档</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-20T16:00:00.000Z" title="7/20/2023, 4:00:00 PM">2023-07-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.362Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">17 minutes read (About 2522 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/20/Work/Programming/0-language/">Language</a></p><div class="content"><h2 id="面向过程-VS-面向对象"><a href="#面向过程-VS-面向对象" class="headerlink" title="面向过程 VS 面向对象"></a>面向过程 VS 面向对象</h2><h3 id="面向过程"><a href="#面向过程" class="headerlink" title="面向过程"></a>面向过程</h3><p>面向过程是一种以事件为中心的编程思想，编程的时候把解决问题的步骤分析出来，然后用函数把这些步骤实现，在一步一步的具体步骤中再按顺序调用函数。</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-20T16:00:00.000Z" title="7/20/2023, 4:00:00 PM">2023-07-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-15T02:26:52.150Z" title="11/15/2023, 2:26:52 AM">2023-11-15</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">17 minutes read (About 2522 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/20/Work/Programming/0-language/">Language</a></p><div class="content"><h2 id="面向过程-VS-面向对象"><a href="#面向过程-VS-面向对象" class="headerlink" title="面向过程 VS 面向对象"></a>面向过程 VS 面向对象</h2><h3 id="面向过程"><a href="#面向过程" class="headerlink" title="面向过程"></a>面向过程</h3><p>面向过程是一种以事件为中心的编程思想，编程的时候把解决问题的步骤分析出来，然后用函数把这些步骤实现，在一步一步的具体步骤中再按顺序调用函数。</p>
 <h3 id="面向对象"><a href="#面向对象" class="headerlink" title="面向对象"></a>面向对象</h3><p>在日常生活或编程中，简单的问题可以用面向过程的思路来解决，直接有效，但是当问题的规模变得更大时，用面向过程的思想是远远不够的。所以慢慢就出现了面向对象的编程思想。世界上有很多人和事物，每一个都可以看做一个对象，而<strong>每个对象都有自己的属性和行为，对象与对象之间通过方法来交互</strong>。面向对象是一种以“对象”为中心的编程思想，把要解决的问题分解成各个对象，建立对象的目的不是为了完成一个步骤，而是为了描叙某个对象在整个解决问题的步骤中的属性和行为。</p>
 <h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><h4 id="面向过程-1"><a href="#面向过程-1" class="headerlink" title="面向过程"></a>面向过程</h4><p><strong>优点：</strong></p>
 <ol>
@@ -618,7 +763,7 @@
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yuanmengong886/article/details/52572533">https://blog.csdn.net/yuanmengong886/article/details/52572533</a></p>
 <p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000022715733">https://segmentfault.com/a/1190000022715733</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-19T16:00:00.000Z" title="7/19/2023, 4:00:00 PM">2023-07-19</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.370Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/toLearn/">toLearn</a></span><span class="level-item">2 minutes read (About 346 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/19/Work/math/MathematicalLogic/">Mathematical Logic &amp; Algebraic structure</a></p><div class="content"><h2 id="数理逻辑"><a href="#数理逻辑" class="headerlink" title="数理逻辑"></a>数理逻辑</h2><p>数理逻辑的奥秘在于，它试图将人类主观的推理思维过程客观化，并建立起主观推理与客观证明之间的联系。通过对形式语言的公理化来达到自然语言的公理化目标。</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-19T16:00:00.000Z" title="7/19/2023, 4:00:00 PM">2023-07-19</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-15T02:26:52.158Z" title="11/15/2023, 2:26:52 AM">2023-11-15</time></span><span class="level-item"><a class="link-muted" href="/categories/toLearn/">toLearn</a></span><span class="level-item">2 minutes read (About 346 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/19/Work/math/MathematicalLogic/">Mathematical Logic &amp; Algebraic structure</a></p><div class="content"><h2 id="数理逻辑"><a href="#数理逻辑" class="headerlink" title="数理逻辑"></a>数理逻辑</h2><p>数理逻辑的奥秘在于，它试图将人类主观的推理思维过程客观化，并建立起主观推理与客观证明之间的联系。通过对形式语言的公理化来达到自然语言的公理化目标。</p>
 <p>to do</p>
 <h2 id="代数结构"><a href="#代数结构" class="headerlink" title="代数结构"></a>代数结构</h2><p>在抽象代数里，代数结构（algebraic structure）是指装备了一个及以上的运算（最一般地，可以允许有无穷多个运算）的非空集合。一般研究的代数结构有群、环、域、格、模、域代数和向量空间等等。在数学中，更具体地说，在抽象代数中，代数结构是一个集合(称为载体集或底层集合)，它在它上定义了一个或多个满足公理的有限运算。</p>
 <p>to do</p>
@@ -629,7 +774,7 @@
 <div id='refer-anchor'></div>
 
 <p>无</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-18T16:00:00.000Z" title="7/18/2023, 4:00:00 PM">2023-07-18</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.362Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Operating-system/">Operating system</a></span><span class="level-item">a few seconds read (About 98 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/18/Work/Operating%20system/thread/">linux Thread and Process</a></p><div class="content"><h2 id="Linux-thread-evaluation"><a href="#Linux-thread-evaluation" class="headerlink" title="Linux thread evaluation"></a>Linux thread evaluation</h2><p>Java uses lots of threads but threads have become significantly faster and cheaper with the <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Native_POSIX_Thread_Library">NPTL</a> in Linux 2.6. </p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-18T16:00:00.000Z" title="7/18/2023, 4:00:00 PM">2023-07-18</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-15T02:26:52.150Z" title="11/15/2023, 2:26:52 AM">2023-11-15</time></span><span class="level-item"><a class="link-muted" href="/categories/Operating-system/">Operating system</a></span><span class="level-item">a few seconds read (About 98 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/18/Work/Operating%20system/thread/">linux Thread and Process</a></p><div class="content"><h2 id="Linux-thread-evaluation"><a href="#Linux-thread-evaluation" class="headerlink" title="Linux thread evaluation"></a>Linux thread evaluation</h2><p>Java uses lots of threads but threads have become significantly faster and cheaper with the <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Native_POSIX_Thread_Library">NPTL</a> in Linux 2.6. </p>
 <h3 id="pthread"><a href="#pthread" class="headerlink" title="pthread"></a>pthread</h3><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Pthreads">to learn</a> </p>
 <h2 id="父子线程进程的退出影响"><a href="#父子线程进程的退出影响" class="headerlink" title="父子线程进程的退出影响"></a>父子线程进程的退出影响</h2><p><a target="_blank" rel="noopener" href="http://originlee.com/2015/04/08/influence-of-main-threads-exiting-to-child-thread/">http://originlee.com/2015/04/08/influence-of-main-threads-exiting-to-child-thread/</a></p>
 <h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
@@ -637,7 +782,7 @@
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
 无
 
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-18T16:00:00.000Z" title="7/18/2023, 4:00:00 PM">2023-07-18</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.374Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">6 minutes read (About 883 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/18/Work/software/linux-apps/ssh/">ssh</a></p><div class="content"><h2 id="ssh-config常见设置"><a href="#ssh-config常见设置" class="headerlink" title="ssh config常见设置"></a>ssh config常见设置</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Host node5</span><br><span class="line">  HostName node5.xydustc.me   <span class="comment">#或者ip</span></span><br><span class="line">  IdentityFile ~/.ssh/id_rsa  <span class="comment">#windows： &quot;C:\Users\Administrator\.ssh\id_rsa&quot;</span></span><br><span class="line">  IdentitiesOnly yes          <span class="comment">#IdentitiesOnly指定ssh只能使用配置文件指定的identity和certificate文件或通过ssh命令行通过身份验证，即使ssh-agent或PKCS11Provider提供了多个identities。</span></span><br><span class="line">  User shaojiemike</span><br><span class="line">  Port <span class="number">22</span></span><br><span class="line">  ProxyCommand E:\\commonSoftware\\Git\\mingw64\\<span class="built_in">bin</span>\\connect.exe -S <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">7890</span> -a none %h %p</span><br><span class="line">  <span class="comment"># 注意ProxyCommand不能写全局，会代理其他ssh。出现ctrl-c会中断ssh连接之类的错误</span></span><br><span class="line"></span><br><span class="line">Host *</span><br><span class="line">   ForwardAgent yes     <span class="comment">#是否将本地SSH代理转发到远程主机。如果设置为“yes”，则可以在远程主机上使用本地SSH代理，而无需在远程主机上设置新的SSH连接。</span></span><br><span class="line">   AddKeysToAgent yes   <span class="comment">#是否将私钥添加到ssh-agent中。如果设置为“yes”，则在使用ssh连接时，ssh客户端会自动将私钥添加到ssh-agent中。</span></span><br><span class="line">   ForwardX11 yes</span><br><span class="line">   ForwardX11Trusted yes</span><br><span class="line">   Compression yes</span><br><span class="line">   TCPKeepAlive=yes</span><br><span class="line">   ServerAliveInterval <span class="number">60</span> <span class="comment"># Client每隔 60 秒发送一次请求给 Server，然后 Server响应，从而保持连接</span></span><br><span class="line">   ServerAliveCountMax <span class="number">3</span> <span class="comment"># Client发出请求后，服务器端没有响应得次数达到3，就自动断开连接，正常情况下，Server 不会不响应 </span></span><br></pre></td></tr></table></figure>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-18T16:00:00.000Z" title="7/18/2023, 4:00:00 PM">2023-07-18</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-15T02:26:52.162Z" title="11/15/2023, 2:26:52 AM">2023-11-15</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">6 minutes read (About 883 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/18/Work/software/linux-apps/ssh/">ssh</a></p><div class="content"><h2 id="ssh-config常见设置"><a href="#ssh-config常见设置" class="headerlink" title="ssh config常见设置"></a>ssh config常见设置</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Host node5</span><br><span class="line">  HostName node5.xydustc.me   <span class="comment">#或者ip</span></span><br><span class="line">  IdentityFile ~/.ssh/id_rsa  <span class="comment">#windows： &quot;C:\Users\Administrator\.ssh\id_rsa&quot;</span></span><br><span class="line">  IdentitiesOnly yes          <span class="comment">#IdentitiesOnly指定ssh只能使用配置文件指定的identity和certificate文件或通过ssh命令行通过身份验证，即使ssh-agent或PKCS11Provider提供了多个identities。</span></span><br><span class="line">  User shaojiemike</span><br><span class="line">  Port <span class="number">22</span></span><br><span class="line">  ProxyCommand E:\\commonSoftware\\Git\\mingw64\\<span class="built_in">bin</span>\\connect.exe -S <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">7890</span> -a none %h %p</span><br><span class="line">  <span class="comment"># 注意ProxyCommand不能写全局，会代理其他ssh。出现ctrl-c会中断ssh连接之类的错误</span></span><br><span class="line"></span><br><span class="line">Host *</span><br><span class="line">   ForwardAgent yes     <span class="comment">#是否将本地SSH代理转发到远程主机。如果设置为“yes”，则可以在远程主机上使用本地SSH代理，而无需在远程主机上设置新的SSH连接。</span></span><br><span class="line">   AddKeysToAgent yes   <span class="comment">#是否将私钥添加到ssh-agent中。如果设置为“yes”，则在使用ssh连接时，ssh客户端会自动将私钥添加到ssh-agent中。</span></span><br><span class="line">   ForwardX11 yes</span><br><span class="line">   ForwardX11Trusted yes</span><br><span class="line">   Compression yes</span><br><span class="line">   TCPKeepAlive=yes</span><br><span class="line">   ServerAliveInterval <span class="number">60</span> <span class="comment"># Client每隔 60 秒发送一次请求给 Server，然后 Server响应，从而保持连接</span></span><br><span class="line">   ServerAliveCountMax <span class="number">3</span> <span class="comment"># Client发出请求后，服务器端没有响应得次数达到3，就自动断开连接，正常情况下，Server 不会不响应 </span></span><br></pre></td></tr></table></figure>
 
 <h2 id="跳板机"><a href="#跳板机" class="headerlink" title="跳板机"></a>跳板机</h2><h3 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h3><p>在管理外网服务器时，出于安全等因素的考虑，我们一般不会把所有服务器都设置成可ssh直连，而是会从中挑选出一台机器作为跳板机，当我们想要连接外网服务器时，我们要先通过ssh登录到跳板机，再从跳板机登录到目标服务器。</p>
 <h3 id="密钥认证"><a href="#密钥认证" class="headerlink" title="密钥认证"></a>密钥认证</h3><ol>
@@ -692,7 +837,7 @@
 <h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1501977">https://cloud.tencent.com/developer/article/1501977</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-17T16:00:00.000Z" title="7/17/2023, 4:00:00 PM">2023-07-17</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.374Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">8 minutes read (About 1262 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/17/Work/software/linux/apt/">package manager: Apt</a></p><div class="content"><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Ubuntu-版本代号"><a href="#Ubuntu-版本代号" class="headerlink" title="Ubuntu 版本代号"></a>Ubuntu 版本代号</h3><p>都是动物, 都是两个词，并且两个词的首字母相同,从6.06开始，首字母从D开始递增。</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-17T16:00:00.000Z" title="7/17/2023, 4:00:00 PM">2023-07-17</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-15T02:26:52.162Z" title="11/15/2023, 2:26:52 AM">2023-11-15</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">8 minutes read (About 1262 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/17/Work/software/linux/apt/">package manager: Apt</a></p><div class="content"><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Ubuntu-版本代号"><a href="#Ubuntu-版本代号" class="headerlink" title="Ubuntu 版本代号"></a>Ubuntu 版本代号</h3><p>都是动物, 都是两个词，并且两个词的首字母相同,从6.06开始，首字母从D开始递增。</p>
 <p>中间版本也有代号 Ubuntu 14.10 (Utopic Unicorn) Ubuntu 14.04.5 LTS (Trusty Tahr) <a target="_blank" rel="noopener" href="https://old-releases.ubuntu.com/releases/">https://old-releases.ubuntu.com/releases/</a> 官网可以查看</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ lsb_release -a</span><br><span class="line">No LSB modules are available.</span><br><span class="line">Distributor ID: Ubuntu</span><br><span class="line">Description:    Ubuntu 20.04.5 LTS</span><br><span class="line">Release:        20.04</span><br><span class="line">Codename:       focal</span><br></pre></td></tr></table></figure>
 
@@ -742,7 +887,7 @@
 <h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/feinifi/article/details/121793945">https://blog.csdn.net/feinifi/article/details/121793945</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-16T16:00:00.000Z" title="7/16/2023, 4:00:00 PM">2023-07-16</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.362Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/toLearn/">toLearn</a></span><span class="level-item">19 minutes read (About 2811 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/16/Work/Operating%20system/userKernelMode/">User Kernel Mode</a></p><div class="content"><h2 id="内核态"><a href="#内核态" class="headerlink" title="内核态"></a>内核态</h2><p>内核态是计算机系统中的一种特权模式，用于执行操作系统内核的代码和功能。与用户态相比，内核态具有更高的权限和更广泛的访问能力，可以执行一些用户态无法执行的关键任务和操作。下面是从用户态的角度上介绍内核态的功能：</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-16T16:00:00.000Z" title="7/16/2023, 4:00:00 PM">2023-07-16</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-15T02:26:52.150Z" title="11/15/2023, 2:26:52 AM">2023-11-15</time></span><span class="level-item"><a class="link-muted" href="/categories/toLearn/">toLearn</a></span><span class="level-item">19 minutes read (About 2811 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/16/Work/Operating%20system/userKernelMode/">User Kernel Mode</a></p><div class="content"><h2 id="内核态"><a href="#内核态" class="headerlink" title="内核态"></a>内核态</h2><p>内核态是计算机系统中的一种特权模式，用于执行操作系统内核的代码和功能。与用户态相比，内核态具有更高的权限和更广泛的访问能力，可以执行一些用户态无法执行的关键任务和操作。下面是从用户态的角度上介绍内核态的功能：</p>
 <ol>
 <li>系统调用（System Calls）：内核态允许用户程序通过系统调用接口请求操作系统提供的服务和功能。用户程序可以通过系统调用请求文件操作、网络通信、内存管理等操作。当用户程序执行系统调用时，会触发从用户态切换到内核态的转换，以便内核在高权限下执行相应的操作。</li>
 <li>资源管理：内核态负责管理计算机系统的各种资源，包括处理器、内存、磁盘、网络等。在内核态下，操作系统可以对这些资源进行分配、调度和释放，确保资源的有效利用和合理分配。</li>
@@ -800,7 +945,7 @@
 <div id='refer-anchor'></div>
 
 <p>无</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-15T16:00:00.000Z" title="7/15/2023, 4:00:00 PM">2023-07-15</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.362Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">41 minutes read (About 6210 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/15/Work/Operating%20system/Disk/">Disk</a></p><div class="content"><h2 id="lsblk命令"><a href="#lsblk命令" class="headerlink" title="lsblk命令"></a>lsblk命令</h2><p>MAJ:MIN  主:次 设备号</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-15T16:00:00.000Z" title="7/15/2023, 4:00:00 PM">2023-07-15</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-15T02:26:52.150Z" title="11/15/2023, 2:26:52 AM">2023-11-15</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">41 minutes read (About 6210 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/15/Work/Operating%20system/Disk/">Disk</a></p><div class="content"><h2 id="lsblk命令"><a href="#lsblk命令" class="headerlink" title="lsblk命令"></a>lsblk命令</h2><p>MAJ:MIN  主:次 设备号</p>
 <p>TYPE：块设备类型，比如disk磁盘，part分区，lvm逻辑卷，rom只读存储</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ lsblk -f # 查看磁盘分区格式，有格式才能挂载成功。</span><br><span class="line">NAME   FSTYPE   LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINT</span><br><span class="line">sda</span><br><span class="line">├─sda1</span><br><span class="line">└─sda2 ext4           9449ee1e-7cdb-4852-9c60-73959ce812c0   18.1G    93% /</span><br><span class="line">sdb</span><br></pre></td></tr></table></figure>
 
@@ -1030,330 +1175,7 @@
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/dangelzjj/article/details/104200396">https://blog.csdn.net/dangelzjj/article/details/104200396</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/renshengdezheli/p/13941563.html">https://www.cnblogs.com/renshengdezheli/p/13941563.html</a></p>
 <p><a target="_blank" rel="noopener" href="https://linux.cn/article-7961-1.html">https://linux.cn/article-7961-1.html</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-15T16:00:00.000Z" title="7/15/2023, 4:00:00 PM">2023-07-15</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-11-14T09:53:29.362Z" title="11/14/2023, 9:53:29 AM">2023-11-14</time></span><span class="level-item"><a class="link-muted" href="/categories/Operating-system/">Operating system</a></span><span class="level-item">an hour read (About 6793 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/15/Work/Operating%20system/filesystem/">File System</a></p><div class="content"><h2 id="文件系统简介"><a href="#文件系统简介" class="headerlink" title="文件系统简介"></a>文件系统简介</h2><p>计算机文件系统是操作系统的一个重要组成部分,它管理计算机存储设备上的文件,负责文件存储、读取和组织等功能。文件系统的主要作用包括:</p>
-<ul>
-<li>文件存储与寻址:文件系统负责在存储设备上对文件进行存取,需要找到文件在存储设备上的位置。常见的寻址机制有:<ul>
-<li>FAT表:使用文件分配表记录每个文件所占用簇的位置。</li>
-<li>inode:为每个文件分配一个inode,记录文件存储位置、大小、访问时间等元信息。</li>
-</ul>
-</li>
-<li>文件组织与优化:文件系统负责组织硬盘空间,常见的组织结构包括:<ul>
-<li>目录结构:将文件组织成目录&#x2F;子目录的树形层次结构。</li>
-<li>碎片整理:通过碎片整理优化空间利用率。</li>
-<li>块大小:通过调整块大小来改善IO性能。</li>
-</ul>
-</li>
-<li>访问控制:管理文件访问权限、用户组等信息,确保访问安全。<ul>
-<li>高级功能:一些文件系统实现了高级功能,如快照、数据压缩、加密等。</li>
-<li>系统完整性:提供一致性检验、崩溃恢复机制来保证文件系统完整可靠。</li>
-</ul>
-</li>
-</ul>
-<p>常见的文件系统包括Windows上的FAT、NTFS,Unix&#x2F;Linux上的ext、XFS、Btrfs等。</p>
-<p>文件系统的设计对操作系统的性能、安全性有很大影响。一个优秀的文件系统应提供高效的IO访问、良好的安全控制和数据完整性保障。选择正确的文件系统对不同场景也很重要。</p>
-<h3 id="评估文件系统"><a href="#评估文件系统" class="headerlink" title="评估文件系统"></a>评估文件系统</h3><ul>
-<li>性能:读写速度、响应时间、并发支持如何,可以测试IO性能。</li>
-<li>可靠性:数据完整性保证、Crash可恢复性如何,测试崩溃恢复。</li>
-<li>安全性:访问控制、防篡改机制如何,测重写、破坏后的数据恢复。</li>
-<li>容量:最大文件大小、卷大小、目录容量如何,测试边界极限。</li>
-<li>扩展性:可线性扩展还是需要重构,测试大容量情况下的性能。</li>
-<li>元数据:元信息组织结构,是否支持快速查找、高级索引。</li>
-<li>分配机制:如何分配和回收空间,是否会产生碎片。</li>
-<li>一致性:是否保证读写顺序一致性,如何支持缓存与本地IO。</li>
-<li>插件机制:是否可以通过插件扩展功能,如压缩、加密等。</li>
-<li>兼容性:是否兼容主流平台和老系统,测试迁移和交互兼容性。</li>
-</ul>
-<h2 id="基本概念：数据分块存储"><a href="#基本概念：数据分块存储" class="headerlink" title="基本概念：数据分块存储"></a>基本概念：数据分块存储</h2><p>文件储存在硬盘上，硬盘的<strong>最小存储单位</strong>叫做”扇区”（Sector）。每个扇区储存512字节（相当于0.5KB）。</p>
-<p>但是就像内存读取也不会只读一个字节， 硬盘的存储和读取都是按照Block进行的(比如,4KB即连续八个 sector组成一个 block。)</p>
-<h2 id="早期：FAT文件系统"><a href="#早期：FAT文件系统" class="headerlink" title="早期：FAT文件系统"></a>早期：FAT文件系统</h2><p>早期文件分配表（File Allocate Table，FAT）<br><img src="https://pic.shaojiemike.top/img/20221119155509.png"><br>链表结构解决了文件和物理块映射的问题。</p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><ul>
-<li>常见的FAT12、FAT16、FAT32格式,用于早期Windows系统。</li>
-<li>优点：简单易用,支持跨平台</li>
-<li>缺点：非常占用内存, 效率和安全性不高。<ul>
-<li>比如 1T 的硬盘，如果块的大小是 1K，那么就需要 1G 个 FAT 条目。</li>
-<li>通常每个 FAT 条目还会存一些其他信息，需要 2~3 个字节， FAT条目总共占用 2-3G 的内存空间，才能用来管理 1T 的硬盘空间。</li>
-</ul>
-</li>
-</ul>
-<h2 id="常见：基于inode的文件系统"><a href="#常见：基于inode的文件系统" class="headerlink" title="常见：基于inode的文件系统"></a>常见：基于inode的文件系统</h2><p>基于 inode(index node的数据结构) 的传统文件系统。文件数据被存储不同块里面，文件的元数据信息就会被存储在inode里面。</p>
-<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ul>
-<li>在Unix&#x2F;Linux中广泛使用的文件系统,如Ext、XFS等。</li>
-<li>每个文件都有一个对应的inode,记录文件元信息和数据块位置。</li>
-<li>操作系统通过inode找到文件内容,支持权限控制等高级功能。</li>
-<li>效率高,安全可靠,但inode会占用一定存储空间。</li>
-</ul>
-<h3 id="文件操作流程"><a href="#文件操作流程" class="headerlink" title="文件操作流程"></a>文件操作流程</h3><p>由于inode号码与文件名分离</p>
-<ul>
-<li>删除流程<ul>
-<li>删除一个文件名，就会使得inode节点中的”链接数”减1。当这个值减到0，表明没有文件名指向这个inode，系统就会回收这个inode号码，以及其所对应block区域。</li>
-<li>直接删除inode，能够起到删除(包含特殊字符)文件的作用<code>find ./* -inum 节点号 -delete</code></li>
-</ul>
-</li>
-<li>移动文件或重命名文件<ul>
-<li>只是改变文件名，不影响inode号码；</li>
-</ul>
-</li>
-</ul>
-<h3 id="inode存储Block信息"><a href="#inode存储Block信息" class="headerlink" title="inode存储Block信息"></a>inode存储Block信息</h3><p>为了解决数据变化问题，它引入了<strong>3个存储指针设计</strong>。</p>
-<p><img src="https://pic.shaojiemike.top/img/20221119163909.png"></p>
-<ul>
-<li>直接指针可以直接指向数据块本身，数据块就是保存数据的块</li>
-<li>间接指针是在前面的指针指针不够的时候才会启用，间接指针可以看成链表那样，间接指针会指向一个个索引块，这块本身又是一个数据块的指针也是只是指向存储数据块。</li>
-<li>第3类指针，指向一个二级索引块，二级索引块的指针还可以指向新的索引块</li>
-</ul>
-<h3 id="大小占用"><a href="#大小占用" class="headerlink" title="大小占用"></a>大小占用</h3><ul>
-<li>每个inode节点的大小固定，一般是128字节或256字节。</li>
-<li>inode节点的总数，在格式化时就给定，<del>一般是每1KB或每2KB就设置一个inode</del>。</li>
-<li>每个文件都必须有一个inode，因此有可能发生inode已经用光，但是硬盘还未存满的情况。这时，就无法在硬盘上创建新文件。</li>
-<li>每个inode都有一个号码，操作系统用inode号码来识别不同的文件。</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">df</span> -hi .</span><br><span class="line">Filesystem     Inodes IUsed IFree IUse% Mounted on</span><br><span class="line">/dev/sda2         56M  5.1M   51M   10% /</span><br><span class="line">或者</span><br><span class="line">/dev/sda2      58605568 5321132 53284436   10% /</span><br><span class="line"></span><br><span class="line"><span class="comment"># 每个inode节点的大小，一般是128字节或256字节。</span></span><br><span class="line">$ sudo dumpe2fs -h /dev/sda2 | grep <span class="string">&quot;Inode size&quot;</span></span><br><span class="line">dumpe2fs 1.45.5 (07-Jan-2020)</span><br><span class="line">Inode size:               256</span><br></pre></td></tr></table></figure>
-
-<p>58605568&#x2F;256 &#x3D; 222928 个 inode节点</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ fdisk -l</span><br><span class="line">Disk /dev/sda: 894.26 GiB, 960197124096 bytes, 1875385008 sectors</span><br><span class="line">Disk model: INTEL SSDSC2KB96</span><br><span class="line">Units: sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 4096 bytes</span><br><span class="line">I/O size (minimum/optimal): 4096 bytes / 4096 bytes</span><br><span class="line">Disklabel <span class="built_in">type</span>: gpt</span><br><span class="line">Disk identifier: 86F8050E-C9E7-4BDB-8B0C-89E20B013FF6</span><br><span class="line"></span><br><span class="line">Device     Start        End    Sectors   Size Type</span><br><span class="line">/dev/sda1   2048       4095       2048     1M BIOS boot</span><br><span class="line">/dev/sda2   4096 1875382271 1875378176 894.3G Linux filesystem</span><br><span class="line"></span><br><span class="line">$ sudo fdisk -l /dev/sda2</span><br><span class="line">Disk /dev/sda2: 894.26 GiB, 960193626112 bytes, 1875378176 sectors (512 bytes per sector)</span><br><span class="line">Units: sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 4096 bytes</span><br><span class="line">I/O size (minimum/optimal): 4096 bytes / 4096 bytes</span><br></pre></td></tr></table></figure>
-
-<p>1875378176&#x2F;228928 &#x3D; 8192(8K) 个 sector 对应一个inode节点</p>
-<p>一个inode节点对应 4MB的空间？</p>
-<h3 id="目录、软链接、硬链接"><a href="#目录、软链接、硬链接" class="headerlink" title="目录、软链接、硬链接"></a>目录、软链接、硬链接</h3><ul>
-<li><strong>目录</strong>：目录是一种特殊的文件，它的inode节点中存储的是文件名和inode号码的对应关系。</li>
-<li><strong>软链接</strong>：软链接拥有自己的inode，但是文件内容就是一个快捷方式。<ul>
-<li>命令 <code>ln -s /etc/nginx/config link_config</code></li>
-<li>文件A和文件B的inode号码虽然不一样，但是文件A的内容是文件B的路径。读取文件A时，系统会自动将访问者导向文件B。因此，无论打开哪一个文件，最终读取的都是文件B。这时，文件A就称为文件B的”软链接”（soft link）或者”符号链接（symbolic link）。</li>
-<li>文件A指向文件B的文件名，而不是文件B的inode号码，文件B的inode”链接数”不会因此发生变化。</li>
-</ul>
-</li>
-<li><strong>硬链接</strong>：多个文件名指向同一个inode号码。<ul>
-<li>命令 <code>ln main.c link_main.c</code></li>
-</ul>
-</li>
-</ul>
-<h3 id="软链接、硬链接区别与使用场景"><a href="#软链接、硬链接区别与使用场景" class="headerlink" title="软链接、硬链接区别与使用场景"></a>软链接、硬链接区别与使用场景</h3><p>在大部分常见场景下,硬链接是更优的选择：</p>
-<ol>
-<li>硬链接是一个真实文件,不会无效,更可靠。软链接指向的文件移动或删除后会失效。</li>
-<li>硬链接与原文件性能一致,软链接需要在查询时重新解析路径。</li>
-</ol>
-<p>硬链接也有一些限制：</p>
-<ol>
-<li>不能跨文件系统,软链接可以实现跨文件系统的链接。</li>
-<li>目录无法创建硬链接,只能软链接。</li>
-</ol>
-<h2 id="日志文件系统"><a href="#日志文件系统" class="headerlink" title="日志文件系统"></a>日志文件系统</h2><ul>
-<li>NTFS 和 Ext3 是日志文件系统，它们和 FAT 最大的区别在于写入到磁盘中的是日志，而不是数据。</li>
-<li>日志文件系统会先把日志写入到内存中一个<strong>高速缓冲区</strong>，定期写入到磁盘。</li>
-<li>日志写入是追加式的，不用考虑数据的覆盖。</li>
-<li>一段时间内的日志内容，会形成还原点。这种设计大大提高了性能，当然也会有一定的数据冗余。</li>
-</ul>
-<h3 id="日志文件系统-与-inode-文件系统的关系"><a href="#日志文件系统-与-inode-文件系统的关系" class="headerlink" title="日志文件系统 与 inode 文件系统的关系"></a>日志文件系统 与 inode 文件系统的关系</h3><ol>
-<li>日志文件系统是一种技术,可以建立在多种文件系统之上,包括inode文件系统。</li>
-<li>inode文件系统是一种文件系统架构,每个文件都有一个inode保存元信息。ext、xfs等都是这种架构。</li>
-<li>但两者不是必然关联的,日志文件系统技术也可以用在非inode型文件系统上。</li>
-</ol>
-<h2 id="常见名词及文件系统：MBR、GPT和FAT、EXT2"><a href="#常见名词及文件系统：MBR、GPT和FAT、EXT2" class="headerlink" title="常见名词及文件系统：MBR、GPT和FAT、EXT2"></a>常见名词及文件系统：MBR、GPT和FAT、EXT2</h2><p>前两者是磁盘分区格式，后两者是文件系统格式。</p>
-<p>MBR、GPT是两种比较常见的磁盘分区格式，而且对于磁盘分区而言，目前也主要是这两种格式。一个分区是一个存储设备上的一块独立区域，用户可以针对这块区域进行单独管理。</p>
-<ul>
-<li>NFS:网络文件系统,允许通过网络访问文件,可应用在分布式系统。</li>
-<li>ZFS:引入了pooled storage和checksum等特性的128位文件系统。</li>
-<li>HFS:Mac OS使用的层次化文件系统,使用B*树对元数据进行组织。</li>
-</ul>
-<h3 id="实践：fdisk的结果"><a href="#实践：fdisk的结果" class="headerlink" title="实践：fdisk的结果"></a>实践：fdisk的结果</h3><ul>
-<li>“Disk label type”表示当前磁盘的分区形式，</li>
-<li>dos表示磁盘分区形式为MBR，</li>
-<li>gpt表示磁盘分区形式为GPT</li>
-</ul>
-<h2 id="Windows-NTFS文件系统"><a href="#Windows-NTFS文件系统" class="headerlink" title="Windows NTFS文件系统"></a>Windows NTFS文件系统</h2><p>New Technology File System (NTFS):Windows NT引入的文件系统,使用主文件表(MFT)来管理文件,支持高级功能如权限控制等。</p>
-<ul>
-<li>NTFS卷上的任何事物都是文件(为了与平时使用的文件相区别，以下用FILE特指)，</li>
-<li>FILE通过主文件表(master file table, MFT)来确定其在卷上的位置，</li>
-<li>每个FILE有固定大小，一般为1KB。</li>
-<li>FILE记录了文件的所有数据，每个数据以一个属性来表示，如文件名、文件长度、文件的时间等都是属性，文件的内容也是一个属性，每个属性有一个特征码。</li>
-<li>属性数据较小时能够存放在FILE记录中，称为驻留的属性，反之为非驻留的属性，通过Data Runs来保存其存储索引表。<ul>
-<li>这一点与FAT文件系统不同，FAT文件系统只在目录区保存了文件的首簇号，还要通过FAT表链接关系才能确定文件的全部存放位置。</li>
-<li>Data Runs在一个FILE记录存放不下时还可以用扩展属性，增加FILE记录来保存，即一个文件可以有多个FILE记录。</li>
-</ul>
-</li>
-</ul>
-<p>NTFS的同层目录采用B+树结构，按文件(夹)名保持有序，通过文件号指向文件夹内的文件。文件夹的目录项较少时可以直接存储在文件夹的FILE记录中，目录项较多时占用数据簇，建立INDX记录，存放各目录项的属性。</p>
-<p>NTFS文件系统一共由16个“元文件”构成</p>
-<h2 id="Linux常见-EXT文件系统的发展简介"><a href="#Linux常见-EXT文件系统的发展简介" class="headerlink" title="Linux常见 EXT文件系统的发展简介"></a>Linux常见 EXT文件系统的发展简介</h2><h3 id="ext1"><a href="#ext1" class="headerlink" title="ext1"></a>ext1</h3><ul>
-<li>优点：1992 年的 ext 使用在 Linux 内核中的新虚拟文件系统（VFS）抽象层。<ul>
-<li>与之前的 MINIX 文件系统不同的是，ext 可以处理高达 2 GB 存储空间并处理 255 个字符的文件名。</li>
-</ul>
-</li>
-<li>缺点：原始的时间戳（每个文件仅有一个时间戳，而不是今天我们所熟悉的有 inode、最近文件访问时间和最新文件修改时间的时间戳。）</li>
-</ul>
-<h3 id="ext2"><a href="#ext2" class="headerlink" title="ext2"></a>ext2</h3><ul>
-<li>优点：提供了 GB 级别的最大文件大小和 TB 级别的文件系统大小。</li>
-<li>缺点：<ul>
-<li>将数据写入到磁盘的时候，系统发生崩溃或断电，则容易发生灾难性的数据损坏。</li>
-<li>随着时间的推移，由于<strong>碎片</strong>（单个文件存储在多个位置，物理上其分散在旋转的磁盘上），它们也遭受了严重的性能损失。</li>
-</ul>
-</li>
-</ul>
-<h3 id="ext3"><a href="#ext3" class="headerlink" title="ext3"></a>ext3</h3><ul>
-<li>2001 年 11 月在 2.4.15 内核版本中被采用到 Linux 内核主线中。</li>
-<li>优点：使用<strong>日志</strong>来解决断电数据不一致问题，和 20 世纪 90 年代后期的其它文件系统一样，如微软的 NTFS。</li>
-</ul>
-<h3 id="ext4"><a href="#ext4" class="headerlink" title="ext4"></a>ext4</h3><ul>
-<li>2008年在 2.6.28 内核版本中被加入到了 Linux 主线。</li>
-<li>优点：<ul>
-<li>支持大文件系统，<ul>
-<li>ext3 文件系统使用 32 位寻址，这限制它仅支持 2 TiB 文件大小和 16 TiB 文件系统系统大小</li>
-<li>ext4 使用 48 位的内部寻址，理论上可以在文件系统上分配高达 16 TiB 大小的文件，其中文件系统大小最高可达 1000000 TiB（1 EiB）</li>
-</ul>
-</li>
-<li>分配方式改进，显著提高读写性能<ul>
-<li>区段(extent)<ul>
-<li>是一系列连续的物理块 (最多达 128 MiB，假设块大小为 4 KiB），可以一次性保留和寻址。使用区段而不是 block可以减少给定文件所需的 inode 数量，并显著减少碎片并提高写入大文件时的性能。</li>
-</ul>
-</li>
-<li>多块分配(multiple block allocation)<ul>
-<li>ext3 为每一个新分配的块调用一次块分配器。当多个写入同时打开分配器时，很容易导致严重的碎片。</li>
-<li>多块分配(multiple block allocation)允许一次性分配大量的连续文件块，以降低碎片并且有利于 RAID 设备的并行写入</li>
-</ul>
-</li>
-<li>延迟分配（delayed block allocation）<ul>
-<li>ext4 使用<strong>延迟分配（delayed block allocation）</strong>，这允许它合并写入并更好地决定如何为尚未提交的写入分配块。</li>
-<li><strong>延迟分配</strong>允许 ext4 等待分配将写入数据的实际块，直到它准备好将数据提交到磁盘。（相比之下，即使数据仍然在往写入缓存中写入，ext3 也会立即分配块。）</li>
-<li>当缓存中的数据累积时，延迟分配块允许文件系统对如何分配块做出更好的选择，<strong>降低碎片</strong>（写入，以及稍后的读）并显著提升性能。</li>
-</ul>
-</li>
-<li>持久的<strong>预分配</strong>( allocation without initialization)<ul>
-<li>在为文件预分配磁盘空间时，大部分文件系统必须在创建时将零写入该文件的块中。</li>
-<li>ext4 允许替代使用 fallocate()，它保证了空间的可用性（并试图为它找到连续的空间），而<strong>不需要先写入它</strong>。这显著提高了写入和将来读取流和数据库应用程序的写入数据的性能。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>提高了对碎片的抵抗力<ul>
-<li>ext2 和 ext3 都不直接支持在线碎片整理 —— 即在挂载时会对文件系统进行碎片整理。</li>
-<li>ext4 通过 e4defrag 解决了这个问题，且是一个在线、内核模式、文件系统感知、块和区段级别的碎片整理实用程序。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>Nas 防止碎片，开启预分配</p>
-<p><img src="https://pic.shaojiemike.top/img/20221120200924.png"></p>
-<h3 id="实践问题：-Nas-的-ext4-挂载被识别成NTFS"><a href="#实践问题：-Nas-的-ext4-挂载被识别成NTFS" class="headerlink" title="实践问题： Nas 的 ext4 挂载被识别成NTFS"></a>实践问题： Nas 的 ext4 挂载被识别成NTFS</h3><p>估计是有一层转换，类似的软件有  UFS Explorer</p>
-<h2 id="磁盘读写原理"><a href="#磁盘读写原理" class="headerlink" title="磁盘读写原理"></a>磁盘读写原理</h2><h3 id="读写操作分层"><a href="#读写操作分层" class="headerlink" title="读写操作分层"></a>读写操作分层</h3><p><img src="https://pic.shaojiemike.top/img/20221119174036.png"></p>
-<p>对于磁盘的一次读请求，</p>
-<ul>
-<li>首先经过虚拟文件系统层（VFS Layer），</li>
-<li>其次是具体的文件系统层（例如Ext2），</li>
-<li>接下来是Cache层（Page Cache Layer）、</li>
-<li>通用块层（Generic Block Layer）、</li>
-<li>I&#x2F;O调度层（I&#x2F;O Scheduler Layer）、</li>
-<li>块设备驱动层（Block Device Driver Layer），</li>
-<li>最后是物理块设备层（Block Device Layer）。</li>
-</ul>
-<h4 id="Page-Cache层"><a href="#Page-Cache层" class="headerlink" title="Page Cache层"></a>Page Cache层</h4><p><img src="https://pic.shaojiemike.top/img/20221119174739.png"></p>
-<ul>
-<li>为了提高Linux操作系统对磁盘访问的性能。Cache层在内存中缓存了磁盘上的部分数据。当数据的请求到达时，如果在Cache中存在该数据且是最新的，则直接将数据传递给用户程序，免除了对底层磁盘的操作，提高了性能。</li>
-<li>文件Cache分为两个层面，<ul>
-<li>一是Page Cache，另一个Buffer Cache，每一个Page Cache包含若干Buffer Cache。</li>
-<li>Page Cache主要用来作为文件系统上的文件数据的缓存来用，尤其是针对当进程对文件有read&#x2F;write操作的时候。</li>
-<li>Buffer Cache则主要是设计用来在系统对块设备进行读写的时候，对块进行数据缓存的系统来使用。</li>
-</ul>
-</li>
-<li>磁盘Cache有两大功能：预读和回写。<ul>
-<li>预读其实就是利用了局部性原理，具体过程是：<ul>
-<li>对于每个文件的第一个读请求，系统读入所请求的页面并读入紧随其后的少数几个页面（通常是三个页面），这时的预读称为同步预读。</li>
-<li>对于第二次读请求，<ul>
-<li>如果所读页面不在Cache中，即不在前次预读的页中，则表明文件访问不是顺序访问，系统继续采用同步预读；</li>
-<li>如果所读页面在Cache中，则表明前次预读命中，操作系统把预读页的大小扩大一倍，此时预读过程是异步的，应用程序可以不等预读完成即可返回，只要后台慢慢读页面即可，这时的预读称为异步预读。</li>
-</ul>
-</li>
-<li>任何接下来的读请求都会处于两种情况之一：第一种情况是所请求的页面处于预读的页面中，这时继续进行异步预读；第二种情况是所请求的页面处于预读页面之外，这时系统就要进行同步预读。</li>
-</ul>
-</li>
-<li>回写是通过暂时将数据存在Cache里，然后统一异步写到磁盘中。<ul>
-<li>通过这种异步的数据I&#x2F;O模式解决了程序中的计算速度和数据存储速度不匹配的鸿沟，减少了访问底层存储介质的次数，使存储系统的性能大大提高。Linux</li>
-<li>2.6.32内核之前，采用pdflush机制来将脏页真正写到磁盘中，什么时候开始回写呢？下面两种情况下，脏页会被写回到磁盘：<ul>
-<li>在空闲内存低于一个特定的阈值时，内核必须将脏页写回磁盘，以便释放内存。</li>
-<li>当脏页在内存中驻留超过一定的阈值时，内核必须将超时的脏页写会磁盘，以确保脏页不会无限期地驻留在内存中。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="I-O调度层"><a href="#I-O调度层" class="headerlink" title="I&#x2F;O调度层"></a>I&#x2F;O调度层</h3><ul>
-<li>I&#x2F;O调度层的功能是管理块设备的请求队列。<ul>
-<li>即接收通用块层发出的I&#x2F;O请求，缓存请求并试图合并相邻的请求。</li>
-<li>并根据设置好的调度算法，回调驱动层提供的请求处理函数，以处理具体的I&#x2F;O请求。</li>
-</ul>
-</li>
-<li>如果简单地以内核产生请求的次序直接将请求发给块设备的话，那么块设备性能肯定让人难以接受，因为磁盘寻址是整个计算机中最慢的操作之一。</li>
-<li>为了优化寻址操作，内核不会一旦接收到I&#x2F;O请求后，就按照请求的次序发起块I&#x2F;O请求。</li>
-<li>为此Linux实现了几种I&#x2F;O调度算法，算法基本思想就是通过合并和排序I&#x2F;O请求队列中的请求，以此大大降低所需的磁盘寻道时间，从而提高整体I&#x2F;O性能。</li>
-</ul>
-<p>常见的I&#x2F;O调度算法包括</p>
-<ol>
-<li>Noop调度算法（No Operation）、</li>
-<li>CFQ（完全公正排队I&#x2F;O调度算法）、</li>
-<li>DeadLine（截止时间调度算法）、</li>
-<li>AS预测调度算法等。</li>
-</ol>
-<h2 id="磁盘快速I-O常见机制"><a href="#磁盘快速I-O常见机制" class="headerlink" title="磁盘快速I&#x2F;O常见机制"></a>磁盘快速I&#x2F;O常见机制</h2><p>Linux系统中请求到达磁盘的一次完整过程，期间Linux一般会通过Cache以及排序合并I&#x2F;O请求来提高系统的性能。</p>
-<p>其本质就是由于磁盘随机读写慢、顺序读写快的磁盘I&#x2F;O特性。</p>
-<h3 id="采用追加写"><a href="#采用追加写" class="headerlink" title="采用追加写"></a>采用追加写</h3><p>在进行系统设计时，良好的读性能和写性能往往不可兼得。在许多常见的开源系统中都是优先在保证写性能的前提下来优化读性能。那么如何设计能让一个系统拥有良好的写性能呢？</p>
-<ul>
-<li>一个好的办法就是采用追加写，每次将数据添加到文件。</li>
-<li>由于完全是顺序的，所以可以具有非常好的写操作性能。</li>
-<li>但是这种方式也存在一些缺点：从文件中读一些数据时将会需要更多的时间：<ul>
-<li>需要倒序扫描，直到找到所需要的内容。</li>
-<li>当然在一些简单的场景下也能够保证读操作的性能：<ul>
-<li>数据是被整体访问，比如HDFS</li>
-<li>知道文件明确的偏移量，比如Kafka</li>
-</ul>
-</li>
-<li>在面对更复杂的读场景（比如按key）时，如何来保证读操作的性能呢？<ul>
-<li>简单的方式是像Kafka那样，将文件数据有序保存，使用二分查找来优化效率；</li>
-<li>或者通过建索引的方式来进行优化；</li>
-<li>也可以采用hash的方式将数据分割为不同的桶。</li>
-</ul>
-</li>
-<li>以上的方法都能增加读操作的性能，但是由于在数据上强加了数据结构，又会降低写操作的性能。<ul>
-<li>比如如果采用索引的方式来优化读操作，那么在更新索引时就需要更新B-tree中的特定部分，这时候的写操作就是随机写。</li>
-</ul>
-</li>
-<li>那么有没有一种办法在保证写性能不损失的同时也提供较好的读性能呢？</li>
-<li>一个好的选择就是使用LSM-tree。<ul>
-<li>LSM-tree与B-tree相比，LSM-tree牺牲了部分读操作，以此大幅提高写性能。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="文件合并和元数据优化"><a href="#文件合并和元数据优化" class="headerlink" title="文件合并和元数据优化"></a>文件合并和元数据优化</h3><p>目前的大多数文件系统，如XFS&#x2F;Ext4、GFS、HDFS，在元数据管理、缓存管理等实现策略上都侧重大文件。</p>
-<h2 id="磁盘碎片"><a href="#磁盘碎片" class="headerlink" title="磁盘碎片"></a>磁盘碎片</h2><h3 id="不同文件系统的比较"><a href="#不同文件系统的比较" class="headerlink" title="不同文件系统的比较"></a>不同文件系统的比较</h3><p>像 FAT 和 FAT32 这类文件系统中，文件紧挨着写入到磁盘中。文件之间没有空间来用于增长或者更新：</p>
-<p>NTFS 中在文件之间保留了一些空间，因此有空间进行增长。但因块之间的空间是有限的，碎片也会随着时间出现。</p>
-<p>Linux 的日志型文件系统采用了一个不同的方案。与文件相互挨着不同，每个文件分布在磁盘的各处，每个文件之间留下了大量的剩余空间。这就给文件更新和增长留下了很大的空间，碎片很少会发生。</p>
-<p>此外，碎片一旦出现了，大多数 Linux 文件系统会尝试将文件和块重新连续起来。</p>
-<h3 id="检测命令"><a href="#检测命令" class="headerlink" title="检测命令"></a>检测命令</h3><p>在已经挂载的分区中运行 fsck 将会<strong>严重危害</strong>到你的数据和磁盘。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">umount /path</span><br><span class="line">fsck -fn /path</span><br></pre></td></tr></table></figure>
-
-<p>大于20%需要整理。<a target="_blank" rel="noopener" href="https://www.aikaiyuan.com/5679.html">批评fsck不准的文章：大文件碎片少才是最重要的</a></p>
-<p>NEC 的 Akira Fujita 和 Takashi Sato 在十年前就为 ext4 写了在线整理碎片的工具，因此我们直接拿来用就好了。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">e4defrag -v /path</span><br></pre></td></tr></table></figure>
-
-<h3 id="碎片整理"><a href="#碎片整理" class="headerlink" title="碎片整理"></a>碎片整理</h3><p><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/197465">方法一</a>：整个磁盘文件备份，格式化，重新搬运。(Liunx 会自动将文件进行连续分布排列。)</p>
-<p>方法二：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 不要中断，很危险</span></span><br><span class="line">sudo e4defrag /</span><br></pre></td></tr></table></figure>
-
-<h2 id="常见实践问题"><a href="#常见实践问题" class="headerlink" title="常见实践问题"></a>常见实践问题</h2><h3 id="为什么出现坏道之后，硬盘会飞速损耗"><a href="#为什么出现坏道之后，硬盘会飞速损耗" class="headerlink" title="为什么出现坏道之后，硬盘会飞速损耗"></a>为什么出现坏道之后，硬盘会飞速损耗</h3><p>坏道分为逻辑坏道，和物理坏道。如果是物理坏道，由于异物或者碰撞导致磁头，盘面受损，会导致物理损坏扩散，应该今早备份数据。</p>
-<h3 id="并行下载多个两个文件，存储是交叉的吗？读数据会变慢吗？"><a href="#并行下载多个两个文件，存储是交叉的吗？读数据会变慢吗？" class="headerlink" title="并行下载多个两个文件，存储是交叉的吗？读数据会变慢吗？"></a>并行下载多个两个文件，存储是交叉的吗？读数据会变慢吗？</h3><p>场景问题：</p>
-<p>1.同时向机械硬盘拷贝多个文件夹，每个文件夹里都有多个小文件。<br>2.同时解压多个压缩包，每个压缩包有大量的小文件。<br>3.同时安装多个游戏安装包。<br>会不会导致交叉存储？会不会导致碎片增加？会不会导致游玩游戏时读取速度变慢？</p>
-<p>一般不用担心，有些文件系统会做碎片整理。然后操作系统的缓存写和预读策略也会优化。</p>
-<h3 id="硬盘的寿命"><a href="#硬盘的寿命" class="headerlink" title="硬盘的寿命"></a>硬盘的寿命</h3><p>对于机械硬盘来讲，反复读写、多线程读写等情况对磁盘使用寿命的影响很低，<br>但“高温”、“低温”、“尘土”、“外力冲击（跌落）”等情况，会对磁盘的寿命造成较大的影响。</p>
-<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E9%87%8D%E5%AD%A6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%AE%8C/30%20%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%EF%BC%9AFAT%E3%80%81NTFS%20%E5%92%8C%20Ext3%20%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F.md">https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E9%87%8D%E5%AD%A6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%AE%8C/30%20%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%EF%BC%9AFAT%E3%80%81NTFS%20%E5%92%8C%20Ext3%20%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F.md</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2011/12/inode.html">https://www.ruanyifeng.com/blog/2011/12/inode.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://tech.meituan.com/2017/05/19/about-desk-io.html">https://tech.meituan.com/2017/05/19/about-desk-io.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/44267768">https://zhuanlan.zhihu.com/p/44267768</a></p>
-<p><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/197465">https://developer.aliyun.com/article/197465</a></p>
-</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/page/14/">Previous</a></div><div class="pagination-next"><a href="/page/16/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/">1</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/14/">14</a></li><li><a class="pagination-link is-current" href="/page/15/">15</a></li><li><a class="pagination-link" href="/page/16/">16</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/35/">35</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">341</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">26</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">470</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">20</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">49</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T07:38:50.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/HostCoreWithPIMCoreIn3DMem/">Host-Core With PIM-Core In 3D-stacked Mem</a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T03:24:26.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/AddressTranslationForPIM/">AddressTranslationForPIM</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T03:23:38.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/experimentsForPIMMotivation/">Experiments For PIM Motivation</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-13T01:42:31.000Z">2023-11-13</time></p><p class="title"><a href="/2023/11/13/Work/Architecture/microHardware/Predictor/">Predictor</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-12T15:27:51.000Z">2023-11-12</time></p><p class="title"><a href="/2023/11/12/OutOfWork/3-homepage/themeConfiguration/hexo-icarus/">Hexo Icarus Theme configuration</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">202</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/"><span class="level-start"><span class="level-item">2022</span></span><span class="level-end"><span class="level-item tag">67</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/"><span class="level-start"><span class="level-item">2021</span></span><span class="level-end"><span class="level-item tag">72</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2023 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/page/14/">Previous</a></div><div class="pagination-next"><a href="/page/16/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/">1</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/14/">14</a></li><li><a class="pagination-link is-current" href="/page/15/">15</a></li><li><a class="pagination-link" href="/page/16/">16</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/35/">35</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">342</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">26</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">470</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">20</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">49</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-15T01:11:04.000Z">2023-11-15</time></p><p class="title"><a href="/2023/11/15/Work/Algorithms/datastructure/dataStructureSummary/">Data Structure Summary</a></p><p class="categories"><a href="/categories/Algorithms/">Algorithms</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T07:38:50.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/HostCoreWithPIMCoreIn3DMem/">Host-Core With PIM-Core In 3D-stacked Mem</a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T03:24:26.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/AddressTranslationForPIM/">AddressTranslationForPIM</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-14T03:23:38.000Z">2023-11-14</time></p><p class="title"><a href="/2023/11/14/Work/Architecture/PIM/experimentsForPIMMotivation/">Experiments For PIM Motivation</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-13T01:42:31.000Z">2023-11-13</time></p><p class="title"><a href="/2023/11/13/Work/Architecture/microHardware/Predictor/">Predictor</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">203</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/"><span class="level-start"><span class="level-item">2022</span></span><span class="level-end"><span class="level-item tag">67</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/"><span class="level-start"><span class="level-item">2021</span></span><span class="level-end"><span class="level-item tag">72</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2023 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
             article: {
                 highlight: {
                     clipboard: true,
