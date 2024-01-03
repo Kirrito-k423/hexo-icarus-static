@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>AI Training Optimization - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="!!! abstract “导言” 训练由于要计算并更新梯度，一般是计算密集。但是推理一般是访存密集。"><meta property="og:type" content="blog"><meta property="og:title" content="AI Training Optimization"><meta property="og:url" content="http://icarus.shaojiemike.top/2023/12/18/Work/Artificial%20Intelligence/Training/AITrainingOptimization/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="!!! abstract “导言” 训练由于要计算并更新梯度，一般是计算密集。但是推理一般是访存密集。"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220125073434.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220125071255.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220125071228.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/12/c3102e1412e4dc6c951b379a13a6df4f.png"><meta property="og:image" content="https://pic2.zhimg.com/80/v2-473a82764b29e70b2f2529c17138f469_1440w.webp"><meta property="article:published_time" content="2023-12-18T06:54:50.000Z"><meta property="article:modified_time" content="2024-01-03T08:35:50.542Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="fun"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/img/20220125073434.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2023/12/18/Work/Artificial%20Intelligence/Training/AITrainingOptimization/"},"headline":"AI Training Optimization","image":["https://pic.shaojiemike.top/img/20220125073434.png","https://pic.shaojiemike.top/img/20220125071255.png","https://pic.shaojiemike.top/img/20220125071228.png","https://pic.shaojiemike.top/shaojiemike/2023/12/c3102e1412e4dc6c951b379a13a6df4f.png","https://pic2.zhimg.com/80/v2-473a82764b29e70b2f2529c17138f469_1440w.webp"],"datePublished":"2023-12-18T06:54:50.000Z","dateModified":"2024-01-03T08:35:50.542Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"!!! abstract “导言” 训练由于要计算并更新梯度，一般是计算密集。但是推理一般是访存密集。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2023/12/18/Work/Artificial%20Intelligence/Training/AITrainingOptimization/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>AI Training Optimization - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="!!! abstract “导言” 训练由于要计算并更新梯度，一般是计算密集。但是推理一般是访存密集。"><meta property="og:type" content="blog"><meta property="og:title" content="AI Training Optimization"><meta property="og:url" content="http://icarus.shaojiemike.top/2023/12/18/Work/Artificial%20Intelligence/Training/AITrainingOptimization/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="!!! abstract “导言” 训练由于要计算并更新梯度，一般是计算密集。但是推理一般是访存密集。"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220125073434.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220125071255.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220125071228.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/12/c3102e1412e4dc6c951b379a13a6df4f.png"><meta property="og:image" content="https://pic2.zhimg.com/80/v2-473a82764b29e70b2f2529c17138f469_1440w.webp"><meta property="article:published_time" content="2023-12-18T06:54:50.000Z"><meta property="article:modified_time" content="2024-01-03T12:15:43.662Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="fun"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/img/20220125073434.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2023/12/18/Work/Artificial%20Intelligence/Training/AITrainingOptimization/"},"headline":"AI Training Optimization","image":["https://pic.shaojiemike.top/img/20220125073434.png","https://pic.shaojiemike.top/img/20220125071255.png","https://pic.shaojiemike.top/img/20220125071228.png","https://pic.shaojiemike.top/shaojiemike/2023/12/c3102e1412e4dc6c951b379a13a6df4f.png","https://pic2.zhimg.com/80/v2-473a82764b29e70b2f2529c17138f469_1440w.webp"],"datePublished":"2023-12-18T06:54:50.000Z","dateModified":"2024-01-03T12:15:43.662Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"!!! abstract “导言” 训练由于要计算并更新梯度，一般是计算密集。但是推理一般是访存密集。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2023/12/18/Work/Artificial%20Intelligence/Training/AITrainingOptimization/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
   (function () {
       function switchTab() {
           if (!location.hash) {
@@ -29,14 +29,15 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-12-18T06:54:50.000Z" title="12/18/2023, 6:54:50 AM">2023-12-18</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-03T08:35:50.542Z" title="1/3/2024, 8:35:50 AM">2024-01-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">26 minutes read (About 3895 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">AI Training Optimization</h1><div class="content"><p>!!! abstract “导言”</p>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-12-18T06:54:50.000Z" title="12/18/2023, 6:54:50 AM">2023-12-18</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-03T12:15:43.662Z" title="1/3/2024, 12:15:43 PM">2024-01-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">26 minutes read (About 3895 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">AI Training Optimization</h1><div class="content"><p>!!! abstract “导言”</p>
 <pre><code>训练由于要计算并更新梯度，一般是计算密集。但是推理一般是访存密集。
 </code></pre>
 <span id="more"></span>
 
 
 <h2 id="任务基本流程（图像处理）"><a href="#任务基本流程（图像处理）" class="headerlink" title="任务基本流程（图像处理）"></a>任务基本流程（图像处理）</h2><ol>
-<li>数据预处理<ol>
+<li><p>数据预处理</p>
+<ol>
 <li>中值滤波（去噪）</li>
 <li>(图像)数据标准化<ol>
 <li>边缘检测</li>
@@ -53,7 +54,8 @@
 <li>数据特征提取</li>
 </ol>
 </li>
-<li>数据增强<ol>
+<li><p>数据增强</p>
+<ol>
 <li>通过等价性质，拓展训练数据集<ol>
 <li>伽马变换（颜色变换漂白、变暗），高斯模糊（像素平滑化），颜色抖动</li>
 <li>仿射变换</li>
@@ -63,7 +65,8 @@
 </li>
 </ol>
 </li>
-<li>选择网络模型<ol>
+<li><p>选择网络模型</p>
+<ol>
 <li>eg 预训练的EfficientNet-b5</li>
 <li>魔改网络<ol>
 <li>采用多分支：不同分支使用不同大小的卷积核</li>
@@ -75,17 +78,19 @@
 <li>注意是否过拟合或者欠拟合</li>
 </ol>
 </li>
-<li>对数据多折迭代训练<ol>
+<li><p>对数据多折迭代训练</p>
+<ol>
 <li><p>伪标签 + 多折融合 + 测试时增强（TTA）</p>
 </li>
-<li><p>K折交叉检验法<br>在机器学习的建模工作中，首先会将数据集分为训练集和测试集，在训练集上对模型进行训练以及参数的调优，在测试集上对模型进行评估，但是测试集的选择会对模型的效果产生影响，在随机切分训练集&#x2F;测试集的情况下，可能刚好选择了比较容易预测的数据点作为测试集，所以采用交叉验证（cross validation）的方式，通过获取模型在多个测试集上的平均效果来总体评估模型的效果。</p>
+<li><p><a target="_blank" rel="noopener" href="https://developer.huaweicloud.com/hero/thread-74349-1-1.html">K折交叉检验法</a></p>
+<p>在机器学习的建模工作中，首先会将数据集分为训练集和测试集，在训练集上对模型进行训练以及参数的调优，在测试集上对模型进行评估，但是测试集的选择会对模型的效果产生影响，在随机切分训练集&#x2F;测试集的情况下，可能刚好选择了比较容易预测的数据点作为测试集，所以采用交叉验证（cross validation）的方式，通过获取模型在多个测试集上的平均效果来总体评估模型的效果。</p>
 <p>而交叉验证中常用的方法K折交叉检验法（k-fold cross validation）用于模型调优，可以缓解过拟合现象的产生，具体实现方法：</p>
-<p>将样本数据集分为k组大小相似的互斥子集，每次抽取出k份中的一份作为测试集，剩下来的k-1份作为训练集，尽量保证每个子集数据分布的一致性。依次得到测试结果S1,S2,…,Sk,然后求其平均值得到模型在多个测试集上的平均效果，用求得的平均值评估模型的总体效果。</p>
-<p><a target="_blank" rel="noopener" href="https://developer.huaweicloud.com/hero/thread-74349-1-1.html">https://developer.huaweicloud.com/hero/thread-74349-1-1.html</a></p>
+<p>将样本数据集分为k组大小相似的互斥子集，每次抽取出k份中的一份作为测试集，剩下来的k-1份作为训练集，尽量保证每个子集数据分布的一致性。依次得到测试结果<code>S1,S2,...,Sk</code>,然后求其平均值得到模型在多个测试集上的平均效果，用求得的平均值评估模型的总体效果。</p>
 </li>
 </ol>
 </li>
-<li>通过分析结果相似性等，修正结果</li>
+<li><p>通过分析结果相似性等，修正结果</p>
+</li>
 </ol>
 <h2 id="训练阶段的优化技巧："><a href="#训练阶段的优化技巧：" class="headerlink" title="训练阶段的优化技巧："></a>训练阶段的优化技巧：</h2><h3 id="1-学习率调整："><a href="#1-学习率调整：" class="headerlink" title="1. 学习率调整："></a>1. <strong>学习率调整：</strong></h3><ul>
 <li>使用学习率调度器（Learning Rate Schedulers）来动态调整学习率，以确保在训练的不同阶段获得更好的性能。</li>
@@ -111,37 +116,37 @@
 <p>??? question “模型蒸馏 和 知识蒸馏 和 迁移学习的区别” </p>
 <pre><code>模型蒸馏（Knowledge Distillation）、知识蒸馏（Knowledge Transfer），以及迁移学习（Transfer Learning）是三种相关但不同的概念，它们在目标、方法和应用方面有一些区别。
 
-### 1. 模型蒸馏（Knowledge Distillation）：
+1. 模型蒸馏（Knowledge Distillation）：
 
-1. **目标：** 主要目标是通过从一个大型教师模型中传递知识到一个小型学生模型，提高学生模型的性能。
+      1. **目标：** 主要目标是通过从一个大型教师模型中传递知识到一个小型学生模型，提高学生模型的性能。
 
-2. **方法：**
-  - **教师模型：** 通常是一个大型、高性能的模型，例如深度神经网络。
-  - **学生模型：** 一个较小的模型，可以是浅层网络或具有较少参数的模型。
-  - **Softmax温度调整：** 通过调整Softmax输出的温度，使学生模型更容易学到教师模型的软标签。
+      2. **方法：**
+        - **教师模型：** 通常是一个大型、高性能的模型，例如深度神经网络。
+        - **学生模型：** 一个较小的模型，可以是浅层网络或具有较少参数的模型。
+        - **Softmax温度调整：** 通过调整Softmax输出的温度，使学生模型更容易学到教师模型的软标签。
 
-3. **应用：** 模型蒸馏主要应用于通过利用大型模型的知识来提高小型模型的性能，尤其在数据不足的情况下。
+      3. **应用：** 模型蒸馏主要应用于通过利用大型模型的知识来提高小型模型的性能，尤其在数据不足的情况下。
 
-### 2. 知识蒸馏（Knowledge Transfer）：
+2. 知识蒸馏（Knowledge Transfer）：
 
-4. **目标：** 类似于模型蒸馏，也是通过将知识从一个模型传递到另一个模型，但不限定于教师-学生的关系，可能是模型之间的互相传递。
+      1. **目标：** 类似于模型蒸馏，也是通过将知识从一个模型传递到另一个模型，但不限定于教师-学生的关系，可能是模型之间的互相传递。
 
-5. **方法：**
-  - **知识传递：** 可以通过软标签、隐藏层表示等方式传递知识。
+      2. **方法：**
+        - **知识传递：** 可以通过软标签、隐藏层表示等方式传递知识。
 
-6. **应用：** 知识蒸馏是一个更广泛的概念，可以包括模型蒸馏，同时还可以涵盖其他情况，如在不同领域之间传递知识。
+      3. **应用：** 知识蒸馏是一个更广泛的概念，可以包括模型蒸馏，同时还可以涵盖其他情况，如在不同领域之间传递知识。
 
-### 3. 迁移学习（Transfer Learning）：
+3. 迁移学习（Transfer Learning）：
 
-7. **目标：** 通过将从一个任务中学到的知识迁移到另一个相关或不相关的任务上，提高模型性能。
+      1.  **目标：** 通过将从一个任务中学到的知识迁移到另一个相关或不相关的任务上，提高模型性能。
 
-8. **方法：**
-  - **预训练模型：** 在一个大规模数据集上进行训练，然后将学到的权重应用于目标任务。
-  - **Fine-tuning：** 在目标任务上对预训练模型进行微调，以适应新任务的特定要求。
+      2.  **方法：**
+        - **预训练模型：** 在一个大规模数据集上进行训练，然后将学到的权重应用于目标任务。
+        - **Fine-tuning：** 在目标任务上对预训练模型进行微调，以适应新任务的特定要求。
 
-9. **应用：** 迁移学习适用于在源任务上训练的模型在目标任务上表现良好的情况。它可以包括预训练的模型或从一个领域到另一个领域的知识传递。
+      3.  **应用：** 迁移学习适用于在源任务上训练的模型在目标任务上表现良好的情况。它可以包括预训练的模型或从一个领域到另一个领域的知识传递。
 
-### 总结区别：
+总结区别：
 
 - **目标差异：**
   - 模型蒸馏和知识蒸馏的主要目标是通过知识传递提高模型性能。
@@ -193,7 +198,7 @@
 <h3 id="组合拳"><a href="#组合拳" class="headerlink" title="组合拳"></a>组合拳</h3><p>??? example “伪标签 + 多折融合 + 测试时增强（TTA）”</p>
 <pre><code>&quot;伪标签&quot;、&quot;多折融合&quot;以及&quot;测试时增强（TTA）&quot;是在机器学习和深度学习领域中用于提高模型性能的常见技术。以下是对这三个概念的解释：
 
-### 1. 伪标签（Pseudo-Labeling）：
+1. 伪标签（Pseudo-Labeling）：
 
 - **概念：** 伪标签是一种半监督学习的技术，其中使用模型对未标记数据进行预测，并将这些预测结果作为伪标签加入到训练数据中。
 
@@ -204,7 +209,7 @@
 
 - **目的：** 借助未标记数据的信息，提高模型的泛化性能，尤其在训练数据有限的情况下。
 
-### 2. 多折融合（Ensemble with Cross-Fold Validation）：
+1. 多折融合（Ensemble with Cross-Fold Validation）：
 
 - **概念：** 多折融合是通过在不同的数据子集上训练多个模型，然后将它们的预测结果进行融合，从而提高模型的鲁棒性和泛化性能。
 
@@ -215,7 +220,7 @@
 
 - **目的：** 通过结合多个模型的预测结果，减少过拟合风险，提高模型的整体性能。
 
-### 3. 测试时增强（Test-Time Augmentation，TTA）：
+1. 测试时增强（Test-Time Augmentation，TTA）：
 
 - **概念：** TTA 是在模型进行推理（测试）时，对输入数据进行多次变换或增强，然后对每次增强后的数据进行预测，并对所有预测结果进行融合。
 
