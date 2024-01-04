@@ -29,25 +29,26 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">GDDR6x</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-08-03T08:20:32.000Z" title="8/3/2021, 8:20:32 AM">2021-08-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-04T12:03:47.633Z" title="1/4/2024, 12:03:47 PM">2024-01-04</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">9 minutes read (About 1303 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/08/03/Work/Architecture/GPU/cpuvsgpu/">CPU vs GPU</a></p><div class="content"><h2 id="GPU-vs-CPU"><a href="#GPU-vs-CPU" class="headerlink" title="GPU vs CPU"></a>GPU vs CPU</h2><p><img src="https://pic.shaojiemike.top/img/v2-75cdb098e645c614492746417b457c13_1440w.jpg"></p>
-<p>GPU是基于大的吞吐量设计:</p>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">GDDR6x</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-08-03T08:20:32.000Z" title="8/3/2021, 8:20:32 AM">2021-08-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-04T12:57:46.732Z" title="1/4/2024, 12:57:46 PM">2024-01-04</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">9 minutes read (About 1403 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/08/03/Work/Architecture/GPU/cpuvsgpu/">CPU vs GPU</a></p><div class="content"><h2 id="GPU-vs-CPU"><a href="#GPU-vs-CPU" class="headerlink" title="GPU vs CPU"></a>GPU vs CPU</h2><p><img src="https://pic.shaojiemike.top/img/v2-75cdb098e645c614492746417b457c13_1440w.jpg"></p>
+<h3 id="CPU-latency-oriented-design"><a href="#CPU-latency-oriented-design" class="headerlink" title="CPU: latency-oriented design"></a>CPU: latency-oriented design</h3><p>低延时的设计思路</p>
 <ol>
-<li>GPU采用了数量众多的计算单元和超长的流水线</li>
-<li>但只有非常简单的控制逻辑</li>
-<li>几乎省去了Cache。缓存的目的不是保存后面需要访问的数据的，减少cachemiss。这点和CPU不同，而是为thread提高服务的。</li>
-</ol>
-<p>对带宽大的密集计算并行性能出众，擅长的是大规模并发计算。</p>
-<p>而CPU 基于低延时的设计:</p>
-<ol>
-<li>CPU不仅被Cache占据了大量空间</li>
+<li><strong>large L1 caches</strong> to reduce the average latency of data</li>
 <li>时钟周期的频率是非常高的，达到3-4GHz</li>
-<li>而且还有有复杂的控制逻辑和诸多优化电路<ol>
+<li><strong>Instruction-level parallelism</strong> to compute partial results ahead of time to further reduce latency<ol>
 <li>当程序含有多个分支的时候，它通过提供分支预测的能力来降低延时。</li>
 <li>数据转发。 当一些指令依赖前面的指令结果时，数据转发的逻辑控制单元决定这些指令在pipeline中的位置并且尽可能快的转发一个指令的结果给后续的指令。</li>
 </ol>
 </li>
 </ol>
 <p>相比之下计算能力只是CPU很小的一部分。擅长逻辑控制，串行的运算。</p>
+<h3 id="GPU-throughput-oriented-design"><a href="#GPU-throughput-oriented-design" class="headerlink" title="GPU: throughput-oriented design"></a>GPU: throughput-oriented design</h3><p>大吞吐量设计思路</p>
+<ol>
+<li>GPU采用了数量众多的计算单元和超长的流水线</li>
+<li>但只有非常简单的控制逻辑</li>
+<li>几乎省去了Cache。缓存的目的不是保存后面需要访问的数据的，减少cache miss。这点和CPU不同，而是为thread提高服务的。</li>
+<li>GPU “over-subscribed”  threads： GPU运行任务会启动远超物理核数的thread，原因是借助极小的上下文切换开销，GPU能通过快速切换Threads来隐藏访存延迟。</li>
+</ol>
+<p>对带宽大的密集计算并行性能出众，擅长的是大规模并发计算。</p>
 <p><img src="https://pic.shaojiemike.top/img/141016254012704.png"></p>
 <table>
 <thead>
@@ -104,6 +105,7 @@
 <li>DRAM Types 一文里有分析，个人主机插满4条DDR4带宽” <code>3.2 Gbps * 64 bits * 2 / 8 = 51.2GB/s</code></li>
 </ul>
 <p>可见两者差了20倍左右。</p>
+<h2 id="GPU-CPU-workload-preference"><a href="#GPU-CPU-workload-preference" class="headerlink" title="GPU &#x2F; CPU workload preference"></a>GPU &#x2F; CPU workload preference</h2><p>通过上面的例子，大致能知道： 需要高访存带宽和高并行度（千或万）的应用适合分配在GPU上。</p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/156171120?utm_source=wechat_session">https://zhuanlan.zhihu.com/p/156171120?utm_source=wechat_session</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/biglucky/p/4223565.html">https://www.cnblogs.com/biglucky/p/4223565.html</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/36825227/answer/69351247">https://www.zhihu.com/question/36825227/answer/69351247</a></p>
