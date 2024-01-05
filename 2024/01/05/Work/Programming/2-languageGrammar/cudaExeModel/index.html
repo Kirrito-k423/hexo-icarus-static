@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>The CUDA Execution Model - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="!!! abstract “导言”   The CUDA Execution Model: how the CUDA architecture handles the execution of code in parallel.  这篇将聚焦于CUDA的基础知识，基本概念，"><meta property="og:type" content="blog"><meta property="og:title" content="The CUDA Execution Model"><meta property="og:url" content="http://icarus.shaojiemike.top/2024/01/05/Work/Programming/2-languageGrammar/cudaExeModel/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="!!! abstract “导言”   The CUDA Execution Model: how the CUDA architecture handles the execution of code in parallel.  这篇将聚焦于CUDA的基础知识，基本概念，"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220120182538.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220120182538.png?60"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220120202703.png?60"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220409155719.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220511235932.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220512000042.png"><meta property="article:published_time" content="2024-01-05T07:17:06.000Z"><meta property="article:modified_time" content="2024-01-05T07:44:39.955Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="fun"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/img/20220120182538.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2024/01/05/Work/Programming/2-languageGrammar/cudaExeModel/"},"headline":"The CUDA Execution Model","image":["https://pic.shaojiemike.top/img/20220120182538.png","https://pic.shaojiemike.top/img/20220409155719.png","https://pic.shaojiemike.top/img/20220511235932.png","https://pic.shaojiemike.top/img/20220512000042.png"],"datePublished":"2024-01-05T07:17:06.000Z","dateModified":"2024-01-05T07:44:39.955Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"!!! abstract “导言”   The CUDA Execution Model: how the CUDA architecture handles the execution of code in parallel.  这篇将聚焦于CUDA的基础知识，基本概念，"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2024/01/05/Work/Programming/2-languageGrammar/cudaExeModel/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.0.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2024-01-05T07:17:06.000Z" title="1/5/2024, 7:17:06 AM">2024-01-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-05T07:44:39.955Z" title="1/5/2024, 7:44:39 AM">2024-01-05</time></span><span class="level-item"><a class="link-muted" href="/categories/toLearn/">toLearn</a></span><span class="level-item">16 minutes read (About 2338 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">The CUDA Execution Model</h1><div class="content"><p>!!! abstract “导言”</p>
+<pre><code>  The CUDA Execution Model: how the CUDA architecture handles the execution of code in parallel.
+
+这篇将聚焦于CUDA的基础知识，基本概念， 
+</code></pre>
+<span id="more"></span>
+
+<h2 id="cuda-语法逻辑"><a href="#cuda-语法逻辑" class="headerlink" title="cuda 语法逻辑"></a>cuda 语法逻辑</h2><h3 id="运行配置逻辑"><a href="#运行配置逻辑" class="headerlink" title="运行配置逻辑"></a>运行配置逻辑</h3><p>Kernel Functions &amp; Device Functions：详见 编程语法部分 <code>__global__</code> 和 <code>__device__</code> 的区别。[^1]</p>
+<h3 id="依赖与同步逻辑"><a href="#依赖与同步逻辑" class="headerlink" title="依赖与同步逻辑"></a>依赖与同步逻辑</h3><ol>
+<li><code>__global__</code> 函数启动后，是异步与CPU执行的。</li>
+<li>默认连续执行的cuda kernel function之间是有依赖关系的：前一个kernel(copy operation)完成了，下一个kernel才能开始。</li>
+<li>kernel function之间默认是有implicit synchronization. 但是kernel内就没有了，需要类似的<code>cudaDeviceSynchronize()</code>函数实现同步。但是对性能会有极大影响，慎用。</li>
+</ol>
+<h2 id="专业术语-terminology"><a href="#专业术语-terminology" class="headerlink" title="专业术语 terminology"></a>专业术语 terminology</h2><ol>
+<li>Thread : 并行的基本单位， 但是创建和切换的成本比CPU线程小多了</li>
+<li>Warp: 一堆能硬件物理支持并行的线程(SIMD)</li>
+<li>Thread Block: 在一个SM(multiprocessor) 里共享shared memory的一堆线程</li>
+</ol>
+<h2 id="CUDA-程序执行的逻辑空间结构"><a href="#CUDA-程序执行的逻辑空间结构" class="headerlink" title="CUDA 程序执行的逻辑空间结构"></a>CUDA 程序执行的逻辑空间结构</h2><!-- <div align="center">
+<img src="https://pic.shaojiemike.top/img/20220120182538.png" height="70%" width="70%" >
+</div> -->
+
+<ul>
+<li>Host 指“CPU和CPU直接调用的内存”两部分的集合[^1]</li>
+<li>Device 指“GPU和GPU直接调用的内存”两部分的集合，感觉可以看作显存。</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/img/20220120182538.png?60"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220120202703.png?60"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dim3 <span class="title function_">grid</span><span class="params">((nx + block.x - <span class="number">1</span>) / block.x, (ny + block.y - <span class="number">1</span>) / block.y)</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Block和Thread的理解"><a href="#Block和Thread的理解" class="headerlink" title="Block和Thread的理解"></a>Block和Thread的理解</h3><ol>
+<li>cuda Block 级别相当于 C++ 线程，数目可以设置比较大，调度依靠 GPU ，方式类似于 CPU 调度 threads</li>
+<li>cuda Thread 级别相当于 SIMD，有数目上限，受限于 cuda core 的数目和一些维度参数</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Max dimension size of a thread block (x,y,z): (1024, 1024, 64)</span><br><span class="line">Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用grid来解决数据数比线程数多的问题"><a href="#使用grid来解决数据数比线程数多的问题" class="headerlink" title="使用grid来解决数据数比线程数多的问题"></a>使用grid来解决数据数比线程数多的问题</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> loopCount = .....;</span><br><span class="line"></span><br><span class="line">....</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> block_dim = ...;</span><br><span class="line"><span class="type">int</span> grid_dim = (loopCount - <span class="number">1</span>) / block_dim + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">call_kernel&lt;&lt;&lt;grid_dim, block_dim&gt;&gt;&gt;();</span><br><span class="line"></span><br><span class="line">__global__ <span class="type">void</span> <span class="title function_">saxpy</span><span class="params">(<span class="type">int</span> n, <span class="type">float</span> a, <span class="type">float</span> *x, <span class="type">float</span> *y)</span> &#123;</span><br><span class="line"> <span class="keyword">for</span> (<span class="type">int</span> i = blockIdx.x * blockDim.x + threadIdx.x; i &lt; n; i += blockDim.x * gridDim.x) &#123;</span><br><span class="line">  y[i] = a * x[i] + y[i];</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Warp-Execution-Model——资源调度模型"><a href="#Warp-Execution-Model——资源调度模型" class="headerlink" title="Warp Execution Model——资源调度模型"></a>Warp Execution Model——资源调度模型</h2><ol>
+<li>Nvidia把32个threads组成一个warp，warp是调度和运行的基本单元。warp中所有threads并行的执行相同的指令。一个warp需要占用一个SM运行，多个warps需要轮流进入SM。由SM的硬件warp scheduler负责调度。目前每个warp包含32个threads（Nvidia保留修改数量的权利）。所以，一个GPU上resident thread最多只有 SM*warp个。</li>
+<li>大量的thread可能会被分配到不同的SM，<ol>
+<li><strong>同一个block中的threads必然在同一个SM中并行（SIMT）执行</strong></li>
+<li>每个thread拥有它自己的程序计数器和状态寄存器，并且用该线程自己的数据执行指令，这就是所谓的Single Instruction Multiple Thread。</li>
+</ol>
+</li>
+<li>一个SP可以执行一个thread，但是实际上并不是所有的thread能够在同一时刻执行</li>
+<li>Warp内会自动同步？</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">(30) Multiprocessors, (128) CUDA Cores/MP:     3840 CUDA Cores</span><br><span class="line">Warp size:                                     32</span><br><span class="line">Maximum number of threads per multiprocessor:  2048</span><br><span class="line">Maximum number of threads per block:           1024</span><br><span class="line">Max dimension size of a thread block (x,y,z): (1024, 1024, 64) # 是x,y,z 各自最大值</span><br><span class="line">Total amount of shared memory per block:       49152 bytes (48 Kbytes)</span><br><span class="line">Total shared memory per multiprocessor(SM):    98304 bytes (96 Kbytes)</span><br><span class="line">Total number of registers available per block: 65536</span><br></pre></td></tr></table></figure>
+
+<h3 id="thread-block-和-Warp-和-core-SM的关系"><a href="#thread-block-和-Warp-和-core-SM的关系" class="headerlink" title="thread block 和 Warp 和 core SM的关系"></a>thread block 和 Warp 和 core SM的关系</h3><ol>
+<li>为什么一个SM上只有128核但是能同时有1024个线程.</li>
+<li>对于P40 一个SM有4个Warp调度器，这是不是意味着，一个SM同时只能有4个，也就是最多128个线程。然而一个SM不是最多2048个thread吗？那岂不是要串行。<ol>
+<li>一个SM发射的32个线程能在小于32个core上运行吗？不能</li>
+</ol>
+</li>
+<li>GPU core有多线程吗？ 应该是没有的<ol>
+<li>首先GPU core其实只是CPU里的ALU</li>
+<li>Warp调度器当只有4个cuda core需要<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/62147624/how-many-cuda-cores-is-used-to-process-a-cuda-warp">花费8个周期来运行一条指令</a>。<ol>
+<li>这4个ALU的core其实实现了SIMD的效果</li>
+</ol>
+</li>
+<li><a target="_blank" rel="noopener" href="https://forums.developer.nvidia.com/t/how-do-cuda-cores-on-a-sm-execute-warps-concurrently/20803/6">Warp调度原理</a></li>
+</ol>
+</li>
+<li>虽然我们遗憾的发现 GPU core没有多线程，但是对于Pascal架构的SM只有一种32位的core。我们很容易猜想到对于Int8和Int16是不是有SIMD<ol>
+<li>NVIDIA Tesla P100 can perform FP16 arithmetic at <strong>twice</strong> the throughput of FP32.</li>
+<li>Tesla P40 and NVIDIA Titan X, Tesla P4 all support instructions that can perform integer dot products on 2- and <strong>4-element 8-bit vectors</strong>, with accumulation into a 32-bit integer.</li>
+<li>可以通过<a target="_blank" rel="noopener" href="https://developer.nvidia.com/blog/mixed-precision-programming-cuda-8/">cuda8 DP2A and DP4A</a> 等函数编程</li>
+<li><a target="_blank" rel="noopener" href="https://www.studocu.com/row/document/sichuan-university-of-science-engineering/computer-science/introduction-to-cuda-10-tensor-core-mixed-precision/6088325">https://www.studocu.com/row/document/sichuan-university-of-science-engineering/computer-science/introduction-to-cuda-10-tensor-core-mixed-precision/6088325</a></li>
+</ol>
+</li>
+<li>一个core上能有几个thread并行，是32个吗？还是像CPU一样超线程是2个。还是没有<ol>
+<li>后面这个回答要么是错误的，要么</li>
+<li><a target="_blank" rel="noopener" href="https://streamhpc.com/blog/2017-01-24/many-threads-can-run-gpu/">在GPU core上有4到10个线程。</a></li>
+<li>原因简单来说是GPU的行为没有CPU那么复杂，可以设计多一点</li>
+<li>而且GPU core相当于没有调度器的CPU core是只能数据并行的(SIMD)</li>
+<li>CPU 2个线程的设计，只是为了提高利用率</li>
+<li>GPU 多线程的设计主要是为了隐藏访存延迟<ol>
+<li>由于GPU核数多，导致每个核对应的cache小而且，由于没有复杂的核调度结构来预取</li>
+<li>所以通过多线程来隐藏延迟</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>虽然可能一个SM最多有128*16以上线程的能力，但是考虑到寄存器，shared memory等的调度。<ol>
+<li>Nvidia做出了如下<a target="_blank" rel="noopener" href="https://forums.developer.nvidia.com/t/question-about-threads-per-block-and-warps-per-sm/77491">限制</a><ol>
+<li><strong>Most recent GPUs (excepting Turing) allow a hardware limit of 64 warps per SM</strong></li>
+</ol>
+</li>
+<li>假设1个block有992线程也就是 992&#x2F;32&#x3D;31个warp, 由于有64个的上限.所以一个SM只能有2个block，而不能有更多。</li>
+</ol>
+</li>
+<li>我们只能指定block和thread。但是具体怎么划分和调度是由GPU决定的？(我不知道有没有选项)<ol>
+<li><strong>同一个block中的threads必然在同一个SM中并行（SIMT）执行</strong>，来共享shared memory</li>
+<li>当然也可以舍弃shared memory的快速访存，来使用更多的计算核(SM&amp;core)并行。这取决于具体问题。</li>
+<li>根据前面的问题2，如果为了shared memory硬塞进一个SM会导致串行的问题。<ol>
+<li>即便串行也会更快？</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>??? example “GP102”</p>
+<pre><code>图中红框是一个SM, 绿点是core
+
+![](https://pic.shaojiemike.top/img/20220512220943.png)
+
+P40有30个SM，每个SM有4*32=128个核。
+
+![](https://pic.shaojiemike.top/img/20220512220904.png)
+</code></pre>
+<h3 id="限制的参数"><a href="#限制的参数" class="headerlink" title="限制的参数"></a>限制的参数</h3><p><a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications__technical-specifications-per-compute-capability">ref</a></p>
+<table>
+<thead>
+<tr>
+<th>限制</th>
+<th>具体值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Maximum number of threads per block</td>
+<td>1024</td>
+</tr>
+<tr>
+<td>Maximum number of resident blocks per SM</td>
+<td>16&#x2F;32</td>
+</tr>
+<tr>
+<td>Maximum number of resident warps per SM</td>
+<td>64&#x2F;32</td>
+</tr>
+<tr>
+<td>Maximum number of resident threads per SM</td>
+<td>2048&#x2F;1024</td>
+</tr>
+<tr>
+<td>Maximum number of 32-bit registers per thread</td>
+<td>255</td>
+</tr>
+<tr>
+<td>Maximum amount of shared memory per thread block</td>
+<td>48KB&#x2F;96KB&#x2F;64KB</td>
+</tr>
+</tbody></table>
+<p>一个SM有2048个线程？ <img src="https://pic.shaojiemike.top/img/20220409155719.png"></p>
+<h2 id="shared-memory-原理"><a href="#shared-memory-原理" class="headerlink" title="shared memory 原理"></a>shared memory 原理</h2><p>GPU 的共享内存，实际上是 32 块内存条通过并联组成的，每个时钟周期都可以读取一个 int。第 i 块内存，负责 <code>addr % 32 == i</code> 的数据。这样交错存储，可以保证随机访问时，访存能够尽量分摊到 32 个块。</p>
+<p>如果在block内多个线程访问的地址落入到同一个bank内，那么就会访问同一个bank就会产生bank conflict，这些访问将是变成串行，在实际开发调式中非常主要bank conflict.</p>
+<p>处理方法非常简单，我们不要把 shared memory 开辟的空间设置成 32 的倍数即可（线性同余方程，原理也很好理解）或者修改bank的size大小，默认是4字节</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__host__ cudaError_t <span class="title function_">cudaDeviceSetSharedMemConfig</span> <span class="params">( cudaSharedMemConfig config )</span></span><br></pre></td></tr></table></figure>
+
+<p>其中 cudaSharedMemConfi为一个枚举型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cudaSharedMemBankSizeDefault = <span class="number">0</span></span><br><span class="line">cudaSharedMemBankSizeFourByte = <span class="number">1</span></span><br><span class="line">cudaSharedMemBankSizeEightByte = <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p> 只支持在host端进行调用，不支持在device端调用。<br>CUDA API中还支持获取bank size大小：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__host__  __device__ cudaError_t <span class="title function_">cudaDeviceGetSharedMemConfig</span> <span class="params">( cudaSharedMemConfig ** pConfig )</span></span><br></pre></td></tr></table></figure>
+
+<p>??? tip “值得注意的是”</p>
+<pre><code>1. 多个线程同时访问同一个bank中**相同**的数组元素 **不会**产生bank conflict，将会出发广播
+2. 同一个 warp 的不同线程会访问到同一个 bank 的**不同**地址就会**发生** bank conflict
+</code></pre>
+<h3 id="容易发生bank-conflit的情况"><a href="#容易发生bank-conflit的情况" class="headerlink" title="容易发生bank conflit的情况"></a>容易发生bank conflit的情况</h3><ol>
+<li>数据类型是4字节，但是不是单位步长<img src="https://pic.shaojiemike.top/img/20220511235932.png">[^2]</li>
+<li>数据类型是1字节，步长是1。<img src="https://pic.shaojiemike.top/img/20220512000042.png"></li>
+</ol>
+<!-- <figure markdown>
+  ![Image title](https://dummyimage.com/600x400/){ width=80% }
+  ![Image title](https://dummyimage.com/600x400/){ width="300" }
+  <figcaption>Image caption</figcaption>
+</figure> -->
+
+
+<!-- ## 🏗施工中🏗
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+觉得有意义写，先占个位子。还没写好呢，建议不要看（逻辑内容都没想清楚），不要急~~
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧 -->
+
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><!-- footnote is for url which the writer do not want reader to click to interupt the reading. -->
+
+<!-- 上面回答部分**来自ChatGPT-3.5**，没有进行正确性的交叉校验。-->
+
+<p>[^1]: <a target="_blank" rel="noopener" href="https://cuda-tutorial.github.io/part1_22.pdf">CUDA and Applications to Task-based Programming</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>The CUDA Execution Model</p><p><a href="http://icarus.shaojiemike.top/2024/01/05/Work/Programming/2-languageGrammar/cudaExeModel/">http://icarus.shaojiemike.top/2024/01/05/Work/Programming/2-languageGrammar/cudaExeModel/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-01-05</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-01-05</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/fun/">fun</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2024/01/04/Work/Architecture/performanceModel/GPUPerformanceModel/"><span class="level-item">GPU Performance Model based on Interval Model</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">379</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">30</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">486</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#cuda-语法逻辑"><span class="level-left"><span class="level-item">1</span><span class="level-item">cuda 语法逻辑</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#运行配置逻辑"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">运行配置逻辑</span></span></a></li><li><a class="level is-mobile" href="#依赖与同步逻辑"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">依赖与同步逻辑</span></span></a></li></ul></li><li><a class="level is-mobile" href="#专业术语-terminology"><span class="level-left"><span class="level-item">2</span><span class="level-item">专业术语 terminology</span></span></a></li><li><a class="level is-mobile" href="#CUDA-程序执行的逻辑空间结构"><span class="level-left"><span class="level-item">3</span><span class="level-item">CUDA 程序执行的逻辑空间结构</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Block和Thread的理解"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">Block和Thread的理解</span></span></a></li><li><a class="level is-mobile" href="#使用grid来解决数据数比线程数多的问题"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">使用grid来解决数据数比线程数多的问题</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Warp-Execution-Model——资源调度模型"><span class="level-left"><span class="level-item">4</span><span class="level-item">Warp Execution Model——资源调度模型</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#thread-block-和-Warp-和-core-SM的关系"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">thread block 和 Warp 和 core SM的关系</span></span></a></li><li><a class="level is-mobile" href="#限制的参数"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">限制的参数</span></span></a></li></ul></li><li><a class="level is-mobile" href="#shared-memory-原理"><span class="level-left"><span class="level-item">5</span><span class="level-item">shared memory 原理</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#容易发生bank-conflit的情况"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">容易发生bank conflit的情况</span></span></a></li></ul></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">6</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">20</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">7</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">50</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-01-05T07:17:06.000Z">2024-01-05</time></p><p class="title"><a href="/2024/01/05/Work/Programming/2-languageGrammar/cudaExeModel/">The CUDA Execution Model</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-01-04T02:55:54.000Z">2024-01-04</time></p><p class="title"><a href="/2024/01/04/Work/Architecture/performanceModel/GPUPerformanceModel/">GPU Performance Model based on Interval Model</a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-01-03T08:23:31.000Z">2024-01-03</time></p><p class="title"><a href="/2024/01/03/Work/Artificial%20Intelligence/Training/AITraningParallism/">AI Traning Parallism</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-01-03T01:19:28.000Z">2024-01-03</time></p><p class="title"><a href="/2024/01/03/Work/Architecture/companySpecificDesign/NewGenerationShenweiSystem/">New Generation Shenwei System</a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-01-01T14:59:59.000Z">2024-01-01</time></p><p class="title"><a href="/2024/01/01/Thinking/3-EfficientLife/overview_balance/SelfMonitor-healthyBodyModel-TimeAdvisor-5levelHealthyEfficiencyMetrics/">Burnout Monitor : Healthy Body Model + Time Advisor + 5 level Healthy &amp; Efficiency self-evaluation Metrics</a></p><p class="categories"><a href="/categories/thinking/">thinking</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">235</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/"><span class="level-start"><span class="level-item">2022</span></span><span class="level-end"><span class="level-item tag">67</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/"><span class="level-start"><span class="level-item">2021</span></span><span class="level-end"><span class="level-item tag">72</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
