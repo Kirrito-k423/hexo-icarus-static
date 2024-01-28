@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Overview of Compute system - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="计算机系统描述和评价一个计算机系统全面描述和评价一个计算机系统，自顶向下可以从结果的角度考虑以下几个方面：  性能：计算机系统的性能是一个重要指标。可以评估其处理能力、内存和存储访问速度、网络传输速度等。关注系统的响应时间、吞吐量和并发处理能力等方面。 能源效率：计算机系统的能源效率是指其在能源消耗方面的表现。评估系统的功耗、能耗比、节能机制、休眠模式等。 可靠性：计算机系统的可靠性是指其正常运行"><meta property="og:type" content="blog"><meta property="og:title" content="Overview of Compute system"><meta property="og:url" content="http://icarus.shaojiemike.top/2023/09/06/Work/overviewCS/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="计算机系统描述和评价一个计算机系统全面描述和评价一个计算机系统，自顶向下可以从结果的角度考虑以下几个方面：  性能：计算机系统的性能是一个重要指标。可以评估其处理能力、内存和存储访问速度、网络传输速度等。关注系统的响应时间、吞吐量和并发处理能力等方面。 能源效率：计算机系统的能源效率是指其在能源消耗方面的表现。评估系统的功耗、能耗比、节能机制、休眠模式等。 可靠性：计算机系统的可靠性是指其正常运行"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230708142418.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230708142557.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/c605c9a9f4db63c9e7e4de277552b0e4.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/d2412be0e2a63e263af796ba0d1e519c.png"><meta property="article:published_time" content="2023-09-06T16:00:00.000Z"><meta property="article:modified_time" content="2024-01-28T02:05:51.337Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="cs"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/img/20230708142418.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2023/09/06/Work/overviewCS/"},"headline":"Overview of Compute system","image":["https://pic.shaojiemike.top/img/20230708142418.png","https://pic.shaojiemike.top/img/20230708142557.png","https://pic.shaojiemike.top/shaojiemike/2024/01/c605c9a9f4db63c9e7e4de277552b0e4.png","https://pic.shaojiemike.top/shaojiemike/2024/01/d2412be0e2a63e263af796ba0d1e519c.png"],"datePublished":"2023-09-06T16:00:00.000Z","dateModified":"2024-01-28T02:05:51.337Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"计算机系统描述和评价一个计算机系统全面描述和评价一个计算机系统，自顶向下可以从结果的角度考虑以下几个方面：  性能：计算机系统的性能是一个重要指标。可以评估其处理能力、内存和存储访问速度、网络传输速度等。关注系统的响应时间、吞吐量和并发处理能力等方面。 能源效率：计算机系统的能源效率是指其在能源消耗方面的表现。评估系统的功耗、能耗比、节能机制、休眠模式等。 可靠性：计算机系统的可靠性是指其正常运行"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2023/09/06/Work/overviewCS/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Overview of Compute system - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="计算机系统描述和评价一个计算机系统??? note “全面描述和评价一个计算机系统，自顶向下可以从结果的角度考虑以下几个方面：” * **性能**：计算机系统的性能是一个重要指标。可以评估其处理能力、内存和存储访问速度、网络传输速度等。关注系统的响应时间、吞吐量和并发处理能力等方面。 * 能源效率：计算机系统的能源效率是指其在能源消耗方面的表现。评估系统的功耗、**能耗比**、节能机制、休眠模式等"><meta property="og:type" content="blog"><meta property="og:title" content="Overview of Compute system"><meta property="og:url" content="http://icarus.shaojiemike.top/2023/09/06/Work/overviewCS/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="计算机系统描述和评价一个计算机系统??? note “全面描述和评价一个计算机系统，自顶向下可以从结果的角度考虑以下几个方面：” * **性能**：计算机系统的性能是一个重要指标。可以评估其处理能力、内存和存储访问速度、网络传输速度等。关注系统的响应时间、吞吐量和并发处理能力等方面。 * 能源效率：计算机系统的能源效率是指其在能源消耗方面的表现。评估系统的功耗、**能耗比**、节能机制、休眠模式等"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230708142418.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/c605c9a9f4db63c9e7e4de277552b0e4.png"><meta property="article:published_time" content="2023-09-06T16:00:00.000Z"><meta property="article:modified_time" content="2024-01-28T03:18:16.506Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="cs"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/img/20230708142418.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2023/09/06/Work/overviewCS/"},"headline":"Overview of Compute system","image":["https://pic.shaojiemike.top/img/20230708142418.png","https://pic.shaojiemike.top/shaojiemike/2024/01/c605c9a9f4db63c9e7e4de277552b0e4.png"],"datePublished":"2023-09-06T16:00:00.000Z","dateModified":"2024-01-28T03:18:16.506Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"计算机系统描述和评价一个计算机系统??? note “全面描述和评价一个计算机系统，自顶向下可以从结果的角度考虑以下几个方面：” * **性能**：计算机系统的性能是一个重要指标。可以评估其处理能力、内存和存储访问速度、网络传输速度等。关注系统的响应时间、吞吐量和并发处理能力等方面。 * 能源效率：计算机系统的能源效率是指其在能源消耗方面的表现。评估系统的功耗、**能耗比**、节能机制、休眠模式等"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2023/09/06/Work/overviewCS/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
   (function () {
       function switchTab() {
           if (!location.hash) {
@@ -29,64 +29,155 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.1.1"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-06T16:00:00.000Z" title="9/6/2023, 4:00:00 PM">2023-09-06</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-28T02:05:51.337Z" title="1/28/2024, 2:05:51 AM">2024-01-28</time></span><span class="level-item"><a class="link-muted" href="/categories/Overview/">Overview</a></span><span class="level-item">34 minutes read (About 5160 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Overview of Compute system</h1><div class="content"><h2 id="计算机系统"><a href="#计算机系统" class="headerlink" title="计算机系统"></a>计算机系统</h2><h3 id="描述和评价一个计算机系统"><a href="#描述和评价一个计算机系统" class="headerlink" title="描述和评价一个计算机系统"></a>描述和评价一个计算机系统</h3><p>全面描述和评价一个计算机系统，<strong>自顶向下</strong>可以从结果的角度考虑以下几个方面：</p>
-<ul>
-<li><strong>性能</strong>：计算机系统的性能是一个重要指标。可以评估其处理能力、内存和存储访问速度、网络传输速度等。关注系统的响应时间、吞吐量和并发处理能力等方面。</li>
-<li>能源效率：计算机系统的能源效率是指其在能源消耗方面的表现。评估系统的功耗、<strong>能耗比</strong>、节能机制、休眠模式等。</li>
-<li>可靠性：计算机系统的可靠性是指其正常运行的稳定性和可预测性。评估系统的故障率、容错能力、恢复能力和冗余设计等。</li>
-<li>扩展性：计算机系统的扩展性是指其在面对不断增长的工作负载时能够有效地扩展。考察系统的可扩展性、可伸缩性和负载均衡能力。</li>
-<li>安全性：计算机系统的安全性是指其对数据和资源的保护能力。评估系统的认证和授权机制、数据加密、防火墙、漏洞修复等安全措施。</li>
-<li>可维护性：计算机系统的可维护性是指其易于管理和维护的程度。关注系统的模块化设计、可读性、可测试性、文档化程度等。</li>
-<li>兼容性：计算机系统的兼容性是指其与其他系统和软件的互操作性。评估系统的标准遵循程度、协议支持、数据格式兼容等。</li>
-<li>用户体验：计算机系统的用户体验是指其易用性和用户满意度。考虑系统的界面设计、交互方式、错误处理和反馈等。</li>
-</ul>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.1.1"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-06T16:00:00.000Z" title="9/6/2023, 4:00:00 PM">2023-09-06</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-28T03:18:16.506Z" title="1/28/2024, 3:18:16 AM">2024-01-28</time></span><span class="level-item"><a class="link-muted" href="/categories/Overview/">Overview</a></span><span class="level-item">35 minutes read (About 5204 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Overview of Compute system</h1><div class="content"><h2 id="计算机系统"><a href="#计算机系统" class="headerlink" title="计算机系统"></a>计算机系统</h2><h3 id="描述和评价一个计算机系统"><a href="#描述和评价一个计算机系统" class="headerlink" title="描述和评价一个计算机系统"></a>描述和评价一个计算机系统</h3><p>??? note “全面描述和评价一个计算机系统，<strong>自顶向下</strong>可以从结果的角度考虑以下几个方面：”</p>
+<pre><code>* **性能**：计算机系统的性能是一个重要指标。可以评估其处理能力、内存和存储访问速度、网络传输速度等。关注系统的响应时间、吞吐量和并发处理能力等方面。
+* 能源效率：计算机系统的能源效率是指其在能源消耗方面的表现。评估系统的功耗、**能耗比**、节能机制、休眠模式等。
+* 可靠性：计算机系统的可靠性是指其正常运行的稳定性和可预测性。评估系统的故障率、容错能力、恢复能力和冗余设计等。
+* 扩展性：计算机系统的扩展性是指其在面对不断增长的工作负载时能够有效地扩展。考察系统的可扩展性、可伸缩性和负载均衡能力。
+* 安全性：计算机系统的安全性是指其对数据和资源的保护能力。评估系统的认证和授权机制、数据加密、防火墙、漏洞修复等安全措施。
+* 可维护性：计算机系统的可维护性是指其易于管理和维护的程度。关注系统的模块化设计、可读性、可测试性、文档化程度等。
+* 兼容性：计算机系统的兼容性是指其与其他系统和软件的互操作性。评估系统的标准遵循程度、协议支持、数据格式兼容等。
+* 用户体验：计算机系统的用户体验是指其易用性和用户满意度。考虑系统的界面设计、交互方式、错误处理和反馈等。
+</code></pre>
 <span id="more"></span>
 
-<p>当<strong>从底向上</strong>分析和描述计算机系统时，以下是一些关键方面和层级可以考虑：</p>
-<ol>
-<li>计算机硬件层级：<ol>
-<li>处理器架构：描述处理器的指令集、流水线设计、多核处理器等特性。</li>
-<li>存储器子系统：包括内存层次结构、缓存设计、虚拟内存管理等。</li>
-<li>输入&#x2F;输出设备：涉及外设接口、驱动程序、数据传输和控制等。</li>
-</ol>
-</li>
-<li>操作系统层级：<ol>
-<li>内核设计：描述操作系统内核的架构、进程管理、调度算法、内存管理、文件系统等。</li>
-<li>设备驱动程序：介绍操作系统对硬件设备的管理和控制。</li>
-<li>文件系统：描述文件组织、存储和访问的方式。</li>
-</ol>
-</li>
-<li>网络层级：<ol>
-<li>网络协议栈：涉及传输层（如TCP&#x2F;IP）、网络层（如IP）、链路层等协议和相关技术。</li>
-<li>路由和交换：描述网络路由算法、交换机和路由器的设计和配置。</li>
-</ol>
-</li>
-<li>软件层级：<ol>
-<li>应用层：描述各种应用程序和服务，如Web应用、数据库管理系统、图像处理等。</li>
-<li>软件开发框架和工具：涉及编程语言、开发工具、集成开发环境（IDE）等。</li>
-</ol>
-</li>
-<li>系统架构（多机系统）：<ol>
-<li>分布式系统：描述多个计算机节点协同工作的体系结构、通信协议和数据一致性。</li>
-<li>云计算架构：包括云服务模型（如IaaS、PaaS、SaaS）、云平台架构和资源管理等。</li>
-</ol>
-</li>
-</ol>
-<p>在分析和描述每个层级时，可以考虑架构设计的特点、优势和限制，以及与其他层级的交互和依赖关系。通过自底向上的分析，可以逐步理解计算机系统的构成和功能，揭示不同层级之间的关联和影响，从而全面理解和描述计算机系统。</p>
 <h3 id="计算机系统的抽象层次"><a href="#计算机系统的抽象层次" class="headerlink" title="计算机系统的抽象层次"></a>计算机系统的抽象层次</h3><p>ISA 是软硬件设计的分界线</p>
 <p><img src="https://pic.shaojiemike.top/img/20230708142418.png" alt="ISA"></p>
-<p>冯·诺依曼架构（Von Neumann Architecture）和哈佛架构（Harvard Architecture）关注计算机系统中指令和数据存储方式。</p>
-<ul>
-<li>冯·诺依曼架构的抽象关注点主要在于指令的执行流程、存储器的管理和数据的传输。指令按照顺序从存储器中加载到CPU，CPU依次执行指令并将结果存回存储器。这种架构的优点是简单、通用，适用于各种通用计算任务。</li>
-<li>哈佛架构的抽象关注点主要在于指令流和数据流的独立处理。指令和数据在各自的存储器中，CPU可以同时从指令存储器和数据存储器中提取信息，实现并行操作。这种架构的优点是高效的指令和数据访问，适用于嵌入式系统和信号处理等领域。</li>
-</ul>
-<p><img src="https://pic.shaojiemike.top/img/20230708142557.png" alt="fnym"></p>
+<p>??? note “当<strong>从底向上</strong>分析和描述计算机系统时，以下是一些关键方面和层级可以考虑：”</p>
+<pre><code>1. 计算机硬件层级：
+      1. 处理器架构：描述处理器的指令集、流水线设计、多核处理器等特性。
+      2. 存储器子系统：包括内存层次结构、缓存设计、虚拟内存管理等。
+      3. 输入/输出设备：涉及外设接口、驱动程序、数据传输和控制等。
+2. 操作系统层级：
+      1. 内核设计：描述操作系统内核的架构、进程管理、调度算法、内存管理、文件系统等。
+      2. 设备驱动程序：介绍操作系统对硬件设备的管理和控制。
+      3. 文件系统：描述文件组织、存储和访问的方式。
+3. 网络层级：
+      1. 网络协议栈：涉及传输层（如TCP/IP）、网络层（如IP）、链路层等协议和相关技术。
+      2. 路由和交换：描述网络路由算法、交换机和路由器的设计和配置。
+4. 软件层级：
+      1. 应用层：描述各种应用程序和服务，如Web应用、数据库管理系统、图像处理等。
+      2. 软件开发框架和工具：涉及编程语言、开发工具、集成开发环境（IDE）等。
+5. 系统架构（多机系统）：
+      1. 分布式系统：描述多个计算机节点协同工作的体系结构、通信协议和数据一致性。
+      2. 云计算架构：包括云服务模型（如IaaS、PaaS、SaaS）、云平台架构和资源管理等。
+
+在分析和描述每个层级时，可以考虑架构设计的特点、优势和限制，以及与其他层级的交互和依赖关系。通过自底向上的分析，可以逐步理解计算机系统的构成和功能，揭示不同层级之间的关联和影响，从而全面理解和描述计算机系统。
+</code></pre>
+<h3 id="计算机系统的一般-通用设计"><a href="#计算机系统的一般-通用设计" class="headerlink" title="计算机系统的一般&#x2F;通用设计"></a>计算机系统的一般&#x2F;通用设计</h3><p>??? note “wikichip: skylake”</p>
+<pre><code>  前后端的设计
+</code></pre>
+<p>??? note “冯·诺依曼架构（Von Neumann Architecture）和哈佛架构（Harvard Architecture）关注计算机系统中指令和数据存储方式。”</p>
+<pre><code>* 冯·诺依曼架构的抽象关注点主要在于指令的执行流程、存储器的管理和数据的传输。指令按照顺序从存储器中加载到CPU，CPU依次执行指令并将结果存回存储器。这种架构的优点是简单、通用，适用于各种通用计算任务。
+* 哈佛架构的抽象关注点主要在于指令流和数据流的独立处理。指令和数据在各自的存储器中，CPU可以同时从指令存储器和数据存储器中提取信息，实现并行操作。这种架构的优点是高效的指令和数据访问，适用于嵌入式系统和信号处理等领域。
+
+![fnym](https://pic.shaojiemike.top/img/20230708142557.png)&#123; width=&quot;50%&quot; &#125;
+</code></pre>
+<h3 id="产业的需求"><a href="#产业的需求" class="headerlink" title="产业的需求"></a>产业的需求</h3><p>??? note “AI “</p>
 <h3 id="发展定律"><a href="#发展定律" class="headerlink" title="发展定律"></a>发展定律</h3><ul>
 <li>摩尔定律由Gordon Moore博士在1965年提出：“集成电路上可以容纳的晶体管数目在大约每经过18个月便会增加一倍，性能也提升一倍。时至今日，虽然晶体管的集成度还在提高，只是逐渐放缓，但是性能的提升却被物理规律所限制。一个处理器上的晶体管的数目越来越多，但是因为功耗和互连的限制，并不能直接提供很高的性能，即晶体管没有充分的利用起来。</li>
 <li>牧本定律由1987年牧村次夫提出，半导体产品的发展历程总是在“标准化”和“定制化”之间交替摆动，大概每十年摆动一次，揭示了半导体产品性能功耗和开发效率之间的平衡，这对于处理器来说，就是专用结构和通用结构之间的平衡—专用结构性能功耗优先，通用结构开发效率优先。</li>
 <li>贝尔定律是由戈登贝尔在1972年提出的一个观察，即每隔10年，会出现新一代计算机（新编程平台、新网络连接、新用户接口、新使用方式），形成新的产业，贝尔定律指明了未来一个新的发展趋势，这将会是一个处理器需求再度爆发的时代，不同的领域、不同行业对芯片需求会有所不同，比如集成不同的传感器、不同的加速器等等。</li>
 </ul>
-<h2 id="体系结构设计-访存与互联速度"><a href="#体系结构设计-访存与互联速度" class="headerlink" title="体系结构设计 - 访存与互联速度"></a>体系结构设计 - 访存与互联速度</h2><p>建议研究 <a target="_blank" rel="noopener" href="https://www.francisz.cn/2022/05/12/lmbench/">https://www.francisz.cn/2022/05/12/lmbench/</a></p>
+<h2 id="性能模型"><a href="#性能模型" class="headerlink" title="性能模型"></a>性能模型</h2><h3 id="Analytical-model"><a href="#Analytical-model" class="headerlink" title="Analytical model"></a>Analytical model</h3><ul>
+<li>CPU<ul>
+<li>Roofline模型</li>
+<li>ECM模型</li>
+</ul>
+</li>
+<li>GPU<ul>
+<li>Memory-level and Thread-level Parallelism Awareness[^7]</li>
+</ul>
+</li>
+</ul>
+<h3 id="Mechanistic-Performance-Model"><a href="#Mechanistic-Performance-Model" class="headerlink" title="Mechanistic Performance Model"></a>Mechanistic Performance Model</h3><p>A mechanistic model has the advantage of directly displaying the performance effects of individual, underlying mechanisms, expressed in terms of program characteristics and machine parameters, such as Instruction-Level Parallelism (ILP), misprediction rates, processor width, and pipeline depth.[^11]</p>
+<p>Our proposed mechanistic model, in contrast, is built up from internal processor structure and does not need detailed processor simulation to fit or infer the model; however, we do use detailed simulation to demonstrate the accuracy of the model after it has been constructed.[^11]</p>
+<p>??? example “Interval analysis based on traced data”</p>
+<pre><code>* CPU: Interval Model - Sniper - Zsim - llvm-mca
+* GPU: GPUMech(MICRO14)  MDM(MiCRO20) GCoM(ISCA22)
+</code></pre>
+<h3 id="Detailed-timing-simulations"><a href="#Detailed-timing-simulations" class="headerlink" title="Detailed timing simulations"></a>Detailed timing simulations</h3><p>cycle-level simulation</p>
+<ul>
+<li>CPU: gem5</li>
+<li>GPU: GPUSim</li>
+</ul>
+<h3 id="RTL-simulation"><a href="#RTL-simulation" class="headerlink" title="RTL simulation"></a>RTL simulation</h3><h3 id="Others-machine-learning-performance-model"><a href="#Others-machine-learning-performance-model" class="headerlink" title="Others: machine learning performance model"></a>Others: machine learning performance model</h3><p>Empirical and hybrid approaches typically lump together program characteristics and&#x2F;or microarchitecture effects, often characterizing multiple effects with a single parameter.[^11]</p>
+<h2 id="性能关键指标-处理器峰值计算能力"><a href="#性能关键指标-处理器峰值计算能力" class="headerlink" title="性能关键指标 - 处理器峰值计算能力"></a>性能关键指标 - 处理器峰值计算能力</h2><table>
+<thead>
+<tr>
+<th>Arch</th>
+<th>Product</th>
+<th>SP Scalar&#x2F;core</th>
+<th>DP Scalar&#x2F;core</th>
+<th>SP SIMD&#x2F;core</th>
+<th>DP SIMD&#x2F;core</th>
+<th>Total SP&#x2F;chip</th>
+<th>Total DP&#x2F;chip</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ARMv8</td>
+<td>Kunpeng 920 (Internally: Hi1620)</td>
+<td>7.9Gflops[^8]</td>
+<td>7.9Gflops</td>
+<td>31.9 Gflops</td>
+<td>7.9 Gflops</td>
+<td>1536 Gflops(48 cores)</td>
+<td>384 Gflops</td>
+</tr>
+<tr>
+<td>X86</td>
+<td>Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>972.8 Gflops (32 cores)[^9]</td>
+<td></td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>Nvidia H100</td>
+<td></td>
+<td></td>
+<td>354.1 Gflops (per SM)</td>
+<td>180.5 Gflops</td>
+<td>51 Tflops (144 SM)[^10]</td>
+<td>26 Tflops</td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>Nvidia H100 + Tensor Cores</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>756 Tflops (144 SM)[^10]</td>
+<td>51 Tflops</td>
+</tr>
+</tbody></table>
+<p><code>1 TFLOPS</code> is equivalent to <code>1,000 GFLOPS</code></p>
+<h3 id="芯片设计-成本与收益的tradeoff"><a href="#芯片设计-成本与收益的tradeoff" class="headerlink" title="芯片设计 成本与收益的tradeoff"></a>芯片设计 成本与收益的tradeoff</h3><p>工艺的限制是设计的当前理论上限。各种现实的成本考虑进一步限制了设计。</p>
+<p>??? tip “芯片设计：功耗，良率，增大的边际效应”</p>
+<pre><code>  芯片性能确实受到其部件数量（如晶体管数量）、时钟频率和缓存大小的影响，但芯片设计和制造涉及到一系列复杂的权衡和限制，这就是为什么制造商不会无限制地增加芯片的大小、频率和缓存。主要的限制因素包括：
+
+1. **热设计功耗（TDP）**：随着芯片尺寸的增加或时钟频率的提高，芯片产生的热量也会增加。处理这些额外热量需要更复杂的冷却系统。此外，高温可能导致硬件损坏或性能下降。因此，制造商必须在性能和可实现的热管理之间找到平衡。
+
+2. **功耗和能效**：增加晶体管数量、缓存大小和时钟频率会导致功耗增加。这不仅影响能效，还会增加电力成本，并可能超过现有系统的电源供应能力。在移动设备和便携式电脑中，这一点尤其重要，因为它直接影响电池寿命。
+
+3. **制造复杂性和成本**：更大的芯片或更高密度的晶体管布局会增加制造复杂性，从而增加生产成本。此外，更大的芯片会降低晶圆上每个芯片的产量，进一步提高成本。
+
+6. **芯片产量和良率**：随着芯片尺寸的增加，产生瑕疵的概率也会增加，从而影响良品率。低良品率会显著增加每个有效芯片的成本。
+
+8. **时钟频率的限制**：提高时钟频率会增加信号传播延迟和电磁干扰，这可能导致数据损坏或处理错误。此外，由于电子元件间的传播延迟，存在一个物理极限，超过这个极限，提高频率不再提升性能。
+
+9. **缓存的权衡**：虽然增加缓存可以提高性能，但它也会增加芯片的尺寸、功耗和成本。此外，过大的缓存可能导致边际效益递减，即超过一定大小后，每增加一点缓存所带来的性能提升会越来越少。
+
+7. **市场需求和应用场景**：最后，芯片设计还受到市场需求和特定应用场景的影响。例如，高性能服务器芯片和用于移动设备的芯片会有非常不同的设计考虑。
+
+因此，芯片制造商在设计时必须在性能、成本、能效、热管理和市场需求之间进行平衡。这就是为什么我们看到不同类型的芯片针对不同的应用和市场需求而有不同的设计。
+</code></pre>
+<h2 id="性能关键指标-访存与互联速度"><a href="#性能关键指标-访存与互联速度" class="headerlink" title="性能关键指标 - 访存与互联速度"></a>性能关键指标 - 访存与互联速度</h2><p>建议研究 <a target="_blank" rel="noopener" href="https://www.francisz.cn/2022/05/12/lmbench/">https://www.francisz.cn/2022/05/12/lmbench/</a></p>
 <h3 id="Memory-hierachy-Latency-Size"><a href="#Memory-hierachy-Latency-Size" class="headerlink" title="Memory hierachy Latency &#x2F; Size"></a>Memory hierachy Latency &#x2F; Size</h3><table>
 <thead>
 <tr>
@@ -218,7 +309,7 @@
 <li>CPU2MRAM 256bytes ～150us</li>
 <li>线程同步 ～45us</li>
 </ul>
-<h3 id="部件互联的带宽"><a href="#部件互联的带宽" class="headerlink" title="部件互联的带宽"></a>部件互联的带宽</h3><h4 id="CPU-2-CPU"><a href="#CPU-2-CPU" class="headerlink" title="CPU 2 CPU"></a>CPU 2 CPU</h4><p>ice lake(2021) 3* <strong>UPI</strong> *20 <code>134.4GB/s</code></p>
+<h3 id="Interconnect-Bandwidth"><a href="#Interconnect-Bandwidth" class="headerlink" title="Interconnect Bandwidth"></a>Interconnect Bandwidth</h3><h4 id="CPU-2-CPU"><a href="#CPU-2-CPU" class="headerlink" title="CPU 2 CPU"></a>CPU 2 CPU</h4><p>ice lake(2021) 3* <strong>UPI</strong> *20 <code>134.4GB/s</code></p>
 <h4 id="CPU-2-GPU"><a href="#CPU-2-GPU" class="headerlink" title="CPU 2 GPU"></a>CPU 2 GPU</h4><ul>
 <li>PCIe 3.0 * 16 <code>15.75GB/s</code></li>
 <li>PCIe 4.0 * 16 <code>31.5GB/s</code></li>
@@ -243,146 +334,53 @@
 <h4 id="Union-chip-in-Soc"><a href="#Union-chip-in-Soc" class="headerlink" title="Union chip in Soc"></a>Union chip in Soc</h4><p><code>M2 Ultra</code>(2023年6月) is built using a second-generation 5-nanometer process and uses Apple’s groundbreaking <strong>UltraFusion</strong> technology to connect the <code>die</code> of two <code>M2 Max</code> chips, doubling the performance. </p>
 <p><code>UltraFusion</code> uses a silicon interposer that connects the dies with more than 10,000 signals, providing over <strong>2.5TB&#x2F;s</strong> of low-latency interprocessor bandwidth.</p>
 <p>M2 Ultra Up to <code>192GB</code> of unified memory, <code>800 GB/s</code> memory bandwidth</p>
-<h3 id="整体速度设计"><a href="#整体速度设计" class="headerlink" title="整体速度设计"></a>整体速度设计</h3><h4 id="NVIDIA-GH200-Grace-2023年5月"><a href="#NVIDIA-GH200-Grace-2023年5月" class="headerlink" title="NVIDIA GH200 Grace (2023年5月)"></a>NVIDIA GH200 Grace (2023年5月)</h4><figure markdown>
+<h3 id="Real-SuperComputer-Design"><a href="#Real-SuperComputer-Design" class="headerlink" title="Real SuperComputer Design"></a>Real SuperComputer Design</h3><p>??? note “NVIDIA GH200 Grace (2023年5月)”</p>
+<pre><code>  &lt;figure markdown&gt;
   ![](https://pic.shaojiemike.top/shaojiemike/2024/01/bf80d38457f78365655c07bf8a2b2f71.png)
-  <figcaption> NVIDIA Grace Hopper 异构芯片逻辑概述</figcaption>
-</figure>[^5]
+  &lt;figcaption&gt; NVIDIA Grace Hopper 异构芯片逻辑概述&lt;/figcaption&gt;
+  &lt;/figure&gt;[^5]
 
-<p>除了各部分的带宽都令人震惊。值得注意的几点：</p>
-<ol>
-<li>NVIDIA Grace CPU 是 72x Arm Neoverse V2 内核 + 高带宽高容量LPDDR5x</li>
-<li>赛博斗蛐蛐： NVLINK C2C(900GB&#x2F;s) 还是比 Apple 的 UltraFusion(2.5TB&#x2F;s) 差一倍。</li>
-<li>144TB的总内存是，包括CPU的LPDDR5x的。$144TB &#x3D; 256 * (512GB + 96GB)$</li>
-<li>Nvidia对于显卡内存稀缺给出的答案： 异构计算 + CPU2GPU高带宽 + CPU大内存 + 统一的地址转换服务</li>
-</ol>
-<figure markdown>
+  除了各部分的带宽都令人震惊。值得注意的几点：
+
+  1. NVIDIA Grace CPU 是 72x Arm Neoverse V2 内核 + 高带宽高容量LPDDR5x
+  2. 赛博斗蛐蛐： NVLINK C2C(900GB/s) 还是比 Apple 的 UltraFusion(2.5TB/s) 差一倍。
+  3. 144TB的总内存是，包括CPU的LPDDR5x的。$144TB = 256 * (512GB + 96GB)$
+  4. Nvidia对于显卡内存稀缺给出的答案： 异构计算 + CPU2GPU高带宽 + CPU大内存 + 统一的地址转换服务
+
+  &lt;figure markdown&gt;
   ![](https://pic.shaojiemike.top/shaojiemike/2024/01/a46a22b804bfb3dc27513115b61e9c97.png)
-  <figcaption> NVIDIA Grace Hopper 异构芯片中的地址转换服务</figcaption>
-</figure>[^5]
-
-
-<h4 id="Frontier-supercomputer-（2021年）"><a href="#Frontier-supercomputer-（2021年）" class="headerlink" title="Frontier supercomputer （2021年）"></a>Frontier supercomputer （2021年）</h4><ul>
-<li>1 HPC and AI Optimized 3rd Gen <strong>AMD EPYC CPU</strong></li>
-<li>4 Purpose Built <strong>AMD Instinct 250X GPUs</strong></li>
-<li>System Interconnect： Multiple Slingshot NICs providing <code>100 GB/s</code> network bandwidth.</li>
-</ul>
-<figure markdown>
-  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/370ad368982f660d74a112ccaf9e90d3.png)
-  <figcaption> Frontier Compute Nodes</figcaption>
-</figure>[^6]
-
-<h4 id="HUAWEI-Atlas900-2019年9月"><a href="#HUAWEI-Atlas900-2019年9月" class="headerlink" title="HUAWEI Atlas900 (2019年9月)"></a>HUAWEI Atlas900 (2019年9月)</h4><p>资料较少，随便找了些软文。</p>
-<ol>
-<li>1024颗昇腾910 AI, 每颗 7nm昇腾910AI处理器内置32个达芬奇AI Core</li>
-<li>总算力达到256P~1024P FLOPS @FP16</li>
-<li>共享内存?</li>
-<li>昇腾910 AI处理器和CPU之间: PCIe 4.0（速率16Gb&#x2F;s）???</li>
-<li>在集群层面，采用面向数据中心的CloudEngine 8800系列交换机，提供单端口100Gbps的交换速率， 支持100G RoCE。</li>
-</ol>
-<h4 id="Summit-SuperComputer-2018年6月"><a href="#Summit-SuperComputer-2018年6月" class="headerlink" title="Summit SuperComputer (2018年6月)"></a>Summit SuperComputer (2018年6月)</h4><figure markdown>
-  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/c2741ac032c7f7dfe8a5f3ce7b892a16.png)
-  <figcaption>The architecture of a computational node (total 4608 nodes) on Summit.</figcaption>
-</figure>[^1]
-
-
-<h4 id="Next-Shenwei-SuperComputer-2018年6月"><a href="#Next-Shenwei-SuperComputer-2018年6月" class="headerlink" title="Next Shenwei SuperComputer (2018年6月)"></a>Next Shenwei SuperComputer (2018年6月)</h4><p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/d2412be0e2a63e263af796ba0d1e519c.png"></p>
-<h2 id="处理器-峰值计算能力"><a href="#处理器-峰值计算能力" class="headerlink" title="处理器 - 峰值计算能力"></a>处理器 - 峰值计算能力</h2><table>
-<thead>
-<tr>
-<th>Arch</th>
-<th>Product</th>
-<th>SP Scalar&#x2F;core</th>
-<th>DP Scalar&#x2F;core</th>
-<th>SP SIMD&#x2F;core</th>
-<th>DP SIMD&#x2F;core</th>
-<th>Total SP&#x2F;chip</th>
-<th>Total DP&#x2F;chip</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>ARMv8</td>
-<td>Kunpeng 920 (Internally: Hi1620)</td>
-<td>7.9Gflops[^8]</td>
-<td>7.9Gflops</td>
-<td>31.9 Gflops</td>
-<td>7.9 Gflops</td>
-<td>1536 Gflops(48 cores)</td>
-<td>384 Gflops</td>
-</tr>
-<tr>
-<td>X86</td>
-<td>Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td>972.8 Gflops (32 cores)[^9]</td>
-<td></td>
-</tr>
-<tr>
-<td>GPU</td>
-<td>Nvidia H100</td>
-<td></td>
-<td></td>
-<td>354.1 Gflops (per SM)</td>
-<td>180.5 Gflops</td>
-<td>51 Tflops (144 SM)[^10]</td>
-<td>26 Tflops</td>
-</tr>
-<tr>
-<td>GPU</td>
-<td>Nvidia H100 + Tensor Cores</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td>756 Tflops (144 SM)[^10]</td>
-<td>51 Tflops</td>
-</tr>
-</tbody></table>
-<p><code>1 TFLOPS</code> is equivalent to <code>1,000 GFLOPS</code></p>
-<h3 id="芯片设计-成本与收益的tradeoff"><a href="#芯片设计-成本与收益的tradeoff" class="headerlink" title="芯片设计 成本与收益的tradeoff"></a>芯片设计 成本与收益的tradeoff</h3><p>工艺的限制是设计的当前理论上限。各种现实的成本考虑进一步限制了设计。</p>
-<p>??? tip “芯片设计：功耗，良率，增大的边际效应”</p>
-<pre><code>  芯片性能确实受到其部件数量（如晶体管数量）、时钟频率和缓存大小的影响，但芯片设计和制造涉及到一系列复杂的权衡和限制，这就是为什么制造商不会无限制地增加芯片的大小、频率和缓存。主要的限制因素包括：
-
-1. **热设计功耗（TDP）**：随着芯片尺寸的增加或时钟频率的提高，芯片产生的热量也会增加。处理这些额外热量需要更复杂的冷却系统。此外，高温可能导致硬件损坏或性能下降。因此，制造商必须在性能和可实现的热管理之间找到平衡。
-
-2. **功耗和能效**：增加晶体管数量、缓存大小和时钟频率会导致功耗增加。这不仅影响能效，还会增加电力成本，并可能超过现有系统的电源供应能力。在移动设备和便携式电脑中，这一点尤其重要，因为它直接影响电池寿命。
-
-3. **制造复杂性和成本**：更大的芯片或更高密度的晶体管布局会增加制造复杂性，从而增加生产成本。此外，更大的芯片会降低晶圆上每个芯片的产量，进一步提高成本。
-
-6. **芯片产量和良率**：随着芯片尺寸的增加，产生瑕疵的概率也会增加，从而影响良品率。低良品率会显著增加每个有效芯片的成本。
-
-8. **时钟频率的限制**：提高时钟频率会增加信号传播延迟和电磁干扰，这可能导致数据损坏或处理错误。此外，由于电子元件间的传播延迟，存在一个物理极限，超过这个极限，提高频率不再提升性能。
-
-9. **缓存的权衡**：虽然增加缓存可以提高性能，但它也会增加芯片的尺寸、功耗和成本。此外，过大的缓存可能导致边际效益递减，即超过一定大小后，每增加一点缓存所带来的性能提升会越来越少。
-
-7. **市场需求和应用场景**：最后，芯片设计还受到市场需求和特定应用场景的影响。例如，高性能服务器芯片和用于移动设备的芯片会有非常不同的设计考虑。
-
-因此，芯片制造商在设计时必须在性能、成本、能效、热管理和市场需求之间进行平衡。这就是为什么我们看到不同类型的芯片针对不同的应用和市场需求而有不同的设计。
+  &lt;figcaption&gt; NVIDIA Grace Hopper 异构芯片中的地址转换服务&lt;/figcaption&gt;
+  &lt;/figure&gt;[^5]
 </code></pre>
-<h2 id="性能模型"><a href="#性能模型" class="headerlink" title="性能模型"></a>性能模型</h2><h3 id="Analytical-model"><a href="#Analytical-model" class="headerlink" title="Analytical model"></a>Analytical model</h3><ul>
-<li>CPU<ul>
-<li>Roofline模型</li>
-<li>ECM模型</li>
-</ul>
-</li>
-<li>GPU<br>- Memory-level and Thread-level Parallelism Awareness[^7]</li>
-</ul>
-<h3 id="Mechanistic-Performance-Model"><a href="#Mechanistic-Performance-Model" class="headerlink" title="Mechanistic Performance Model"></a>Mechanistic Performance Model</h3><p>A mechanistic model has the advantage of directly displaying the performance effects of individual, underlying mechanisms, expressed in terms of program characteristics and machine parameters, such as Instruction-Level Parallelism (ILP), misprediction rates, processor width, and pipeline depth.[^11]</p>
-<p>Our proposed mechanistic model, in contrast, is built up from internal processor structure and does not need detailed processor simulation to fit or infer the model; however, we do use detailed simulation to demonstrate the accuracy of the model after it has been constructed.[^11]</p>
-<h4 id="Interval-analysis-based-on-traced-data"><a href="#Interval-analysis-based-on-traced-data" class="headerlink" title="Interval analysis based on traced data"></a>Interval analysis based on traced data</h4><ul>
-<li>CPU: Interval Model - Sniper - Zsim - llvm-mca</li>
-<li>GPU: GPUMech(MICRO14)  MDM(MiCRO20) GCoM(ISCA22)</li>
-</ul>
-<h3 id="detailed-timing-simulations"><a href="#detailed-timing-simulations" class="headerlink" title="detailed timing simulations"></a>detailed timing simulations</h3><p>cycle-level simulation</p>
-<ul>
-<li>CPU: gem5</li>
-<li>GPU: GPUSim</li>
-</ul>
-<h3 id="RTL-simulation"><a href="#RTL-simulation" class="headerlink" title="RTL simulation"></a>RTL simulation</h3><h3 id="Others-machine-learning-performance-model"><a href="#Others-machine-learning-performance-model" class="headerlink" title="Others: machine learning performance model"></a>Others: machine learning performance model</h3><p>Empirical and hybrid approaches typically lump together program characteristics and&#x2F;or microarchitecture effects, often characterizing multiple effects with a single parameter.[^11]</p>
-<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>如何测量计算机系统的如上数值</p>
-<h2 id="计算机专业课程"><a href="#计算机专业课程" class="headerlink" title="计算机专业课程"></a>计算机专业课程</h2><p>计算机科学与技术专业的课程设置会因学校和国家的不同而有所差异，但通常包括以下核心课程：</p>
+<p>??? note “Frontier supercomputer （2021年）”</p>
+<pre><code>- 1 HPC and AI Optimized 3rd Gen **AMD EPYC CPU**
+- 4 Purpose Built **AMD Instinct 250X GPUs**
+- System Interconnect： Multiple Slingshot NICs providing `100 GB/s` network bandwidth. 
+
+&lt;figure markdown&gt;
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/370ad368982f660d74a112ccaf9e90d3.png)
+  &lt;figcaption&gt; Frontier Compute Nodes&lt;/figcaption&gt;
+&lt;/figure&gt;[^6]
+</code></pre>
+<p>??? note “HUAWEI Atlas900 (2019年9月)”</p>
+<pre><code>  资料较少，随便找了些软文。
+
+  1. 1024颗昇腾910 AI, 每颗 7nm昇腾910AI处理器内置32个达芬奇AI Core
+  2. 总算力达到256P~1024P FLOPS @FP16
+  3. 共享内存?
+  4. 昇腾910 AI处理器和CPU之间: PCIe 4.0（速率16Gb/s）???
+  5. 在集群层面，采用面向数据中心的CloudEngine 8800系列交换机，提供单端口100Gbps的交换速率， 支持100G RoCE。
+</code></pre>
+<p>??? note “Summit SuperComputer (2018年6月)”</p>
+<pre><code>  &lt;figure markdown&gt;
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/c2741ac032c7f7dfe8a5f3ce7b892a16.png)
+  &lt;figcaption&gt;The architecture of a computational node (total 4608 nodes) on Summit.&lt;/figcaption&gt;
+  &lt;/figure&gt;[^1]
+</code></pre>
+<p>??? note “Next Shenwei SuperComputer (2018年6月)”</p>
+<pre><code>  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/d2412be0e2a63e263af796ba0d1e519c.png)
+</code></pre>
+<h2 id="计算机领域的划分"><a href="#计算机领域的划分" class="headerlink" title="计算机领域的划分"></a>计算机领域的划分</h2><h3 id="计算机专业课程"><a href="#计算机专业课程" class="headerlink" title="计算机专业课程"></a>计算机专业课程</h3><p>计算机科学与技术专业的课程设置会因学校和国家的不同而有所差异，但通常包括以下核心课程：</p>
 <ul>
 <li>编程基础：通常包括多门编程语言（如C&#x2F;C++、Java、Python）的基础课程，教授编程概念、算法和数据结构等。</li>
 <li><strong>计算机体系结构</strong>：介绍计算机硬件和体系结构的基本原理，包括处理器、存储器、输入&#x2F;输出设备等。</li>
@@ -396,7 +394,7 @@
 <li>软件开发实践：实践性课程，学生通过实际项目开发，学习软件开发的实践技能和团队合作能力。</li>
 </ul>
 <p>此外，还可能包括课程如计算理论、编译原理、图形学、嵌入式系统、分布式系统等，以及选修课程供学生根据个人兴趣和专业方向选择。</p>
-<h2 id="计算机产业的布局与计算机行业的分类"><a href="#计算机产业的布局与计算机行业的分类" class="headerlink" title="计算机产业的布局与计算机行业的分类"></a>计算机产业的布局与计算机行业的分类</h2><ul>
+<h3 id="计算机产业的布局与计算机行业的分类"><a href="#计算机产业的布局与计算机行业的分类" class="headerlink" title="计算机产业的布局与计算机行业的分类"></a>计算机产业的布局与计算机行业的分类</h3><ul>
 <li>云计算：云计算是通过网络提供计算资源和服务的模式，包括基础设施即服务（IaaS）、平台即服务（PaaS）和软件即服务（SaaS）。在云计算领域，主要的参与者包括云服务提供商（如亚马逊AWS、微软Azure、谷歌云等），它们通过数据中心提供灵活的计算和存储资源，为用户提供可扩展的计算能力和服务。</li>
 <li>人工智能（AI）：人工智能是计算机科学的一个分支，涉及模拟和实现人类智能的技术和方法。AI在计算机产业中扮演了重要角色，包括机器学习、深度学习、自然语言处理和计算机视觉等领域。大型科技公司如谷歌、微软、IBM等在AI领域投入了大量资源，并开发了各种AI相关的工具、框架和平台。</li>
 <li><strong>边缘计算</strong>：边缘计算是一种分布式计算模型，将数据处理和分析推向边缘设备。这个领域涉及边缘设备、传感器、物联网技术和边缘计算平台等。大型云服务提供商也在布局边缘计算，以支持边缘设备上的实时计算和决策。</li>
@@ -406,6 +404,7 @@
 </ul>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><p>秋招的时候发现，对计算机系统，课程，学科，行业的全局的掌握确实很缺乏。</p>
 <p>为了能更清晰的学习，应该自顶向下的了解和计算机相关的全局的知识。</p>
+<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>如何测量计算机系统的如上数值</p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[^1]: SC19: Parallel Transport Time-Dependent Density Functional Theory Calculations with Hybrid Functional on Summit</p>
 <p>[^2]: <a target="_blank" rel="noopener" href="https://www.fibermall.com/blog/what-is-infiniband-network-and-difference-with-ethernet.htm">What is InfiniBand Network and the Difference with Ethernet?</a></p>
 <p>[^4]: Hitting the Memory Wall: Implications of the Obvious</p>
