@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta property="og:type" content="blog"><meta property="og:title" content="SHAOJIE&#039;S BOOK"><meta property="og:url" content="http://icarus.shaojiemike.top/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:author" content="Shaojie Tan"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top"},"headline":"SHAOJIE'S BOOK","image":["http://icarus.shaojiemike.top/img/og_image.png"],"author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":""}</script><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-07T16:00:00.000Z" title="9/7/2023, 4:00:00 PM">2023-09-07</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.302Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/toLearn/">toLearn</a></span><span class="level-item">17 minutes read (About 2529 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/07/Work/software/linux/wakeUpProcess/">Wake Up Process</a></p><div class="content"><h2 id="Linux-多进程的竞争休眠机制"><a href="#Linux-多进程的竞争休眠机制" class="headerlink" title="Linux 多进程的竞争休眠机制"></a>Linux 多进程的竞争休眠机制</h2><p>基本是基于Linux的时间片轮转机制。A process&#x2F;thread is woken up by inserting it in the queue of processes&#x2F;threads to be scheduled.</p>
+<h2 id="内核调度算法"><a href="#内核调度算法" class="headerlink" title="内核调度算法"></a>内核调度算法</h2><p>CFS（Completely Fair Scheduler）是一种用于 Linux 操作系统的调度算法，它旨在实现对 CPU 时间的公平分配。CFS 是 Linux 内核中默认的调度器，自 Linux 2.6.23 版本以来就成为了标准调度器。</p>
+<p>CFS 调度算法的主要目标是确保各个任务在相同的时间片内能够获得公平的CPU时间，不会因为优先级等因素而造成资源争夺不均。以下是 CFS 调度算法的一些关键特点和原则：</p>
+<ol>
+<li><p><strong>虚拟化时钟：</strong> CFS 使用了一种称为虚拟化时钟（virtual runtime）的概念，而不是传统的时间片。每个任务都有一个虚拟运行时间，调度器根据虚拟运行时间来决定哪个任务应该被调度。</p>
+</li>
+<li><p><strong>权重：</strong> CFS 引入了权重的概念，用于调整不同任务的相对优先级。较高权重的任务会在相同时间间隔内获得更多的虚拟运行时间，从而实现按比例分配CPU资源。</p>
+</li>
+<li><p><strong>累积虚拟运行时间：</strong> 调度器会根据每个任务的权重和已累积的虚拟运行时间，计算出每个任务的应有的虚拟运行时间片。任务在使用完它的时间片后，会根据虚拟运行时间进行重新排队。</p>
+</li>
+<li><p><strong>红黑树结构：</strong> CFS 使用红黑树来管理任务队列，这种数据结构使得在插入、删除和搜索任务时的时间复杂度保持在对数级别。</p>
+</li>
+</ol>
+<p>除了 CFS，Linux 内核还有其他调度算法，如：</p>
+<ul>
+<li><p><strong>实时调度器（Real-Time Scheduler）：</strong> 用于实时任务，提供硬实时和软实时的调度策略，确保实时任务在指定的时间内执行完成。</p>
+</li>
+<li><p><strong>O(1) 调度器（O(1) Scheduler）：</strong> 是 Linux 2.4 内核中使用的调度器，它的时间复杂度为常数级别。然而，随着多核系统的出现，O(1) 调度器在多核环境下的性能表现受到限制，因此被 CFS 替代。</p>
+</li>
+</ul>
+<p>这些调度算法在不同的场景和需求下，对于多任务操作系统的调度提供了不同的方法和策略。选择适合的调度算法可以根据系统的应用和性能要求来进行。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>在高强度竞争之后，有些进程陷入长期sleep，并且在核空闲的时候，也不再重新运行？为什么？</p>
+<p>原因可能是程序逻辑阻塞了，或者在等待IO</p>
+<h2 id="查看进程Sleep的原因"><a href="#查看进程Sleep的原因" class="headerlink" title="查看进程Sleep的原因"></a>查看进程Sleep的原因</h2><p>首先 计算机对一个进程是如何判断sleep的，是某时间内的计算占比低于某个阈值吗？</p>
+<p>htop <code>s</code> 可以查看kernel 是不是阻塞， <code>l</code>  可以查看是不是读写同一个文件导致阻塞了。</p>
+<p>Sleep的<a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/252507/how-can-i-wake-a-process-from-sleep-status-via-signal-or-proc">瓶颈</a>在哪里</p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/154f95084d48">sleep for what, waiting for what?</a></p>
+<h2 id="实践1-strace"><a href="#实践1-strace" class="headerlink" title="实践1 strace"></a>实践1 strace</h2><p><code>strace -p PID</code> 可以<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/154f95084d48">显示</a>一些信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">$ strace -p 4005042</span><br><span class="line">  wait4(-1, <span class="comment"># 等待任意子进程结束</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># check subprocess</span></span><br><span class="line">$ pstree -p 4005042</span><br><span class="line">pinbin(4005042)---BC_Compute(4005082)-+-&#123;BC_Compute&#125;(4005187)</span><br><span class="line">                                      |-&#123;BC_Compute&#125;(4005188)</span><br><span class="line">                                      |-&#123;BC_Compute&#125;(4005252)</span><br><span class="line">                                      |-&#123;BC_Compute&#125;(4005296)</span><br><span class="line">                                      |-&#123;BC_Compute&#125;(4005299)</span><br><span class="line">                                      `-&#123;BC_Compute&#125;(4005302)</span><br><span class="line"></span><br><span class="line">$ strace -p 4005082</span><br><span class="line">strace: Process 4005082 attached</span><br><span class="line">futex(0x7fffe52de1b8, FUTEX_WAIT, 2, NULL</span><br><span class="line"><span class="comment"># futex - fast user-space locking(seems to be used in OpenMP)</span></span><br><span class="line"><span class="comment"># It is typically used as a blocking construct in the context of shared-memory synchronization. </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$ strace -p 4005188</span><br><span class="line">nanosleep(&#123;tv_sec=0, tv_nsec=2000000&#125;, 0x7fffe5368bc0) = 0 <span class="comment"># repeat</span></span><br><span class="line">nanosleep(&#123;tv_sec=0, tv_nsec=2000000&#125;, 0x7fffe536dbc0) = 0</span><br></pre></td></tr></table></figure>
+
+<p>It seems this is a subprocess repeating sleep leading to all other process to wait in the synchronization.</p>
+<p>Use <code>gdb -p PID</code> to attach the process to locate the infinite loop (need Debug Symbols).</p>
+<h3 id="futex解释"><a href="#futex解释" class="headerlink" title="futex解释"></a>futex解释</h3><p><code>futex</code> 是 Linux 下的一个系统调用，用于实现用户空间线程间的同步和通信。让我们逐个解释这个系统调用中的每个参数的含义：</p>
+<ol>
+<li><code>0x7fffe52de1b8</code>: 这是一个指向内存地址的指针（或称为地址），通常是用于表示需要同步的资源或变量的地址。在这里，它表示需要等待的共享资源或变量的地址。</li>
+<li><code>FUTEX_WAIT</code>: 这是一个指定 futex 要执行的操作的标志。<code>FUTEX_WAIT</code> 表示线程正在等待 futex 的值发生变化，即等待条件满足。当某个线程执行 <code>FUTEX_WAIT</code> 操作时，如果 futex 的值与预期不符，则该线程将被置于休眠状态，直到 futex 的值发生变化或超时。</li>
+<li><code>2</code>: 这是一个表示期望的 futex 值的参数。当调用 <code>FUTEX_WAIT</code> 时，线程将检查 futex 的当前值是否等于此参数指定的值。如果不等于，则线程将休眠等待。</li>
+<li><code>NULL</code>: 这是一个指向 timespec 结构的指针，用于设置超时。这里为 <code>NULL</code> 表示调用没有设置超时，即线程将一直等待，直到 futex 的值发生变化。</li>
+</ol>
+<p>总的来说，<code>futex(0x7fffe52de1b8, FUTEX_WAIT, 2, NULL)</code> 表示线程正在等待位于内存地址 <code>0x7fffe52de1b8</code> 的 futex 变量的值等于 2。如果 futex 的值不是 2，则线程将一直等待直到 futex 的值变为 2 或者超时。这样的同步机制在多线程编程中用于等待条件满足后再执行某些操作，从而避免资源竞争和提高程序的并发性能。</p>
+<h3 id="nanosleep解释"><a href="#nanosleep解释" class="headerlink" title="nanosleep解释"></a>nanosleep解释</h3><p>这是一个系统调用 <code>nanosleep</code> 的输出，通常用于让线程休眠一段时间。让我们逐个解释这个系统调用的含义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nanosleep(&#123;tv_sec=0, tv_nsec=2000000&#125;, 0x7fffe5368bc0) = 0</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p><code>nanosleep</code>: 这是 Linux 下的一个系统调用，用于使线程休眠一段指定的时间。</p>
+</li>
+<li><p><code>&#123;tv_sec=0, tv_nsec=2000000&#125;</code>: 这是传递给 <code>nanosleep</code> 的第一个参数，是一个指向 <code>timespec</code> 结构的指针。<code>timespec</code> 结构用于表示时间间隔，包括秒（<code>tv_sec</code>）和纳秒（<code>tv_nsec</code>）。</p>
+<p>在这里，<code>tv_sec=0</code> 表示秒数为 0，<code>tv_nsec=2000000</code> 表示纳秒数为 2000000。因此，这个 <code>nanosleep</code> 调用将会使线程休眠 2 毫秒（1 秒 &#x3D; 1000000000 纳秒，所以 2000000 纳秒就是 2 毫秒）。</p>
+</li>
+<li><p><code>0x7fffe5368bc0</code>: 这是传递给 <code>nanosleep</code> 的第二个参数，表示一个 <code>timespec</code> 结构的指针。这个参数用于存放未休眠完成的剩余时间，如果 <code>nanosleep</code> 被中断（例如收到信号），它将在这个指针中返回剩余的时间。在这个输出中，剩余时间被存储在内存地址 <code>0x7fffe5368bc0</code> 处。</p>
+</li>
+<li><p><code>= 0</code>: 这是 <code>nanosleep</code> 的返回值，表示成功完成。返回值为 0 表示 <code>nanosleep</code> 成功休眠了指定的时间。</p>
+</li>
+</ol>
+<p>综上所述，这个输出表示线程成功休眠了 2 毫秒。</p>
+<h2 id="实践2-zsim模拟程序"><a href="#实践2-zsim模拟程序" class="headerlink" title="实践2: zsim模拟程序"></a>实践2: zsim模拟程序</h2><p>程序直接执行正常，zsim模拟直接sleep？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ strace -p 303359</span><br><span class="line"><span class="built_in">read</span>(10,</span><br><span class="line"></span><br><span class="line">$ pstree -p 303359                                                                                 │</span><br><span class="line">gups_vanilla(303359)-+-gups_vanilla(303449)-+-orted+                                               │</span><br><span class="line">                     |                      `-&#123;gups+                                               │</span><br><span class="line">                     |-&#123;gups_vanilla&#125;(303360)                                                      │</span><br><span class="line">                     |-&#123;gups_vanilla&#125;(303361)</span><br><span class="line"></span><br><span class="line">$ pstree -p 303449                                                                                 │</span><br><span class="line">gups_vanilla(303449)-+-orted(303451)-+-&#123;orted&#125;(303452)                                             │</span><br><span class="line">                     |               |-&#123;orted&#125;(303642)                                             │</span><br><span class="line">                     |               |-&#123;orted&#125;(303643)                                             │</span><br><span class="line">                     |               `-&#123;orted&#125;(303644)                                             │</span><br><span class="line">                     `-&#123;gups_vanilla&#125;(303450)</span><br></pre></td></tr></table></figure>
+
+<p>这是一个 Open MPI（Message Passing Interface）的启动命令，用于启动一个 MPI 程序，并配置一些运行时参数。让我们逐个解释这个命令中的每个选项和参数的含义：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">orted --hnp --set-sid --report-uri 11 --singleton-died-pipe 12 -mca state_novm_select 1 -mca ess hnp -mca pmix ^s1,s2,cray,isolated</span><br></pre></td></tr></table></figure>
+
+<p>部分参数含义如下：</p>
+<ul>
+<li><code>orted</code>: 这是 Open MPI 的一个工具，用于启动和管理 MPI 进程。</li>
+<li><code>-mca state_novm_select 1</code>: 这是一个 MCA（Modular Component Architecture）选项，用于指定某个模块或组件的参数设置。在这里，<code>state_novm_select</code> 设置为 1，可能是指定某个组件或模块在运行时的选项。</li>
+<li><code>-mca pmix ^s1,s2,cray,isolated</code>: 这是另一个 MCA 选项，用于配置 PMIx（Process Management Interface for Exascale）的相关设置。<code>^s1,s2,cray,isolated</code> 表示排除 s1、s2、cray 和 isolated 这些模块，可能是禁用某些特定的组件或功能。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>pid</th>
+<th>strace output</th>
+<th>explanation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>303451</td>
+<td>restart_syscall(&lt;… resuming interrupted read …&gt;</td>
+<td></td>
+</tr>
+<tr>
+<td>303452</td>
+<td>futex(0xabba001ec8, FUTEX_WAIT, 2, NULL</td>
+<td></td>
+</tr>
+<tr>
+<td>303642</td>
+<td>epoll_wait(18, …</td>
+<td>epoll_wait 系统调用，用于等待文件描述符18上的事件</td>
+</tr>
+<tr>
+<td>303643</td>
+<td>select(50, [48 49], NULL, NULL, {tv_sec&#x3D;2, tv_usec&#x3D;0}</td>
+<td>如下</td>
+</tr>
+<tr>
+<td>303644</td>
+<td>select(53, [51 52], NULL, NULL, {tv_sec&#x3D;2167, tv_usec&#x3D;944465}</td>
+<td></td>
+</tr>
+</tbody></table>
+<ul>
+<li><code>restart_syscall</code>表示系统调用被中断后重新启动的过程。它通常出现在系统调用的执行过程中，当某个信号（例如 SIGSTOP 或 SIGCONT）中断了系统调用的执行，然后系统调用在信号处理完成后被重新启动。</li>
+<li>select 是一个用于在多个文件描述符上进行 I&#x2F;O 多路复用（I&#x2F;O multiplexing）的系统调用，它可以监视多个文件描述符，并在其中任何一个文件描述符准备好进行 I&#x2F;O 操作时返回。<ul>
+<li>select 调用的输出，它将监视文件描述符 48 和 49，并在其中任何一个文件描述符准备好读取数据或超时（2 秒后）时返回。</li>
+<li>完全无法理解呢！ 可能需要深入了解MPI的实现栈细节才能明白。</li>
+</ul>
+</li>
+</ul>
+<h2 id="命令行唤醒Sleep进程"><a href="#命令行唤醒Sleep进程" class="headerlink" title="命令行唤醒Sleep进程"></a>命令行唤醒Sleep进程</h2><p>The only way to “wake it up” is to arrange for the <a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/304591/how-to-wake-up-inactive-processes-in-linux">condition to be met.</a> 用户是无法更改的状态的。</p>
+<h3 id="传统kill进程"><a href="#传统kill进程" class="headerlink" title="传统kill进程"></a>传统kill进程</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># find pid , state S+ meaning sleep</span></span><br><span class="line">ps aux | grep name</span><br><span class="line"><span class="comment"># gracefully kill process</span></span><br><span class="line"><span class="built_in">kill</span> -15 pid</span><br></pre></td></tr></table></figure>
+
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-07T16:00:00.000Z" title="9/7/2023, 4:00:00 PM">2023-09-07</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.298Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">4 minutes read (About 658 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/07/Work/software/visualization/PPTGraph/">PPT acadamic figure</a></p><div class="content"><h2 id="🏗施工中🏗"><a href="#🏗施工中🏗" class="headerlink" title="🏗施工中🏗"></a>🏗施工中🏗</h2><p>🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧</p>
+<p>觉得有意义写，先占个位子。还没写好呢，建议不要看（逻辑内容都没想清楚），不要急~~</p>
+<p>🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧</p>
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>画图是为了解释文字难以说清的事情。</p>
+<ol>
+<li>明确要说明的观点和内容。需要时完整但是不复杂的内容，复杂的内容会导致内容的丢失。</li>
+<li>明确需要图形化的对象（除开）<ol>
+<li>明确对象的重要性，越重要-&gt; 越大、颜色越鲜艳、字体越粗。（大小如果是写实的就保持实际）</li>
+<li>对象间的关系（通常用小字说明）： 顺序大小关系（箭头），集合关系（花括号，虚实方框包裹）</li>
+</ol>
+</li>
+<li>保持画面和谐<ol>
+<li>对象的空间分布均匀，大小均匀，有层次。主要对象居中且保持对齐。</li>
+<li>颜色有限，重点突出</li>
+</ol>
+</li>
+<li>最终效果：读者知道按照什么顺序看图，图形的关键是什么，作者想说明什么。</li>
+</ol>
+<p>其实这些都是自然的东西，好像也不需要总结。</p>
+<h2 id="常见类型"><a href="#常见类型" class="headerlink" title="常见类型"></a>常见类型</h2><ol>
+<li>流程图（只是展示理清每个关键步骤，还是更具体到每个步骤的核心实现方法）</li>
+<li>实例说明图（抽象概念往往难以理解，实例说明更容易理解）</li>
+<li>复杂概念的关系图</li>
+</ol>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><h3 id="图形的选择、大小和位置"><a href="#图形的选择、大小和位置" class="headerlink" title="图形的选择、大小和位置"></a>图形的选择、大小和位置</h3><ol>
+<li>虚实方框包裹 表示 弱或强的同类型关系</li>
+</ol>
+<h3 id="字体的选择、大小、位置、字体和粗细斜体"><a href="#字体的选择、大小、位置、字体和粗细斜体" class="headerlink" title="字体的选择、大小、位置、字体和粗细斜体"></a>字体的选择、大小、位置、字体和粗细斜体</h3><h3 id="颜色"><a href="#颜色" class="headerlink" title="颜色"></a>颜色</h3><ol>
+<li>基本配色（统一的重要性关系）： 红 &gt; 黄 &gt; 蓝&#x2F;绿 &gt; 灰&#x2F;黑</li>
+<li>颜色赋予的含义：红最重要， 黑色一般时baseline</li>
+</ol>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-06T16:00:00.000Z" title="9/6/2023, 4:00:00 PM">2023-09-06</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.282Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Overview/">Overview</a></span><span class="level-item">an hour read (About 7898 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/06/Work/overviewCS/">Overview of Compute system</a></p><div class="content"><article class="message is-default">
+        <div class="message-header"><p><i class="fa-solid fa-quote-right mr-2"></i>“Those who cannot remember the past are condemned to repeat it.” —George Santayana, 1905</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<article class="message is-default">
+        <div class="message-header"><p><i class="fa-solid fa-quote-right mr-2"></i></p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+<p>Our technology,our machines,is part of our humanity.We created them to extend ourself,and that is what is unique about human beings. - Ray Kurzweil”</p></div><a class="article-more button is-small is-size-7" href="/2023/09/06/Work/overviewCS/#more">Read more</a></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-06T16:00:00.000Z" title="9/6/2023, 4:00:00 PM">2023-09-06</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.254Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/diary/">diary</a></span><span class="level-item">10 minutes read (About 1507 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/06/Thinking/1-target2chase/1.1-living/">1.1 Living Needs &amp; Meaning</a></p><div class="content"><p>have merged 2 topdown site</p></div><a class="article-more button is-small is-size-7" href="/2023/09/06/Thinking/1-target2chase/1.1-living/#more">Read more</a></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-06T16:00:00.000Z" title="9/6/2023, 4:00:00 PM">2023-09-06</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.294Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">5 minutes read (About 741 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/06/Work/software/linux-apps/email/">Script: Email notifications when machine is free</a></p><div class="content"><h2 id="outline"><a href="#outline" class="headerlink" title="outline"></a>outline</h2><p>login to free <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/7484492/sending-email-from-smtp-server-without-the-need-to-enter-password">SMTP server</a>(qq, google) to send email to others.</p>
+<h2 id="send-email-using-command-line"><a href="#send-email-using-command-line" class="headerlink" title="send email using command line"></a>send email using command line</h2><ol>
+<li>check <code>ping mail.ustc.edu.cn</code></li>
+<li>MUST : set gmail open to support <a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/595410/troubleshooting-ssmtp-authorization-failed">SMTP</a> and <a target="_blank" rel="noopener" href="https://support.google.com/mail/thread/4477145/no-app-passwords-under-security-signing-in-to-google-panel?hl=en">apppassword</a><ol>
+<li>or config qq email</li>
+</ol>
+</li>
+</ol>
+<h3 id="IMAP-POP3-or-SMTP"><a href="#IMAP-POP3-or-SMTP" class="headerlink" title="IMAP, POP3 or SMTP"></a>IMAP, POP3 or SMTP</h3><h3 id="mailutils"><a href="#mailutils" class="headerlink" title="mailutils"></a>mailutils</h3><p>According to <a target="_blank" rel="noopener" href="https://askubuntu.com/questions/12917/how-to-send-mail-from-the-command-line">ref1</a>. </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># install ca-certificates</span></span><br><span class="line"><span class="comment"># After new a google accounts, </span></span><br><span class="line"><span class="comment"># config according to ref1</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install mailutils</span><br><span class="line">$ <span class="built_in">echo</span> <span class="string">&quot;Hello world&quot;</span> | mail -s <span class="string">&quot;Test&quot;</span> shaojiemike@mail.ustc.edu.cn</span><br></pre></td></tr></table></figure>
+
+<p>send but the same, more crazy thing is the <code>-v</code> and <code>-d</code> flag is not supported. and <code>--debug-level=trace0</code> isn’t <a target="_blank" rel="noopener" href="https://mailutils.org/wiki/Debug_level">recognized</a>. many same question in <a target="_blank" rel="noopener" href="https://serverfault.com/questions/1116431/cant-send-email-on-ubuntu-with-mail-command">StackOverflow</a></p>
+<p><code>sudo tail -n 30 /var/log/mail.log</code> or <code>mail.error</code> show more info.</p>
+<h3 id="ssmtp"><a href="#ssmtp" class="headerlink" title="ssmtp"></a>ssmtp</h3><p>We try <a target="_blank" rel="noopener" href="https://askubuntu.com/questions/732677/unable-to-send-a-email-through-the-command-line-on-ubuntu-desktop/732782#732782">ref2</a> <code>ssmtp</code>, <code>sudo vim /etc/ssmtp/ssmtp.conf</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">TLS_CA_FILE=/etc/pki/tls/certs/ca-bundle.crt</span><br><span class="line">root=shaojieemail@gmail.com</span><br><span class="line">mailhub=smtp.gmail.com:587</span><br><span class="line">rewriteDomain=gmail.com</span><br><span class="line">AuthUser=shaojieemail</span><br><span class="line">AuthPass=&#123;apppassword&#125;</span><br><span class="line">FromLineOverride=YES</span><br><span class="line">UseSTARTTLS=Yes</span><br><span class="line">UseTLS=YES</span><br><span class="line">hostname=snode6</span><br></pre></td></tr></table></figure>
+
+<p>The config get work but not well configed, e.g., <a target="_blank" rel="noopener" href="https://ubuntuforums.org/showthread.php?t=2319203">TLS_CA_FILE</a></p>
+<p>sending a email using gmail took about 13 mins.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ ssmtp 943648187@qq.com &lt; mail.txt</span><br><span class="line">......</span><br><span class="line">[-&gt;] Received: by snode6 (sSMTP sendmail emulation); Wed, 06 Sep 2023 15:42:05 +0800</span><br><span class="line">[-&gt;] From: <span class="string">&quot;Shaojie Tan&quot;</span> &lt;shaojiemike@gmail.com&gt;</span><br><span class="line">[-&gt;] Date: Wed, 06 Sep 2023 15:42:05 +0800</span><br><span class="line">[-&gt;] <span class="built_in">test</span> server email sending</span><br><span class="line">[-&gt;]</span><br><span class="line">[-&gt;] .</span><br><span class="line">[&lt;-] 250 2.0.0 OK  1693986323 5-20020a17090a1a4500b0026b4ca7f62csm11149314pjl.39 - gsmtp</span><br><span class="line">[-&gt;] QUIT</span><br><span class="line">[&lt;-] 221 2.0.0 closing connection 5-20020a17090a1a4500b0026b4ca7f62csm11149314pjl.39 - gsmtp</span><br></pre></td></tr></table></figure>
+
+<h3 id="sendmail"><a href="#sendmail" class="headerlink" title="sendmail"></a>sendmail</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sendmail 94364818s7@qq.com &lt; mail.txt</span><br><span class="line">sendmail: Authorization failed (535 5.7.8  https://support.google.com/mail/?p=BadCredentials e7-20020a170902b78700b001c0c79b386esm8725297pls.95 - gsmtp)</span><br></pre></td></tr></table></figure>
+
+<p>get to work after well config gmail setting.</p>
+<h3 id="Speed-Compare"><a href="#Speed-Compare" class="headerlink" title="Speed Compare"></a>Speed Compare</h3><table>
+<thead>
+<tr>
+<th>command</th>
+<th>snode6 time(mins)</th>
+<th>icarus1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>mail</td>
+<td>4</td>
+<td>1s</td>
+</tr>
+<tr>
+<td>ssmtp</td>
+<td>13</td>
+<td></td>
+</tr>
+<tr>
+<td>sendmail</td>
+<td>6</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="send-email-by-python"><a href="#send-email-by-python" class="headerlink" title="send email by python"></a>send email by python</h2><p><a target="_blank" rel="noopener" href="https://github.com/TheRainstorm/ustc-epc-bot-openwrt">ref</a> using QQ apppassword and python.</p>
+<h2 id="email-notifications"><a href="#email-notifications" class="headerlink" title="email notifications"></a>email notifications</h2><ol>
+<li><p><strong>Create a Bash Script</strong>: Create a Bash script that checks the CPU usage and sends an email if it’s below 30%. For example, create a file named <code>cpu_check.sh</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Get CPU usage percentage</span></span><br><span class="line">cpu_usage=$(top -b -n 1 | grep <span class="string">&#x27;%Cpu(s):&#x27;</span> | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span> | <span class="built_in">cut</span> -d<span class="string">&#x27;.&#x27;</span> -f1)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;cpu_usage : <span class="variable">$&#123;cpu_usage&#125;</span> on <span class="subst">$(hostname)</span>&quot;</span></span><br><span class="line"><span class="comment"># Check if CPU usage is below 30%</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$cpu_usage</span>&quot;</span> -lt 30 ]; <span class="keyword">then</span></span><br><span class="line">   <span class="built_in">echo</span> <span class="string">&quot;beyond threshold : <span class="variable">$&#123;cpu_usage&#125;</span> on &quot;</span></span><br><span class="line">    <span class="comment"># Send an email</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;CPU usage is <span class="variable">$&#123;cpu_usage&#125;</span> below 30% on <span class="subst">$(hostname)</span>&quot;</span> | mail -s <span class="string">&quot;Low CPU Usage Alert on <span class="subst">$(hostname)</span>&quot;</span> your_email@example.com</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<p>Make the script executable:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x cpu_check.sh</span><br></pre></td></tr></table></figure>
+
+<p>Modify <code>your_email@example.com</code> with your actual email address.</p>
+</li>
+<li><p><strong>Schedule the Script</strong>: Use the <code>cron</code> scheduler to run the script at regular intervals. Edit your crontab by running:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br></pre></td></tr></table></figure>
+
+<p>Add an entry to run the script, for example, every 5 minutes:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">*/5 * * * * /staff/shaojiemike/test/cpu_check.sh &gt;&gt; /staff/shaojiemike/test/cpu_check.log</span><br><span class="line"><span class="comment"># Run every 15 minutes during working hours (9 am to 7 pm)</span></span><br><span class="line">*/15 9-19 * * * /path/to/your/script.sh</span><br></pre></td></tr></table></figure>
+
+<p>Replace <code>/path/to/cpu_check.sh</code> with the actual path to your Bash script.</p>
+</li>
+<li><p><strong>Save and Exit</strong>: Save the crontab file and exit the text editor.</p>
+</li>
+</ol>
+<p>Now, the script will run every 5 minutes (adjust the cron schedule as needed) and send an email notification if the CPU usage is below 50%. You should receive an email when the condition is met.</p>
+<p>Please note that this is a basic example, and you can modify the script to include more details or customize the notification further as needed. Additionally, ensure that your server is configured to send emails; you may need to configure SMTP settings for the <code>mail</code> or <code>sendmail</code> command to work correctly.</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-05T16:00:00.000Z" title="9/5/2023, 4:00:00 PM">2023-09-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.298Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">3 minutes read (About 425 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/05/Work/software/simulator/zsim_bug/">Zsim-tlb: bug</a></p><div class="content"><h2 id="bug"><a href="#bug" class="headerlink" title="bug"></a>bug</h2><p>zsim-tlb simulate in icarus0</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pinbin: build/opt/zsim.cpp:816: LEVEL_BASE::VOID VdsoCallPoint(LEVEL_VM::THREADID): Assertion `vdsoPatchData[tid].level<span class="string">&#x27; failed.</span></span><br><span class="line"><span class="string">Pin app terminated abnormally due to signal 6.</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="locate-error"><a href="#locate-error" class="headerlink" title="locate error"></a>locate error</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">VOID <span class="title function_">VdsoCallPoint</span><span class="params">(THREADID tid)</span> &#123;</span><br><span class="line">	<span class="comment">//level=0,invalid</span></span><br><span class="line">    assert(vdsoPatchData[tid].level);</span><br><span class="line">    vdsoPatchData[tid].level++;</span><br><span class="line">    <span class="comment">// info(&quot;vDSO internal callpoint, now level %d&quot;, vdsoPatchData[tid].level); //common</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>vDSO</code>  (virtual dynamic shared object) is a kernel machanism for exporting a carefully set kernel space routines (eg. not secret api, <code>gettid()</code> and <code>gettimeofday()</code>) to user<br> spapce to eliminate the performance penalty of user-kernel mode switch according to <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/VDSO">wiki</a>. <code>vDSO</code></li>
+<li>You can use some <code>__vdso_getcpu()</code> C library, and kernel will <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/vdso.7.html">auto move it to user-space</a></li>
+<li><code>vDSO</code> overcome <code>vsyscall</code>(first linux-kernel machanism to accelerate syscall) drawback.</li>
+<li>In zsim, <code>vDSO</code> have only four function <code>enum VdsoFunc &#123;VF_CLOCK_GETTIME, VF_GETTIMEOFDAY, VF_TIME, VF_GETCPU&#125;;</code></li>
+</ul>
+<h3 id="vDSO-simulate-part"><a href="#vDSO-simulate-part" class="headerlink" title="vDSO simulate part"></a>vDSO simulate part</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Instrumentation function, called for EVERY instruction</span></span><br><span class="line">VOID <span class="title function_">VdsoInstrument</span><span class="params">(INS ins)</span> &#123;</span><br><span class="line">    ADDRINT insAddr = INS_Address(ins);	<span class="comment">//get ins addr</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(insAddr &gt;= vdsoStart &amp;&amp; insAddr &lt; vdsoEnd)) &#123;</span><br><span class="line">		<span class="comment">//INS is vdso syscall</span></span><br><span class="line">        <span class="keyword">if</span> (vdsoEntryMap.find(insAddr) != vdsoEntryMap.end()) &#123;</span><br><span class="line">            VdsoFunc func = vdsoEntryMap[insAddr];</span><br><span class="line">			<span class="comment">//call VdsoEntryPoint function</span></span><br><span class="line">			<span class="comment">//argv are: tid ,func(IARG_UINT32),arg0(LEVEL_BASE::REG_RDI),arg1(LEVEL_BASE::REG_RSI) </span></span><br><span class="line">            INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR) VdsoEntryPoint, IARG_THREAD_ID, IARG_UINT32, (<span class="type">uint32_t</span>)func, IARG_REG_VALUE, LEVEL_BASE::REG_RDI, IARG_REG_VALUE, LEVEL_BASE::REG_RSI, IARG_END);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (INS_IsCall(ins)) &#123;	<span class="comment">//call instruction</span></span><br><span class="line">            INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR) VdsoCallPoint, IARG_THREAD_ID, IARG_END);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (INS_IsRet(ins)) &#123;	<span class="comment">//Ret instruction</span></span><br><span class="line">            INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR) VdsoRetPoint, IARG_THREAD_ID, IARG_REG_REFERENCE, LEVEL_BASE::REG_RAX <span class="comment">/* return val */</span>, IARG_END);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//Warn on the first vsyscall code translation</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(insAddr &gt;= vsyscallStart &amp;&amp; insAddr &lt; vsyscallEnd &amp;&amp; !vsyscallWarned)) &#123;</span><br><span class="line">        warn(<span class="string">&quot;Instrumenting vsyscall page code --- this process executes vsyscalls, which zsim does not virtualize!&quot;</span>);</span><br><span class="line">        vsyscallWarned = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>INS_Address</code> is from <code>pin-kit</code>, but <code>INS_InsertCall</code> is pin api.</p>
+<h3 id="try"><a href="#try" class="headerlink" title="try:"></a>try:</h3><p><code>.level</code> is just show the level of nested vsyscall. I think comment the <code>assert</code> which trigerd when <code>callfunc</code> before <code>entryfunc</code> is just fun.</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-05T16:00:00.000Z" title="9/5/2023, 4:00:00 PM">2023-09-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.322Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">5 minutes read (About 741 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/05/Work/Programming/1-env/c/conda/">Conda</a></p><div class="content"><h2 id="conda"><a href="#conda" class="headerlink" title="conda"></a>conda</h2><p>Anaconda和Miniconda都是针对数据科学和机器学习领域的Python发行版本，它们包含了许多常用的数据科学包和工具，使得安装和管理这些包变得更加简单。</p>
+<p>解决了几个痛点：</p>
+<ol>
+<li>不同python环境的切换(类似VirtualEnv)</li>
+<li>高效的包管理工具(类似pip,特别是在Windows上好用)</li>
+</ol>
+<h3 id="anaconda"><a href="#anaconda" class="headerlink" title="anaconda"></a>anaconda</h3><p>Anaconda是一个全功能的Python发行版本，由Anaconda, Inc.（前称Continuum Analytics）提供。</p>
+<ul>
+<li>它包含了Python解释器以及大量常用的数据科学、机器学习和科学计算的第三方库和工具，如NumPy、Pandas、Matplotlib、SciPy等。</li>
+<li>Anaconda还包含一个名为Conda的包管理器，用于安装、更新和管理这些库及其依赖项。</li>
+<li>Anaconda发行版通常较大(500MB)，因为它预装了许多常用的包，适用于不希望从头开始搭建环境的用户。</li>
+</ul>
+<h3 id="Miniconda"><a href="#Miniconda" class="headerlink" title="Miniconda"></a>Miniconda</h3><p>Miniconda是Anaconda的轻量级版本(50MB)，它也由Anaconda, Inc.提供。</p>
+<ul>
+<li>与Anaconda不同，Miniconda只包含了Python解释器和Conda包管理器，没有预装任何其他包。这意味着用户可以根据自己的需求手动选择要安装的包，从而实现一个精简而高度定制化的Python环境。</li>
+<li>对于希望从零开始构建数据科学环境或需要更细粒度控制的用户，Miniconda是一个很好的选择。</li>
+</ul>
+<h2 id="Install-miniconda"><a href="#Install-miniconda" class="headerlink" title="Install miniconda"></a>Install miniconda</h2><p>According to the <a target="_blank" rel="noopener" href="https://docs.conda.io/en/latest/miniconda.html">official website</a>, </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh</span><br><span class="line">bash Miniconda3-latest-Linux-x86_64.sh</span><br><span class="line"><span class="comment"># choose local path to install, maybe ~/.local</span></span><br><span class="line"><span class="comment"># init = yes, will auto modified the .zshrc to add the miniconda to PATH</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># If you&#x27;d prefer that conda&#x27;s base environment not be activated on startup,</span></span><br><span class="line"><span class="comment">#    set the auto_activate_base parameter to false:</span></span><br><span class="line">conda config --<span class="built_in">set</span> auto_activate_base <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+<p>you need to close all terminal(all windows in one section including all split windows), and reopen a terminal will take effect;</p>
+<h3 id="Python-on-windows"><a href="#Python-on-windows" class="headerlink" title="Python on windows"></a>Python on windows</h3><p><a target="_blank" rel="noopener" href="https://shaojiemike.notion.site/Python-on-Windows-de11bf1bacee4e92b5f8cd4065f62eab">ref</a></p>
+<h2 id="创建虚拟环境"><a href="#创建虚拟环境" class="headerlink" title="创建虚拟环境"></a>创建虚拟环境</h2><p>使用以下命令创建一个名为”myenv”的虚拟环境（您可以将”myenv”替换为您喜欢的环境名称）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">conda create --name myenv python=3.8</span><br><span class="line"></span><br><span class="line"><span class="comment"># list existed env</span></span><br><span class="line">conda <span class="built_in">env</span> list</span><br></pre></td></tr></table></figure>
+
+<h3 id="激活环境"><a href="#激活环境" class="headerlink" title="激活环境"></a>激活环境</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda activate name</span><br></pre></td></tr></table></figure>
+
+<h2 id="环境包的生成和使用"><a href="#环境包的生成和使用" class="headerlink" title="环境包的生成和使用"></a>环境包的生成和使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conda list -e &gt; requirements.txt</span><br><span class="line">conda install --<span class="built_in">yes</span> --file requirements.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="pyproject-toml"><a href="#pyproject-toml" class="headerlink" title="pyproject.toml"></a>pyproject.toml</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ pip install .</span><br><span class="line">ERROR: Directory <span class="string">&#x27;.&#x27;</span> is not installable. Neither <span class="string">&#x27;setup.py&#x27;</span> nor <span class="string">&#x27;pyproject.toml&#x27;</span> found.</span><br></pre></td></tr></table></figure>
+
+<h3 id="在conda命令无效时使用pip命令来代替"><a href="#在conda命令无效时使用pip命令来代替" class="headerlink" title="在conda命令无效时使用pip命令来代替"></a>在conda命令无效时使用pip命令来代替</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> <span class="built_in">read</span> requirement; <span class="keyword">do</span> conda install --<span class="built_in">yes</span> <span class="variable">$requirement</span> || pip install <span class="variable">$requirement</span>; <span class="keyword">done</span> &lt; requirements.txt</span><br></pre></td></tr></table></figure>
+
+<p>The double pipe (“<code>||</code>”) is a control operator that represents the logical OR operation. It is used to execute a command or series of commands only if the previous command or pipeline has <strong>failed</strong> or has returned a <strong>non-zero</strong> status code.</p>
+<h3 id="保存和复制conda环境的配置"><a href="#保存和复制conda环境的配置" class="headerlink" title="保存和复制conda环境的配置"></a>保存和复制conda环境的配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conda <span class="built_in">env</span> <span class="built_in">export</span> &gt; freeze.yml</span><br><span class="line">conda <span class="built_in">env</span> create -f freeze.yml</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Mao_Jonah/article/details/89502380">https://blog.csdn.net/Mao_Jonah/article/details/89502380</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-05T16:00:00.000Z" title="9/5/2023, 4:00:00 PM">2023-09-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.322Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">4 minutes read (About 594 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/05/Work/Programming/1-env/terminal/terminal/">Terminal</a></p><div class="content"><h2 id="terminal-mouse-scroll-messy-code"><a href="#terminal-mouse-scroll-messy-code" class="headerlink" title="terminal mouse scroll messy code"></a>terminal mouse scroll messy code</h2><p>滚轮乱码，是tmux <code>set mouse on</code>的原因</p>
+<p>进入tmux后退出，并运行<code>reset</code>即可</p>
+<h2 id="command-output"><a href="#command-output" class="headerlink" title="command output"></a>command output</h2><p>在用python使用curses写多进程进度条的时候遇到几个问题<br><img src="https://pic.shaojiemike.top/img/20220325222152.png"></p>
+<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">stdscr = curses.initscr() # 不要设置为全局变量</span><br><span class="line"># 而且 使用set_win unset_win 保持区域换行的行为</span><br></pre></td></tr></table></figure>
+
+<h3 id="n-r-回车-换行的区别"><a href="#n-r-回车-换行的区别" class="headerlink" title="\n \r 回车 换行的区别"></a>\n \r 回车 换行的区别</h3><ol>
+<li>符号 ASCII码 意义<ol>
+<li>\n 10 换行NL<ol>
+<li>换行 \n 本义是光标往下一行（不一定到下一行行首），n的英文newline，控制字符可以写成LF，即Line Feed</li>
+</ol>
+</li>
+<li>\r 13 回车CR<ol>
+<li>回车 \r 本义是光标重新回到本行开头，r的英文return，控制字符可以写成CR，即Carriage Return</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>在不同的操作系统这几个字符表现不同<ol>
+<li>在WIN系统下，这两个字符就是表现的本义，</li>
+<li>在UNIX类系统，换行\n就表现为光标下一行并回到行首，</li>
+<li>在MAC上，\r就表现为回到本行开头并往下一行，至于ENTER键的定义是与操作系统有关的。通常用的Enter是两个加起来。</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">\n: UNIX 系统行末结束符</span><br><span class="line">\n\r: window 系统行末结束符</span><br><span class="line">\r: MAC OS 系统行末结束符</span><br></pre></td></tr></table></figure>
+
+<h2 id="check-process-create-time"><a href="#check-process-create-time" class="headerlink" title="check process create time"></a>check process create time</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps -eo pid,lstart,cmd |grep bhive</span><br><span class="line">date</span><br></pre></td></tr></table></figure>
+<h2 id="kill-all-process-by-name"><a href="#kill-all-process-by-name" class="headerlink" title="kill all process by name"></a>kill all process by name</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ps -ef | grep &#x27;bhive-re&#x27; | grep -v grep | awk &#x27;&#123;print $2&#125;&#x27; | sudo xargs -r kill -9</span><br></pre></td></tr></table></figure>
+
+<h2 id="sudo-的问题"><a href="#sudo-的问题" class="headerlink" title="sudo 的问题"></a>sudo 的问题</h2><h3 id="sudo后找不到命令"><a href="#sudo后找不到命令" class="headerlink" title="sudo后找不到命令"></a>sudo后找不到命令</h3><p>当你使用sudo去执行一个程序时，处于安全的考虑，这个程序将在一个新的、最小化的环境中执行，也就是说，诸如PATH这样的环境变量，在sudo命令下已经被重置成默认状态了。</p>
+<p>添加所需要的路径(如 &#x2F;usr&#x2F;local&#x2F;bin）到&#x2F;etc&#x2F;sudoers文件”secure_path”下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin</span><br></pre></td></tr></table></figure>
+<h2 id="teminal-read-code"><a href="#teminal-read-code" class="headerlink" title="teminal read code"></a>teminal read code</h2><h3 id="ctags-函数跳转"><a href="#ctags-函数跳转" class="headerlink" title="ctags + 函数跳转"></a>ctags + 函数跳转</h3><ol>
+<li>安装ctags <code>sudo apt-get install exuberant-ctags</code></li>
+<li>生成函数名索引文件 <code>ctags -R . /path/another/include</code> will generate <code>tags</code> file</li>
+</ol>
+<h3 id="添加"><a href="#添加" class="headerlink" title="添加"></a>添加</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;set tags=<span class="variable">$PWD</span>/tags&quot;</span> &gt;&gt; ~/.vimrc</span><br><span class="line"><span class="comment"># or</span></span><br><span class="line">vim ~/.vimrc</span><br><span class="line"><span class="comment"># set tags=~/Download/llvm-project-main/llvm/tags</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="vim-使用"><a href="#vim-使用" class="headerlink" title="vim 使用"></a>vim 使用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ctrl + ] <span class="comment"># forword</span></span><br><span class="line">Ctrl + t <span class="comment"># 返回</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="vscode-tools"><a href="#vscode-tools" class="headerlink" title="vscode tools"></a>vscode tools</h3><p>ctags tools</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
+无
+
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-01T16:00:00.000Z" title="9/1/2023, 4:00:00 PM">2023-09-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.254Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/diary/">diary</a></span><span class="level-item">8 minutes read (About 1131 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/01/Thinking/4-viewOnOthers/4.1-Love4AnimeCharacter/">Diary 230827: 上海二次元之旅</a></p><div class="content"><h2 id="缘由"><a href="#缘由" class="headerlink" title="缘由"></a>缘由</h2><p>华为实习要结束了，作为二次元，在中国秋叶原怎么能不好好逛逛呢？</p>
+<h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><ol>
+<li>百联zx，外文书店，</li>
+<li>百米香榭</li>
+<li>迪美地下城（香港名街关门装修了</li>
+<li>第一百货和新世界</li>
+<li>大丸百货的4F的华漫潮玩</li>
+<li>静安大悦城的间谍过家家的快闪点。</li>
+<li>徐家汇的一楼jump店、龙猫店，二楼GSC店</li>
+<li>mihoyo总部</li>
+</ol>
+<h3 id="爱上海"><a href="#爱上海" class="headerlink" title="爱上海"></a>爱上海</h3><p>上海真是包容性极强的地方。原本内心对二次元的热爱，竟然这么多人也喜欢。不必隐藏，时刻伪装。可以暂时放松自我的感觉真好。</p>
+<h2 id="论对二次元人物的喜爱"><a href="#论对二次元人物的喜爱" class="headerlink" title="论对二次元人物的喜爱"></a>论对二次元人物的喜爱</h2><h3 id="爱的定义"><a href="#爱的定义" class="headerlink" title="爱的定义"></a>爱的定义</h3><p>爱或者热爱是最浓烈的情感。对象一般是可以交互的人物，物体说不定也可以。但是至少要能与他持续产生美好的回忆和点滴，来支持这份情感。</p>
+<p>比如说，我一直想让自己能热爱我的工作，就需要创造小的阶段成功和胜利来支持自己走下去。</p>
+<h3 id="区分喜爱与贪恋美色"><a href="#区分喜爱与贪恋美色" class="headerlink" title="区分喜爱与贪恋美色"></a>区分喜爱与贪恋美色</h3><ol>
+<li>首先和对方待在一起很舒服，很喜欢陪伴的感觉，想长期走下去。</li>
+<li>其实不是满脑子瑟瑟的想法</li>
+<li>外表美肯定是加分项，但是更关注气质，想法和精神层面的东西。</li>
+</ol>
+<h3 id="三次元与二次元人物"><a href="#三次元与二次元人物" class="headerlink" title="三次元与二次元人物"></a>三次元与二次元人物</h3><p>三次元的人物包括偶像歌手，和演员。需要演出，演唱会来与粉丝共创回忆，演员也需要影视剧作品。</p>
+<p>二次元人物大多数来自于动画，因为游戏一般不以刻画人物为目的，比如主机游戏 当然galgame和二次元手游除外。</p>
+<p>日本动画以远超欧美和国创的题材和人物的细腻刻画（不愧是galgame大国，Band Dream it’s my go到人物心里描写简直一绝）创造了许多令人喜爱的角色。</p>
+<h3 id="比较优势"><a href="#比较优势" class="headerlink" title="比较优势"></a>比较优势</h3><ol>
+<li>表现能力的上限来看，动画也是远超游戏（不然游戏里为什么要动画CG）和真人影视剧的。</li>
+<li>二次元人物的二次创作的低门槛（无论从还原难度还是法律约束上来说，毕竟三次元人物经常和真人强绑定）和舆论高包容性（传统二次元社区可比饭圈干净多了）都有远超三次元的优势。</li>
+<li>此外二创Cosplay的平易近人或者说触手可及的真实感。二创能创造出远超原本作品的人物记忆和羁绊</li>
+<li>另一点可能的是二创的低门槛带来的创作快乐，这一点在之前分析音乐的快乐有提到。二创主要有音乐，mmd，<del>iwara动画</del><ol>
+<li>cos 可以让原本平凡的人生，染上对应角色不平凡经历的色彩</li>
+</ol>
+</li>
+<li>最后一点就是永恒性吧，第一点是之前我分析过人们喜欢在变化的生活中追求不变，或者相反。三次元人物或者演员会老去，但是二次元人物能在一部新剧场版下重现活力</li>
+<li>另一点就是不会被背叛。</li>
+</ol>
+<h3 id="比较缺点"><a href="#比较缺点" class="headerlink" title="比较缺点"></a>比较缺点</h3><ol>
+<li>对于二次元角色的喜爱在时间的长河里是单向的，除开代入主角，很难收获二次元角色对自己的喜爱(这样看galgame稍微弥补了这点)。交流交互隔着次元的屏障。</li>
+<li>成长可塑性的略微欠缺：如果作品已经完结了，除开少量二创，角色形象基本就确定了。除非输入到AI里训练，使之生命延续。</li>
+<li>惊喜性缺失： 真实人物是多面的，不可控的。但是二次元角色的反转特性只存在于剧集的剧情里。</li>
+</ol>
+<h2 id="初步结论"><a href="#初步结论" class="headerlink" title="初步结论"></a>初步结论</h2><p>女朋友 &gt; 喜欢二次元(连载 &gt; 完结) &gt;&gt; 追星</p>
+<h2 id="图片轰炸"><a href="#图片轰炸" class="headerlink" title="图片轰炸"></a>图片轰炸</h2><p>23.08.27 to do</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-01T16:00:00.000Z" title="9/1/2023, 4:00:00 PM">2023-09-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.254Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/diary/">diary</a></span><span class="level-item">3 minutes read (About 503 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/01/Thinking/4-viewOnOthers/4.1-anime/">UnimportantView: Anime Recommendation</a></p><div class="content"><h2 id="起源与目标"><a href="#起源与目标" class="headerlink" title="起源与目标"></a>起源与目标</h2><ol>
+<li>看番没有形成自己的喜好，导致看到不对的，反而有副作用，</li>
+<li>什么番可以成为精神支柱，而不是看了之后。反而精神内耗更严重了。（看了happy sugar life后，直接抑郁了）</li>
+</ol>
+<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>不同于恋爱番，催泪番，这样的分类。其实我更在意作品想表达的主题，作者想展现给读者什么。 无论是各种道理，还是就是某个环境，虚幻世界。</p>
+<h2 id="绊"><a href="#绊" class="headerlink" title="绊"></a>绊</h2><p>羁绊：对人的爱，爱情、亲情、友情。</p>
+<h3 id="何为爱的寻爱之旅"><a href="#何为爱的寻爱之旅" class="headerlink" title="何为爱的寻爱之旅"></a>何为爱的寻爱之旅</h3><table>
+<thead>
+<tr>
+<th>番剧名</th>
+<th>精神内核</th>
+<th>评语</th>
+<th>喜爱的角色</th>
+<th>音乐</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Happy Sugar Life</td>
+<td>守护你是我的爱语</td>
+<td>难以理解的爱的世界里，两位迷途少女相遇，救赎，领悟爱的蜜罐生活</td>
+<td>砂糖、盐</td>
+<td>金丝雀、ED、悲伤小提琴</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>我推的孩子（第一集）</p>
+<p>Violet Garden</p>
+<h3 id="羁绊的破碎和重组"><a href="#羁绊的破碎和重组" class="headerlink" title="羁绊的破碎和重组"></a>羁绊的破碎和重组</h3><p>BanG Dream It’s my go !!!!!  初羁绊(友情，百合，重女)的破碎和reunion</p>
+<h3 id="病名为爱"><a href="#病名为爱" class="headerlink" title="病名为爱"></a>病名为爱</h3><p>未来日记</p>
+<p>家有女友、渣愿</p>
+<h3 id="点滴恋爱"><a href="#点滴恋爱" class="headerlink" title="点滴恋爱"></a>点滴恋爱</h3><p>百合类的成长：终将成为你，</p>
+<p>我心危</p>
+<h2 id="轮回宿命类"><a href="#轮回宿命类" class="headerlink" title="轮回宿命类"></a>轮回宿命类</h2><h3 id="跨越时空也无法阻止我爱你"><a href="#跨越时空也无法阻止我爱你" class="headerlink" title="跨越时空也无法阻止我爱你"></a>跨越时空也无法阻止我爱你</h3><p>命运石之门</p>
+<p>RE0</p>
+<h3 id="无法抵达的简单幸福未来"><a href="#无法抵达的简单幸福未来" class="headerlink" title="无法抵达的简单幸福未来"></a>无法抵达的简单幸福未来</h3><p>寒蝉鸣泣之时</p>
+<p>魔法少女小圆</p>
+<h2 id="史诗类"><a href="#史诗类" class="headerlink" title="史诗类"></a>史诗类</h2><p>复杂、紧张的鸿篇巨制。多非单一的精神内核可以概括。多为群像剧。</p>
+<h3 id="奇幻、幻想世界史诗"><a href="#奇幻、幻想世界史诗" class="headerlink" title="奇幻、幻想世界史诗"></a>奇幻、幻想世界史诗</h3><p>Fate Zero</p>
+<p>钢炼</p>
+<p>EVA</p>
+<h2 id="to-do"><a href="#to-do" class="headerlink" title="to do"></a>to do</h2><p>刀剑</p>
+<p>四谎</p>
+<p>CLANND</p>
+<p>龙与虎</p>
+<p>巨人</p>
+<p>超炮</p>
+<p>凉宫</p>
+<p>鲁鲁修</p>
+<p>轻音</p>
+<h2 id="补番列表"><a href="#补番列表" class="headerlink" title="补番列表"></a>补番列表</h2><ol>
+<li>物语系列</li>
+<li></li>
+</ol>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/page/16/">Previous</a></div><div class="pagination-next"><a href="/page/18/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/">1</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/16/">16</a></li><li><a class="pagination-link is-current" href="/page/17/">17</a></li><li><a class="pagination-link" href="/page/18/">18</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/41/">41</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">404</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">33</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">500</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">26</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">25</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">117</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">8</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">52</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-31T22:47:56.000Z">2024-05-31</time></p><p class="title"><a href="/2024/05/31/Thinking/4-viewOnOthers/FinancialValues/">Financial Values</a></p><p class="categories"><a href="/categories/thinking/">thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-26T15:34:38.000Z">2024-05-26</time></p><p class="title"><a href="/2024/05/26/OutOfWork/1-lifeAndCareer/travelPreparation/">Travel Preparation</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-22T11:18:58.000Z">2024-04-22</time></p><p class="title"><a href="/2024/04/22/Work/Architecture/microHardware/cacheCoherence/">Memory Consistency and Cache Coherence </a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-20T06:54:32.000Z">2024-04-20</time></p><p class="title"><a href="/2024/04/20/Work/software/windows/WinUsefulTools/">Windows Useful Tools</a></p><p class="categories"><a href="/categories/software/">software</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-19T07:40:25.000Z">2024-04-19</time></p><p class="title"><a href="/2024/04/19/Work/Programming/2-languageGrammar/c/CplusDebugPrint/">C &amp; C++: Debug Print like icecream in Python</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">17</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

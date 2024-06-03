@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta property="og:type" content="blog"><meta property="og:title" content="SHAOJIE&#039;S BOOK"><meta property="og:url" content="http://icarus.shaojiemike.top/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:author" content="Shaojie Tan"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top"},"headline":"SHAOJIE'S BOOK","image":["http://icarus.shaojiemike.top/img/og_image.png"],"author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":""}</script><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-02T16:00:00.000Z" title="8/2/2023, 4:00:00 PM">2023-08-02</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.326Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/network/">network</a></span><span class="level-item">an hour read (About 7531 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/02/Work/network/0-basic/networkServices/">Network Services</a></p><div class="content"><h2 id="计算机网络基本概念"><a href="#计算机网络基本概念" class="headerlink" title="计算机网络基本概念"></a>计算机网络基本概念</h2><p>20世纪50年代末，正值美苏冷战时期的美国军方设计了军用网络”阿帕网ARPANET”, 当时的还只支持同构设备间的连接，TCP&#x2F;IP的提出标志着万物互联的到来。</p>
+<h3 id="多层网络模型"><a href="#多层网络模型" class="headerlink" title="多层网络模型"></a>多层网络模型</h3><p>计算机网络体系结构分为3种：OSI体系结构（七层），TCP&#x2F;IP体系结构（四层），五层体系结构。</p>
+<ul>
+<li><strong>OSI模型</strong>(开放式系统互联模型Open System Interconnection Model)<ul>
+<li>也称开放系统互连参考模型，简称OSI&#x2F;RM(Open System Internetwork Reference Model)</li>
+<li>概念清楚，理论也比较完整，但是它既<strong>复杂又不实用</strong>。</li>
+<li>由国际标准化组织(ISO)于1985年提出，并试图成为计算机在世界范围内互连为网络的标准框架，它具有七层网络结构。</li>
+</ul>
+</li>
+<li><strong>TCP&#x2F;IP模型</strong><ul>
+<li>互联网协议套件（Internet Protocol Suite，IPS）是多个网络传输协议的集合，它为网际网络的基础通信提供架构支撑。</li>
+<li>由于该协议族中最核心的两个协议分别为 TCP（传输控制协议）和 IP（网际协议），因此它也被称为 TCP&#x2F;IP 协议族（TCP&#x2F;IP Protocol Suite 或 TCP&#x2F;IP Protocols），简称 TCP&#x2F;IP。</li>
+<li>1974年，卡恩和瑟夫(Internet 之父)发表的《关于分组交换的网络通信协议》的论文正式提出TCP&#x2F;IP。</li>
+</ul>
+</li>
+<li><strong>五层体系结构</strong>:为了方便学习，折中OSI体系结构和TCP&#x2F;IP体系结构，综合二者的优点，这样既简洁，又能将概念讲清楚。</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/img/20230326063613.png"><br><img src="https://pic.shaojiemike.top/img/20230326101923.png"></p>
+<p>五层网络模型各层功能：</p>
+<ul>
+<li><strong>应用层</strong>：应用层是网络协议的最高层，主要任务通过进程间的交互完成特定网络应用。应用层协议定义的是应用程序（进程）间通信和交互的规则。<ul>
+<li>对于不同的网络应用需要有不同的应用层协议，在互联网中的应用层协议很多，如域名系统DNS，支持万维网应用的HTTP协议，支持电子邮件的SMTP协议，等等。</li>
+<li>应用层交互的数据单元称为<code>报文</code>。</li>
+</ul>
+</li>
+<li><strong>运输层</strong>：有时也译为传输层，它负责为两台主机中的进程提供通信服务，通过<code>端口号</code>进行区分。该层主要有以下两种协议：<ul>
+<li>传输控制协议 (Transmission Control Protocol，TCP)：提供面向连接的、可靠的数据传输服务，<ul>
+<li>为了提供这种可靠的服务，TCP采用了超时重传、发送和接收端到端的确认分组等机制</li>
+<li>数据传输的基本单位是<code>报文段（segment）</code>；</li>
+</ul>
+</li>
+<li>用户数据报协议 (User Datagram Protocol，UDP)：提供无连接的、尽最大努力的数据传输服务，但不保证数据传输的可靠性，<ul>
+<li>数据传输的基本单位是<code>用户数据报</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>网络层</strong>：网络层负责为分组网络中的不同主机提供通信服务，并通过<strong>选择合适的路由</strong>将数据传递到目标主机。<ul>
+<li>把运输层产生的报文段或用户数据封装成<code>分组</code>或<code>包</code>进行传送。</li>
+<li>网络层IP提供的是一种不可靠的服务。只是尽可能快地把分组从源结点送到目的结点，但是并不提供任何可靠性保证。</li>
+<li>IP层有一个数据报要传，而且数据的长度比链路层的<code>最大传输单元MTU</code>还大,那么IP层就需要进行分片（fragmentation），把数据报分成若干片，这样每一片都小于MTU。<ul>
+<li>减小MTU会降低通讯延迟(通讯一次的数据变少)，但是每帧里的有效数据占比会变少。</li>
+</ul>
+</li>
+<li>在TCP&#x2F;IP体系中，由于网络层使用IP协议，因此分组也叫<strong>IP数据报</strong>。</li>
+</ul>
+</li>
+<li><strong>数据链路层</strong>：数据链路层通常简称为链路层。数据链路层在两个相邻节点传输数据时，<ul>
+<li>将网络层交下来的IP数据报组装成<code>帧</code>，在两个相邻节点之间的链路上传送帧。<ul>
+<li>以太网<code>数据帧</code>的物理特性是其长度必须在46～1500字节之间</li>
+</ul>
+</li>
+<li>数据链路层将待发送的数据分为多组，并采用<strong>循环冗余校验</strong>（CRC，Cyclic Redundancy Check）技术为每组数据生成冗余校验码，之后将每组数据和其校验码共同构成一帧后再发送出去。</li>
+<li>数据链路层分为上层LLC（逻辑链路控制），和下层的MAC（介质访问控制）</li>
+</ul>
+</li>
+<li><strong>物理层</strong>：保数据可以在各种物理媒介(缆线，微波)上进行传输，为数据的传输提供可靠的环境。<ul>
+<li>考虑信号传输(物理线材，线材接口，电压，频率)以及信道复用，和全双工信道实现等问题。</li>
+<li>物理层设备：网卡、光纤、CAT-5网线、RJ-45网线水晶接头、串口、并口</li>
+</ul>
+</li>
+</ul>
+<h3 id="网络报文构建并传输-实例分析"><a href="#网络报文构建并传输-实例分析" class="headerlink" title="网络报文构建并传输 实例分析"></a>网络报文构建并传输 实例分析</h3><p>一个HTTP网络请求，如何被多层协议包装，变成网络链路上的二进制，然后又被解析。</p>
+<p><img src="https://pic.shaojiemike.top/img/20230328102947.png"></p>
+<ul>
+<li>交换机解析链路层的MAC地址(局域网通过MAC地址通讯)，查看插在交换机端口上的线路的MAC地址并转发</li>
+<li>路由器由于需要根据IP来路由，所以会解析到网络层</li>
+<li>GFW(长城防火墙)不仅会查看网络层的ip是否在黑名单，还会对未加密的应用层内容判断(是不是对黑名单网址的DNS或者http请求)，对加密的内容还会对目标ip进行重放攻击来判断是不是VPN服务器。只有伪装成443端口的https请求才能逃过检测(翻墙)。但是此伪装会降低性能。</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/img/20230328103942.png"></p>
+<p>在Linux系统中，网络请求除了DNS解析、NAT和匹配路由规则之外，还会经过其他处理。例如，当一个网络请求到达时，它会被传递给网络协议栈，然后经过以下处理：</p>
+<ul>
+<li>网络请求到达物理网络适配器，触发中断并通过DMA传送到位于Linux内核内存中的rx_ring。</li>
+<li>网卡发出中断，通知CPU有个网络请求需要处理。</li>
+<li>网络请求被传递给网络协议栈，经过各个层的处理（链路层、网络层、传输层和应用层）。</li>
+<li>网络请求被传递给应用程序进行处理。</li>
+</ul>
+<h3 id="网络请求实例"><a href="#网络请求实例" class="headerlink" title="网络请求实例"></a>网络请求实例</h3><p>网络请求通常会经过多个部件，包括浏览器、DNS服务器、代理服务器、负载均衡器、Web服务器等等。下面是一些可能的步骤：</p>
+<ul>
+<li>浏览器解析URL，获取主机名和端口号。</li>
+<li>浏览器向DNS服务器发送请求，获取主机名对应的IP地址。</li>
+<li>浏览器向Web服务器发送TCP连接请求，进行三次握手。</li>
+<li>Web服务器接受TCP连接请求，进行三次握手。</li>
+<li>浏览器向Web服务器发送HTTP请求报文。</li>
+<li>Web服务器接受HTTP请求报文，处理请求并返回HTTP响应报文。</li>
+<li>浏览器接受HTTP响应报文，解析响应并显示页面。</li>
+</ul>
+<h3 id="网络套接字"><a href="#网络套接字" class="headerlink" title="网络套接字"></a>网络套接字</h3><p>Internet socket &#x2F; Network socket</p>
+<p>套接字地址是传输协议、IP地址和端口号的三元组。</p>
+<h2 id="各种各层协议关系"><a href="#各种各层协议关系" class="headerlink" title="各种各层协议关系"></a>各种各层协议关系</h2><h3 id="TCP-IP网络通讯协议关系图"><a href="#TCP-IP网络通讯协议关系图" class="headerlink" title="TCP&#x2F;IP网络通讯协议关系图"></a>TCP&#x2F;IP网络通讯协议关系图</h3><ul>
+<li>TCP&#x2F;IP 实际包括几十个 Internet 协议，但只有少数是核心协议，其中有两个通常被认为是最重要的，就是我们上面提到的 TCP 和 IP。</li>
+<li>IP 属于 OSI 网络层（第三层），在互联网网络中提供寻址、数据报路由等功能；</li>
+<li>TCP 属于 OSI 传输层（第四层），负责设备上软件进程之间的连接建立和管理以及可靠的数据传输。</li>
+<li>IP协议为每一台联网的设备分配一个地址，TCP则负责传输问题。</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/img/20230326055813.png"></p>
+<h3 id="网络通讯协议关系图"><a href="#网络通讯协议关系图" class="headerlink" title="网络通讯协议关系图"></a>网络通讯协议关系图</h3><p><img src="https://pic.shaojiemike.top/img/20230326060601.png"></p>
+<ul>
+<li>中英文对照：<ul>
+<li>每一个协议缩写用英文，全称用中文，这样非常容易理解。简洁明了，如TCP协议，协议图上标注的是TCP 传输控制协议。</li>
+</ul>
+</li>
+<li>同时遵循OSI和TCP&#x2F;IP：<ul>
+<li>左边是TCP&#x2F;IP标准，右边是OSI标准，便于使用者理解协议在两种层次标准中的承载关系。</li>
+</ul>
+</li>
+<li>内容全面：<ul>
+<li>包括八个协议簇（TCP&#x2F;IP、ISO、MICROSOFT、AppleTalk、VOIP、Novell、IBM、SUN&#x2F;HP&#x2F;UNIX）和三个大的协议分类（LAN、MAN、WAN）。</li>
+</ul>
+</li>
+<li>合理的协议分组：<ul>
+<li>每个协议簇都是按照应用类型进行了分组调整，让读者更容易理解</li>
+</ul>
+</li>
+<li>清晰的协议关系：<ul>
+<li>每个协议都可以通过流程线找到其上层协议或下层协议，非常便于了解协议之间的关系情况。</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://www.cisco.com/web/offer/emea/7193/docs/Agilent_Netzwerk.pdf">英文版矢量图</a></li>
+</ul>
+<h2 id="物理层-问题"><a href="#物理层-问题" class="headerlink" title="物理层 问题"></a>物理层 问题</h2><ul>
+<li>IEEE802.11 WLAN协议是物理层协议吗？<ul>
+<li>IEEE802.11 WLAN协议是无线局域网（WLAN）的介质访问控制协议及物理层技术规范1。因此，IEEE802.11 WLAN协议<strong>不仅是物理层协议</strong>，还是介质访问控制协议。</li>
+</ul>
+</li>
+<li>以太网(Ethernet)也是OSI模型第一二层<ul>
+<li>在物理层上，以太网采用 RJ45 接口和双铰线，光纤，电磁波等方式来传递信号。</li>
+<li>在数据链路层上，每个通信节点（主机的网络接口）都有 48 位(bit)全局唯一的 MAC 地址。通信数据流被切分并打包成帧(Frame)来发送，每帧都包含来源节点和目的节点的 MAC 地址。</li>
+<li>链路层以太网封装，后续的IEEE 802.3需要兼容老版本RFC894<img src="https://pic.shaojiemike.top/img/20230326091358.png"></li>
+<li><strong>最大传输单元MTU</strong>：以太网和802.3对数据帧的长度都有一个限制，其最大值分别是1500和1492字节。链路层的这个特性称作MTU ,最大传输单元。不同类型的网络大 多数都有一个上限。</li>
+<li>如果IP层有一个数据报要传，而且数据的长度比链路层的MTU还大,那么IP层就需要进行分片（fragmentation），把数据报分成若干片，这样每一片都小于MTU。</li>
+</ul>
+</li>
+</ul>
+<h2 id="交换机局域网"><a href="#交换机局域网" class="headerlink" title="交换机局域网"></a>交换机局域网</h2><ul>
+<li>由于交换机使用链路层地址（MAC地址）来转发数据，因此交换机只能工作在局域网中，不能跨越路由器转发数据。</li>
+<li>自然会想到为什么需要链路层地址，只有网络层地址来标识设备不行吗？</li>
+<li>目的mac地址如何获得？google的mac地址？</li>
+</ul>
+<h3 id="MAC地址"><a href="#MAC地址" class="headerlink" title="MAC地址"></a>MAC地址</h3><ul>
+<li>每个网络适配器(物理网卡，网络接口)有链路层地址(手机也有)。与IP地址不同，这个地址是IEEE分配的全球唯一的(除非软件层次修改)。</li>
+<li>交换机却不需要MAC地址，因为交换机不需要发送数据，只需要转发数据，转发数据的时候，只需要知道目的地址就可以了。</li>
+<li>信包的目的MAC地址可以填写广播MAC地址，来让局域网设备都接受到。</li>
+</ul>
+<h3 id="ARP表"><a href="#ARP表" class="headerlink" title="ARP表"></a>ARP表</h3><ul>
+<li>向目的IP(局域网或者外网)发送信包，其对应的目的MAC地址如何获得？</li>
+<li>每台机器在自己的内存里维护 ARP 表，存储了 IP 地址和 MAC 地址的对应关系(寿命值TTL)。<ul>
+<li>当需要发送数据时，先查看 ARP 表，如果有对应的 MAC 地址，就直接发送数据，</li>
+<li>否则就先发送 ARP 请求，将它广播到局域网，然后等待目的机器的 ARP 响应，最后再发送数据。</li>
+</ul>
+</li>
+</ul>
+<h2 id="数据链路层-协议"><a href="#数据链路层-协议" class="headerlink" title="数据链路层 协议"></a>数据链路层 协议</h2><h3 id="PPP-协议"><a href="#PPP-协议" class="headerlink" title="PPP 协议"></a>PPP 协议</h3><p>点到点协议（PPP，Point to Point Protocol）是目前使用最为广泛的数据链路层协议，主要用于建立点对点的连接来传输数据单元。 </p>
+<p>注意与BitTorrent协议使用的用户群对用户群（peer-to-peer, 或简写为 P2P) 传输协议不同，后者基于HTTP协议，属于TCP&#x2F;IP应用层。</p>
+<h3 id="地址解析协议-ARP-Address-Resolution-Protocol"><a href="#地址解析协议-ARP-Address-Resolution-Protocol" class="headerlink" title="地址解析协议(ARP, Address Resolution Protocol)"></a>地址解析协议(ARP, Address Resolution Protocol)</h3><p>ARP 用于在网络层地址（IPv4 地址）和链路层地址（以太网中就是 MAC 地址）间进行翻译。它工作在二层和三层之间，如果一定要安排到七层之中的话，ARP 只能算二层协议。</p>
+<ul>
+<li>以太网中两个节点通信需要知道对方的 MAC 地址。为使用 IP 协议，每个节点会缓存一个 ARP 表，记录已知的 MAC 地址和 IP 地址的对应关系。</li>
+<li>与内网IP通信时，如果缓存表中无法找到对应的 MAC 地址，节点就会发出一条 ARP 请求，广播到网络中所有的节点。该 IP 对应的节点会进行回复，原节点根据回复提供的 MAC 地址继续通信，同时将信息记入缓存表。</li>
+<li>除了这样的请求应答方式以外，每个节点也可以主动发送广播，声明自己的 IP 和 MAC 地址，以更新其它节点的缓存表。</li>
+</ul>
+<p>ARP 不对各个节点进行身份验证，因此可能产生 ARP 欺骗问题，即某节点假装自己是其它节点，进行信息窃取或欺骗；或实施拒绝服务攻击。对应的解决方案可以是静态配置 MAC&#x2F;IP 对应关系，或者缩小网络的范围（如划分成子网）等。</p>
+<p>IPv6 中，邻居发现协议（NDP, Neighbor Discovery Protocol)取代了 ARP。NDP 中区分了路由器和普通节点。它不仅能在 IP 地址和链路层地址间进行翻译，还可以为节点配置网络参数如IP地址，网络ID，DNS 等(SLAAC, Stateless address autoconfiguration)。</p>
+<h2 id="其余层协议"><a href="#其余层协议" class="headerlink" title="其余层协议"></a>其余层协议</h2><h3 id="ICMP协议"><a href="#ICMP协议" class="headerlink" title="ICMP协议"></a>ICMP协议</h3><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/45110873">https://zhuanlan.zhihu.com/p/45110873</a></p>
+<h3 id="SOCKS协议"><a href="#SOCKS协议" class="headerlink" title="SOCKS协议"></a>SOCKS协议</h3><p>SOCKS是一种网络传输协议，主要用于客户端与外网服务器之间通讯的中间传递。SOCKS是”<code>SOCKet Secure</code>“的缩写。</p>
+<p>当防火墙后的客户端要访问外部的服务器时，就跟SOCKS代理服务器连接。这个代理服务器控制客户端访问外网的资格，允许的话，就将客户端的请求发往外部的服务器。</p>
+<p>最新协议是SOCKS5，与前一版本相比，增加支持<strong>UDP</strong>、验证，以及IPv6。</p>
+<p>根据OSI模型，SOCKS是<strong>会话层</strong>的协议，位于<strong>表示层与传输层</strong>之间。</p>
+<p>SOCKS协议不提供加密</p>
+<h2 id="各种端口"><a href="#各种端口" class="headerlink" title="各种端口"></a>各种端口</h2><ol>
+<li>HTTP协议<ol>
+<li>代理服务器常用端口号：80&#x2F;8080&#x2F;3128&#x2F;8081&#x2F;9080</li>
+</ol>
+</li>
+<li>HTTPS（securely transferring web pages）服务器，<ol>
+<li>默认的端口号为443&#x2F;tcp 443&#x2F;udp；</li>
+</ol>
+</li>
+<li>SOCKS代理协议<ol>
+<li>服务器常用端口号：1080</li>
+</ol>
+</li>
+<li>FTP（文件传输）协议代理服务器常用端口号：21</li>
+<li>Telnet（远程登录）协议代理服务器常用端口：23</li>
+<li>TFTP（Trivial File Transfer Protocol），默认的端口号为69&#x2F;udp；</li>
+<li>SSH（安全登录）、SCP（文件传输）、端口重定向，默认的端口号为22&#x2F;tcp；</li>
+</ol>
+<h2 id="各种概念"><a href="#各种概念" class="headerlink" title="各种概念"></a>各种概念</h2><h3 id="局域网（Local-Area-Network）"><a href="#局域网（Local-Area-Network）" class="headerlink" title="局域网（Local Area Network）"></a>局域网（Local Area Network）</h3><p>局域网（LAN）的结构主要有三种类型：</p>
+<ul>
+<li>以太网（Ethernet）、<ul>
+<li><strong>目前最广泛的局域网技术</strong>，家用局域网使用。</li>
+<li>一种基于总线的网络，采用CSMA&#x2F;CD访问控制协议。</li>
+<li>以太网的运行速率有10Mbps,100Mbps,1Gbps,10Gbps</li>
+</ul>
+</li>
+<li>令牌环（Token Ring）、<ul>
+<li>IBM公司在20世纪70年代提出的一种局域网技术，它采用令牌传递的方式来控制网络中的数据传输。</li>
+</ul>
+</li>
+<li>令牌总线(Token Bus)<ul>
+<li>一种基于总线的局域网技术，它采用令牌传递的方式来控制网络中的数据传输。</li>
+</ul>
+</li>
+<li>以及作为这三种网的骨干网的<em>光纤分布数据接口（FDDI）</em>。<ul>
+<li>光纤的局域网技术，它采用双环结构，支持高速数据传输。</li>
+</ul>
+</li>
+</ul>
+<p>它们所遵循的都是IEEE（美国电子电气工程师协会）制定的以802开头的标准,目前共有11个与<strong>局域网有关</strong>的标准,它们分别是：</p>
+<ul>
+<li>IEEE 802.1── 通用网络概念及网桥等</li>
+<li>IEEE 802.2── 逻辑链路控制等（LLC，约束了后三者）</li>
+<li>IEEE 802.3──CSMA&#x2F;CD访问方法及物理层规定(以太网开始基础)</li>
+<li>IEEE 802.4──ARCnet总线结构及访问方法,物理层规定(针对令牌总线网络)</li>
+<li>IEEE 802.5──Token Ring访问方法及物理层规定等（针对令牌环网络）</li>
+<li>IEEE 802.6── 城域网的访问方法及物理层规定</li>
+<li>IEEE 802.7── 宽带局域网</li>
+<li>IEEE 802.8── 光纤局域网(FDDI)</li>
+<li>IEEE 802.9── ISDN局域网</li>
+<li>IEEE 802.10── 网络的安全</li>
+<li>IEEE 802.11── 无线局域网WLAN</li>
+</ul>
+<h3 id="广域网-Wide-Area-Network"><a href="#广域网-Wide-Area-Network" class="headerlink" title="广域网(Wide Area Network)"></a>广域网(Wide Area Network)</h3><p>可以看成是很多个局域网通过路由器等相互连接起来。</p>
+<h3 id="互联网"><a href="#互联网" class="headerlink" title="互联网"></a>互联网</h3><p>internet这个词第一个字母是否大写决定了它具有不同的含义。</p>
+<ul>
+<li>internet意思是用一个共同的协议族把多个网络连接在一起。</li>
+<li>而Internet指的是世界范围内通过TCP&#x2F;IP互相通信的所有主机集合（超过100万台）。</li>
+<li>Internet是一个internet，但internet不等于Internet。</li>
+<li>由两个网络组成的互联网internet——一个以太网和一个令牌环网</li>
+</ul>
+<h3 id="Cookie"><a href="#Cookie" class="headerlink" title="Cookie"></a>Cookie</h3><h3 id="SSL检测"><a href="#SSL检测" class="headerlink" title="SSL检测"></a>SSL检测</h3><h3 id="服务器重定向"><a href="#服务器重定向" class="headerlink" title="服务器重定向"></a>服务器重定向</h3><h2 id="apt-get-install-proxy"><a href="#apt-get-install-proxy" class="headerlink" title="apt-get install proxy"></a>apt-get install proxy</h2><p>check the file <code>/etc/apt/apt.conf</code></p>
+<p>The contents were,</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Acquire::http::proxy &quot;http://&lt;proxy&gt;:&lt;port&gt;/&quot;;</span><br><span class="line">Acquire::ftp::proxy &quot;ftp://&lt;proxy&gt;:&lt;port&gt;/&quot;;</span><br><span class="line">Acquire::https::proxy &quot;https://&lt;proxy&gt;:&lt;port&gt;/&quot;;</span><br><span class="line"></span><br><span class="line">Acquire::http::proxy &quot;http://127.0.0.1:7233/&quot;;</span><br><span class="line">Acquire::ftp::proxy &quot;ftp://127.0.0.1:7233/&quot;;</span><br><span class="line">Acquire::https::proxy &quot;https://127.0.0.1:7233/&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>This was the reason why you could reach proxy but couldn’t get past it, since there is no username password information. So just put that info into it..</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Acquire::http::proxy &quot;http://&lt;username&gt;:&lt;password&gt;@&lt;proxy&gt;:&lt;port&gt;/&quot;;</span><br><span class="line">Acquire::ftp::proxy &quot;ftp://&lt;username&gt;:&lt;password&gt;@&lt;proxy&gt;:&lt;port&gt;/&quot;;</span><br><span class="line">Acquire::https::proxy &quot;https://&lt;username&gt;:&lt;password&gt;@&lt;proxy&gt;:&lt;port&gt;/&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>save the file and you are done…</p>
+<p>BROTIP: More better add these lines in another file, <code>/etc/apt/apt.conf.d/80proxy</code>. This will ensure that after a version upgrade changes won’t be lost.</p>
+<p>如果出现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Err:3 https://swupdate.openvpn.net/community/openvpn3/repos focal Release</span><br><span class="line">  Could not handshake: The TLS connection was non-properly terminated. [IP: 127.0.0.1 7233]</span><br></pre></td></tr></table></figure>
+<p>直接将<code>Acquire::https::proxy &quot;https://&lt;proxy&gt;:&lt;port&gt;/&quot;;</code>改成<code>Acquire::https::proxy &quot;http://&lt;proxy&gt;:&lt;port&gt;/&quot;;</code></p>
+<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2><h3 id="局域网共享科学上网"><a href="#局域网共享科学上网" class="headerlink" title="局域网共享科学上网"></a>局域网共享科学上网</h3><ul>
+<li>代理共享模式：clash允许局域网连接，其他设备的代理软件设置其ip端口即可</li>
+<li>网关共享模式：将clash机器设置为局域网网关</li>
+<li>路由共享模式：在clash机器上又开辟一个局域网B，B下的网络都会被代理。</li>
+</ul>
+<p>想法：手机同时只能开启一个VPN，在开启wg时，通过将网关设置为有clash的网关即可实现上网。（一个网络有两个网关）。不行，wg相当于流量从wg server出，所以没有网关的说法</p>
+<h3 id="代理模式"><a href="#代理模式" class="headerlink" title="代理模式"></a>代理模式</h3><ul>
+<li>系统代理：将数据交给本地http&#x2F;socks服务</li>
+<li>TUN&#x2F;TAP：使用虚拟网卡接管全局流量，从网络层接管所有数据包<ul>
+<li>无法封装网络层数据包，无法代理ping, fake-ip还会返回假ip</li>
+<li>TUN与TAP是操作系统内核中的虚拟网络设备：<ul>
+<li>TAP等同于一个以太网设备，它操作第二层数据包如以太网数据帧。</li>
+<li>TUN模拟了网络层设备，操作第三层数据包比如IP数据包。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>真VPN：封装网络层数据包<ul>
+<li>可以代理网络层，可以代理ping</li>
+</ul>
+</li>
+</ul>
+<h3 id="DNS分流"><a href="#DNS分流" class="headerlink" title="DNS分流"></a>DNS分流</h3><h3 id="UDP穿透"><a href="#UDP穿透" class="headerlink" title="UDP穿透"></a>UDP穿透</h3><h2 id="wget"><a href="#wget" class="headerlink" title="wget"></a>wget</h2><p>GNU Wget（常简称为Wget）是一个在网络上进行下载的简单而强大的自由软件，其本身也是GNU计划的一部分。它的名字是“World Wide Web”和“Get”的结合，同时也隐含了软件的主要功能。目前它支持通过 <code>HTTP、HTTPS，</code>以及 <code>FTP</code>这三个最常见的TCP&#x2F;IP协议协议下载。</p>
+<h3 id="缺陷与改进wget2"><a href="#缺陷与改进wget2" class="headerlink" title="缺陷与改进wget2"></a>缺陷与改进wget2</h3><p>wget相对于curl垃圾太多。</p>
+<p>支持的协议较少，特别是cURL相比。流行的流媒体协议mms和rtsp没有得到支持，还有广泛使用各种的P2P协议也没有涉及。</p>
+<p>支持协议过老。目前HTTP还是使用1.0版本，而HTML中通过JavaScript和CSS引用的文件不能下载。</p>
+<p>灵活性不强，扩展性不高。</p>
+<p>GNU Wget2通过多线程、正确支持HTTP2连接、处理HTTP压缩特性、处理并行连接、考虑到If-Modified-Since HTTP标头和其他特性，提供了更快的性能。Wget2的下载速度比Wget1.x快得多。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install wget2</span><br></pre></td></tr></table></figure>
+
+<h2 id="curl"><a href="#curl" class="headerlink" title="curl"></a>curl</h2><p><a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2019/09/curl-reference.html">https://www.ruanyifeng.com/blog/2019/09/curl-reference.html</a></p>
+<h3 id="支持的网络协议"><a href="#支持的网络协议" class="headerlink" title="支持的网络协议"></a>支持的网络协议</h3><p><img src="https://pic.shaojiemike.top/img/20220302152918.png"></p>
+<h3 id="常见功能"><a href="#常见功能" class="headerlink" title="常见功能"></a>常见功能</h3><p>通过httpAPI&#x2F;cookie登陆网站</p>
+<p>下载，上传。很明显是通过http实现的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1 # -x 指定代理主机和端口</span><br><span class="line">2 curl -v -x https://10.20.80.158:22 http://192.168.26.219/a.php</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/gufenchen/article/details/103983440?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164620543916780357252807%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=164620543916780357252807&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-1-103983440.pc_search_result_cache&utm_term=curl&spm=1018.2226.3001.4187">https://blog.csdn.net/gufenchen/article/details/103983440?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522164620543916780357252807%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&amp;request_id=164620543916780357252807&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-1-103983440.pc_search_result_cache&amp;utm_term=curl&amp;spm=1018.2226.3001.4187</a></p>
+<h2 id="ping"><a href="#ping" class="headerlink" title="ping"></a>ping</h2><p>ping用来检查网络是否通畅或者网络连接速度的命令 ，是TCP&#x2F;IP协议的一部分。</p>
+<p><img src="https://pic.shaojiemike.top/img/20220302155451.png"></p>
+<p>很多人可能想当然的认为Ping命令使用的ICMP协议应该是基于传输层的TCP或UDP协议的吧。</p>
+<p>正如上图所示，ICMP协议既不是基于TCP，也不是基于UDP，而是直接基于网络层的IP协议，在整个网络协议栈中属于相当底层的协议了。这也从侧面证明了它的重要性，因为根据ICMP的RFC手册规定：ICMP协议是任何支持IP协议的系统必须实现的，没有余地。而IP协议是整个互联网的基石，ICMP协议虽简单，但重要性不言而喻。</p>
+<p>ping命令本身处于应用层，相当于一个应用程序，它直接使用网络层的<strong>ICMP协议</strong>。**Ping(Packet Internet Groper)**，因特网包探索器。</p>
+<p>原理：利用网络上机器IP地址的唯一性，给目标IP地址发送一个ICMP数据包，再要求对方返回一个同样大小的ICMP数据包来确定两台网络机器是否连接相通，时延是多少。</p>
+<p>ping指的是端对端连通，通常用来作为可用性的检查，但是某些病毒木马会强行大量远程执行ping命令抢占你的网络资源，导致系统变慢，网速变慢。严禁ping入侵作为大多数防火墙的一个基本功能提供给用户进行选择。</p>
+<h3 id="ping选项详解"><a href="#ping选项详解" class="headerlink" title="ping选项详解"></a>ping选项详解</h3><p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/yXMKZv-VdMyyeQLDiQfSAQ">https://mp.weixin.qq.com/s/yXMKZv-VdMyyeQLDiQfSAQ</a></p>
+<h3 id="端口"><a href="#端口" class="headerlink" title="端口"></a>端口</h3><p>Ping程序使用的是ICMP协议，ICMP不像http，FTP应用层有传输层的端口号，（它们使用TCP的端口号80和20&#x2F;21）。</p>
+<p>ICMP使用IP协议的基本支持，就像它是一个更高级别的协议，但是，ICMP实际上是IP的一个组成部分，必须由每个IP模块实现。</p>
+<h3 id="不能代理ping"><a href="#不能代理ping" class="headerlink" title="不能代理ping"></a>不能代理ping</h3><p>In general you can’t. ping needs a direct network connection on the IP level to do its work. A proxy works on a higher layer of the TCP&#x2F;IP network model, where there is no direct access to the IP protocol.</p>
+<p>You would need to somehow circumvent the proxy (change firewall settings, use a VPN, …). Whether this is possible (and allowed) depends on your network configuration, but it’s probably not possible.</p>
+<p>As a workaround, there are many web-based ping services available (search for “web-based ping”). These will work.</p>
+<h2 id="telnet"><a href="#telnet" class="headerlink" title="telnet"></a>telnet</h2><p>telnet是用来探测指定ip是否开放指定端口。</p>
+<p>telnet协议是TCP&#x2F;IP协议族的其中之一，是Internet远端登录服务的标准协议和主要方式，常用于网页服务器的远端控制，可供使用者在本地主机执行远端主机上的工作。使用者首先在电脑执行telnet程序，连线至目的地服务器，然后输入帐号和密码以验证身份。使用者可以在本地主机输入命令，然后让已连接的远端主机执行，就像直接在对方的控制台上输入一样。传统telnet会话所传输的资料并未加密，帐号和密码等敏感资料容易会被窃听，因此很多服务器都会封锁telnet服务，改用更安全的ssh。</p>
+<p>一般的telnet指令为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet www.baidu.com 80</span><br></pre></td></tr></table></figure>
+
+<p>简单的说，ping命令是用来检测网络是否畅通的，而telnet命令则用来远程登陆。 但telnet不通并不一定代表网络不通。ping是基于ICMP协议的命令，就是你发出去一个数据包，对方收到后返给你一个！就好比声纳。这个协议是可以禁止的！禁止后，如果你ping对方，对方收到后就不回馈给你，这样你就显示无法ping通，但实际你们还是连着的！telnet是登陆服务器的！服务没禁止就能登陆。</p>
+<h2 id="ssh"><a href="#ssh" class="headerlink" title="ssh"></a>ssh</h2><p>Secure Shell（安全外壳协议，简称SSH）是一种加密的网络传输协议，可在不安全的网络中为网络服务提供安全的传输环境[1]。SSH通过在网络中创建安全隧道来实现SSH客户端与服务器之间的连接。</p>
+<p>SSH以非对称加密实现身份验证</p>
+<h3 id="端口-1"><a href="#端口-1" class="headerlink" title="端口"></a>端口</h3><p>服务器：默认情况下，ssh服务器，会在 TCP 端口 22 进行监听；</p>
+<h3 id="基本架构"><a href="#基本架构" class="headerlink" title="基本架构"></a>基本架构</h3><p>是建立在应用层<br>SSH协议框架中最主要的部分是三个协议：</p>
+<ol>
+<li>传输层协议（The Transport Layer Protocol）：传输层协议提供服务器认证，数据机密性，信息完整性等的支持。</li>
+<li>用户认证协议（The User Authentication Protocol）：用户认证协议为服务器提供客户端的身份鉴别。</li>
+<li>连接协议（The Connection Protocol）：连接协议将加密的信息隧道复用成若干个逻辑通道，提供给更高层的应用协议使用。<br>同时还有为许多高层的网络安全应用协议提供扩展的支持。</li>
+</ol>
+<h3 id="ssh-子程序"><a href="#ssh-子程序" class="headerlink" title="ssh 子程序"></a>ssh 子程序</h3><p>ssh分为两部分：服务器端和客户端</p>
+<p>服务器端是一个守护进程，用于处理客户端的连接请求，一般为 <code>sshd</code></p>
+<p>客户端包括ssh程序以及 <code>scp，slogin，sftp</code>等其他应用程序</p>
+<p>他们之间最大的不同是ssh对传输加密，安全性高，telnet使用明文传输，较为不安全。</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p><a target="_blank" rel="noopener" href="https://toutyrater.github.io/app/reverse.html">https://toutyrater.github.io/app/reverse.html</a></p>
+<p><a target="_blank" rel="noopener" href="http://blog.neargle.com/SecNewsBak/drops/%E7%BF%BB%E5%A2%99%E8%B7%AF%E7%94%B1%E5%99%A8%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0%20.html">http://blog.neargle.com/SecNewsBak/drops/%E7%BF%BB%E5%A2%99%E8%B7%AF%E7%94%B1%E5%99%A8%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0%20.html</a></p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><p>最近被服务器没网搞得很烦，所以准备研究一下</p>
+<ol>
+<li><p>网络服务模型</p>
+<ol>
+<li>用户或者客户端通过发送各种请求到服务器对应的IP或者域名来获取服务功能，包括html的网站，下载服务，服务器的访问</li>
+</ol>
+</li>
+<li><p>请求有哪些？</p>
+<ol>
+<li>curl，ping wget ssh sockes5 ，git clone， apt-get的区别和走代理的关系</li>
+</ol>
+</li>
+<li><p>常见协议有哪些？有什么作用</p>
+</li>
+<li><p>网站服务如何实现的</p>
+</li>
+<li><p>下载服务怎么实现的，比如git</p>
+</li>
+<li><p>如何在一台机器上连上网络</p>
+</li>
+<li><p>如何知道当前网络供应商是谁？可以知道账号密码吗？</p>
+</li>
+<li><p>本地转发代理与局域网内机器转发代理怎么实现？树莓派转发怎么样？袁福焱，docker代理</p>
+<ol>
+<li>树莓派买哪一个</li>
+</ol>
+</li>
+<li><p>寝室要不要路由器，能用来转发吗？</p>
+</li>
+</ol>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zyhmz/article/details/81586632">https://blog.csdn.net/zyhmz/article/details/81586632</a></p>
+<p>网络协议图来自：<a target="_blank" rel="noopener" href="http://www.52im.net/thread-180-1-1.html">http://www.52im.net/thread-180-1-1.html</a></p>
+<p>————————————————<br>版权声明：本文为CSDN博主「hei bai ying」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_37809146/article/details/104017921">https://blog.csdn.net/m0_37809146/article/details/104017921</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.52im.net/topic-tcpipvol1.html">http://www.52im.net/topic-tcpipvol1.html</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-02T16:00:00.000Z" title="8/2/2023, 4:00:00 PM">2023-08-02</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.302Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Algorithms/">Algorithms</a></span><span class="level-item">3 minutes read (About 435 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/02/Work/software/benchmark/gups/">Benchmark : GUPS</a></p><div class="content"><h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>GUPS (Giga十亿 UPdates per Second) is a measurement that profiles the memory<br>architecture of a system and is a measure of performance similar to MFLOPS.</p>
+<p>The HPCS HPCchallenge <strong>RandomAccess</strong> benchmark is intended to exercise the<br>GUPS capability of a system, much like the <strong>LINPACK</strong> benchmark is intended to<br>exercise the MFLOPS capability of a computer.  In each case, we would<br>expect these benchmarks to achieve close to the “peak” capability of the<br>memory system. The extent of the similarities between RandomAccess and<br>LINPACK are limited to both benchmarks attempting to calculate a peak system<br>capability.</p>
+<h3 id="definition-of-GUPS"><a href="#definition-of-GUPS" class="headerlink" title="definition of GUPS"></a>definition of GUPS</h3><p>GUPS is calculated by identifying <strong>the number of memory locations that can be randomly updated in one second</strong>, divided by 1 billion (1e9).</p>
+<ul>
+<li>The term “<strong>randomly</strong>“ means that there is little relationship between one address to be updated and the next, except that they occur in the space of one half the total system memory.  （只用一半内存？）</li>
+<li>An <strong>update</strong> is a read-modify-write operation on a table of 64-bit words.<br>An address is generated, the value at that address read from memory, modified<br>by an integer operation (add, and, or, xor) with a literal value, and that<br>new value is written back to memory.</li>
+</ul>
+<h3 id="Extensibility"><a href="#Extensibility" class="headerlink" title="Extensibility"></a>Extensibility</h3><ul>
+<li>We are interested in knowing the GUPS performance of both entire systems and system subcomponents — e.g., the GUPS rating of a distributed memory multiprocessor the GUPS rating of an SMP node, and the GUPS rating of a single processor.  </li>
+<li>While there is typically a scaling of FLOPS with processor count, a similar phenomenon may <strong>not</strong> always occur for GUPS.</li>
+</ul>
+<h2 id="Principle"><a href="#Principle" class="headerlink" title="Principle"></a>Principle</h2><p>Select the memory size to be the power of two such that 2^n &lt;&#x3D; 1&#x2F;2 of the total memory.  Each CPU operates on its own address stream, and the single table may be distributed among nodes. The distribution of memory to nodes<br>is left to the implementer.  A uniform data distribution may help balance<br>the workload, while non-uniform data distributions may simplify the<br>calculations that identify processor location by eliminating the requirement<br>for integer divides. A small (less than 1%) percentage of missed updates<br>are permitted.</p>
+<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><h3 id="Download"><a href="#Download" class="headerlink" title="Download"></a>Download</h3><p> <a target="_blank" rel="noopener" href="https://hpcchallenge.org/projectsfiles/hpcc/download/hpcc-1.5.0.tar.gz">official web</a> or from GitHub</p>
+<h3 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h3><h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-02T16:00:00.000Z" title="8/2/2023, 4:00:00 PM">2023-08-02</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.298Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">a minute read (About 154 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/02/Work/software/visualization/echart/">Echart</a></p><div class="content"><h2 id="echart"><a href="#echart" class="headerlink" title="echart"></a>echart</h2><h3 id="快速上手"><a href="#快速上手" class="headerlink" title="快速上手"></a>快速上手</h3><ul>
+<li>在github仓库dist目录下拷贝echart.js 和 echart.min.js到index.html目录下。</li>
+<li></li>
+</ul>
+<h2 id="Vue-ECharts"><a href="#Vue-ECharts" class="headerlink" title="Vue-ECharts"></a>Vue-ECharts</h2><p>参考<a target="_blank" rel="noopener" href="https://github.com/ecomfe/vue-echarts/blob/main/README.zh-Hans.md">中文文档</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install npm</span><br><span class="line">npm install echarts vue-echarts</span><br></pre></td></tr></table></figure>
+
+<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><h3 id="简单柱状图"><a href="#简单柱状图" class="headerlink" title="简单柱状图"></a>简单柱状图</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">option = &#123;</span><br><span class="line">  <span class="attr">title</span>: &#123;</span><br><span class="line">    <span class="attr">text</span>: <span class="string">&#x27;Percentage of page walk time overhead caused by data TLB misses&#x27;</span>,</span><br><span class="line">    <span class="attr">subtext</span>: <span class="string">&#x27;GUPS RandomAccess benchmark&#x27;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">tooltip</span>: &#123;</span><br><span class="line">    <span class="attr">trigger</span>: <span class="string">&#x27;axis&#x27;</span>,</span><br><span class="line">    <span class="attr">axisPointer</span>: &#123;</span><br><span class="line">      <span class="attr">type</span>: <span class="string">&#x27;shadow&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">xAxis</span>: &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;input-data \nsize&#x27;</span>,</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&#x27;category&#x27;</span>,</span><br><span class="line">    <span class="attr">data</span>: [<span class="string">&#x27;2^29&#x27;</span>, <span class="string">&#x27;2^30&#x27;</span>, <span class="string">&#x27;2^31&#x27;</span>, <span class="string">&#x27;2^32&#x27;</span>],</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">yAxis</span>: &#123;</span><br><span class="line">    <span class="comment">// name: &#x27;Percentage&#x27;,</span></span><br><span class="line">    <span class="attr">type</span>: <span class="string">&#x27;value&#x27;</span>,</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;align&#x27;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">series</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&quot;Percentage&quot;</span>,</span><br><span class="line">      <span class="attr">data</span>: [<span class="number">13.20</span>, <span class="number">19.50</span>, <span class="number">45.22</span>,<span class="number">66.81</span>],</span><br><span class="line">      <span class="attr">type</span>: <span class="string">&#x27;bar&#x27;</span>,</span><br><span class="line">      <span class="attr">label</span>: &#123;</span><br><span class="line">        <span class="attr">show</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">position</span>: <span class="string">&#x27;top&#x27;</span></span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
+无
+
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-31T16:00:00.000Z" title="7/31/2023, 4:00:00 PM">2023-07-31</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.338Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">3 minutes read (About 472 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/31/Work/HPC/tricks/double2int8/">Double 2 int8</a></p><div class="content"><h2 id="将范围double映射到Int8"><a href="#将范围double映射到Int8" class="headerlink" title="将范围double映射到Int8"></a>将范围double映射到Int8</h2><p><img src="https://pic.shaojiemike.top/img/20220818200834.png"></p>
+<p>解释PPT：除开int8的映射，还考虑了误差的计算，和重新计算M+空间的double并排序。<br><img src="https://pic.shaojiemike.top/img/435ef58b8acbf7781f6a990a7869a96.jpg"></p>
+<p>注释：</p>
+<ol>
+<li>采用的是欧式距离（两点直线距离），不是切比雪夫距离（<code>max(delta x, delta y)</code>）</li>
+<li><code>C_2^n</code> ，由于目标函数是所有边的距离和，所以要乘以边的数量。<code>C_2^n</code> 是从n个点中取两个点的组合数，也就是边的数量。</li>
+<li><code>C_k^n</code> , k是支撑点个数，n 是总个数。</li>
+<li>修正M个，因为题目要求求TopM，由于第M个可能是 <code>+delta</code>来的，M+1个可能是<code> -delta</code>导致的，所以要修正M个后面<code>2*delta</code>的范围。</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/img/20220818201409.png"></p>
+<p>上面不知道具体怎么实现的（需要看代码）。下面同时要注意溢出的处理。int8溢出加法，可以转化为int16, 再相加。</p>
+<p><img src="https://pic.shaojiemike.top/img/aea05273f2d914050c219aca24e11f6.jpg"></p>
+<p><code>_mm256_cvtepi8_epi16</code></p>
+<h2 id="AVX的操作Int寄存器也是分有无符号"><a href="#AVX的操作Int寄存器也是分有无符号" class="headerlink" title="AVX的操作Int寄存器也是分有无符号"></a>AVX的操作Int寄存器也是分有无符号</h2><p>_epi8 signed char, or _epu8 unsigned char</p>
+<p><img src="https://pic.shaojiemike.top/img/20220818204311.png"></p>
+<h2 id="去年决赛冠军-上交队的思路"><a href="#去年决赛冠军-上交队的思路" class="headerlink" title="去年决赛冠军-上交队的思路"></a>去年决赛冠军-上交队的思路</h2><p><img src="https://pic.shaojiemike.top/img/20220906222455.png"><br>这是我搜集这么多PPT里的，少有的思路</p>
+<h2 id="👏我要😘开吹了👏"><a href="#👏我要😘开吹了👏" class="headerlink" title="👏我要😘开吹了👏"></a>👏我要😘开吹了👏</h2><p>本来IPCC2022 拿了第二名，我还心有不甘。直到我的风神大人教育了我。</p>
+<p>拿到风神大人的PPT的时候，我醍醐灌顶。</p>
+<p><img src="https://pic.shaojiemike.top/img/20220818201051.png"></p>
+<p>这么体贴人，不愧是我温迪大人.</p>
+<p><img src="https://pic.shaojiemike.top/img/20220818201224.png"></p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
+无
+
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-28T16:00:00.000Z" title="7/28/2023, 4:00:00 PM">2023-07-28</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.318Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">10 minutes read (About 1511 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/28/Work/Programming/2.1-Assembly/disassembly/">Disassembly file: objdump</a></p><div class="content"><h2 id="objdump-file"><a href="#objdump-file" class="headerlink" title="objdump file"></a>objdump file</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Disassembly of section .plt:</span><br><span class="line"></span><br><span class="line">0000000000402020 &lt;.plt&gt;:</span><br><span class="line">  402020: ff 35 e2 bf 02 00     pushq  0x2bfe2(%rip)        # 42e008 &lt;_GLOBAL_OFFSET_TABLE_+0x8&gt;</span><br><span class="line">  402026: ff 25 e4 bf 02 00     jmpq   *0x2bfe4(%rip)        # 42e010 &lt;_GLOBAL_OFFSET_TABLE_+0x10&gt;</span><br><span class="line">  40202c: 0f 1f 40 00           nopl   0x0(%rax)</span><br><span class="line"></span><br><span class="line">0000000000402030 &lt;_Znam@plt&gt;:</span><br><span class="line">  402030: ff 25 e2 bf 02 00     jmpq   *0x2bfe2(%rip)        # 42e018 &lt;_Znam@GLIBCXX_3.4&gt;</span><br><span class="line">  402036: 68 00 00 00 00        pushq  $0x0</span><br><span class="line">  40203b: e9 e0 ff ff ff        jmpq   402020 &lt;.plt&gt;</span><br><span class="line"></span><br><span class="line">0000000000402040 &lt;_ZNSo3putEc@plt&gt;:</span><br><span class="line">  402040: ff 25 da bf 02 00     jmpq   *0x2bfda(%rip)        # 42e020 &lt;_ZNSo3putEc@GLIBCXX_3.4&gt;</span><br><span class="line">  402046: 68 01 00 00 00        pushq  $0x1</span><br><span class="line">  40204b: e9 d0 ff ff ff        jmpq   402020 &lt;.plt&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>.plt</code>节主要实现了使用过程链接表(Procedure Linkage Table)实现<a target="_blank" rel="noopener" href="http://home.ustc.edu.cn/~shaojiemike/posts/cprogramcompileandrunprocess/#42-%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5">延迟绑定</a>的功能。</p>
+<h2 id="openmp相关的执行"><a href="#openmp相关的执行" class="headerlink" title="openmp相关的执行"></a>openmp相关的执行</h2><h3 id="omp-outlined函数"><a href="#omp-outlined函数" class="headerlink" title="omp_outlined函数"></a>omp_outlined函数</h3><p>问题：objdump 程序 有许多 类似 &lt;.omp_outlined..16&gt;: 的函数，但是main函数里并没有调用。实际openmp是怎么执行这些代码的呢？</p>
+<p>在使用了OpenMP指令的C&#x2F;C++程序编译后,编译器会自动生成一些名为<code>.omp_outlined.</code>的函数。这些函数是OpenMP所需要的运行时支持函数,不是直接在main函数中调用的,其执行方式主要有以下几种:</p>
+<ol>
+<li>一些关键的运行时函数,如线程创建、同步等,是在程序启动时由OpenMP运行时库初始化和直接调用的。</li>
+<li>对于并行region,编译器会在主线程发起并行时调用对应的<code>.omp_outlined.</code>函数创建线程并发布工作。</li>
+<li>一些工作分配,同步等调用也是隐式通过运行时库的支持函数实现的。</li>
+<li>对于并行循环,编译器会将循环体移动到<code>.omp_outlined.</code>函数,在循环分配工作时调用。</li>
+<li>减少指令,作用域变化等也会引发这些函数的调用。</li>
+</ol>
+<p>所以<code>.omp_outlined.</code>函数的执行是隐式通过运行时库触发和调度的,不需要用户代码直接调用。它们是OpenMP实现所必须的,由编译器和运行时库协调完成。用户只需要编写OpenMP指令,不必关心具体的调用细节。</p>
+<p>总体来说,这是一种让并行执行透明化的实现机制,减少了用户的工作量。</p>
+<h3 id="OpenMP的汇编代码"><a href="#OpenMP的汇编代码" class="headerlink" title="OpenMP的汇编代码"></a>OpenMP的汇编代码</h3><p>不同平台不同，有GOMP_parallel_start开头的。也有如下x86平台的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">405854:	48 c7 84 24 a0 00 00 	movq   $0x4293b9,0xa0(%rsp)</span><br><span class="line">40585b:	00 b9 93 42 00 </span><br><span class="line">405860:	48 8d bc 24 90 00 00 	lea    0x90(%rsp),%rdi</span><br><span class="line">405867:	00 </span><br><span class="line">405868:	ba 10 5f 40 00       	mov    $0x405f10,%edx</span><br><span class="line">40586d:	be 02 00 00 00       	mov    $0x2,%esi</span><br><span class="line">405872:	4c 89 f9             	mov    %r15,%rcx</span><br><span class="line">405875:	4c 8b 44 24 20       	mov    0x20(%rsp),%r8</span><br><span class="line">40587a:	31 c0                	xor    %eax,%eax</span><br><span class="line">40587c:	e8 ff cb ff ff       	callq  402480 &lt;__kmpc_fork_call@plt&gt;</span><br><span class="line">405881:	48 8b 7c 24 60       	mov    0x60(%rsp),%rdi</span><br></pre></td></tr></table></figure>
+
+<p>这段汇编代码实现了OpenMP中的并行构造,主要执行了以下几个步骤:</p>
+<ol>
+<li>在栈上写入一个常量0x4293b9,可能是team的参数 (48 c7 84 24)</li>
+<li>准备参数,获取rsp+0x90地址到rdi作为第1参数 (%rdi)</li>
+<li>设置edx为0x405f10,可能是kmp_routine函数地址</li>
+<li>esi设置为2,可能表示有2个参数</li>
+<li>r15设置到rcx,传入线程号参数</li>
+<li>r8传入栈上第0x20个参数,可能是void* shareds参数</li>
+<li>清空eax,一些调用约定使用</li>
+<li>调用 <code>__kmpc_fork_call</code>函数,这是<a target="_blank" rel="noopener" href="https://www.cs.rice.edu/~la5/doc/itt/d7/d3e/group__PARALLEL.html">OpenMP的runtime库函数</a>,用来并行执行一个函数<ol>
+<li><code>kmpc</code> fork multiple parallel call？</li>
+</ol>
+</li>
+<li>最后将返回值保存在rdi指定的栈空间上</li>
+</ol>
+<p>所以这段代码实现了调用OpenMP runtime并行执行一个函数的操作,准备参数,调用runtime API,获取返回值的一个流程。</p>
+<p>利用runtime库的支持函数可以实现汇编级别的OpenMP并行性。</p>
+<h2 id="readelf"><a href="#readelf" class="headerlink" title="readelf"></a>readelf</h2><p>各section位置以及含义，<a target="_blank" rel="noopener" href="http://www.skyfree.org/linux/references/ELF_Format.pdf">参考文档</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line">$ readelf -S bfs.inj</span><br><span class="line">There are 37 section headers, starting at offset 0xbe8e8: </span><br><span class="line">在文件内 0xbe8e8字节开始</span><br><span class="line"></span><br><span class="line">Section Headers:</span><br><span class="line">  [Nr] Name              Type             Address           Offset</span><br><span class="line">       Size              EntSize          Flags  Link  Info  Align</span><br><span class="line">  序号 节名称               节类型          节的虚拟地址偏移量      节在文件中的偏移量</span><br><span class="line">节大小         每个条目的大小（如果大小固定）  节的标志  节的链接信息    节的额外信息    节的信息对齐方式</span><br><span class="line">  [ 0]                   NULL             0000000000000000  00000000</span><br><span class="line">       0000000000000000  0000000000000000           0     0     0</span><br><span class="line">  [ 1] .interp           PROGBITS         00000000004002a8  000002a8</span><br><span class="line">       000000000000001c  0000000000000000   A       0     0     1</span><br><span class="line">  [ 2] .note.gnu.build-i NOTE             00000000004002c4  000002c4</span><br><span class="line">       0000000000000024  0000000000000000   A       0     0     4</span><br><span class="line">  [ 3] .note.ABI-tag     NOTE             00000000004002e8  000002e8</span><br><span class="line">       0000000000000020  0000000000000000   A       0     0     4</span><br><span class="line">  [ 4] .gnu.hash         GNU_HASH         0000000000400308  00000308</span><br><span class="line">       000000000000005c  0000000000000000   A       5     0     8</span><br><span class="line">  [ 5] .dynsym           DYNSYM           0000000000400368  00000368</span><br><span class="line">       00000000000007e0  0000000000000018   A       6     1     8</span><br><span class="line">  [ 6] .dynstr           STRTAB           0000000000400b48  00000b48</span><br><span class="line">       0000000000000b1d  0000000000000000   A       0     0     1</span><br><span class="line">  [ 7] .gnu.version      VERSYM           0000000000401666  00001666</span><br><span class="line">       00000000000000a8  0000000000000002   A       5     0     2</span><br><span class="line">  [ 8] .gnu.version_r    VERNEED          0000000000401710  00001710</span><br><span class="line">       0000000000000110  0000000000000000   A       6     5     8</span><br><span class="line">  [ 9] .rela.dyn         RELA             0000000000401820  00001820</span><br><span class="line">       00000000000000f0  0000000000000018   A       5     0     8</span><br><span class="line">  [10] .rela.plt         RELA             0000000000401910  00001910</span><br><span class="line">       00000000000006c0  0000000000000018  AI       5    24     8</span><br><span class="line">  [11] .init             PROGBITS         0000000000402000  00002000</span><br><span class="line">       000000000000001b  0000000000000000  AX       0     0     4</span><br><span class="line">  [12] .plt              PROGBITS         0000000000402020  00002020</span><br><span class="line">       0000000000000490  0000000000000010  AX       0     0     16</span><br><span class="line">  [13] .text             PROGBITS         00000000004024b0  000024b0</span><br><span class="line">       0000000000026475  0000000000000000  AX       0     0     16</span><br><span class="line">  [14] .fini             PROGBITS         0000000000428928  00028928</span><br><span class="line">       000000000000000d  0000000000000000  AX       0     0     4</span><br><span class="line">  [15] .rodata           PROGBITS         0000000000429000  00029000</span><br><span class="line">       0000000000001180  0000000000000000   A       0     0     16</span><br><span class="line">  [16] .eh_frame_hdr     PROGBITS         000000000042a180  0002a180</span><br><span class="line">       00000000000002ac  0000000000000000   A       0     0     4</span><br><span class="line">  [17] .eh_frame         PROGBITS         000000000042a430  0002a430</span><br><span class="line">       0000000000001780  0000000000000000   A       0     0     8</span><br><span class="line">  [18] .gcc_except_table PROGBITS         000000000042bbb0  0002bbb0</span><br><span class="line">       00000000000005d0  0000000000000000   A       0     0     4</span><br><span class="line">  [19] .init_array       INIT_ARRAY       000000000042dbc8  0002cbc8</span><br><span class="line">       0000000000000010  0000000000000008  WA       0     0     8</span><br><span class="line">  [20] .fini_array       FINI_ARRAY       000000000042dbd8  0002cbd8</span><br><span class="line">       0000000000000008  0000000000000008  WA       0     0     8</span><br><span class="line">  [21] .data.rel.ro      PROGBITS         000000000042dbe0  0002cbe0</span><br><span class="line">       00000000000001f0  0000000000000000  WA       0     0     8</span><br><span class="line">  [22] .dynamic          DYNAMIC          000000000042ddd0  0002cdd0</span><br><span class="line">       0000000000000220  0000000000000010  WA       6     0     8</span><br><span class="line">  [23] .got              PROGBITS         000000000042dff0  0002cff0</span><br><span class="line">       0000000000000010  0000000000000008  WA       0     0     8</span><br><span class="line">  [24] .got.plt          PROGBITS         000000000042e000  0002d000</span><br><span class="line">       0000000000000258  0000000000000008  WA       0     0     8</span><br><span class="line">  [25] .data             PROGBITS         000000000042e258  0002d258</span><br><span class="line">       0000000000000010  0000000000000000  WA       0     0     8</span><br><span class="line">  [26] .bss              NOBITS           000000000042e280  0002d268</span><br><span class="line">       0000000000000180  0000000000000000  WA       0     0     64</span><br><span class="line">  [27] .comment          PROGBITS         0000000000000000  0002d268</span><br><span class="line">       000000000000004a  0000000000000001  MS       0     0     1</span><br><span class="line">  [28] .debug_info       PROGBITS         0000000000000000  0002d2b2</span><br><span class="line">       000000000002a06e  0000000000000000           0     0     1</span><br><span class="line">  [29] .debug_abbrev     PROGBITS         0000000000000000  00057320</span><br><span class="line">       0000000000000a57  0000000000000000           0     0     1</span><br><span class="line">  [30] .debug_line       PROGBITS         0000000000000000  00057d77</span><br><span class="line">       000000000000af9a  0000000000000000           0     0     1</span><br><span class="line">  [31] .debug_str        PROGBITS         0000000000000000  00062d11</span><br><span class="line">       0000000000010328  0000000000000001  MS       0     0     1</span><br><span class="line">  [32] .debug_loc        PROGBITS         0000000000000000  00073039</span><br><span class="line">       0000000000042846  0000000000000000           0     0     1</span><br><span class="line">  [33] .debug_ranges     PROGBITS         0000000000000000  000b587f</span><br><span class="line">       00000000000054c0  0000000000000000           0     0     1</span><br><span class="line">  [34] .symtab           SYMTAB           0000000000000000  000bad40</span><br><span class="line">       00000000000018c0  0000000000000018          35   106     8</span><br><span class="line">  [35] .strtab           STRTAB           0000000000000000  000bc600</span><br><span class="line">       0000000000002177  0000000000000000           0     0     1</span><br><span class="line">  [36] .shstrtab         STRTAB           0000000000000000  000be777</span><br><span class="line">       000000000000016c  0000000000000000           0     0     1</span><br><span class="line">Key to Flags:</span><br><span class="line">  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),</span><br><span class="line">  L (<span class="built_in">link</span> order), O (extra OS processing required), G (group), T (TLS),</span><br><span class="line">  C (compressed), x (unknown), o (OS specific), E (exclude),</span><br><span class="line">  l (large), p (processor specific)</span><br></pre></td></tr></table></figure>
+
+<h3 id="字段含义"><a href="#字段含义" class="headerlink" title="字段含义"></a>字段含义</h3><ul>
+<li>Type 字段，具体含义<a target="_blank" rel="noopener" href="http://www.skyfree.org/linux/references/ELF_Format.pdf">参考文档1-10</a></li>
+<li>Link 字段中的值是节头表中节头条目的索引，索引从0开始，表示第一个节头表条目，依此类推。比如5 代表与<code>[ 5] .dynsym</code> 有关</li>
+</ul>
+<h3 id="值得注意"><a href="#值得注意" class="headerlink" title="值得注意"></a>值得注意</h3><p>One section type, <code>SHT_NOBITS</code> described below, occupies no<br>space in the file, and its <code>sh_offset</code> member locates the conceptual placement in the<br>file.</p>
+<p>so the number “2d258” remains unchanged.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[25] .data             PROGBITS         000000000042e258  0002d258</span><br><span class="line">     0000000000000010  0000000000000000  WA       0     0     8</span><br><span class="line">[26] .bss              NOBITS           000000000042e280  0002d268</span><br><span class="line">     0000000000000180  0000000000000000  WA       0     0     64</span><br></pre></td></tr></table></figure>
+
+<h3 id="got"><a href="#got" class="headerlink" title=".got"></a>.got</h3><p>global offset table</p>
+<h3 id="plt"><a href="#plt" class="headerlink" title=".plt"></a>.plt</h3><p>This section holds the procedure linkage table. See ‘‘Special Sections’’ in Part 1 and ‘‘Procedure Linkage Table’’ in Part 2 for more information.</p>
+<p>Function symbols (those with type STT_FUNC) in shared object files have special significance. When<br>another object file references a function from a shared object, the link editor automatically creates a procedure linkage table entry for the referenced symbol.</p>
+<p><a target="_blank" rel="noopener" href="http://www.skyfree.org/linux/references/ELF_Format.pdf">参考文档2-17 page48</a></p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-27T16:00:00.000Z" title="7/27/2023, 4:00:00 PM">2023-07-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.310Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/operating-system/">operating system</a></span><span class="level-item">41 minutes read (About 6197 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/27/Work/Operating%20system/Executablefileandprocessstructure/">Linux Executable file: Structure &amp; Running</a></p><div class="content"><h2 id="可执行文件历史溯源"><a href="#可执行文件历史溯源" class="headerlink" title="可执行文件历史溯源"></a>可执行文件历史溯源</h2><p><img src="https://pic.shaojiemike.top/img/20211201100431.png"></p>
+<ul>
+<li>COFF是32位System V平台上使用的一种格式。<ul>
+<li>它允许使用共享库和调试信息。</li>
+<li>然而，它在节的最大数量和节名称的长度限制方面存在缺陷。</li>
+<li>它也不能提供C++等语言的符号调试信息。</li>
+</ul>
+</li>
+<li>然而，像XCOFF(AIX)和ECOFF(DEC，SGI)这样的扩展克服了这些弱点，并且有一些版本的Unix使用这些格式。</li>
+<li>Windows的PE+格式也是基于COFF的。<br>可见可执行文件在不同平台上的规则还是有所不同的，后续会以UNIX ELF来分析</li>
+</ul>
+<h2 id="ELF-可执行目标文件"><a href="#ELF-可执行目标文件" class="headerlink" title="ELF 可执行目标文件"></a>ELF 可执行目标文件</h2><p><img src="https://1087580735-files.gitbook.io/~/files/v0/b/gitbook-legacy-files/o/assets%2F-MHt_spaxGgCbp2POnfq%2F-MI8pquOBkqRu_B1qWTy%2F-MI8q7GVbCgZ3tgNwsW_%2F07-13%20%E5%85%B8%E5%9E%8B%E7%9A%84ELF%E5%8F%AF%E6%89%A7%E8%A1%8C%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6.png?alt=media&token=ee867860-bd62-4fa9-9505-e67f606b06f9" alt="exe"></p>
+<p>可执行目标文件的格式类似于可重定位目标文件的格式。</p>
+<ol>
+<li>ELF 头描述文件的总体格式。它还包括程序的入口点（entry point），也就是当程序运行时要执行的第一条指令的地址。</li>
+<li><code>.text</code>、<code>.rodata</code> 和 <code>.data</code> 节与可重定位目标文件中的节是相似的，除了这些节已经被重定位到它们最终的运行时内存地址以外。</li>
+<li><code>.init</code> 节定义了一个小函数，叫做 _init，程序的初始化代码会调用它。</li>
+<li>因为可执行文件是完全链接的（已被重定位），所以它不再需要 <code>.rel</code> 节。</li>
+</ol>
+<h2 id="可重定位目标文件"><a href="#可重定位目标文件" class="headerlink" title="可重定位目标文件"></a>可重定位目标文件</h2><ul>
+<li>下面内容来自 深入理解计算机系统（CSAPP）的<code>7.4 可重定位目标文件</code>一节</li>
+<li>图 7-3 展示了一个典型的 ELF 可重定位目标文件的格式。<img src="https://pic.shaojiemike.top/img/20230507231944.png" alt="ELF 可重定位目标文件的格式"></li>
+<li><strong>ELF 头（Executable Linkable Format header）</strong><img src="https://pic.shaojiemike.top/img/20230507233452.png" alt="Executable Linkable Format"><ul>
+<li>以一个 16 字节的序列开始，这个序列描述了生成该文件的系统的字的大小和字节顺序。</li>
+<li>ELF 头剩下的部分包含帮助链接器语法分析和解释目标文件的信息。<ul>
+<li>其中包括 ELF 头的大小、目标文件的类型（如可重定位、可执行或者共享的）、机器类型（如 X86-64）、节头部表（section header table）的文件偏移，以及节头部表中条目的大小和数量。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>节头部表</strong>描述不同节的位置和大小，其中目标文件中每个节都有一个固定大小的条目（entry）。</li>
+</ul>
+<p>夹在 ELF 头和节头部表之间的都是节。一个典型的 ELF 可重定位目标文件包含下面几个节：</p>
+<ul>
+<li><strong>.text</strong>：已编译程序的机器代码。<ul>
+<li>通常代码区是可共享的（即另外的执行程序可以调用它），使其可共享的目的是对于频繁被执行的程序，只需要在内存中有一份代码即可。</li>
+<li>代码区通常是只读的，使其只读的原因是防止程序意外地修改了它的指令。</li>
+</ul>
+</li>
+<li><strong>.rodata</strong>：只读数据，比如 printf 语句中的格式串和开关语句的跳转表。</li>
+<li><strong>.data</strong>：已初始化的全局和静态 C 变量。<ul>
+<li>已经初始化的全局变量、已经初始化?的静态变量（包括全局静态变量和局部静态变量）和常量数据（如字符串常量）。</li>
+<li>局部 C 变量在运行时被保存在栈中，既不岀现在 <code>.data</code> 节中，也不岀现在 <code>.bss</code> 节中。</li>
+</ul>
+</li>
+<li><strong>.bss</strong>：未初始化的全局和静态 C 变量，以及所有被初始化为 0 的全局或静态变量。<ul>
+<li>在目标文件中这个节不占据实际的空间，它仅仅是一个占位符。</li>
+<li>目标文件格式区分已初始化和未初始化变量是为了<strong>空间效率</strong>：在目标文件中，未初始化变量不需要占据任何实际的磁盘空间。运行时，在内存中分配这些变量，初始值为 0。<ul>
+<li>用术语 <code>.bss</code> 来表示未初始化的数据是很普遍的。它起始于 IBM 704 汇编语言（大约在 1957 年）中“块存储开始（Block Storage Start）”指令的首字母缩写，并沿用至今。</li>
+</ul>
+</li>
+<li><strong>区分 <code>.data</code> 和 <code>.bss</code> 节的简单方法是把 “bss” 看成是“更好地节省空间（Better Save Space）” 的缩写。</strong></li>
+</ul>
+</li>
+<li><strong>.symtab</strong>：一个符号表，它存放在程序中定义和引用的函数和全局变量的信息。<ul>
+<li>一些程序员错误地认为必须通过 -g 选项来编译一个程序，才能得到符号表信息。实际上，每个可重定位目标文件在 <code>.symtab</code> 中都有一张符号表（除非程序员特意用 STRIP 命令去掉它）。</li>
+<li>然而，和编译器中的符号表不同，<code>.symtab</code> 符号表<strong>不包含</strong>局部变量的条目。</li>
+</ul>
+</li>
+<li><strong>.rel.text</strong>：一个 .text 节中位置的列表，当链接器把这个目标文件和其他文件组合时，需要修改这些位置。<ul>
+<li>一般而言，任何调用外部函数或者引用全局变量的指令都需要修改。另一方面，调用本地函数的指令则不需要修改。</li>
+<li>注意，可执行目标文件中并不需要重定位信息，因此通常省略，除非用户显式地指示链接器包含这些信息。</li>
+</ul>
+</li>
+<li><strong>.rel.data</strong>：被模块引用或定义的所有全局变量的重定位信息。<ul>
+<li>一般而言，任何已初始化的全局变量，如果它的初始值是一个全局变量地址或者外部定义函数的地址，都需要被修改。</li>
+</ul>
+</li>
+<li><strong>.debug</strong>：一个调试符号表，其条目是<ul>
+<li>程序中定义的局部变量和类型定义，</li>
+<li>程序中定义和引用的全局变量，</li>
+<li>以及原始的 C 源文件。</li>
+<li>只有以 <code>-g</code> 选项调用编译器驱动程序时，才会得到这张表。</li>
+</ul>
+</li>
+<li><strong>.line</strong>：原始 C 源程序中的行号和 <code>.text</code> 节中机器指令之间的映射。<ul>
+<li>只有以 <code>-g</code> 选项调用编译器驱动程序时，才会得到这张表。</li>
+</ul>
+</li>
+<li><strong>.strtab</strong>：一个字符串表，其内容包括 <code>.symtab</code> 和 <code>.debug</code> 节中的符号表，以及节头部中的节名字。字符串表就是以 null 结尾的字符串的序列。</li>
+</ul>
+<h3 id="符号和符号表"><a href="#符号和符号表" class="headerlink" title="符号和符号表"></a>符号和符号表</h3><p>每个可重定位目标模块 m 都有一个符号表**.symtab**，它包含 m 定义和引用的符号的信息。在链接器的上下文中，有三种不同的符号：</p>
+<ul>
+<li><p>(出)由模块 m 定义并能被其他模块引用的全局符号。</p>
+<ul>
+<li>全局链接器符号对应于非静态的 C 函数和全局变量。</li>
+</ul>
+</li>
+<li><p>(入)由其他模块定义并被模块 m 引用的全局符号。</p>
+<ul>
+<li>这些符号称为外部符号，对应于在其他模块中定义的非静态 C 函数和全局变量。</li>
+</ul>
+</li>
+<li><p>只被模块 m 定义和引用的局部符号。</p>
+<ul>
+<li>对应于带 static 属性的 C 函数和全局变量。这些符号在模块 m 中任何位置都可见，但是不能被其他模块引用。</li>
+</ul>
+</li>
+<li><p><strong>本地链接器符号和本地程序变量的不同</strong>是很重要的。</p>
+<ul>
+<li><code>.symtab</code> 中的符号表不包含对应于本地非静态程序变量的任何符号。</li>
+<li>这些符号在运行时在栈中被管理，链接器对此类符号不感兴趣。</li>
+</ul>
+</li>
+<li><p>有趣的是，定义为带有 C <code>static</code> 属性的本地过程变量是不在栈中管理的。</p>
+<ul>
+<li>相反，编译器在 .data 或 .bss 中为每个定义分配空间，并在符号表中创建一个有唯一名字的本地链接器符号。</li>
+</ul>
+</li>
+</ul>
+<h3 id="实践：readelf"><a href="#实践：readelf" class="headerlink" title="实践：readelf"></a>实践：readelf</h3><p>使用命令<code>readelf -s simple.o</code> 可以读取符号表的内容。</p>
+<p>示例程序的可重定位目标文件 main.o 的符号表中的最后三个条目。</p>
+<p><img src="https://pic.shaojiemike.top/img/20230602192002.png"></p>
+<ul>
+<li><p>开始的 8 个条目没有显示出来，它们是链接器内部使用的局部符号。</p>
+</li>
+<li><p>全局符号 main 定义的条目，</p>
+<ul>
+<li>它是一个位于 .text 节</li>
+<li>偏移量为 0（即 value 值）处的 24 字节函数。</li>
+</ul>
+</li>
+<li><p>其后跟随着的是全局符号 array 的定义</p>
+<ul>
+<li>位于 .data 节</li>
+<li>偏移量为 0 处的 8 字节目标。</li>
+</ul>
+</li>
+<li><p>外部符号 sum 的引用。</p>
+</li>
+<li><p>type 通常要么是数据，要么是函数。</p>
+<ul>
+<li>符号表还可以包含各个节的条目，以及对应原始源文件的路径名的条目。</li>
+</ul>
+</li>
+<li><p>binding 字段表示符号是本地的还是全局的。</p>
+</li>
+<li><p>Ndx&#x3D;1 表示 .text 节</p>
+<ul>
+<li>Ndx&#x3D;3 表示 .data 节。</li>
+<li>ABS 代表不该被重定位的符号；</li>
+<li>UNDEF 代表未定义的符号，也就是在本目标模块中引用，但是却在其他地方定义的符号；<!-- ### 注意：static 局部变量存放 data段 --></li>
+</ul>
+</li>
+</ul>
+<!-- ![](https://pic.shaojiemike.top/img/20211213231323.png)
+![](https://pic.shaojiemike.top/img/20211214152404.png) -->
+
+<h3 id="实践-查看exe信息相关命令"><a href="#实践-查看exe信息相关命令" class="headerlink" title="实践: 查看exe信息相关命令"></a>实践: 查看exe信息相关命令</h3><p><img src="https://pic.shaojiemike.top/img/20230521201900.png"><br><img src="https://pic.shaojiemike.top/img/20230521202224.png"><br><img src="https://pic.shaojiemike.top/img/20210802221341.png" alt="file test"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># read ELF header</span></span><br><span class="line">readelf -h naive</span><br></pre></td></tr></table></figure>
+
+<h3 id="进一步思考"><a href="#进一步思考" class="headerlink" title="进一步思考"></a>进一步思考</h3><ul>
+<li><p>小结：开辟局部变量、全局变量、malloc空间会影响可执行文件大小吗？对应汇编如何？存放的位置？运行时如何？</p>
+<ul>
+<li>设计一个代码量小但是占空间很大的可执行文件。<ul>
+<li>因为已经初始化的全局变量、已经初始化的静态变量（包括全局静态变量和局部静态变量）会存储在data段，所以这些变量的大小会影响可执行文件的大小。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><img src="https://pic.shaojiemike.top/img/20230605165242.png"></p>
+<ul>
+<li>static 与 const效果一样。</li>
+<li>设计一个代码量小但是运行时占内存空间很大的可执行文件。<ul>
+<li>malloc的空间会影响运行时的内存空间，但是不会影响可执行文件的大小。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>将exe各节内容可视化解释(虽然现在是二进制)</p>
+</li>
+<li><p>编译的时候，头文件是怎么处理的？</p>
+</li>
+<li><p>data 与 bbs在存储时怎么区分全局与静态变量</p>
+<ul>
+<li>符号表为什么有全局变量的符号，这些静态局部变量不需要吗？应该是需要的</li>
+</ul>
+</li>
+<li><p>请给出 <code>.rel.text</code> <code>.rel.data</code>的实例分析</p>
+</li>
+</ul>
+<h2 id="线程与进程"><a href="#线程与进程" class="headerlink" title="线程与进程"></a>线程与进程</h2><ul>
+<li>调度：进程是资源管理的基本单位，线程是程序执行的基本单位。</li>
+<li>切换：线程上下文切换比进程上下文切换要快得多。<ul>
+<li>TLB是每个核私有的，如果一个核从一个进程切换到另一个进程，TLB要全部清空。</li>
+<li>但是线程不需要，因为线程共享相同的虚拟地址空间。</li>
+<li>所以线程切换开销远小于进程切换开销。</li>
+</ul>
+</li>
+<li>拥有资源： 进程是拥有资源的一个独立单位，线程不拥有系统资源，但是可以访问隶属于进程的资源。</li>
+<li>系统开销： 创建或撤销进程时，系统都要为之分配或回收系统资源，如内存空间，I&#x2F;O设备等，OS所付出的开销显著大于在创建或撤销线程时的开销，进程切换的开销也远大于线程切换的开销。</li>
+</ul>
+<h3 id="（软件）多线程与（CPU）超线程"><a href="#（软件）多线程与（CPU）超线程" class="headerlink" title="（软件）多线程与（CPU）超线程"></a>（软件）多线程与（CPU）超线程</h3><p>线程和进程都可以用多核，但是线程共享进程内存（比如，openmp）</p>
+<p>超线程注意也是为了提高核心的利用率，当有些轻量级的任务时（读写任务）核心占用很少，可以利用超线程把一个物理核心当作多个逻辑核心，一般是两个，来使用更多线程。AMD曾经尝试过4个。</p>
+<h3 id="单核多进程切换"><a href="#单核多进程切换" class="headerlink" title="单核多进程切换"></a>单核多进程切换</h3><p><img src="https://pic.shaojiemike.top/img/20211201103340.png"></p>
+<h2 id="进程结构"><a href="#进程结构" class="headerlink" title="进程结构"></a>进程结构</h2><p>正在运行的程序，叫进程。每个进程都有完全属于自己的，独立的，不被干扰的内存空间。此空间，被分成几个段(Segment),分别是Text, Data, BSS, Heap, Stack。</p>
+<p><img src="https://pic.shaojiemike.top/img/20150603163431433.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/Inked20200816132701356_LI.jpg"></p>
+<h3 id="esp-ebp"><a href="#esp-ebp" class="headerlink" title="esp ebp"></a>esp ebp</h3><ul>
+<li><code>push pop %ebp</code> 涉及到编译器调用函数的处理方式 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/X86_calling_conventions">application binary interface (ABI).</a></li>
+<li>如何保存和恢复寄存器<ul>
+<li>比如：cdecl（代表 C 声明）是 C 编程语言的调用约定，被许多 C 编译器用于 x86 体系结构。 在 cdecl 中，子例程参数在堆栈上传递。整数值和内存地址在 <code>EAX</code> 寄存器中返回，浮点值在 <code>ST0</code> <code>x87</code> 寄存器中返回。寄存器 <code>EAX</code>、<code>ECX</code> 和 <code>EDX</code> 由调用方保存，其余寄存器由被叫方保存。<code>x87</code> 浮点寄存器 调用新函数时，<code>ST0</code> 到 <code>ST7</code> 必须为空（弹出或释放），退出函数时<code>ST1</code> 到 <code>ST7</code> 必须为空。<code>ST0</code> 在未用于返回值时也必须为空。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/img/20211115092946.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20211115093009.png"></p>
+<h3 id="sp-lp-Link-Register-on-ARM"><a href="#sp-lp-Link-Register-on-ARM" class="headerlink" title="sp lp(Link Register) on ARM"></a>sp lp(Link Register) on ARM</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">0000822c &lt;func&gt;:</span><br><span class="line">    822c: e52db004  push &#123;fp&#125;  ; (str fp, [sp, #-4]!) 如果嵌套调用 push &#123;fp,lr&#125;</span><br><span class="line">    8230: e28db000  add fp, sp, #0</span><br><span class="line">    8234: e24dd014  sub sp, sp, #20</span><br><span class="line">    8238: e50b0010  str r0, [fp, #-16]</span><br><span class="line">    823c: e3a03002  mov r3, #2</span><br><span class="line">    8240: e50b3008  str r3, [fp, #-8]</span><br><span class="line">    8244: e51b3008  ldr r3, [fp, #-8]</span><br><span class="line">    8248: e51b2010  ldr r2, [fp, #-16]</span><br><span class="line">    824c: e0030392  mul r3, r2, r3</span><br><span class="line">    8250: e1a00003  mov r0, r3</span><br><span class="line">    8254: e24bd000  sub sp, fp, #0</span><br><span class="line">    8258: e49db004  pop &#123;fp&#125;  ; (ldr fp, [sp], #4) 如果嵌套调用 pop &#123;fp,lr&#125;</span><br><span class="line">    825c: e12fff1e  bx lr          ; MOV PC,LR</span><br><span class="line"></span><br><span class="line">00008260 &lt;main&gt;:</span><br><span class="line">    8260: e92d4800  push &#123;fp, lr&#125;</span><br><span class="line">    8264: e28db004  add fp, sp, #4</span><br><span class="line">    8268: e24dd008  sub sp, sp, #8</span><br><span class="line">    826c: e3a03019  mov r3, #25</span><br><span class="line">    8270: e50b3008  str r3, [fp, #-8]</span><br><span class="line">    8274: e51b0008  ldr r0, [fp, #-8]</span><br><span class="line">    8278: ebffffeb  bl 822c &lt;func&gt;</span><br><span class="line">    827c: e3a03000  mov r3, #0</span><br><span class="line">    8280: e1a00003  mov r0, r3</span><br><span class="line">    8284: e24bd004  sub sp, fp, #4</span><br><span class="line">    8288: e8bd8800  pop &#123;fp, pc&#125;</span><br></pre></td></tr></table></figure>
+
+<p>arm PC &#x3D; x86 EIP<br>ARM 为什么这么设计，就是为了返回地址不存栈，而是存在寄存器里。但是面对嵌套的时候，还是需要压栈。</p>
+<h3 id="栈区（stack）"><a href="#栈区（stack）" class="headerlink" title="栈区（stack）"></a>栈区（stack）</h3><p>由编译器自动分配释放，存放函数的参数值、返回值、局部变量等。在程序运行过程中实时加载和释放，因此，局部变量的生存周期为申请到释放该段栈空间。</p>
+<p>WIndow系统一般是2MB。Linux可以查看<code>ulimit -s</code> ，通常是8M</p>
+<p>栈空间最好保<strong>持在cache里，太大会存入内存</strong>。持续地重用栈空间有助于使活跃的栈内存保持在CPU缓存中，从而加速访问。进程中的每个线程都有属于自己的栈。向栈中不断压入数据时，若超出其容量就会耗尽栈对应的内存区域，从而触发一个页错误。</p>
+<p>函数参数传递一般通过寄存器，太多了就存入栈内。</p>
+<h3 id="大数组seg-fault"><a href="#大数组seg-fault" class="headerlink" title="大数组seg fault"></a>大数组seg fault</h3><p>栈区(stack segment)：由编译器自动分配释放，存放函数的参数的值，局部变量的值等。</p>
+<p>局部变量空间是很小的，我们开一个a[1000000]就会导致栈溢出；而全局变量空间在Win 32bit 下可以达到4GB，因此不会溢出。</p>
+<p>或者malloc使用堆的区域，但是记得free。</p>
+<h3 id="堆区（heap）"><a href="#堆区（heap）" class="headerlink" title="堆区（heap）"></a>堆区（heap）</h3><p>用于动态内存分配。堆在内存中位于BSS区和栈区之间。一般由程序员分配和释放，若程序员不释放，程序结束时有可能由OS回收。</p>
+<p>分配的堆内存是经过字节对齐的空间，以适合原子操作。堆管理器通过链表管理每个申请的内存，由于堆申请和释放是无序的，最终会产生内存碎片。堆内存一般由应用程序分配释放，回收的内存可供重新使用。若程序员不释放，程序结束时操作系统可能会自动回收。</p>
+<p>用户堆，每个进程有一个，进程中的每个线程都从这个堆申请内存，这个堆在用户空间。所谓内训耗光，一般就是这个用户堆申请不到内存了，申请不到分两种情况，一种是你 malloc 的比剩余的总数还大，这个是肯定不会给你了。第二种是剩余的还有，但是都不连续，最大的一块都没有你 malloc 的大，也不会给你。解决办法，直接申请一块儿大内存，自己管理。</p>
+<p>除非特殊设计，一般你申请的内存首地址都是偶地址，也就是说你向堆申请一个字节，堆也会给你至少4个字节或者8个字节。</p>
+<p>堆有一个堆指针（break brk），也是按照栈的方式运行的。内存映射段是存在在break brk指针与esp指针之间的一段空间。</p>
+<p>在Linux中当动态分配内存大于128K时，会调用mmap函数在esp到break brk之间找一块相应大小的区域作为内存映射段返回给用户。</p>
+<p>当小于128K时，才会调用brk或者sbrk函数，将break brk向上增长（break brk指针向高地址移动）相应大小，增长出来的区域便作为内存返回给用户。</p>
+<p>两者的区别是</p>
+<p>内存映射段销毁时，会释放其映射到的物理内存，</p>
+<p>而break brk指向的数据被销毁时，不释放其物理内存，只是简单将break brk回撤，其虚拟地址到物理地址的映射依旧存在，这样使的当再需要分配小额内存时，只需要增加break brk的值，由于这段虚拟地址与物理地址的映射还存在，于是不会触发缺页中断。只有在break brk减少足够多，占据物理内存的空闲虚拟内存足够多时，才会真正释放它们。</p>
+<h2 id="栈堆的区别"><a href="#栈堆的区别" class="headerlink" title="栈堆的区别"></a>栈堆的区别</h2><p><img src="https://pic.shaojiemike.top/img/20210821164145.png"></p>
+<ol>
+<li>产生碎片不同<br>对堆来说，频繁的new&#x2F;delete或者malloc&#x2F;free势必会造成内存空间的不连续，造成大量的碎片，使程序效率降低。</li>
+</ol>
+<p>对栈而言，则不存在碎片问题，因为栈是先进后出的队列，永远不可能有一个内存块从栈中间弹出。</p>
+<h3 id="设计考虑"><a href="#设计考虑" class="headerlink" title="设计考虑"></a>设计考虑</h3><ol>
+<li>代码段和数据段分开，运行时便于分开加载，在哈佛体系结构的处理器将取得更好得流水线效率。</li>
+<li>代码时依次执行的，是由处理器 PC 指针依次读入，而且代码可以被多个程序共享，数据在整个运行过程中有可能多次被调用，如果将代码和数据混合在一起将造成空间的浪费。</li>
+<li>临时数据以及需要再次使用的代码在运行时放入栈中，生命周期短，便于提高资源利用率。</li>
+<li>堆区可以由程序员分配和释放，以便用户自由分配，提高程序的灵活性。</li>
+</ol>
+<h2 id="缓冲区溢出攻击（代码注入攻击"><a href="#缓冲区溢出攻击（代码注入攻击" class="headerlink" title="缓冲区溢出攻击（代码注入攻击"></a>缓冲区溢出攻击（代码注入攻击</h2><ul>
+<li>缓冲区溢出（Buffer Overflow）是一种常见的软件漏洞，它发生在程序中使用缓冲区（一块内存区域）来存储数据时，输入的数据超过了缓冲区的容量，导致多余的数据溢出到相邻的内存区域。<ul>
+<li>常见栈上分配空间，然后溢出直接覆盖前面的返回地址，使得返回到任意代码片段执行。如果开启了栈上执行代码，甚至能栈上注入代码并执行。</li>
+</ul>
+</li>
+</ul>
+<h2 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h2><p>用户进程内存空间，也是系统内核分配给该进程的VM(虚拟内存)，但并不表示这个进程占用了这么多的RAM(物理内存)。这个空间有多大？命令top输出的VIRT值告诉了我们各个进程内存空间的大小（进程内存空间随着程序的执行会增大或者缩小）。</p>
+<h3 id="Linux虚拟地址空间分布"><a href="#Linux虚拟地址空间分布" class="headerlink" title="Linux虚拟地址空间分布"></a>Linux虚拟地址空间分布</h3><p>虚拟地址空间在32位模式下它是一个4GB的内存地址块。在Linux系统中, 内核进程和用户进程所占的虚拟内存比例是1:3,如下图。而Windows系统为2:2(通过设置Large-Address-Aware Executables标志也可为1:3)。这并不意味着内核使用那么多物理内存，仅表示它可支配这部分地址空间，根据需要将其映射到物理内存。<br><img src="https://pic.shaojiemike.top/img/v2-eae586a1ccb1a2d8c1bb4667c871a442_720w.png"></p>
+<p>值得注意的是，每个进程的内核虚拟地址空间都是映射到相同的真实物理地址上，因为都是共享同一份物理内存上的内核代码。除此之外还要注意内核虚拟地址空间总是存放在虚拟内存的地址最高处。</p>
+<p>其中，用户地址空间中的<strong>蓝色</strong>条带对应于映射到物理内存的不同内存段，<strong>灰白</strong>区域表示未映射的部分。这些段只是简单的内存地址范围，与Intel处理器的段没有关系。</p>
+<p>上图中Random stack offset和Random mmap offset等随机值意在防止恶意程序。Linux通过对栈、内存映射段、堆的起始地址加上随机偏移量来打乱布局，以免恶意程序通过计算访问栈、库函数等地址。</p>
+<p>execve(2)负责为进程代码段和数据段建立映射，真正将代码段和数据段的内容读入内存是由系统的缺页异常处理程序按需完成的。另外，execve(2)还会将BSS段清零。</p>
+<h2 id="top"><a href="#top" class="headerlink" title="top"></a>top</h2><p> VIRT &#x3D; SWAP + RES  # 总虚拟内存&#x3D;动态 + 静态</p>
+<p> RES &gt;&#x3D; CODE + DATA + SHR. # 静态内存 &#x3D; 代码段 + 静态数据段 + 共享内存</p>
+<p> MEM &#x3D; RES &#x2F; RAM</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">                          DATA CODE  RES VIRT</span><br><span class="line">before allocation:         124    4  408 3628</span><br><span class="line">after 5MB allocation:     5008    4  476 8512           //malloc 5M, DATA和VIRT增加5M, RES不变</span><br><span class="line">after 2MB initialization: 5008    4 2432 8512           //初始化 2M, DATA和VIRT不变， RES增加2M</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//如果最后加上free(data),  DATA, RES, VIRT又都会相应的减少，回到最初的状态</span><br></pre></td></tr></table></figure>
+
+<p>top 里按<strong>f</strong> 可以选择要显示的内容。</p>
+<h2 id="SWAP"><a href="#SWAP" class="headerlink" title="SWAP"></a>SWAP</h2><ul>
+<li>Swapping的大部分时间花在数据传输上，交换的数据也越多，意味时间开销也随之增加。对于进程而言，这个过程是透明的。<ul>
+<li>so(swap out)：由于RAM资源不足，PFRA会将部分匿名页框的数据写入到交换区(swap area)，备份之。</li>
+<li>si(swap in) : 当发生内存缺页异常的时候，缺页异常处理程序会将交换区(磁盘)的页面又读回物理内存。</li>
+</ul>
+</li>
+<li>每次Swapping，都有可能不只是一页数据，不管是si，还是so。Swapping意味着磁盘操作，更新页表等操作，这些操作开销都不小，会阻塞用户态进程。所以，持续飚高的si&#x2F;so意味着物理内存资源是性能瓶颈。</li>
+<li>在内存空间设计早期只有分段没有分页时，SWAP还可以用来内存交换(暂存内存数据，重新排列内存)，来消除内存碎片。</li>
+</ul>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>Light-weight Contexts: An OS Abstraction for Safety and Performance</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zy986718042/article/details/73556012">https://blog.csdn.net/zy986718042/article/details/73556012</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38769551/article/details/103099014">https://blog.csdn.net/qq_38769551/article/details/103099014</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/ywcpig/article/details/52303745">https://blog.csdn.net/ywcpig/article/details/52303745</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/23643064">https://zhuanlan.zhihu.com/p/23643064</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1N3411y7Mr?spm_id_from=444.41.0.0">https://www.bilibili.com/video/BV1N3411y7Mr?spm_id_from=444.41.0.0</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-27T16:00:00.000Z" title="7/27/2023, 4:00:00 PM">2023-07-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.318Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">6 minutes read (About 864 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/27/Work/Programming/2-languageGrammar/python/pythonRegex/">PythonRegex</a></p><div class="content"><h2 id="pattern"><a href="#pattern" class="headerlink" title="pattern"></a>pattern</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">^	匹配字符串的开头</span><br><span class="line">$	匹配字符串的末尾。</span><br><span class="line">.	匹配任意字符，除了换行符</span><br><span class="line">a| b	匹配a或b</span><br><span class="line">[a-zA-Z0-9]	匹配任何字母及数字</span><br><span class="line">[aeiou]	匹配中括号内的任意一个字母</span><br><span class="line">[^aeiou]	除了aeiou字母以外的所有字符</span><br><span class="line">\w	匹配包括下划线的任何单词字符。等价于<span class="string">&#x27;[A-Za-z0-9_]&#x27;</span>。</span><br><span class="line">(\s*) 或者 ([\t ]*)     来匹配任意TAB和空格的混合字符</span><br><span class="line"></span><br><span class="line">\s	匹配任何空白字符，包括空格、制表符、换页符等等。等价于 [ \f\n\r\t\v]。</span><br><span class="line">\S	匹配任何非空白字符。等价于 [^ \f\n\r\t\v]。</span><br><span class="line">\b	匹配一个单词边界，也就是指单词和空格间的位置。例如， <span class="string">&#x27;er\b&#x27;</span> 可以匹配<span class="string">&quot;never&quot;</span> 中的 <span class="string">&#x27;er&#x27;</span>，但不能匹配 <span class="string">&quot;verb&quot;</span> 中的 <span class="string">&#x27;er&#x27;</span>。</span><br><span class="line">\B	匹配非单词边界。<span class="string">&#x27;er\B&#x27;</span> 能匹配 <span class="string">&quot;verb&quot;</span> 中的 <span class="string">&#x27;er&#x27;</span>，但不能匹配 <span class="string">&quot;never&quot;</span> 中的 <span class="string">&#x27;er&#x27;</span>。</span><br></pre></td></tr></table></figure>
+
+<h3 id="重复"><a href="#重复" class="headerlink" title="重复"></a>重复</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">re*	匹配0个或多个的表达式。</span><br><span class="line">re+	匹配1个或多个的表达式。</span><br><span class="line">re?	匹配0个或1个由前面的正则表达式定义的片段，非贪婪方式</span><br><span class="line">re&#123; n&#125;	精确匹配 n 个前面表达式。</span><br><span class="line">        例如， o&#123;2&#125; 不能匹配 &quot;Bob&quot; 中的 &quot;o&quot;，</span><br><span class="line">        但是能匹配 &quot;food&quot; 中的两个 o。</span><br><span class="line">re&#123; n,&#125;	匹配 n 个前面表达式。</span><br><span class="line">        例如， o&#123;2,&#125; 不能匹配&quot;Bob&quot;中的&quot;o&quot;，</span><br><span class="line">        但能匹配 &quot;foooood&quot;中的所有 o。</span><br><span class="line">        &quot;o&#123;1,&#125;&quot; 等价于 &quot;o+&quot;。</span><br><span class="line">        &quot;o&#123;0,&#125;&quot; 则等价于 &quot;o*&quot;。</span><br><span class="line">re&#123; n, m&#125;	匹配 n 到 m 次由前面的正则表达式定义的片段，贪婪方式</span><br></pre></td></tr></table></figure>
+
+<h3 id="match-exactlly-str"><a href="#match-exactlly-str" class="headerlink" title="match exactlly str"></a>match exactlly str</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># find should use \ to represent the (6|12|3)</span></span><br><span class="line">$ find ~/github/gapbs/ -<span class="built_in">type</span> f -regex <span class="string">&#x27;.*/kron-\(6\|12\|3\).*&#x27;</span></span><br><span class="line">/staff/shaojiemike/github/gapbs/kron-12.wsg</span><br><span class="line">/staff/shaojiemike/github/gapbs/kron-3.sg</span><br><span class="line">/staff/shaojiemike/github/gapbs/kron-3.wsg</span><br><span class="line">/staff/shaojiemike/github/gapbs/kron-6.sg</span><br><span class="line">/staff/shaojiemike/github/gapbs/kron-6.wsg</span><br></pre></td></tr></table></figure>
+
+<h2 id="re-match与re-search的区别"><a href="#re-match与re-search的区别" class="headerlink" title="re.match与re.search的区别"></a>re.match与re.search的区别</h2><p>re.match只匹配字符串的<strong>开始</strong>，如果字符串<strong>开始不符合</strong>正则表达式，则匹配失败，函数返回None；</p>
+<p>而re.search匹配<strong>整个字符串</strong>，直到找到<strong>一个</strong>匹配。</p>
+<h2 id="re-match函数"><a href="#re-match函数" class="headerlink" title="re.match函数"></a>re.match函数</h2><p>从字符串的起始位置匹配</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">re.match(pattern, string, flags=0)</span><br></pre></td></tr></table></figure>
+<h3 id="flags"><a href="#flags" class="headerlink" title="flags"></a>flags</h3><p>多个标志可以通过按位 <code>OR(|)</code> 它们来指定。如 <code>re.I | re.M</code>被设置成 I 和 M 标志：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">re.I	使匹配对大小写不敏感</span><br><span class="line">re.M	多行匹配，影响 ^ 和 $</span><br><span class="line">re.S	使 . 匹配包括换行在内的所有字符</span><br></pre></td></tr></table></figure>
+<h3 id="group"><a href="#group" class="headerlink" title="group"></a>group</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">matchObj = re.<span class="keyword">match</span>( <span class="string">r&#x27;(.*) are (.*?) .*&#x27;</span>, line, re.M|re.I)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span> matchObj:</span><br><span class="line">   <span class="built_in">print</span> <span class="string">&quot;matchObj.group() : &quot;</span>, matchObj.group()</span><br><span class="line">   <span class="built_in">print</span> <span class="string">&quot;matchObj.group(1) : &quot;</span>, matchObj.group(<span class="number">1</span>)</span><br><span class="line">   <span class="built_in">print</span> <span class="string">&quot;matchObj.group(2) : &quot;</span>, matchObj.group(<span class="number">2</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">   <span class="built_in">print</span> <span class="string">&quot;No match!!&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>打印部分内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">matchObj.group() :  Cats are smarter than dogs</span><br><span class="line">matchObj.group(<span class="number">1</span>) :  Cats</span><br><span class="line">matchObj.group(<span class="number">2</span>) :  smarter</span><br></pre></td></tr></table></figure>
+
+<h2 id="re-sub-替换"><a href="#re-sub-替换" class="headerlink" title="re.sub 替换"></a>re.sub 替换</h2><h2 id="findall"><a href="#findall" class="headerlink" title="findall"></a>findall</h2><p>返回元组，可以指定开始，与结束位置。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">result = re.findall(<span class="string">r&#x27;(\w+)=(\d+)&#x27;</span>, <span class="string">&#x27;set width=20 and height=10&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(result)</span><br><span class="line"><span class="comment"># [(&#x27;width&#x27;, &#x27;20&#x27;), (&#x27;height&#x27;, &#x27;10&#x27;)]</span></span><br></pre></td></tr></table></figure>
+<h3 id="实例：objdump结果只提取汇编的命令"><a href="#实例：objdump结果只提取汇编的命令" class="headerlink" title="实例：objdump结果只提取汇编的命令"></a>实例：objdump结果只提取汇编的命令</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> re      </span><br><span class="line"><span class="comment"># 打开x86汇编代码文件</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(assembly) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="comment"># 读取文件内容</span></span><br><span class="line">        content = f.read()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用正则表达式匹配所有汇编指令，</span></span><br><span class="line">pattern = <span class="string">r&#x27;\b([a-zA-Z]&#123;3,6&#125;)\b.*&#x27;</span></span><br><span class="line"><span class="comment"># 匹配pattern，但是只将()内结果保存在matches中</span></span><br><span class="line">matches = re.findall(pattern, content)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出匹配结果</span></span><br><span class="line"><span class="keyword">for</span> <span class="keyword">match</span> <span class="keyword">in</span> matches:</span><br><span class="line">        <span class="built_in">print</span>(<span class="keyword">match</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="re-split"><a href="#re-split" class="headerlink" title="re.split"></a>re.split</h2><h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39594191/article/details/111611346">https://blog.csdn.net/weixin_39594191/article/details/111611346</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.runoob.com/python/python-reg-expressions.html">https://www.runoob.com/python/python-reg-expressions.html</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-26T16:00:00.000Z" title="7/26/2023, 4:00:00 PM">2023-07-26</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.286Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">an hour read (About 6748 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/26/Work/Architecture/microHardware/cache/">Cache</a></p><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>Cache is to reduce latency</p>
+
+        </div>
+    </article></div><a class="article-more button is-small is-size-7" href="/2023/07/26/Work/Architecture/microHardware/cache/#more">Read more</a></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-25T16:00:00.000Z" title="7/25/2023, 4:00:00 PM">2023-07-25</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.322Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">15 minutes read (About 2206 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/25/Work/Programming/4-compile/llvm/">llvm</a></p><div class="content"><h2 id="llvm"><a href="#llvm" class="headerlink" title="llvm"></a>llvm</h2><p>LLVM项目开始于一种比Java字节码更低层级的IR，因此，初始的首字母缩略词是Low Level Virtual Machine。它的想法是发掘低层优化的机会，采用链接时优化。</p>
+<p><img src="https://pic.shaojiemike.top/img/20230523164536.png"></p>
+<h3 id="插一嘴：链接时优化"><a href="#插一嘴：链接时优化" class="headerlink" title="插一嘴：链接时优化"></a>插一嘴：链接时优化</h3><ul>
+<li>GCC也支持链接时优化，称为LTO（Link Time Optimization），通过把多个编译单元中分别生成的目标文件在链接时进行全局的优化，可以提高程序的执行效率。</li>
+<li>具体内容：大幅度减少可执行文件的体积<ul>
+<li>冗余代码和变量&#x2F;函数的消除：对于在多个模块中出现的相同代码&#x2F;变量&#x2F;函数，链接时优化可以将它们合并，从而减少可执行文件的体积，提高程序的执行效率。</li>
+<li>内联函数：将函数调用直接替换为函数本身的代码，从而减少函数调用的开销，提高程序的执行效率。</li>
+<li>循环展开和向量化：内联函数后，或许能进一步将循环展开和向量化，从而减少循环体内的分支判断，优化程序的执行效率。</li>
+</ul>
+</li>
+</ul>
+<h3 id="IR：gcc与llvm的区别"><a href="#IR：gcc与llvm的区别" class="headerlink" title="IR：gcc与llvm的区别"></a>IR：gcc与llvm的区别</h3><p>学过编译原理的人都知道，编译过程主要可以划分为前端与后端：</p>
+<ul>
+<li>前端把源代码翻译成中间表示 (IR)。</li>
+<li>后端把IR编译成目标平台的机器码。当然，IR也可以给解释器解释执行。</li>
+</ul>
+<p>经典的编译器如gcc：在设计上前端到后端编写是强耦合的，你不需要知道，无法知道，也没有API来操作它的IR。</p>
+<ul>
+<li><p>好处是：因为不需要暴露中间过程的接口，编译器可以在内部做任何想做的平台相关的优化。</p>
+</li>
+<li><p>坏处是，每当一个新的平台出现，这些编译器都要各自为政实现一个从自己的IR到新平台的后端。</p>
+<ul>
+<li>甚至如果当一种新语言出现，且需要实现一个新的编译器，那么可能需要设计一个新的IR，以及针对大部分平台实现这个IR的后端。</li>
+<li>如果有M种语言、N种目标平台，那么最坏情况下要实现 M*N 个前后端。这是很低效的。</li>
+</ul>
+</li>
+<li><p>LLVM的核心设计了一个叫 LLVM IR 的通用中间表示， 并以库(Library) 的方式提供一系列接口， 为你提供诸如操作IR、生成目标平台代码等等后端的功能。</p>
+</li>
+<li><p>在使用通用IR的情况下，如果有M种语言、N种目标平台，那么最优情况下我们只要实现 M+N 个前后端。</p>
+</li>
+</ul>
+<h2 id="llvm-IR"><a href="#llvm-IR" class="headerlink" title="llvm IR"></a>llvm IR</h2><ul>
+<li>LLVM IR 中间表示是适用于多种编程语言的通用中间表示，支持C、C++、Objective-C、Swift、Java、Python等多种编程语言。</li>
+<li>它是一种低级别的语言，类似于汇编语言，但比汇编语言更高级，包含了类型、变量、函数、控制流等高级语言的特性。</li>
+<li>LLVM编译器可以将多种编程语言编译成LLVM IR，从而可以在LLVM IR层面进行各种优化处理，再将LLVM IR转换为目标平台的机器码。<ul>
+<li>比如要将Python脚本编译成LLVM IR中间表示，可以使用Python LLVM编译器llvmlite和numba。</li>
+</ul>
+</li>
+</ul>
+<h3 id="LLVM-IR表示与转换"><a href="#LLVM-IR表示与转换" class="headerlink" title="LLVM IR表示与转换"></a>LLVM IR表示与转换</h3><p>LVM IR实际上有三种表示：</p>
+<ul>
+<li>.ll 格式：人类可以阅读的文本。</li>
+<li>.bc 格式：适合机器存储的二进制文件。</li>
+<li>内存表示</li>
+</ul>
+<p>各种格式是如何生成并相互转换：</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>转换命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>.c -&gt; .ll</td>
+<td>clang -emit-llvm -S a.c -o a.ll</td>
+</tr>
+<tr>
+<td>.c -&gt; .bc</td>
+<td>clang -emit-llvm -c a.c -o a.bc</td>
+</tr>
+<tr>
+<td>.ll -&gt; .bc</td>
+<td>llvm-as a.ll -o a.bc</td>
+</tr>
+<tr>
+<td>.bc -&gt; .ll</td>
+<td>llvm-dis a.bc -o a.ll</td>
+</tr>
+<tr>
+<td>.bc -&gt; .s</td>
+<td>llc a.bc -o a.s</td>
+</tr>
+</tbody></table>
+<p>对于LLVM IR来说，<code>.ll</code>文件就相当于汇编，<code>.bc</code>文件就相当于机器码。 这也是llvm-as和llvm-dis指令为什么叫as和dis的缘故。</p>
+<h2 id="llvm-前端"><a href="#llvm-前端" class="headerlink" title="llvm 前端"></a>llvm 前端</h2><p><img src="https://pic.shaojiemike.top/img/20230523162028.png" alt="前端"></p>
+<p>clang实现的前端包括</p>
+<ul>
+<li>词法分析(识别标记)<ul>
+<li>处理源代码的文本输入，将语言结构分解为一组单词和标记，去除注释、空白、制表符等。每个单词或者标记必须属于语言子集，语言的保留字被变换为编译器内部表示。</li>
+<li>词法分析报错的例子包括：拼写错误、注释没有正确结束、字符串没有正确结束等。</li>
+</ul>
+</li>
+<li>语法分析(标记结构完整)<ul>
+<li>语法分析器会根据语法规则验证程序的正确性，如缺少右括号、是否缺少关键字、变量未定义、函数应该有返回值等。</li>
+</ul>
+</li>
+<li>语义分析(有无语义矛盾)<ul>
+<li>借助符号表检验代码没有违背语言类型系统。这个表存储标识符（符号）和它们各自的类型之间的映射，以及其它内容。</li>
+<li>类型检查的一种直觉的方法是，在解析之后，遍历AST的同时从符号表收集关于类型的信息。</li>
+<li>例子：定义了两个变量 a 冲突。</li>
+</ul>
+</li>
+</ul>
+<h2 id="llvm-后端"><a href="#llvm-后端" class="headerlink" title="llvm 后端"></a>llvm 后端</h2><p>见 llvm Backend 一文</p>
+<h2 id="clang"><a href="#clang" class="headerlink" title="clang"></a>clang</h2><h3 id="clang-与-llvm的关系"><a href="#clang-与-llvm的关系" class="headerlink" title="clang 与 llvm的关系"></a>clang 与 llvm的关系</h3><p>Clang 是 LLVM 项目中的一个 C&#x2F;C++&#x2F;Objective-C 编译器，它使用 LLVM 的前端和后端进行代码生成和优化。它可以将 C&#x2F;C++&#x2F;Objective-C 代码编译为 LLVM 的中间表示（LLVM IR），然后进一步将其转换为目标平台的机器码。Clang 拥有很好的错误信息展示和提示，支持多平台使用，是许多开发者的首选编译器之一。同时，Clang 也作为 LLVM 项目的一个前端，为 LLVM 的生态系统提供了广泛的支持和应用。</p>
+<h3 id="clang-的开发与苹果公司的关系"><a href="#clang-的开发与苹果公司的关系" class="headerlink" title="clang 的开发与苹果公司的关系"></a>clang 的开发与苹果公司的关系</h3><p>Clang 的开发起源于苹果公司的一个项目，即 LLVM&#x2F;Clang 项目。在 2005 年，苹果公司希望能够使用一种更加灵活、可扩展、优化的编译器来替代 GCC 作为其操作系统 macOS (Mac OS X) 开发环境的默认编译器。由于当时的 GCC 开发被其维护者们认为变得缓慢和难以维护，苹果公司决定开发一款新的编译器，这就是 Clang 诞生的原因。Clang 的开发团队由该项目的创立者 Chris Lattner 领导，他带领团队将 Clang 发展为一款可扩展、模块化、高效的编译器，并成功地将其嵌入到苹果公司的开发工具链 Xcode 中，成为了 macOS 开发环境中默认的编译器之一。</p>
+<p>Clang 是一个开源项目，在苹果公司的支持下，Clang 的开发得到了全球各地的开发者们的广泛参与和贡献。现在，Clang 成为了 LLVM 生态中的一个重要组成部分，被广泛地应用于多平台的编译器开发中。</p>
+<h3 id="clang-cannot-find-iostream"><a href="#clang-cannot-find-iostream" class="headerlink" title="clang-cannot-find-iostream"></a>clang-cannot-find-iostream</h3><p><code>Clang</code> and <code>Clang++</code> “borrow” the header files from <code>GCC</code> &amp; <code>G++</code>. It looks for the directories these usually live in and picks the latest one. If you’ve installed a later GCC without the corresponding G++, Clang++ gets confused and can’t find header files. In your instance, for example, if you’ve installed gcc 11 or 12.</p>
+<p>You can use <code>clang-10 -v -E</code> or <code>clang++-10 -v -E</code> to get details on what versions of header files it’s trying to use.</p>
+<p>安装g++-12解决</p>
+<h2 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h2><p><code>github/tools</code>目录下有许多实用工具</p>
+<ul>
+<li><code>llvm-as</code>：把LLVM IR从人类能看懂的文本格式汇编成二进制格式。注意：此处得到的不是目标平台的机器码。</li>
+<li><code>llvm-dis</code>：llvm-as的逆过程，即反汇编。 不过这里的反汇编的对象是LLVM IR的二进制格式，而不是机器码。</li>
+<li><code>opt</code>：优化LLVM IR。输出新的LLVM IR。</li>
+<li><code>llc</code>：把LLVM IR编译成汇编码。需要用as进一步得到机器码。</li>
+<li><code>lli</code>：解释执行LLVM IR。</li>
+</ul>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>文章部分内容<strong>来自ChatGPT-3.5</strong>，暂时没有校验其可靠性(看上去貌似说得通)。</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/122522485">https://zhuanlan.zhihu.com/p/122522485</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-25T16:00:00.000Z" title="7/25/2023, 4:00:00 PM">2023-07-25</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.314Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Operating-system/">Operating system</a></span><span class="level-item">8 minutes read (About 1213 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/25/Work/Programming/5-Running/Library/">Library</a></p><div class="content"><h2 id="GLIBC"><a href="#GLIBC" class="headerlink" title="GLIBC"></a>GLIBC</h2><p>GLIBC（GNU C Library）是Linux系统中的标准C库，它提供了许多与程序执行和系统交互相关的功能。GLIBC是应用程序与操作系统之间的接口，提供了许多系统调用的包装函数和其他基础功能，使应用程序能够访问操作系统提供的服务和资源。</p>
+<p>GLIBC的主要功能包括：</p>
+<ol>
+<li>标准C函数：GLIBC实现了C语言的标准库函数，例如字符串处理、内存操作、文件操作、数学函数等。它为应用程序提供了基础的编程功能和操作接口。</li>
+<li>系统调用封装：GLIBC封装了许多底层的系统调用，例如文件I&#x2F;O、进程管理、网络通信等。它提供了更高级别的API函数，使开发者能够更方便地进行系统编程。</li>
+<li>内存管理：GLIBC提供了内存分配和管理的函数，例如malloc、free、realloc等。这些函数允许应用程序在运行时动态分配和释放内存，提供了对内存资源的灵活控制。</li>
+<li>多线程支持：GLIBC提供了对多线程编程的支持，包括线程创建、同步原语、线程局部存储等功能。它使得开发者能够编写多线程的并发程序。</li>
+</ol>
+<h3 id="与上下文切换开销的关系"><a href="#与上下文切换开销的关系" class="headerlink" title="与上下文切换开销的关系"></a>与上下文切换开销的关系</h3><p>上下文切换与GLIBC之间没有直接关系。上下文切换是操作系统的概念，是在进程或线程之间切换执行权的过程。GLIBC作为C库，封装了一些系统调用和基础功能，但并不直接参与上下文切换的过程。</p>
+<p>然而，GLIBC的性能和效率可以影响上下文切换的开销。GLIBC的实现方式、性能优化以及与操作系统内核的协作方式，可能会对上下文切换的效率产生影响。例如，GLIBC的线程库（如pthread）的设计和性能特性，以及对锁、条件变量等同步原语的实现方式，都可能会影响多线程上下文切换的开销。</p>
+<p>因此，尽管GLIBC本身不直接执行上下文切换，但它的设计和实现对于多线程编程和系统性能仍然具有重要的影响。</p>
+<h2 id="安装最新版本"><a href="#安装最新版本" class="headerlink" title="安装最新版本"></a>安装最新版本</h2><h3 id="ubuntu换源"><a href="#ubuntu换源" class="headerlink" title="ubuntu换源"></a>ubuntu换源</h3><p>在<a target="_blank" rel="noopener" href="https://launchpad.net/ubuntu/+source/glibc">PPA</a>。改系统的glibc十分的危险，ssh连接，ls命令等，都需要用到。会导致ssh连接中断等问题。</p>
+<h3 id="从源码安装"><a href="#从源码安装" class="headerlink" title="从源码安装"></a>从源码安装</h3><p>不推荐，可能会遇到<a target="_blank" rel="noopener" href="https://askubuntu.com/questions/1345342/how-to-install-glibc-2-32-when-i-already-have-glibc2-31">库依赖</a>。比如缺少<code>bison</code>和<code>gawk</code>。详细<a target="_blank" rel="noopener" href="https://launchpad.net/ubuntu/mantic/+source/glibc">依赖</a>见</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="variable">$HOME</span>/glibc/ &amp;&amp; <span class="built_in">cd</span> <span class="variable">$HOME</span>/glibc</span><br><span class="line">wget http://ftp.gnu.org/gnu/libc/glibc-2.32.tar.gz</span><br><span class="line">tar -xvzf glibc-2.32.tar.gz</span><br><span class="line"><span class="built_in">mkdir</span> build </span><br><span class="line"><span class="built_in">mkdir</span> glibc-2.32-install</span><br><span class="line"><span class="built_in">cd</span> build</span><br><span class="line">~/glibc/glibc-2.32/configure --prefix=<span class="variable">$HOME</span>/glibc/glibc-2.32-install</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="寻找动态链接库"><a href="#寻找动态链接库" class="headerlink" title="寻找动态链接库"></a>寻找动态链接库</h2><p>您可以使用以下方法来查找libstdc++库的位置：</p>
+<ol>
+<li>使用<code>g++</code>或<code>gcc</code>命令查找：如果您的系统上安装了g++或gcc编译器，您可以使用以下命令来查找libstdc++库的位置：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -print-file-name=libstdc++.so</span><br></pre></td></tr></table></figure>
+
+<p>或者</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -print-file-name=libstdc++.so</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>使用<code>ldconfig</code>命令查找：<code>ldconfig</code>是Linux系统中用于配置动态链接器的命令。您可以运行以下命令来查找libstdc++库的路径：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldconfig -p | grep libstdc++.so</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>在默认路径下查找：libstdc++通常位于标准的系统库路径中。在大多数Linux发行版中，libstdc++的默认安装路径为<code>/usr/lib</code>或<code>/usr/lib64</code>。您可以在这些目录中查找libstdc++的库文件。</li>
+</ol>
+<p>如果您找到了libstdc++库的路径，您可以将其添加到CMakeLists.txt中的<code>CMAKE_CXX_FLAGS</code>变量中，如之前的回答中所示。</p>
+<p>请注意，如果您正在使用的是Clang编译器（<code>clang++</code>），则默认情况下它将使用libc++作为C++标准库，而不是libstdc++。如果您确实希望使用libstdc++，需要显式指定使用<code>-stdlib=libstdc++</code>标志。例如：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS <span class="string">&quot;$&#123;CMAKE_CXX_FLAGS&#125; -stdlib=libstdc++&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>希望这些方法能够帮助您找到libstdc++库并解决您的问题。如有更多问题，请随时向我询问。</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/page/19/">Previous</a></div><div class="pagination-next"><a href="/page/21/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/">1</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/19/">19</a></li><li><a class="pagination-link is-current" href="/page/20/">20</a></li><li><a class="pagination-link" href="/page/21/">21</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/41/">41</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">404</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">33</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">500</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">26</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">25</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">117</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">8</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">52</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-31T22:47:56.000Z">2024-05-31</time></p><p class="title"><a href="/2024/05/31/Thinking/4-viewOnOthers/FinancialValues/">Financial Values</a></p><p class="categories"><a href="/categories/thinking/">thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-26T15:34:38.000Z">2024-05-26</time></p><p class="title"><a href="/2024/05/26/OutOfWork/1-lifeAndCareer/travelPreparation/">Travel Preparation</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-22T11:18:58.000Z">2024-04-22</time></p><p class="title"><a href="/2024/04/22/Work/Architecture/microHardware/cacheCoherence/">Memory Consistency and Cache Coherence </a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-20T06:54:32.000Z">2024-04-20</time></p><p class="title"><a href="/2024/04/20/Work/software/windows/WinUsefulTools/">Windows Useful Tools</a></p><p class="categories"><a href="/categories/software/">software</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-19T07:40:25.000Z">2024-04-19</time></p><p class="title"><a href="/2024/04/19/Work/Programming/2-languageGrammar/c/CplusDebugPrint/">C &amp; C++: Debug Print like icecream in Python</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">17</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

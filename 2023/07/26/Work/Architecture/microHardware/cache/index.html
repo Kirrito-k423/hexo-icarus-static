@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Cache - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       Cache is to reduce latency"><meta property="og:type" content="blog"><meta property="og:title" content="Cache"><meta property="og:url" content="http://icarus.shaojiemike.top/2023/07/26/Work/Architecture/microHardware/cache/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       Cache is to reduce latency"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/img/1212111.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211209204150.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211209204831.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20221122170254.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211120101238.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230727110320.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20221122170944.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20221122171207.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20221122171154.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220319203936.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20221122170254.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211120095544.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211120095608.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211120100532.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211120101538.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20221114181529.png"><meta property="article:published_time" content="2023-07-26T16:00:00.000Z"><meta property="article:modified_time" content="2024-06-03T08:43:50.286Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="incomplete"><meta property="article:tag" content="cache"><meta property="article:tag" content="prefetch"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/img/1212111.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2023/07/26/Work/Architecture/microHardware/cache/"},"headline":"Cache","image":["https://pic.shaojiemike.top/img/1212111.png","https://pic.shaojiemike.top/img/20211209204150.png","https://pic.shaojiemike.top/img/20211209204831.png","https://pic.shaojiemike.top/img/20221122170254.png","https://pic.shaojiemike.top/img/20211120101238.png","https://pic.shaojiemike.top/img/20230727110320.png","https://pic.shaojiemike.top/img/20221122170944.png","https://pic.shaojiemike.top/img/20221122171207.png","https://pic.shaojiemike.top/img/20221122171154.png","https://pic.shaojiemike.top/img/20220319203936.png","https://pic.shaojiemike.top/img/20221122170254.png","https://pic.shaojiemike.top/img/20211120095544.png","https://pic.shaojiemike.top/img/20211120095608.png","https://pic.shaojiemike.top/img/20211120100532.png","https://pic.shaojiemike.top/img/20211120101538.png","https://pic.shaojiemike.top/img/20221114181529.png"],"datePublished":"2023-07-26T16:00:00.000Z","dateModified":"2024-06-03T08:43:50.286Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       Cache is to reduce latency"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2023/07/26/Work/Architecture/microHardware/cache/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-26T16:00:00.000Z" title="7/26/2023, 4:00:00 PM">2023-07-26</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.286Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">an hour read (About 6748 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Cache</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>Cache is to reduce latency</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>Excellent Video Resource</p>
+</div>
+        <div class="message-body">
+            <p>We’re still on the lookout for an exceptional blog or overview paper to complement our understanding of this topic. Stay tuned for updates!</p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-solid fa-check mr-2"></i>Outstanding Blog or Overview Paper</p>
+</div>
+        <div class="message-body">
+            <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/384874383">知乎</a> 还是知乎[^5]</p>
+
+        </div>
+    </article>
+
+<h2 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h2><p>自1970s它们的诞生以来，基于微处理器的数字平台一直遵循着摩尔定律，即在相同面积上，大约每两年密度就翻一番。然而，微处理器和存储器制造技术一直在以两种截然相反的方式利用这种密度的增加。微处理器的制造技术专注于提高指令的执行速度，而存储器的制造技术则主要关注容量的提高，速度的增加可忽略不计。这种处理器和内存间的性能差异趋势导致了一种被称为<strong>“存储墙”</strong>的现象<a href="%5B%E7%9F%A5%E4%B9%8E%5D(https://zhuanlan.zhihu.com/p/31875174)">^6</a>。</p>
+<p>为克服存储墙，设计者们引入了带有<strong>缓存</strong>（cache）的存储器体系层次（memory hierarchy），每层的延迟与容量都经过了权衡。缓存基于内存访问的局域性原理来缓解处理器与内存间的性能差距。但不幸的是，存在许多重要的工作负载会表现出不利的内存访问模式。这些模式会难住现代高速缓存层次结构中的简单更新策略（这些策略规定了指令和数据在缓存层次间移动的规则）。因此，对于在较高层缓存（L1、L2）中不存在的内存块，处理器往往需要花费大量时间获取它们。</p>
+<p><strong>预取（prefetching</strong>）——预测未来的内存访问，并在处理器显式访问前对就相应内存块发出请求。——其作为一种隐藏内存访问延迟的方法是非常具有前途的。已经存在了大量用于预期的软硬件方法。<strong>许多针对简单存取模式的硬件预取机制已被纳入现代微处理器中，以预取指令与数据</strong>。</p>
+<h2 id="cache缓存原理"><a href="#cache缓存原理" class="headerlink" title="cache缓存原理"></a>cache缓存原理</h2><p>Cortex-A53架构上各级cache之间的硬件抽象框图如下：</p>
+<p><img src="https://pic.shaojiemike.top/img/1212111.png">{ width&#x3D;70% }</p>
+<p><img src="https://pic.shaojiemike.top/img/20211209204150.png"></p>
+<h2 id="每个机器对应的存储器山"><a href="#每个机器对应的存储器山" class="headerlink" title="每个机器对应的存储器山"></a>每个机器对应的存储器山</h2><p><img src="https://pic.shaojiemike.top/img/20211209204831.png">{ width&#x3D;70% }</p>
+<p>stride步长意思是，相邻访问数据之间的间隔，越大空间局部性不好。</p>
+<h2 id="缓存的结构"><a href="#缓存的结构" class="headerlink" title="缓存的结构"></a>缓存的结构</h2><h3 id="整体逻辑"><a href="#整体逻辑" class="headerlink" title="整体逻辑"></a>整体逻辑</h3><p><img src="https://pic.shaojiemike.top/img/20221122170254.png"></p>
+<ul>
+<li>标记 tag </li>
+<li>组索引 index(Index corresponds to bits used to determine the set of the Cache.)</li>
+<li>偏移 offset</li>
+</ul>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>calculation</p>
+</div>
+        <div class="message-body">
+            <p><img src="https://pic.shaojiemike.top/img/20211120101238.png"></p>
+
+        </div>
+    </article>
+
+<h3 id="缓存的内容"><a href="#缓存的内容" class="headerlink" title="缓存的内容"></a>缓存的内容</h3><p>Skylake架构：可以<a target="_blank" rel="noopener" href="http://www.cs.fsu.edu/~zwang/files/cda3101/Fall2017/Lecture12_cda3101.pdf">进一步阅读</a></p>
+<p><img src="https://pic.shaojiemike.top/img/20230727110320.png"></p>
+<ul>
+<li><strong>Physically indexed, physically tagged (PIPT)</strong> caches use the physical address for both the index and the tag.<ul>
+<li>Simple to implement but slow, as the physical address must be looked up (which could involve a TLB miss and access to main memory) before that address can be looked up in the cache.</li>
+</ul>
+</li>
+<li><strong>Virtually indexed, virtually tagged (VIVT)</strong> caches use the virtual address for both the index and the tag.<ul>
+<li>Potentially much faster lookups.</li>
+<li>Problems when several different virtual addresses may refer to the same physical address（别名 Alias） – addresses would be cached separately despite referring to the same memory, causing coherency problems.</li>
+<li>Additionally, there is a problem that virtual-to-physical mappings can change（比如，上下文切换时）, which would require clearing cache blocks.</li>
+</ul>
+</li>
+<li><strong>Virtually indexed, physically tagged (VIPT)</strong> caches use the virtual address for the index and the physical address in the tag.<ul>
+<li>To perform indexing with VA, virtual index bits should be same as physical index bits<br>and this happens when index is taken from page offset</li>
+<li>cache associativity should be greater（有其他的标志位） than or equal to cache size divided by page size.For example, with 32KB L1 cache and 4KB page, associativity should be at least 8. This,however, increases cache energy consumption but may not provide corresponding miss rate reduction.</li>
+<li><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/ddi0344/k/programmers-model/addresses-in-a-processor-system">Cortex-A8 设计</a>：L1 cache is virtual index physical tag. L2 cache is physical address physical tag.<ul>
+<li>查找速度快：使用virtual page offset 来index索引与 physical tag的翻译能并行。所以能比PIPT快，</li>
+<li>解决别名问题:使用物理地址作为tag,可以唯一标识缓存行,避免了VIVT中的别名问题。</li>
+<li>缺点：Limitation is that one size of a VIPT cache can be no larger than the page size</li>
+</ul>
+</li>
+<li>Intel L1 also VIPT[^1]</li>
+</ul>
+</li>
+</ul>
+<p>More about paging [^5]</p>
+<p>TLB的深入研究可以参考 <a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/309583874_A_Survey_of_Techniques_for_Architecting_TLBs">2017 A_Survey_of_Techniques_for_Architecting_TLBs</a></p>
+<h3 id="映射策略：直接映射-vs-N路组相联-vs-全相联-2"><a href="#映射策略：直接映射-vs-N路组相联-vs-全相联-2" class="headerlink" title="映射策略：直接映射 vs N路组相联 vs 全相联^2"></a>映射策略：直接映射 vs N路组相联 vs 全相联<a target="_blank" rel="noopener" href="https://shaojiemike.notion.site/CSAPP-6-62b5d68fadc54142b306d8c7a1d8e1d7">^2</a></h3><p><img src="https://pic.shaojiemike.top/img/20221122170944.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20221122171207.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20221122171154.png"></p>
+<h4 id="三者的比较-访问步骤细节"><a href="#三者的比较-访问步骤细节" class="headerlink" title="三者的比较 &amp; 访问步骤细节"></a>三者的比较 &amp; 访问步骤细节</h4><p>Set-associative caches offer lower <strong>miss rates</strong> than direct-mapped caches, but usually have a longer access <strong>time</strong>(tag comparator)(1).<br>{ .annotate }</p>
+<ol>
+<li>the access time for a two-way associative cache is 51%,46% and 40% times longer than the access time for a direct mapped cache for 8KB, 16KB and 32KB caches, respectively[^4]</li>
+</ol>
+<p>The <strong>energy</strong> consumption of set-associative cache tends to be higher than that of direct-mapped cache, because all the ways in a set are accessed in parallel although at most only one way has the desired data.</p>
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/1dec7b2a478b8b1aa3c3e2d7e1c453a4.png)
+  <figcaption>直接映射</figcaption>
+</figure>
+
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/2555953ecbf0356d6662c5eb76ca8b38.png)
+  <figcaption>组相联tag/data一体</figcaption>
+</figure>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>组相联tag&#x2F;data分开情况：并行和串行tag比较实现的优劣</p>
+</div>
+        <div class="message-body">
+            <p>真实场景中组相联cache的tag和data往往被分开存储，因为分开存储，组相联实现电路分化成了并行和串行实现方式。[^8]</p>
+<figure markdown>
+![](https://pic.shaojiemike.top/shaojiemike/2024/01/e4cc170b52a96cf94aae53348c7ac09e.png)
+<figcaption>组相联并行</figcaption>
+</figure>
+
+<ol>
+<li>index同时送到<code>tag ram</code>和<code>data ram</code>，同时译码，同时读取tag和data，</li>
+<li>并根据tag比较的结果来选择一组data进行输出，其中<code>aligner</code>是字节选择器。</li>
+</ol>
+<figure markdown>
+![](https://pic.shaojiemike.top/shaojiemike/2024/01/ae6f7ce6730426cc4ab2cf73b3e1ae30.png)
+<figcaption>组相联串行</figcaption>
+</figure>
+
+<p>首先tag并行比较，然后才选中某一cache line的数据。</p>
+<ol>
+<li>并行实现因为比串行多一个多路选择器，工作时间会变长，对应的<strong>时钟频率会下降</strong>，而且每次同时选中多个cache line，<strong>功耗较大</strong>；</li>
+<li>串行实现在用流水线来实现cache时会明显增加所需<strong>时钟周期数</strong>（多一个时钟周期）。</li>
+</ol>
+
+        </div>
+    </article>
+
+<p>因为高速缓存电路必须并行地搜索许多相匹配的标记，构造一个又大又快的全相联高速缓存很<strong>困难</strong>，而且<strong>很昂贵</strong>。因此，全相联高速缓存只适合<strong>做小</strong>的高速缓存，例如虚拟内存系统中的翻译备用缓冲器(TIB),它缓存页表项。</p>
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/c21a533157428a87835b33c4cc5d430b.png)
+  <figcaption>全相联</figcaption>
+</figure>
+
+<h3 id="替换策略-Cache-placement-policies"><a href="#替换策略-Cache-placement-policies" class="headerlink" title="替换策略 Cache placement policies"></a>替换策略 Cache placement policies</h3><ol>
+<li>LRU(Least Recently Used)</li>
+<li>LFU(Least Frequently Used)</li>
+<li>Advanced policies<ol>
+<li>RRIP[^7]</li>
+</ol>
+</li>
+</ol>
+<h3 id="缺失状态处理寄存器（Miss-Status-Handling-Register，MSHR）"><a href="#缺失状态处理寄存器（Miss-Status-Handling-Register，MSHR）" class="headerlink" title="缺失状态处理寄存器（Miss Status Handling Register，MSHR）"></a>缺失状态处理寄存器（Miss Status Handling Register，MSHR）</h3><p>当出现缓存缺失（cache miss）时，高性能处理器依然会继续发出存储访问请求。早期的缓存设计中，处理器发出的后续存储访问会被阻塞，直到前面缓存缺失的存储访问得到相应的数据。很显然，这会大大降低处理器的性能。[^9]</p>
+<p>现代缓存设计中，为了解决这一问题，引入了缺失状态处理寄存器（Miss Status Handling Register，MSHR）。当出现缓存缺失时，一个MSHR会用来记录缓存缺失状态，高速缓存可以继续响应其它的存储访问请求，当缓存缺失被满足后，这个MSHR会被释放。这种高速缓存设计也被称为非阻塞或者无锁高速缓存。</p>
+<p>在给定的任意时间内，待处理的缓存缺失数量受MSHR数量的限制。因此，MSHR的数量会影响存储层的并行度。在设计MSHR数量时，要考虑处理器一个时钟周期内可以执行的指令数，访问外层存储层次的延迟和带宽，以及内层存储层次访问过滤的配置。</p>
+<h2 id="缓存数据策略：写回和写直达"><a href="#缓存数据策略：写回和写直达" class="headerlink" title="缓存数据策略：写回和写直达"></a>缓存数据策略：写回和写直达</h2><h3 id="RMW-cycle"><a href="#RMW-cycle" class="headerlink" title="RMW cycle"></a>RMW cycle</h3><p>写数据的时候，如果数据不在cache里，需要Read-Modify-Write，这个过程叫做RMW cycle。</p>
+<h3 id="Write-Back-vs-Write-Through"><a href="#Write-Back-vs-Write-Through" class="headerlink" title="Write-Back vs Write-Through"></a>Write-Back vs Write-Through</h3><p>在缓存管理策略中，<strong>Write-Back</strong>（回写）和<strong>Write-Through</strong>（直写）是两种处理数据写入操作的常见方法。这些策略的选择对系统的性能和复杂度有显著影响。</p>
+<h4 id="Write-Through（直写）"><a href="#Write-Through（直写）" class="headerlink" title="Write-Through（直写）"></a>Write-Through（直写）</h4><p><strong>定义</strong>：<br>在Write-Through策略中，每当缓存执行写操作时，数据不仅写入缓存，同时也直接写入到下一级存储（通常是主存或下一级缓存）。这保证了缓存与主存之间的数据一致性。</p>
+<p><strong>优点</strong>：</p>
+<ul>
+<li><strong>数据一致性</strong>：缓存和主存之间的数据始终保持一致，简化了数据一致性的管理。</li>
+<li><strong>简单性</strong>：由于数据立即写入主存，系统设计相对简单，特别是在处理设备断电或系统崩溃的情况下。</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li><strong>性能影响</strong>：每次写操作都需要访问主存，这可能导致较高的延迟和降低系统的总体性能。</li>
+<li><strong>增加带宽压力</strong>：由于每个写操作都要写入主存，因此可能会增加系统的带宽需求。</li>
+</ul>
+<h4 id="Write-Back（回写）"><a href="#Write-Back（回写）" class="headerlink" title="Write-Back（回写）"></a>Write-Back（回写）</h4><p><strong>定义</strong>：<br>在Write-Back策略中，数据首先被写入缓存。只有在缓存块被替换出缓存时，才会将数据写回到主存。这通常通过一个“脏位”来标记修改过的缓存行，表示这部分数据与主存中的数据不一致。</p>
+<p><strong>优点</strong>：</p>
+<ul>
+<li><strong>性能优化</strong>：由于数据写操作只修改缓存，不直接影响主存，可以显著减少访问主存的次数，从而提高性能。</li>
+<li><strong>减少带宽使用</strong>：只有在必需时才将数据写回主存，减少了对系统带宽的需求。</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li><strong>数据一致性问题</strong>：由于缓存和主存之间的数据可能不同步，需要额外的策略来管理数据的一致性，尤其是在多处理器系统中。</li>
+<li><strong>复杂性</strong>：需要管理脏位以及在适当的时候将数据写回主存，增加了系统设计的复杂性。</li>
+</ul>
+<h4 id="选择依据"><a href="#选择依据" class="headerlink" title="选择依据"></a>选择依据</h4><ul>
+<li><strong>系统需求</strong>：如果系统对性能的需求高于对数据一致性的即时需求，那么Write-Back可能是更好的选择。反之，如果需要确保数据随时一致，特别是在高可靠性的环境中，Write-Through可能更合适。</li>
+<li><strong>应用场景</strong>：在大量写操作的环境中，Write-Back可以显著提高性能。而在需要频繁更新外部数据或易于数据恢复的环境中，Write-Through可以简化数据管理和恢复过程。</li>
+</ul>
+<p>总结来说，每种策略都有其适用场景和权衡点。选择最合适的策略取决于特定应用和系统架构的具体需求和目标。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>写直达有个[问题](https</p>
+</div>
+        <div class="message-body">
+            <p>在处理缓存写入策略时，特别是在讨论写直达（Write-Through）缓存时，通常涉及到如何具体执行写入操作：是只写入修改过的数据，还是写入整个缓存行。这个决策对性能和带宽利用率有直接影响。</p>
+<p>写直达策略中的写入操作</p>
+<p>在写直达（Write-Through）缓存策略中，数据在写入缓存的同时也被写入到下一级存储（如主存或下一级缓存）。这样做的目的是确保缓存和主存之间的一致性。在这个过程中，通常涉及以下两种方法：</p>
+<ol>
+<li><p><strong>写整个缓存行</strong>：</p>
+<ul>
+<li><strong>操作方式</strong>：当缓存行中的任何数据被修改时，整个缓存行都会被写回到主存。这意味着不仅仅是被修改的数据部分，而是整行数据。</li>
+<li><strong>优点</strong>：<ul>
+<li>简化了缓存与主存之间的数据同步，因为整行数据都保持一致。</li>
+<li>在某些情况下，这可以提高系统的预测加载效能，因为整行数据通常是连续存储的，可能包含将来会被访问的数据。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>可能导致不必要的数据传输，特别是当只修改了缓存行中很小的一部分数据时。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>写修改的数据</strong>：</p>
+<ul>
+<li><strong>操作方式</strong>：只有实际被修改的数据部分被写回主存，而不是整个缓存行。</li>
+<li><strong>优点</strong>：<ul>
+<li>减少了数据传输量，只有必要的数据被更新，可以提高带宽的使用效率。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>实现上可能更复杂，需要缓存系统能够精确地跟踪哪些部分的数据被修改过。</li>
+<li>在处理器和主存之间可能需要更频繁的同步，因为数据更新不再是按块进行。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>哪种方法更常见？</p>
+<p>在大多数实际应用中，尤其是在<strong>传统的写直达策略下，通常是写整个缓存行</strong>。这样做主要是因为硬件和系统设计简化的考虑，以及保证数据的一致性。写整个缓存行可以减少对复杂逻辑的需求，因为不需要跟踪缓存行内部各部分数据的修改状态。<a target="_blank" rel="noopener" href="https://course.ccs.neu.edu/com3200/parent/NOTES/cache-basics.html">A write-through cache writes a <strong>cache block</strong> back immediately after the CPU write to the cache block.</a>来自美国东北大学的网址，结论是写整个cache line。</p>
+<p>选择写整个缓存行还是只写修改的数据部分，取决于具体的系统设计、预期的应用负载以及对性能与带宽的优化需求。在实际的系统设计中，写整个缓存行通常更为常见，尤其是在需要简化硬件设计并保持高效一致性管理的场景中。如果系统对带宽使用有严格要求，可能会考虑只写修改的数据，尽管这可能增加设计的复杂性。</p>
+
+        </div>
+    </article>
+
+<h2 id="UCA-NUCA"><a href="#UCA-NUCA" class="headerlink" title="UCA &amp; NUCA"></a>UCA &amp; NUCA</h2><p>在大规模芯片系统（核心数量巨大）的情况下，为了提高缓存的利用率，通常多个核心会共享最外层缓存。</p>
+<ol>
+<li>缓存均为一整块，而访问缓存中的某个数据，发生缓存命中时均造成固定的延时。因此这种统一的缓存也被称为均一访问延时（Uniform Cache Access, UCA）的缓存。随着核心的增多，使得这类共享的缓存不断增大，以至于该级缓存命中延时太高、功耗明显增加。</li>
+<li>将共享缓存分布式的拆分到，每个处理器核心和私有缓存一起组织的设计就是非均一访问延时（Non-Uniform Cache Access，NUCA）。具体表现在：在发生缓存命中时，某核心访问它本地的这部分共享缓存，与访问其它核心拥有的共享缓存的延时不同；某核心访问与它较接近的共享缓存，与访问与它较远的共享缓存的延时不同。</li>
+</ol>
+<h2 id="预取"><a href="#预取" class="headerlink" title="预取"></a>预取</h2><h3 id="TLB-预取"><a href="#TLB-预取" class="headerlink" title="TLB 预取"></a>TLB 预取</h3><p>TLB 作为页表的缓存，为了提高命中率。也是有对应的预取技术的。</p>
+<p>基于G. B. Kandiraju的文章[^3]</p>
+<ul>
+<li>Sequential Prefetching (SP)</li>
+<li>Recency Prefetching</li>
+<li>arbitrary stride prefetching, and markov prefetching<ul>
+<li>马尔科夫链是一种随机过程，它具有”无记忆性”的特点，即当前状态只与前一个状态有关。在缓存预取中，可以使用马尔科夫链来建模程序的数据访问模式。根据先前的访问历史，马尔科夫链可以估计出下一个访问的数据位置，从而预测未来的数据访问模式。</li>
+<li>然而，准确建立有效的马尔科夫链模型需要足够的历史数据和精确的预测算法。此外，马尔科夫链模型也需要根据程序的特性和访问模式进行定制化的调优，利用数据访问模式的统计特性来设计。</li>
+</ul>
+</li>
+<li>Distance Prefetching</li>
+</ul>
+<h3 id="指令预取技术包括"><a href="#指令预取技术包括" class="headerlink" title="指令预取技术包括"></a>指令预取技术包括</h3><ul>
+<li>next-line prefetchers（下一行预取）</li>
+<li>branch-directed prefetching（分支定向的预取）</li>
+<li>discontinuity prefetchers（不连续的预取）</li>
+<li>temporal Instruction streaming（时间域上的存储流）</li>
+</ul>
+<h3 id="数据预取器包括"><a href="#数据预取器包括" class="headerlink" title="数据预取器包括"></a>数据预取器包括</h3><ul>
+<li>stride and stream-based data prefetchers（基于跨步和流的数据预取器）</li>
+<li>address-correlated prefetching（基于地址相关性的预取器）</li>
+<li>spatially correlated prefetching（基于空间相关性的预取器）</li>
+<li>execution-based prefetching（基于执行的预取）</li>
+</ul>
+<h2 id="数据预取-prefetch"><a href="#数据预取-prefetch" class="headerlink" title="数据预取 prefetch"></a>数据预取 prefetch</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>將memory中的数据在读写单元空闲時(计算單元努力工作時)平行下載，達到降低 cache miss latency 的效果。注意一般每一级Cache都有相应的硬件预取单元。</p>
+<p>优秀的prefetch策略通常使用Coverage和Accuracy来衡量，前者为prefetching命中占总访存比例，后者为有效的prefetching在总prefetch请求中的比例。</p>
+<p>一个理想的预取机制应该是</p>
+<ol>
+<li>高覆盖率，最大程度消除缓存缺失；</li>
+<li>高准确率，不会增加过多的存储带宽消耗；</li>
+<li>及时性，完全隐藏缓存缺失时延。</li>
+</ol>
+<p>特点</p>
+<ol>
+<li>prefetch 依抓取到資料的時間分類<ol>
+<li>prefetch 資料太早到的話，要在 cache 中等很久，占位子，還可能被踢出去 。</li>
+<li>太晚到的話，就達不到降低 latency 的效果</li>
+</ol>
+</li>
+<li>根据prefetch数据存储的位置分<ol>
+<li>“binding prefetch”指通过软件&#x2F;硬件机制直接预取到寄存器中</li>
+<li>现代处理器多用”non-binding prefetching”，将数据预取到cache或cache结构中<strong>额外的buffer</strong>里面</li>
+</ol>
+</li>
+<li>prefetch 是有額外開銷(over head)的<ol>
+<li>prefetch 本身就是使用不同方式快取內容進行額外的補充，進行額外操作時就會消耗額外的有限資源，但如果這個補充的資料並沒有恰好被使用到則這些額外消耗的有限資源就都是浪費掉的，也就是所謂的快取污染。</li>
+</ol>
+</li>
+</ol>
+<h3 id="硬件预取"><a href="#硬件预取" class="headerlink" title="硬件预取"></a>硬件预取</h3><h4 id="触发时机"><a href="#触发时机" class="headerlink" title="触发时机"></a>触发时机</h4><p>在gem5 的学习时，<code>prefetch_on_access = Param.Bool(False,&quot;notify the hardware prefetcher on every access (not just misses)&quot;)</code> 貌似暗示了<a target="_blank" rel="noopener" href="https://gem5-users.gem5.narkive.com/seGGqCx3/about-prefetch-on-access-parameter">预取发生在cache miss时。</a></p>
+<h4 id="几种基本策略"><a href="#几种基本策略" class="headerlink" title="几种基本策略"></a>几种基本策略</h4><p>动态观测程序的行为并产生相应的预取请求，这种方式称为硬件预取（hardware prefetching）。说简单些，就是用硬件根据某些规律去猜测处理器未来将要访问的数据地址。</p>
+<ol>
+<li>顺序预取（sequential prefetching）检测并预取对连续区域进行访问的数据。<ol>
+<li>顺序预取是最简单的预取机制，因为总是预取当前cache line的下一条line，硬件开销小，但是对访存带宽的需求高。</li>
+</ol>
+</li>
+<li>步长预取（stride prefetching）检测并预取连续访问之间相隔s个缓存数据块的数据，其中s即是步长的大小。硬件实现需要使用访问预测表，记录访问的地址，步长以及访存指令的pc值。</li>
+<li>流预取（stream prefetching）对流访问特征进行预取，流访问特征是指一段时间内程序访问的cache行地址呈现的规律，这种访问规律在科学计算和工程应用中广泛存在。硬件实现时，需要使用流识别缓冲记录一段时间内访存的cache行地址。预取引擎识别到流访问则进行预取。</li>
+<li>关联预取（association based prefetching）利用访存地址之间存在的关联性进行预取。</li>
+</ol>
+<p>其他做法:</p>
+<ol>
+<li>GHB prefetcher : Global History Buffer，將 cache miss 的資料暫存起來，根據這些資料去選擇較佳的 prefetching method。採 FIFO ，可避免 stable data，提高精準度<ol>
+<li>Data Cache Prefetching Using a Global History Buffer</li>
+<li><img src="https://pic.shaojiemike.top/img/20220319203936.png"></li>
+</ol>
+</li>
+<li>STR prefetcher : Stream buffers，將 cache miss 在記憶體中附近的連續資料放到 stream buffer 中，在假設常常用到都會放在一起的前提下，可以減少 cache miss 的情況。</li>
+</ol>
+<h4 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h4><p>hardware prefetch 優點</p>
+<ul>
+<li>透過訓練，可以在執行時間做出適當的 prefetch 選擇</li>
+<li>不增加指令，直接以硬體運作</li>
+</ul>
+<p>hardware prefetch 缺點&#x2F;限制</p>
+<ul>
+<li>硬體受到資源限制，無法一次操作<strong>大量</strong>的 streams</li>
+<li>stream <strong>太短</strong>沒有足夠的 cache misses 去做硬體的預取和載入有用的 cache block</li>
+<li>因為硬體是有規則的拿取，如果要存取<strong>不規則</strong>的記憶體(資料結構)，會變得很複雜</li>
+</ul>
+<h3 id="软件预取"><a href="#软件预取" class="headerlink" title="软件预取"></a>软件预取</h3><p>透過編譯器或者直接在程式中插入 intrinsics，達到 prefetch 的效果，常見的有 intel SSE (Streaming SIMD Extensions) 、 AVX</p>
+<h4 id="优缺点-1"><a href="#优缺点-1" class="headerlink" title="优缺点"></a>优缺点</h4><p>software prefetch 優點</p>
+<ul>
+<li>不規則的記憶體存取</li>
+<li>Cache Locality Hint 缓存位置提示?<ul>
+<li>可以利用 hint 將資料放在適合的 cache level ，減少不同 level 之間造成 Latency</li>
+<li>硬體只會將 prefetch 到的資料放在 LLC (last level cache)</li>
+</ul>
+</li>
+<li>Loop Bounds<ul>
+<li>由 loop unrolling, software pipelining, and using branch instructions 這幾個技巧，使得軟體的 prefetch 較硬體靈活</li>
+</ul>
+</li>
+</ul>
+<p>software prefetch 缺點</p>
+<ol>
+<li>增加指令數量<ol>
+<li>除了指令本身，每道指令都需要額外的計算記憶體位置</li>
+</ol>
+</li>
+<li>Static Insertion<ol>
+<li>無法在執行時間根據情況來做更好的調整</li>
+</ol>
+</li>
+<li>改變程式結構<ol>
+<li>為了使預取達到效果，有時候會做一些結構的修改，例如:迴圈的拆解(loop unrolling)，可能使可讀性下降</li>
+</ol>
+</li>
+</ol>
+<h3 id="硬件加软件预取-software-hardware-prefetch"><a href="#硬件加软件预取-software-hardware-prefetch" class="headerlink" title="硬件加软件预取 software + hardware prefetch"></a>硬件加软件预取 software + hardware prefetch</h3><p>同時採用 software 及 hardware prefetch ，兩者會互相影響，有加成的效果，也可能有負面的影響。</p>
+<h4 id="优缺点-2"><a href="#优缺点-2" class="headerlink" title="优缺点"></a>优缺点</h4><p>software + hardware prefetch 優點&#x2F;正面影響</p>
+<ol>
+<li>針對規則&#x2F;不規則的 stream 分別交給 hardware &#x2F; software prefetch，達到截長補短的正面效果</li>
+<li>如果 software prefetch 的資料遲了， hardware prefetch 也能及時補上資料</li>
+</ol>
+<p>software + hardware prefetch 缺點&#x2F;負面影響</p>
+<ol>
+<li>software prefetch 會減少能夠訓練 hardware prefetch 的資料，因為都已經 prefetch ， hardware prefetcher 就以為這些是不需要 prefetch 的資料</li>
+<li>software prefetch 指令會觸發 hardware prefetch ，造成過早要求 prefetch</li>
+<li>software prefetch 取到錯誤或多餘的資料時，會造成硬體上的負擔，降低效率</li>
+</ol>
+<h2 id="实践：详细cache参数分析"><a href="#实践：详细cache参数分析" class="headerlink" title="实践：详细cache参数分析"></a>实践：详细cache参数分析</h2><p><img src="https://pic.shaojiemike.top/img/20221122170254.png"></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SYSNODE=/sys/devices/system/node</span><br><span class="line">grep <span class="string">&#x27;.*&#x27;</span> $SYSNODE/node*/cpu*/cache/index*<span class="comment">/* 2&gt;/dev/null | </span></span><br><span class="line"><span class="comment">    awk &#x27;-F[:/]&#x27; &#x27;&#123; printf &quot;%6s %6s %24s %s\n&quot; $6, $7, $9, $10, $11 ; &#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic.shaojiemike.top/img/20211120095544.png"><br>Data Cache 4路256组相联，每块64K &#x2F; (4*256) &#x3D;64字节(正好是一个cache line)。块偏移位b&#x3D;6(2^6&#x3D;64)，组索引s&#x3D;8(2^8&#x3D;256)，标记位t&#x3D;64-8-6&#x3D;50位。</p>
+<p>每块能存64&#x2F;4&#x3D;16个int，L1总共能存(4*256*16)&#x3D;1024*16个int。（不考虑写回的话。</p>
+<hr>
+<p><img src="https://pic.shaojiemike.top/img/20211120095608.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20211120100532.png"></p>
+<p><code>coherency_line_size</code>-how many bytes are in a cache line, which is the unit in which memory is read and written to&#x2F;from main memory.</p>
+<p><code>ways_of_associativity</code>-how many different cache slots a given line can be mapped to. Higher is better (it means you’re less likely to have a working set that is smaller than cache but can’t simultaneously be in cache because lots of data wants to be in the same cache lines), but is hard to implement, especially in the lower-level caches that have to be faster. 8 is pretty common for L1.</p>
+<p>$$size&#x3D;ways_of_associativity<em>coherency_line_size</em>number_of_sets&#x2F;1024$$</p>
+<p>但是这里对L3不对，很奇怪。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">128*15*2048/1024=3840</span><br><span class="line">49152/3840=256*192/2*15*128=192/15=64/5</span><br></pre></td></tr></table></figure>
+
+<h3 id="lscpu"><a href="#lscpu" class="headerlink" title="lscpu"></a>lscpu</h3><p>是总共的cache大小</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">64/1024*96=6</span><br><span class="line">512/1024*94=48</span><br><span class="line">49152/1024*4=192</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic.shaojiemike.top/img/20211120101538.png"></p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>硬件预取技术导论《A Primer on Hardware Prefetching》<br><img src="https://pic.shaojiemike.top/img/20221114181529.png"></p>
+<p>■■3 数据预取 Data Prefetching-</p>
+<ul>
+<li>■1 数据的跨步和流预取器 Stride and Stream Prefetchers for Data-</li>
+<li>■2 基于地址相关性的预取器 Address-Correlating Prefetchers-<ul>
+<li>1 跳转指针 Jump Pointers-</li>
+<li>2 成对两者间的相关性 Pair-Wise Correlation-</li>
+<li>3 马尔可夫预取器 Markov Prefetcher-</li>
+<li>4 通过预取深度改善前瞻性 Improving Lookahead via Prefetch Depth-</li>
+<li>5 通过死快预测改善前瞻性 Improving Lookahead via Dead Block Prediction-</li>
+<li>6 片上存储器寻址的局限性 Addressing On-Chip Storage Limitations-</li>
+<li>7 全局历史缓冲区 Global History Buffer-</li>
+<li>8 流链 Stream Chaining-</li>
+<li>9 时间域上的存储流 Temporal Memory Streaming-</li>
+<li>10 不规则流的缓冲区 Irregular Stream Buffer-</li>
+</ul>
+</li>
+<li>■3 基于空间相关性的预取器 Spatially Correlated Prefetching-<ul>
+<li>1 Δ相关性查找 Delta-Correlated Lookup-</li>
+<li>2 PC局域性&#x2F;Δ相关性的全局历史缓冲（GHB PC&#x2F;DC） Global History Buffer PC-Localized&#x2F;Delta-Correlating (GHB PC&#x2F;DC)-</li>
+<li>3 代码相关性查找 Code-Correlated Lookup-</li>
+<li>4 空间足迹预测 Spatial Footprint Predicction-</li>
+<li>5 空间模式预测 Spatial Pattern Prediction-</li>
+<li>6 隐形预取 Stealth Prefetching-</li>
+<li>7 空间存储流 Spatial Memory Streaming-</li>
+<li>8 时空存储流 Spatio-Temporal Memory Streaming-</li>
+</ul>
+</li>
+<li>■4 基于执行的预取 Execution-Based Prefetching-<ul>
+<li>1 算法汇总 Algorithm Summarization-</li>
+<li>2 辅助内存和辅助内核的方法 Helper-Thread and Helper-Core Approaches-</li>
+<li>3 超前执行 Run-Ahead Execution-</li>
+<li>4 上下文恢复 Context Restoration-</li>
+<li>5 计算分摊 Computation Spreading-</li>
+</ul>
+</li>
+<li>■5 预取的调制与控制 Prefetch Modulation and Control-</li>
+<li>■6 软件方法 Software Approaches</li>
+</ul>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.findhao.net/easycoding/1694">https://www.findhao.net/easycoding/1694</a></p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Cache_placement_policies">https://en.wikipedia.org/wiki/Cache_placement_policies</a></p>
+<p><a target="_blank" rel="noopener" href="https://hackmd.io/@Rance/Hy3KRm1CG?type=view">https://hackmd.io/@Rance/Hy3KRm1CG?type=view</a></p>
+<p><a target="_blank" rel="noopener" href="https://aijishu.com/a/1060000000210697">https://aijishu.com/a/1060000000210697</a></p>
+<p>[^1]: <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/49092541/which-cache-mapping-technique-is-used-in-intel-core-i7-processor">Which cache mapping technique is used in intel core i7 processor?</a></p>
+<p>[^3]: G. B. Kandiraju and A. Sivasubramaniam, “Going the distance for TLB prefetching: an application-driven study,” Proceedings 29th Annual International Symposium on Computer Architecture, Anchorage, AK, USA, 2002, pp. 195-206, doi: 10.1109&#x2F;ISCA.2002.1003578.</p>
+<p>[^4]: B. Calder, D. Grunwald, and J. S. Emer, “Predictive sequential associative cache,” in Proceedings of the 1996 International Symposium on High-Performance Computer Architecture, 1996</p>
+<p>[^5]: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/663173997">Computer Architecture —— 高级缓存技术</a></p>
+<p>[^7]: Aamer Jaleel, Kevin B. Theobald, Simon C. Steely, and Joel Emer. High Performance Cache Replacement Using Re-Reference Interval Prediction (RRIP). In ISCA 2010.</p>
+<p>[^8]: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/482651908">计算机体系结构-cache高速缓存 知乎</a></p>
+<p>[^9]: <a target="_blank" rel="noopener" href="https://aijishu.com/a/1060000000343846">CPU设计之Cache – MSHR</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Cache</p><p><a href="http://icarus.shaojiemike.top/2023/07/26/Work/Architecture/microHardware/cache/">http://icarus.shaojiemike.top/2023/07/26/Work/Architecture/microHardware/cache/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2023-07-26</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/incomplete/">incomplete</a><a class="link-muted mr-2" rel="tag" href="/tags/cache/">cache</a><a class="link-muted mr-2" rel="tag" href="/tags/prefetch/">prefetch</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2023/07/27/Work/Programming/2-languageGrammar/python/pythonRegex/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">PythonRegex</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2023/07/25/Work/Programming/4-compile/llvm/"><span class="level-item">llvm</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">404</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">33</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">500</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">26</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">25</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">117</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">8</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">52</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-31T22:47:56.000Z">2024-05-31</time></p><p class="title"><a href="/2024/05/31/Thinking/4-viewOnOthers/FinancialValues/">Financial Values</a></p><p class="categories"><a href="/categories/thinking/">thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-26T15:34:38.000Z">2024-05-26</time></p><p class="title"><a href="/2024/05/26/OutOfWork/1-lifeAndCareer/travelPreparation/">Travel Preparation</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-22T11:18:58.000Z">2024-04-22</time></p><p class="title"><a href="/2024/04/22/Work/Architecture/microHardware/cacheCoherence/">Memory Consistency and Cache Coherence </a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-20T06:54:32.000Z">2024-04-20</time></p><p class="title"><a href="/2024/04/20/Work/software/windows/WinUsefulTools/">Windows Useful Tools</a></p><p class="categories"><a href="/categories/software/">software</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-19T07:40:25.000Z">2024-04-19</time></p><p class="title"><a href="/2024/04/19/Work/Programming/2-languageGrammar/c/CplusDebugPrint/">C &amp; C++: Debug Print like icecream in Python</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">17</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

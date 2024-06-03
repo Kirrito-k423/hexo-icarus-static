@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="robots" content="noindex"><meta><title>Tag: context switch - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta property="og:type" content="blog"><meta property="og:title" content="SHAOJIE&#039;S BOOK"><meta property="og:url" content="http://icarus.shaojiemike.top/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:author" content="Shaojie Tan"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top"},"headline":"SHAOJIE'S BOOK","image":["http://icarus.shaojiemike.top/img/og_image.png"],"author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":""}</script><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">context switch</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-20T16:00:00.000Z" title="7/20/2023, 4:00:00 PM">2023-07-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.310Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Operating-system/">Operating system</a></span><span class="level-item">42 minutes read (About 6276 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/20/Work/Operating%20system/contextSwitch/">Context Switch</a></p><div class="content"><h2 id="上下文切换"><a href="#上下文切换" class="headerlink" title="上下文切换"></a>上下文切换</h2><ul>
+<li>根据<a target="_blank" rel="noopener" href="https://medium.com/geekculture/linux-cpu-context-switch-deep-dive-764bfdae4f01">geekculture的博客</a>的说法</li>
+<li>上下文主要指的是CPU的寄存器状态，状态越多(上下文越多)，切换时开销就越大。<ul>
+<li>包括程序计数器(program counters,PC)，栈指针SP，通用寄存器等。还有virtual memory mappings, file descriptor bindings, and credentials.虚拟内存映射、文件描述符绑定和凭据？</li>
+</ul>
+</li>
+<li>类型可以分成三类<ul>
+<li>to do</li>
+</ul>
+</li>
+</ul>
+<h3 id="上下文切换的开销"><a href="#上下文切换的开销" class="headerlink" title="上下文切换的开销"></a>上下文切换的开销</h3><p> According to 2007 paper</p>
+<ol>
+<li>direct costs<ol>
+<li>The processor registers need to be saved and restored,</li>
+<li>the OS kernel code (scheduler) must execute,</li>
+<li>the TLB entries need to be reloaded,</li>
+<li>and processor pipeline must be flushed</li>
+</ol>
+</li>
+<li>cache interference cost or indirect cost of context switch.<ol>
+<li>context switch leads to cache sharing between multiple processes, which may result in performance degradation.</li>
+</ol>
+</li>
+</ol>
+<h3 id="何时上下文切换"><a href="#何时上下文切换" class="headerlink" title="何时上下文切换"></a>何时上下文切换</h3><p>进程或线程的上下文切换可以在多种情况下发生，下面列举了一些常见的情况：</p>
+<ol>
+<li>抢占调度：当操作系统采用抢占式调度算法时，更高优先级的进程或线程可能会抢占当前运行的进程或线程的CPU时间片，从而导致上下文切换。</li>
+<li>时间片耗尽：操作系统通常使用时间片轮转算法来分配CPU时间。当进程或线程的时间片用尽时，操作系统会进行上下文切换，将CPU分配给其他进程或线程。</li>
+<li>阻塞和等待：当一个进程或线程发起阻塞的系统调用（如I&#x2F;O操作）或等待某个事件发生时，操作系统会将其从运行状态切换到阻塞状态，并切换到另一个可运行的进程或线程。</li>
+<li>中断处理：当发生硬件中断（如时钟中断、设备中断）或软件中断（如异常、信号），操作系统会中断当前进程或线程的执行，保存其上下文，并转而处理中断服务例程。完成中断处理后，操作系统会恢复中断前的进程或线程的上下文，继续其执行。</li>
+<li>多核处理器间的迁移：在多核处理器系统中，进程或线程可能会从一个核心切换到另一个核心，以实现负载均衡或遵循其他调度策略。</li>
+</ol>
+<p>需要注意的是，上下文切换是操作系统内核的责任，它根据调度策略和内核的算法来管理进程和线程的切换。上下文切换的具体发生时机和行为取决于操作系统的设计和实现。</p>
+<h2 id="进程上下文切换-context-switch"><a href="#进程上下文切换-context-switch" class="headerlink" title="进程上下文切换 context switch"></a>进程上下文切换 context switch</h2><p>保存下来的上下文，会存储在系统内核中，并在任务重新调度执行时再次加载进来。这样就能保证任务原来的状态不受影响，让任务看起来还是连续运行。</p>
+<h3 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h3><ul>
+<li>由于操作系统的抽象: 进程间需要隔离(地址空间，使用的文件描述符，访问权限等) 和执行状态。</li>
+<li>所以进程间的切换和通讯会触发内核调度器。</li>
+<li>正如线程Threads将执行单元与进程分离一样，如果将内存隔离、执行状态和特权分离与进程解耦也有好处。</li>
+</ul>
+<h3 id="主要的开销"><a href="#主要的开销" class="headerlink" title="主要的开销"></a>主要的开销</h3><ul>
+<li>进程的状态越多(上下文越多)，切换时开销就越大<ul>
+<li>virtual memory mappings, file descriptor bindings, and credentials.虚拟内存映射、文件描述符绑定和凭据？</li>
+<li>线程就是共享了大部分</li>
+</ul>
+</li>
+<li>硬件实现的isolation and privilege separation开销是很小的<ul>
+<li>如果TLB中的页表条目带有地址空间标识符,那么切换上下文只需要一个系统调用和加载一个CPU寄存器就可以完成。</li>
+<li>也就是说,硬件实现的内存和特权隔离所需要的实际开销是很小的,主要只是: 1. 一个系统调用,通知OS进行上下文切换 2. 加载一个CPU寄存器,该寄存器包含新的地址空间ID 3. TLB中的对应页表条目标记为无效</li>
+<li>随后的指令访问会自动加载新的地址转换信息到TLB。</li>
+</ul>
+</li>
+</ul>
+<h3 id="进程上下文切换的开销"><a href="#进程上下文切换的开销" class="headerlink" title="进程上下文切换的开销"></a>进程上下文切换的开销</h3><p>包括以下几个方面：</p>
+<ul>
+<li>寄存器保存和恢复：在上下文切换过程中，当前进程的寄存器状态需要保存到内存中，包括程序计数器、堆栈指针、通用寄存器等。而切换到新进程时，之前保存的寄存器状态需要重新加载到寄存器中。</li>
+<li>缓存的数据一致性：需要确保数据的一致性，通常会通过缓冲区刷新、写回操作或者使用写时复制等技术来保证数据的完整性。</li>
+<li>内存映射切换：每个进程都有自己的内存空间，包括代码、数据和堆栈。在上下文切换时，需要切换内存映射，将当前进程的内存空间从物理内存中解除映射，同时将新进程的内存空间映射到物理内存中。</li>
+<li>虚拟内存切换：如果系统使用虚拟内存管理，上下文切换还需要涉及虚拟内存的切换，包括页表的更新和TLB（转换后备缓冲器）的刷新。<ul>
+<li>当虚拟内存更新后，TLB 也需要刷新，内存的访问也会随之变慢。特别是在多处理器系统上，缓存是被多个处理器共享的，刷新缓存不仅会影响当前处理器的进程，还会影响共享缓存的其他处理器的进程。</li>
+</ul>
+</li>
+<li>I&#x2F;O状态切换：当前进程可能涉及到正在进行的I&#x2F;O操作，如读取或写入文件、网络通信等。在上下文切换时，需要保存和恢复与I&#x2F;O相关的状态，以确保之后能够正确地继续进行这些I&#x2F;O操作。</li>
+<li>调度和管理开销：上下文切换过程本身需要一定的调度和管理开销，包括选择下一个要执行的进程、更新进程控制块、维护就绪队列等。</li>
+</ul>
+<h3 id="进程切换到不同核时保持数据一致"><a href="#进程切换到不同核时保持数据一致" class="headerlink" title="进程切换到不同核时保持数据一致"></a>进程切换到不同核时保持数据一致</h3><ol>
+<li>CL-DM：核的私有缓存之间,通过缓存一致性协议 MESI协议</li>
+<li>REG-DM：寄存器的数据：在进程上下文切换的过程中，系统会保存当前进程的状态，包括进程的程序计数器、寄存器、CPU标志寄存器和堆栈指针等等。</li>
+</ol>
+<h2 id="线程切换"><a href="#线程切换" class="headerlink" title="线程切换"></a>线程切换</h2><h3 id="线程与进程上下文切换开销的不同"><a href="#线程与进程上下文切换开销的不同" class="headerlink" title="线程与进程上下文切换开销的不同"></a>线程与进程上下文切换开销的不同</h3><ul>
+<li>当进程拥有多个线程时，这些线程会共享相同的虚拟内存和全局变量等资源。这些资源在上下文切换时是不需要修改的。</li>
+<li>另外，线程也有自己的私有数据，比如栈和寄存器等，这些在上下文切换时也是需要保存的。</li>
+</ul>
+<p>相对于进程上下文切换，线程上下文切换通常更快，这是因为线程共享相同的地址空间和其他资源，因此上下文切换只需要切换线程的执行状态和部分寄存器，省去了一些额外的开销。</p>
+<p>以下是线程上下文切换相对于进程上下文切换的一些优势和省去的时间开销：</p>
+<ol>
+<li>虚拟内存和页表切换：在进程切换时，由于每个进程都有自己独立的虚拟地址空间和页表，切换进程需要切换虚拟内存映射和页表，这会涉及到TLB的刷新和地址空间切换。而线程切换时，线程共享相同的地址空间和页表，因此无需切换虚拟内存和页表，节省了这部分开销。</li>
+<li>上下文切换时间：进程切换通常需要保存和恢复更多的上下文信息，包括寄存器、堆栈指针、文件描述符表等。而线程切换只需要切换线程的执行状态和部分寄存器，上下文切换时间相对较短。</li>
+<li>内核数据结构切换：进程切换时，可能涉及到一些内核数据结构的切换和更新，例如进程描述符、文件表等。而线程切换通常只需要更新线程控制块（Thread Control Block，TCB），而无需更新其他内核数据结构，减少了额外的开销。</li>
+</ol>
+<p>尽管线程上下文切换相对较快，但仍然需要一些时间和开销，包括以下方面：</p>
+<ol>
+<li>寄存器切换：线程上下文切换仍然需要保存和恢复部分寄存器的状态，尤其是通用寄存器和程序计数器。</li>
+<li>栈切换：线程切换时，可能需要切换线程的栈空间，包括用户态栈和内核态栈。这涉及到栈指针的调整和栈的切换。</li>
+<li>调度开销：线程切换通常是由操作系统的调度器进行调度和管理的，因此线程上下文切换可能涉及到调度算法的执行和调度队列的操作。</li>
+</ol>
+<p>需要注意的是，线程上下文切换的快速性是相对于进程上下文切换而言的，具体的开销和时间取决于系统的设计、硬件的性能和操作系统的实现。不同的操作系统和硬件平台可能会有不同的上下文切换开销。</p>
+<h2 id="流程与原理"><a href="#流程与原理" class="headerlink" title="流程与原理"></a>流程与原理</h2><p>如果要能清晰的回答这一点，需要对OS的页表管理和上下午切换的流程十分了解。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Page-Table-Isolation"><a href="#Page-Table-Isolation" class="headerlink" title="Page Table Isolation"></a>Page Table Isolation</h3><p>Page Table Isolation(页面表隔离)是一种为了解决Meltdown等CPU安全漏洞而提出的硬件优化机制。</p>
+<p>其主要思想是将操作系统内核和用户空间的页面表隔离开来,实现内核地址空间与用户地址空间的隔离。</p>
+<p>具体来说,Page Table Isolation 主要包括以下措施:</p>
+<ul>
+<li>为内核空间维护单独的页面表,不与任何用户程序共享。</li>
+<li>在切换到用户模式时,切换到用户程序自己的页面表。</li>
+<li>这样内核和用户程序的地址翻译是完全隔离的。</li>
+<li>当用户程序请求切换到内核模式时,切换回内核专用的页面表。</li>
+<li>硬件禁止用户模式程序访问内核空间的虚拟地址。</li>
+</ul>
+<p>这种机制可以阻止用户程序直接读取内核内存,防止Meltdown类攻击获得内核敏感信息。</p>
+<p>当前主流的x86处理器通过在TLB中添加PTI(Page Table Isolation)<strong>位</strong>实现了此机制,来隔离内核地址空间。这成为了重要的安全优化之一。</p>
+<h3 id="页表管理-under-PTI"><a href="#页表管理-under-PTI" class="headerlink" title="页表管理 under PTI"></a>页表管理 under PTI</h3><p>由于PTI的存在，内核维护了两套 页表。</p>
+<p>用户态切换的额外开销包括：</p>
+<ol>
+<li>改变页面表基地址。<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/x86/pti.txt">改变CR3寄存器需要100cycle</a></li>
+<li>TLBmisses 可能增多,因为用户态和内核态不再共享TLB项,可能导致缓存本地化的下降。</li>
+</ol>
+<h3 id="PCID"><a href="#PCID" class="headerlink" title="PCID"></a>PCID</h3><p>进程上下文标识符（PCID） 是一项 CPU 功能，它允许我们在切换页表时通过在 CR3 中设置一个特殊位来跳过刷新整个 TLB。这使得切换页表（在上下文切换或内核进入&#x2F;退出时）更便宜。但是，在支持 PCID 的系统上，上下文切换代码必须将用户和内核条目都从 TLB 中清除。用户 PCID TLB 刷新将推迟到退出到用户空间，从而最大限度地降低成本。有关PCID &#x2F; INVPCID详细信息，请参阅 intel.com&#x2F;sdm。</p>
+<p>在没有 PCID 支持的系统上，每个 CR3 写入都会刷新整个 TLB。这意味着每个系统调用、中断或异常都会刷新 TLB</p>
+<h3 id="不同核上同一个进程的不同线程的Intel-PCID-是相同的吗"><a href="#不同核上同一个进程的不同线程的Intel-PCID-是相同的吗" class="headerlink" title="不同核上同一个进程的不同线程的Intel PCID 是相同的吗"></a>不同核上同一个进程的不同线程的Intel PCID 是相同的吗</h3><p>对于同一个进程的不同线程,当它们运行在不同的物理核心上时,其Intel PCID (进程上下文ID)是相同的。</p>
+<p>主要原因如下:</p>
+<p>PCID是用于区分不同进程地址空间的标识符。同一进程的线程共享相同的地址空间。<br>所以操作系统会为同一进程的所有线程分配相同的PCID,无论它们运行在哪个物理核心上。<br>当线程在物理核心之间迁移时,不需要改变PCID,因为地址空间没有改变。<br>线程迁移后,新的核心会重新使用原有的PCID加载地址翻译表,而不是分配新的PCID。<br>这确保了同进程不同线程使用统一的地址映射,TLB内容可以直接重用,无需刷新。<br>相反,不同进程之间必须使用不同的PCID,才能隔离地址映射,避免TLB冲突。<br>所以操作系统只会在进程切换时改变PCID,而线程切换保持PCID不变。</p>
+<p>综上,对于同一进程的不同线程,无论运行在哪个物理核心,其PCID都是相同的。这使线程可以重用TLB项,是多线程架构的重要优化手段。同进程线程使用统一PCID,不同进程必须使用独立PCID。</p>
+<h3 id="PCID-vs-ASID"><a href="#PCID-vs-ASID" class="headerlink" title="PCID vs ASID"></a>PCID vs ASID</h3><p>PCID（Process Context Identifier）和 ASID（Address Space Identifier）都是用于优化页表切换的技术</p>
+<ul>
+<li>PCID使用一个全局的PCID寄存器，用于标识页表项。而ASID则是在每个页表项中直接包含ASID字段。</li>
+<li>作用范围：PCID主要用于标识整个页表缓存（TLB）中的页表项。ASID则是用于标识每个页表项。</li>
+</ul>
+<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><h3 id="测量的理论基础"><a href="#测量的理论基础" class="headerlink" title="测量的理论基础"></a>测量的理论基础</h3><p>Quantifying the cost of context switch</p>
+<ul>
+<li>设计实验：对照实验，来剔除时间段内 system call 和 cache degradation的影响。<ul>
+<li><code>sched setaffinity()</code> and <code>sched setscheduler()</code></li>
+<li><code>SCHED FIFO</code> and give them the maximum priority.</li>
+</ul>
+</li>
+<li>repeat to avg&#x2F;erase the error</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/gz/contextswitch">可用代码</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ hades0 in ~/github/contextSwitch2007 on git:master x [15:59:39] C:10</span></span><br><span class="line">$ sudo ./measureSwitch</span><br><span class="line">time2 with context swith:       1.523668        1.509177        1.507308</span><br><span class="line">measureSwitch: array_size = 0, stride = 0, min time2 = 1.507308008149266</span><br><span class="line"></span><br><span class="line"><span class="comment"># shaojiemike @ hades0 in ~/github/contextSwitch2007 on git:master x [16:04:15]</span></span><br><span class="line">$ sudo ./measureSingle</span><br><span class="line">time1 without context switch:   0.727125        0.655041        0.689502</span><br><span class="line">measureSingle: array_size = 0, stride = 0, min time1 = 0.655041355639696</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>阅读代码后时间单位是<code>us microseconds</code>, 论文里是<code>3.8 us</code>,我们的机器是<code>0.85 us</code>。</li>
+<li>小问题：这个跨核了吗？</li>
+</ul>
+<h3 id="实践测试"><a href="#实践测试" class="headerlink" title="实践测试"></a>实践测试</h3><p><a target="_blank" rel="noopener" href="https://blog.tsunanet.net/2010/11/how-long-does-it-take-to-make-context.html">Tsuna的2010年的博客</a><br>code in <a target="_blank" rel="noopener" href="https://github.com/tsuna/contextswitch">https://github.com/tsuna/contextswitch</a> 机器配置在实验结果后。</p>
+<ul>
+<li>syscalls 使用 <code>gettid()</code></li>
+<li>进程上下文切换使用<code>futex</code>来切换。包含futex system calls.开销<ul>
+<li><code>sched_yield</code>让出CPU使用权,强制发生进程切换.</li>
+</ul>
+</li>
+<li>线程切换还是使用的<code>futex</code>.只不过线程通过 <code>pthread_create</code>创建来执行函数, 而不是<code>fork</code></li>
+<li>线程切换只使用<code>shed_yield()</code>.并且设置<code>SCHED_FIFO</code> 和 <code>sched_priority</code><ul>
+<li><code>sched_yield()</code>函数的作用是使当前进程放弃CPU使用权,将其重新排入就绪队列尾部。但是如果就绪队列中只有这一个进程,那么该进程会立即再次获得CPU时间片而继续执行。必须有其他等待进程且满足调度条件才会真正发生切换。</li>
+<li>如果使用了taskset绑定1个核组，应该就能测量上下文切换。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># snode6</span></span><br><span class="line">$ sudo taskset 0x3 ./timetctxsw2</span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 486078214ns (243.0ns/ctxsw)</span><br><span class="line">$ sudo taskset 0x1 ./timetctxsw2</span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 1071542621ns (535.8ns/ctxsw)</span><br><span class="line"><span class="comment"># hades0</span></span><br><span class="line">$ sudo taskset 0x3 ./timetctxsw2</span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 89479052ns (44.7ns/ctxsw)</span><br><span class="line">$ sudo taskset 0x1 ./timetctxsw2</span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 566817108ns (283.4ns/ctxsw)</span><br></pre></td></tr></table></figure>
+
+<p>如上，snode6应该是550ns</p>
+<table>
+<thead>
+<tr>
+<th>machine</th>
+<th>system calls</th>
+<th>process context switches</th>
+<th>thread context switches</th>
+<th>thread context switches 2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>snode6</td>
+<td>428.6</td>
+<td>2520.3</td>
+<td>2606.3(1738.9)</td>
+<td>277.8</td>
+</tr>
+<tr>
+<td>snode6</td>
+<td>427.7</td>
+<td>2419.8</td>
+<td>2249.0(2167.9)</td>
+<td>401.1</td>
+</tr>
+<tr>
+<td>snode6</td>
+<td>436.0</td>
+<td>2327.1</td>
+<td>2358.8(1727.8)</td>
+<td>329.3</td>
+</tr>
+<tr>
+<td>hades</td>
+<td>65.8</td>
+<td>1806.4</td>
+<td>1806.4</td>
+<td>64.6</td>
+</tr>
+<tr>
+<td>hades</td>
+<td>65.5</td>
+<td>1416.4</td>
+<td>1311.6</td>
+<td>282.7</td>
+</tr>
+<tr>
+<td>hades</td>
+<td>80.8</td>
+<td>2153.1</td>
+<td>1903.4</td>
+<td>64.3</td>
+</tr>
+<tr>
+<td>icarus</td>
+<td>74.1</td>
+<td>1562.3</td>
+<td>1622.3</td>
+<td>51.0*</td>
+</tr>
+<tr>
+<td>icarus</td>
+<td>74.1</td>
+<td>1464.6</td>
+<td>1274.1</td>
+<td>232.6*</td>
+</tr>
+<tr>
+<td>icarus</td>
+<td>73.9</td>
+<td>1671.8</td>
+<td>1302.1</td>
+<td>38.0*</td>
+</tr>
+<tr>
+<td>vlab</td>
+<td>703.4</td>
+<td>5126.3</td>
+<td>4897.7</td>
+<td>826.1*</td>
+</tr>
+<tr>
+<td>vlab</td>
+<td>x</td>
+<td>x</td>
+<td>x</td>
+<td>x</td>
+</tr>
+<tr>
+<td>vlab</td>
+<td>697.1</td>
+<td>10651.4</td>
+<td>4476.0</td>
+<td>843.9*</td>
+</tr>
+<tr>
+<td>docker ｜｜｜｜</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>docker ｜｜｜｜</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>docker ｜｜｜｜</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>说明:</p>
+<ol>
+<li>同名机器从上到下为：<code>No CPU affinity</code> 和 <code>With CPU affinity</code> 和 <code>With CPU affinity to CPU 0</code></li>
+<li><code>()</code>内为。额外添加设置<code>SCHED_FIFO</code> 和 <code>sched_priority</code>的结果。</li>
+<li><code>*</code> 意味着没有sudo权限。报错<code>sched_setscheduler(): Operation not permitted</code></li>
+<li><code>x</code> 报错<code>taskset: 设置 pid 30727 的亲和力失败: 无效的参数</code></li>
+<li>system calls 理解成 用户态和内核态转换的开销</li>
+<li>根据博客的数据，虚拟化会使得开销增大2～3倍。</li>
+</ol>
+<p>问题：</p>
+<ol>
+<li>两个thread context的区别是什么？<br>  只使用<code>shed_yield()</code>.并且设置<code>SCHED_FIFO</code> 和 <code>sched_priority</code></li>
+<li>taskset 限制了能运行的核。</li>
+<li>这个实验测量了 在两个核间的线程切换吗？没绑定应该是多核<ol>
+<li>为什么taskset绑定在同一个核反而变慢了呢。snode6 <ol>
+<li>timetctxsw2 340 -&gt; 550</li>
+<li>timetctxsw 括号内数据 1712 -&gt; 2225</li>
+</ol>
+</li>
+<li>同一个核有资源竞争吗？</li>
+</ol>
+</li>
+</ol>
+<p>运行<code>strace -ff -tt -v taskset -a 1 ./timetctxsw2</code>. 应该是不需要strace的，为什么需要记录syscall的信息呢？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># snode6 </span></span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 22987942914ns (11494.0ns/ctxsw)</span><br><span class="line"></span><br><span class="line"><span class="comment"># snode6 without strace</span></span><br><span class="line">$ sudo taskset -c 1 ./timetctxsw2</span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 1073826309ns (536.9ns/ctxsw)</span><br><span class="line">$ sudo taskset -a 1 ./timetctxsw2</span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 1093753292ns (546.9ns/ctxsw)</span><br><span class="line">$ sudo taskset 1 ./timetctxsw2</span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 1073456816ns (536.7ns/ctxsw)</span><br><span class="line"></span><br><span class="line"><span class="comment"># hades</span></span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 20945815905ns (10472.9ns/ctxsw)</span><br><span class="line"><span class="comment"># icarus</span></span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 19053536242ns (9526.8ns/ctxsw)</span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 17573109017ns (8786.6ns/ctxsw)</span><br><span class="line">2000000  thread context switches <span class="keyword">in</span> 18538271021ns (9269.1ns/ctxsw)</span><br></pre></td></tr></table></figure>
+
+<h4 id="尝试解释不同机器的差异"><a href="#尝试解释不同机器的差异" class="headerlink" title="尝试解释不同机器的差异"></a>尝试解释不同机器的差异</h4><p>猜想：</p>
+<ol>
+<li>Intel新产品的硬件确实有特殊设计</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> shaojiemike @ snode6 <span class="keyword">in</span> ~/github/contextswitch on git:master o [19:46:27]</span><br><span class="line">$ sudo ./cpubench.sh</span><br><span class="line">model name : Intel(R) Xeon(R) CPU E5-2695 v4 @ 2.10GHz</span><br><span class="line">2 physical CPUs, 18 cores/CPU, 2 hardware threads/core = 72 hw threads total</span><br><span class="line"></span><br><span class="line">hades1<span class="comment"># ./cpubench.sh</span></span><br><span class="line">model name : AMD EPYC 7543 32-Core Processor 1.5 ~ 3.7GHz</span><br><span class="line">2 physical CPUs, 32 cores/CPU, 2 hardware threads/core = 128 hw threads total</span><br><span class="line"></span><br><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/contextswitch on git:master o [20:41:39] C:1</span></span><br><span class="line">$ ./cpubench.sh</span><br><span class="line">model name : Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz</span><br><span class="line">2 physical CPUs, 32 cores/CPU, 1 hardware threads/core = 64 hw threads total</span><br><span class="line"></span><br><span class="line">ubuntu@VM7096-huawei:~/github/contextswitch$ sudo ./cpubench.sh </span><br><span class="line">model name : Intel(R) Xeon(R) Silver 4110 CPU @ 2.10GHz</span><br><span class="line">2 physical CPUs, 8 cores/CPU, 2 hardware threads/core = 32 hw threads total</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>软件的不同</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>machine</th>
+<th>OS</th>
+<th>linux kernel</th>
+<th>compile</th>
+<th>glibc</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>snode6</td>
+<td>Ubuntu 20.04.6 LTS</td>
+<td>5.4.0-148-generic</td>
+<td>gcc 9.4.0</td>
+<td>GLIBC 2.31</td>
+</tr>
+<tr>
+<td>hades</td>
+<td>Ubuntu 22.04.2 LTS</td>
+<td>5.15.0-76-generic</td>
+<td>gcc 11.3.0</td>
+<td>GLIBC 2.35-0ubuntu3.1</td>
+</tr>
+<tr>
+<td>icarus</td>
+<td>Ubuntu 22.04.2 LTS</td>
+<td>5.15.0-75-generic</td>
+<td>gcc 11.3.0</td>
+<td>GLIBC 2.35-0ubuntu3.1</td>
+</tr>
+<tr>
+<td>vlab</td>
+<td>Ubuntu 22.04.2 LTS</td>
+<td>5.15.81-1-pve</td>
+<td>gcc 11.3.0</td>
+<td>GLIBC 2.35-0ubuntu3.1</td>
+</tr>
+</tbody></table>
+<p>glic 版本使用<code>ldd --version</code>获得。OS影响调度算法，内核影响切换机制，编译器影响代码优化，GLIBC影响系统调用开销。</p>
+<h4 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h4><ol>
+<li><code>sched_setscheduler()</code> 是一个用于设置进程调度策略的函数。它允许您更改进程的调度策略以及与之相关的参数。具体来说，<code>sched_setscheduler()</code> 函数用于将当前进程（通过 <code>getpid()</code> 获取进程ID）的调度策略设置为实时调度策略（SCHED_FIFO）。实时调度策略是一种优先级调度策略，它将进程分配给一个固定的时间片，并且仅当进程主动释放 CPU 或者其他高优先级的实时进程出现时，才会进行上下文切换。</li>
+<li><code>/sys/bus/node/devices/node0/cpumap</code> 存储了与特定 NUMA 节点（NUMA node）关联的 CPU 核心映射信息。<code>cpumap</code> 文件中的内容表示与 <code>node0</code> 相关的 CPU 核心的映射。每个位置上的值表示相应 CPU 核心的状态，常见的取值有：<ul>
+<li>0：表示该 CPU 核心不属于 <code>node0</code>。</li>
+<li>1：表示该 CPU 核心属于 <code>node0</code>。<br>这种映射信息可以帮助系统管理员和开发人员了解系统的 NUMA 结构，以及每个 NUMA 节点上的 CPU 核心分布情况。通过查看这些信息，可以更好地优化任务和进程的分配，以提高系统的性能和效率。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ snode6 in ~/github/contextswitch on git:master x [22:37:41] C:1</span></span><br><span class="line">$ <span class="built_in">cat</span> /sys/bus/node/devices/node0/cpumap</span><br><span class="line">00,003ffff0,0003ffff</span><br><span class="line"><span class="comment"># shaojiemike @ snode6 in ~/github/contextswitch on git:master x [23:13:41]</span></span><br><span class="line">$ <span class="built_in">cat</span> /sys/bus/node/devices/node1/cpumap</span><br><span class="line">ff,ffc0000f,fffc0000</span><br><span class="line"><span class="comment"># 与taskset结合 设置 亲和性</span></span><br><span class="line">taskset `sed <span class="string">&#x27;s/,//g;s/^/0x/&#x27;</span> /sys/bus/node/devices/node0/cpumap` exe</span><br><span class="line">taskset 0x00003ffff00003ffff exe</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于lmbench"><a href="#基于lmbench" class="headerlink" title="基于lmbench"></a>基于lmbench</h3><p>根据1996的论文，需要考虑几个方面的内容：</p>
+<ol>
+<li>传统的测量取最小值当作是两进程只进行上下文切换的开销。作者认为真实应用有更大的working set (cache footprint)影响。</li>
+<li>在调用context switches时，传统的会包含syscall。比如 write read。这部分pipe overhead varies between 30%<br>and 300% of the context switch time</li>
+<li>to do</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="http://lmbench.sourceforge.net/cgi-bin/man?keyword=lmbench&amp;section=8">http://lmbench.sourceforge.net/cgi-bin/man?keyword=lmbench&amp;section=8</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/intel/lmbench">实践代码</a></p>
+<h3 id="别人实验结果"><a href="#别人实验结果" class="headerlink" title="别人实验结果"></a>别人实验结果</h3><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/79772089">知乎实验 5 微秒左右</a></p>
+<ul>
+<li>进程切换实验设计：基于<code>#include &lt;unistd.h&gt; /pipe()</code>的父子进程的<code>write</code>和<code>read</code> system calls<ul>
+<li>被1996年文章批判了，syscall开销过大。</li>
+</ul>
+</li>
+<li>线程切换实验设计：使用pthread代替fork 其余一样。</li>
+</ul>
+<h3 id="论文数据"><a href="#论文数据" class="headerlink" title="论文数据"></a>论文数据</h3><p>实验环境：</p>
+<ul>
+<li>处理器：Intel Xeon X5650 2.66 GHz 6 core CPUs</li>
+<li>操作系统：FreeBSD 11.0 (amd64)</li>
+<li>基于信号量semaphore实现会比基于互斥锁mutex快</li>
+</ul>
+<p>根据Light-weight Contexts的数据：</p>
+<ul>
+<li>进程切换：4.25 微秒 (0.86)，4250*2.66&#x3D;11305 cycles</li>
+<li>kernel线程切换：4.12 (0.98)</li>
+<li>user线程切换 - 基于系统调用：1.71 (0.06) ～ 4548 cycles<ul>
+<li>内核态用户态切换开销： ～ 1.5 微秒 ～ 4000 cycles</li>
+</ul>
+</li>
+<li>user线程切换 - 基于glibc的用户汇编：0.2472 ~ 657 cycles</li>
+</ul>
+<p>注意，括号内为十次执行的标准差</p>
+<p>解释与组成</p>
+<ul>
+<li>0.25 微秒 寄存器信息传递</li>
+<li>2 微秒 虚拟地址映射（TLB flush all？）</li>
+<li>2 微秒 同步与调度（进程切换）<ul>
+<li>原因是同一进程或不同进程中的两个内核线程之间切换时执行的内核代码基本上是相同的。</li>
+</ul>
+</li>
+</ul>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><ol>
+<li>在测量上下文开销的时候，进程和线程的上下午切换开销往往差不多，这是为什么，是因为TLBflush的占比小没有拉开差距吗</li>
+</ol>
+<p>在测量上下文切换开销时，进程和线程的切换开销可能会相对接近，这可能是由于以下几个原因：</p>
+<ol>
+<li><p>TLB（Translation Lookaside Buffer）的刷新：TLB是用于高速缓存虚拟地址到物理地址映射的硬件结构。当发生进程或线程切换时，TLB中的缓存项可能需要刷新，以确保新的地址映射有效。虽然线程切换只涉及部分的TLB刷新，但刷新的开销相对较小，因此在总的上下文切换开销中可能没有明显拉开差距。</p>
+</li>
+<li><p>寄存器和上下文切换：无论是进程切换还是线程切换，都需要保存和恢复一部分寄存器的状态和执行上下文。这部分的开销在进程和线程切换中是相似的。</p>
+</li>
+<li><p>内核操作和调度开销：无论是进程还是线程切换，都需要涉及内核的操作和调度。这包括切换内核栈、更新调度信息、切换上下文等操作，这些开销在进程和线程切换中也是相似的。</p>
+</li>
+</ol>
+<p>需要注意的是，实际上下文切换的开销是受到多个因素的影响，如处理器架构、操作系统的实现、硬件性能等。具体的开销和差距会因系统的不同而有所差异。在某些情况下，线程切换的开销可能会稍微小一些，但在其他情况下，可能会存在较大的差距。因此，一般情况下，不能简单地将进程和线程的上下文切换开销归为相同或明显不同，具体的测量和评估需要结合实际系统和应用场景进行。</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><p>PIM 最优调度遇到的问题</p>
+<ol>
+<li>理解上下文切换的具体过程，linux内核的角度<ol>
+<li>理解相关概念的使用 ASID PCID</li>
+<li>用户态，内核态的概念，切换的细节以及开销<ol>
+<li>内核态的代码是共享的吗？内核态的操作有什么？</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>各部分的时间占比</li>
+<li>学会测量时间</li>
+</ol>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<p>Quantifying The Cost of Context Switch 2007，ExpCS</p>
+<p>lmbench: Portable tools for performance analysis，1996 USENIX ATC</p>
+<p>Light-weight Contexts: An OS Abstraction for Safety and Performance</p>
+<p>参考 <a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/x86/pti.txt">kernel</a> 文档</p>
+</div></article></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">404</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">33</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">500</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">26</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">25</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">117</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">8</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">52</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-31T22:47:56.000Z">2024-05-31</time></p><p class="title"><a href="/2024/05/31/Thinking/4-viewOnOthers/FinancialValues/">Financial Values</a></p><p class="categories"><a href="/categories/thinking/">thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-26T15:34:38.000Z">2024-05-26</time></p><p class="title"><a href="/2024/05/26/OutOfWork/1-lifeAndCareer/travelPreparation/">Travel Preparation</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-22T11:18:58.000Z">2024-04-22</time></p><p class="title"><a href="/2024/04/22/Work/Architecture/microHardware/cacheCoherence/">Memory Consistency and Cache Coherence </a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-20T06:54:32.000Z">2024-04-20</time></p><p class="title"><a href="/2024/04/20/Work/software/windows/WinUsefulTools/">Windows Useful Tools</a></p><p class="categories"><a href="/categories/software/">software</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-19T07:40:25.000Z">2024-04-19</time></p><p class="title"><a href="/2024/04/19/Work/Programming/2-languageGrammar/c/CplusDebugPrint/">C &amp; C++: Debug Print like icecream in Python</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">17</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

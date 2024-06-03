@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="robots" content="noindex"><meta><title>Category: Architecture - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta property="og:type" content="blog"><meta property="og:title" content="SHAOJIE&#039;S BOOK"><meta property="og:url" content="http://icarus.shaojiemike.top/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:author" content="Shaojie Tan"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top"},"headline":"SHAOJIE'S BOOK","image":["http://icarus.shaojiemike.top/img/og_image.png"],"author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":""}</script><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/categories">Categories</a></li><li class="is-active"><a href="#" aria-current="page">Architecture</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-03T16:00:00.000Z" title="7/3/2022, 4:00:00 PM">2022-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.286Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">16 minutes read (About 2387 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/03/Work/Architecture/microArch/outOfOrder/">Microarchitecture: Out-Of-Order execution(OoOE/OOE) &amp; Register Renaming</a></p><div class="content"><h2 id="乱序执行的步骤"><a href="#乱序执行的步骤" class="headerlink" title="乱序执行的步骤"></a>乱序执行的步骤</h2><p><img src="https://pic.shaojiemike.top/img/20231025101139.png"></p>
+<p>简单来说每个阶段执行的操作如下：<a href="%5B%E5%AF%B9%E4%BA%8ECPU%E9%9B%AA%E8%97%8F%E7%9A%84%E8%87%B4%E5%91%BD%E9%97%AE%E9%A2%98%5D(https://www.ctfiot.com/140113.html)">^1</a></p>
+<p>1）获取指令，解码后存放到执行缓冲区Reservations Stations<br>2）乱序执行指令，结果保存在一个结果序列中<br>3）退休期Retired Circle，重新排列结果序列及安全检查（如地址访问的权限检查），提交结果到寄存器</p>
+<ol>
+<li>取指令&#x2F;uops</li>
+<li>指令(uops)dispatch 到instruction queue (&#x2F;instruction buffer &#x2F; reservation stations).</li>
+<li>指令等待操作数指令可用，然后可以在前后指令前离开等待队列</li>
+<li>issue到对应port单元执行,并且在 scheduler(reservation station)里跟踪uops依赖。</li>
+<li>结果缓存在(re-order buffer, ROB)<ol>
+<li>在Tomasulo算法中，重排序缓冲区（英语：re-order buffer, ROB）)可以使指令在乱序执行，之后按照原有顺序提交。</li>
+</ol>
+</li>
+<li>按照程序序结束(只有前面的指令都完成写回寄存器的操作)，该指令才能retire<ol>
+<li>在retire的时候，重新排序运算结果来实现指令的顺序执行中的运行结果</li>
+</ol>
+</li>
+</ol>
+<h3 id="why-out-of-order-execution-retire-commit-in-program-order"><a href="#why-out-of-order-execution-retire-commit-in-program-order" class="headerlink" title="why out-of-order execution retire&#x2F;commit in program order"></a>why out-of-order execution retire&#x2F;commit in program order</h3><ol>
+<li>对于程序员外部视角来看，程序还是按序执行的。</li>
+<li>如果指令出错，可以精确定位exceptions 位置，并且执行回滚来复原。</li>
+<li>？？？寄存器数据依赖(重命名打破？)</li>
+</ol>
+<h2 id="乱序执行的实现"><a href="#乱序执行的实现" class="headerlink" title="乱序执行的实现"></a>乱序执行的实现</h2><h3 id="scoreboard"><a href="#scoreboard" class="headerlink" title="scoreboard"></a>scoreboard</h3><p>只有当一条指令与之前已发射（issue）的指令之间的冲突消失之后，这条指令才会被发射、执行。</p>
+<p>如果某条指令由于数据冲突而停顿，计分板会监视正在执行的指令流，在所有数据相关性造成的冲突化解之后通知<strong>停顿</strong>的指令开始执行。</p>
+<h3 id="Tomasulo-托马苏洛算法"><a href="#Tomasulo-托马苏洛算法" class="headerlink" title="Tomasulo 托马苏洛算法"></a>Tomasulo 托马苏洛算法</h3><p>通过<strong>寄存器重命名</strong>机制，来解决后两种数据依赖。</p>
+<p>使用了共享数据总线（common data bus, CDB）将已计算出的值<strong>广播</strong>给所有需要这个值作为指令源操作数的<strong>保留站</strong>。</p>
+<p>在指令的发射（issue）阶段，如果操作数和保留站都<strong>准备就绪</strong>，那么指令就可以<strong>直接发射</strong>并执行。</p>
+<p>如果操作数<strong>未就绪</strong>，则进入保留站的指令会<strong>跟踪</strong>即将产生这个所需操作数的那个功能单元。</p>
+<h2 id="乱序执行的发展"><a href="#乱序执行的发展" class="headerlink" title="乱序执行的发展"></a>乱序执行的发展</h2><p>随着流水线pipeline的加深和主存（或者缓存）和处理器间的速度差的变大。在顺序执行处理器等待数据的过程中，乱序执行处理器能够执行大量的指令。使得乱序执行更加重要。</p>
+<h2 id="Register-Renaming"><a href="#Register-Renaming" class="headerlink" title="Register Renaming"></a>Register Renaming</h2><h3 id="来由"><a href="#来由" class="headerlink" title="来由"></a>来由</h3><p>已知可以通过乱序执行来实现，硬件资源的高效利用(避免计算指令等待访存指令的完成)。为了实现乱序执行，需要通过寄存器重命名来打破寄存器的之间的读写依赖。</p>
+<h3 id="例子1"><a href="#例子1" class="headerlink" title="例子1"></a>例子1</h3><p>对于原始代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. R1=M[1024]</span><br><span class="line">2. R1=R1+2</span><br><span class="line">3. M[1032]=R1</span><br><span class="line">4. R1=M[2048]</span><br><span class="line">5. R1=R1+4</span><br><span class="line">6. M[2056]=R1</span><br></pre></td></tr></table></figure>
+
+<p>原本代码前后3条是没有关系的，可以并行的。需要使用寄存器重命名来解决R1的读后写依赖。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. R1=M[1024] 4. R2=M[2048]</span><br><span class="line">2. R1=R1+2     5. R2=R2+4</span><br><span class="line">3. M[1032]=R1 6. M[2056]=R2</span><br></pre></td></tr></table></figure>
+
+<h3 id="数据冲突"><a href="#数据冲突" class="headerlink" title="数据冲突"></a>数据冲突</h3><p>如果多条指令使用了同一个存储位置，这些指令如果不按程序地址顺序执行可能会导致3种数据冲突（data hazard）:</p>
+<ul>
+<li><p>先写后<strong>读</strong>（<strong>Read</strong>-after-write，RAW）:从寄存器或者内存中读取的数据，必然是之前的指令存入此处的。直接数据相关（true data dependency）</p>
+</li>
+<li><p>先写后<strong>写</strong>（<strong>Write</strong>-after-write，WAW）：连续写入特定的寄存器或内存，那么该存储位置最终只包含第二次写的数据。这可以取消或者废除第一次写入操作。WAW相关也被说成是“输出相关”（output dependencies）。</p>
+</li>
+<li><p>先读后<strong>写</strong>（<strong>Write</strong>-after-read，WAR）：读操作获得的数据是此前写入的，而不是此后写操作的结果。因此并行和乱序时无法改善的资源冲突（antidependency）。</p>
+</li>
+</ul>
+<p>后面两个WAW和WAR可以通过寄存器重命名解决（register renaming），不必等待前面的读写操作完成后再执行写操作，可以保持这个存储位置的两份副本：老值与新值。</p>
+<p>前一条指令的读老值的操作可以继续进行，无需考虑那些后一条指令的写新值甚至该写新值指令之后的读新值的操作。产生了额外的乱序执行机会。当所有读老值操作被满足后，老值所使用的寄存器既可以释放。这是<strong>寄存器重命名的实质</strong>。</p>
+<h3 id="重命名存储对象"><a href="#重命名存储对象" class="headerlink" title="重命名存储对象"></a>重命名存储对象</h3><p>任何被读或写的存储都是可以被重名。</p>
+<ol>
+<li>最常考虑的是通用整数寄存器与浮点寄存器。</li>
+<li>标志寄存器、状态寄存器甚至单个状态位也是常见的重命名的对象。</li>
+<li>内存位置也可以被重命名，虽然这么做不太常见。</li>
+</ol>
+<h3 id="通用-逻辑-寄存器和物理寄存器"><a href="#通用-逻辑-寄存器和物理寄存器" class="headerlink" title="通用(逻辑)寄存器和物理寄存器"></a>通用(逻辑)寄存器和物理寄存器</h3><p>对于某种ISA，有固定的供<strong>编译器&#x2F;汇编器</strong>访问使用的寄存器。例如，Alpha ISA使用32个64位宽整数寄存器，32个64位宽浮点寄存器。</p>
+<p>但是一款特定的处理器，实现了这种处理器体系结构。例如Alpha 21264有80个整数寄存器、72个浮点寄存器，作为处理器内物理实现的寄存器。</p>
+<h3 id="寄存器个数设计考虑"><a href="#寄存器个数设计考虑" class="headerlink" title="寄存器个数设计考虑"></a>寄存器个数设计考虑</h3><p>如果寄存器个数很多，就不需要寄存器重命名机制。比如IA-64指令集体系结构提供了128个通用寄存器。但是这会导致一些问题:</p>
+<ol>
+<li>编译器如果需要重用寄存器会很容易导致程序<strong>尺寸大增</strong>。<ol>
+<li>程序的<strong>循环</strong>连续迭代执行就需要<strong>复制</strong>循环体的代码以使用不同的寄存器，这种技术叫做循环展开。</li>
+<li>代码尺寸增加，会导致指令高速缓存的<strong>未命中（cache miss）增加</strong>，处理器执行停顿等待从低级存储中读入代码。这对运算性能的影响是致命的。</li>
+</ol>
+</li>
+<li>大量的寄存器，需要在指令的操作数中需要<strong>很多位表示</strong>，导致程序尺寸变大。</li>
+<li>很多指令集在历史上就使用了很少的寄存器，出于<strong>兼容</strong>原因现在也很难改变。</li>
+</ol>
+<h3 id="实现方法简述"><a href="#实现方法简述" class="headerlink" title="实现方法简述"></a>实现方法简述</h3><ol>
+<li>tag索引的寄存器堆（tag-indexed register file）</li>
+<li>保留站（reservation station）方法<ol>
+<li>通常是每个执行单元的输入口都有一个物理寄存器堆</li>
+</ol>
+</li>
+</ol>
+<h3 id="相关寄存器部件"><a href="#相关寄存器部件" class="headerlink" title="相关寄存器部件"></a>相关寄存器部件</h3><ol>
+<li>远期寄存器堆（Future File）：<ol>
+<li>处理器对分支做投机执行的寄存器的状态保存于此。</li>
+<li>使用逻辑寄存器号来索引访问。</li>
+</ol>
+</li>
+<li>历史缓冲区（History Buffer）：<ol>
+<li>用于保存分支时的逻辑寄存器状态。</li>
+<li>如果分支预测失败，将使用历史缓冲区的数据来恢复执行状态。</li>
+</ol>
+</li>
+<li>排缓冲区（Reorder Buffer，ROB）：<ol>
+<li>为了实现指令的顺序提交，处理器内部使用了一个Buffer。如果在该缓冲区中排在一条指令之前的所有都已经提交，没有处于未提交状态的（称作in flight），则该指令也被提交（即确认执行完毕）。</li>
+<li>因此重排缓冲区是在远期寄存器堆之后，体系结构寄存器堆之前。提交的指令的结果写入体系寄存器堆。</li>
+</ol>
+</li>
+<li>体系结构寄存器堆（Architectural Register File）或者引退寄存器堆（Retirement Register File，RRF）：<ol>
+<li>存储了被提交的体系寄存器的状态。通过逻辑寄存器的号来查询这个寄存器堆。</li>
+<li>重排序缓冲区（reorder buffer）中的引退（retired）或者说提交（committed）指令，把结果写入这个寄存器堆。</li>
+</ol>
+</li>
+</ol>
+<h3 id="所属部件"><a href="#所属部件" class="headerlink" title="所属部件"></a>所属部件</h3><ol>
+<li>编译器<ol>
+<li>会尽力检测出类似这样的问题，并把不同的寄存器分配给不同的指令使用。但是，受指令集体系结构的限制，汇编程序可以使用的寄存器名字的数量是有限的。</li>
+</ol>
+</li>
+<li>硬件实现<ol>
+<li>在处理器指令流水线执行时把这些指令集体系结构寄存器映射为不同的物理寄存器。</li>
+<li>比如下图的Renamer &#x2F; Allocator（也称为<strong>Resource Allocation Table (RAT)<strong>）将</strong>架构寄存器</strong>映射到<strong>物理寄存器</strong>。 它还为loads and stores分配资源，并将uops分到不同端口。<img src="https://pic.shaojiemike.top/img/20220703223835.png"></li>
+</ol>
+</li>
+</ol>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E4%B9%B1%E5%BA%8F%E6%89%A7%E8%A1%8C">https://zh.wikipedia.org/zh-cn/%E4%B9%B1%E5%BA%8F%E6%89%A7%E8%A1%8C</a></p>
+<p><a target="_blank" rel="noopener" href="https://easyperf.net/blog/2018/04/22/What-optimizations-you-can-expect-from-CPU">https://easyperf.net/blog/2018/04/22/What-optimizations-you-can-expect-from-CPU</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-03T16:00:00.000Z" title="7/3/2022, 4:00:00 PM">2022-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.286Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">a minute read (About 115 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/03/Work/Architecture/microArch/pipelineIntel/">Microarchitecture: Pipeline of Intel Core CPUs</a></p><div class="content"><h2 id="skyLake-in-wikichip"><a href="#skyLake-in-wikichip" class="headerlink" title="skyLake in wikichip"></a>skyLake in wikichip</h2><p><img src="https://pic.shaojiemike.top/img/20220704104632.png"></p>
+<h2 id="简化图-in-uiCA"><a href="#简化图-in-uiCA" class="headerlink" title="简化图 in uiCA"></a>简化图 in uiCA</h2><p><img src="https://pic.shaojiemike.top/img/20220704104850.png"></p>
+<h2 id="名称解释"><a href="#名称解释" class="headerlink" title="名称解释"></a>名称解释</h2><ol>
+<li>Scheduler<ol>
+<li>address-generation unit (AGU),</li>
+</ol>
+</li>
+</ol>
+<h2 id="多端口发射模型"><a href="#多端口发射模型" class="headerlink" title="多端口发射模型"></a>多端口发射模型</h2><p>每个端口的函数可能一个周期执行不完。但是是形成了流水线的。可以保证每个周期accept一个新uops</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
+无
+
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-07-03T16:00:00.000Z" title="7/3/2022, 4:00:00 PM">2022-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.286Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">5 minutes read (About 685 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/07/03/Work/Architecture/microArch/zeroIdiomMovElimination/">Microarchitecture: Zero (one) idioms &amp; Mov Elimination</a></p><div class="content"><h2 id="微架构的关系"><a href="#微架构的关系" class="headerlink" title="微架构的关系"></a>微架构的关系</h2><p>寄存器重命名是乱序执行Tomasulo算法的一部分</p>
+<p>寄存器重命名可以实现:</p>
+<ol>
+<li>部分mov消除</li>
+<li>NOPs</li>
+<li>zero (one) idioms<br>对于这些指令，无序发射到scheduler。可以直接在reorder buffer写入结果。</li>
+</ol>
+<h2 id="Zero-one-idioms"><a href="#Zero-one-idioms" class="headerlink" title="Zero (one) idioms"></a>Zero (one) idioms</h2><p>Zero (one) idioms 是不管原寄存器src值是什么，结果&#x2F;目的寄存器dst一直&#x2F;一定是0 (1)的一类指令。比如：XOR一个寄存器和自己。</p>
+<ol>
+<li>由于是在寄存器重命名阶段(Rename)时实现的<ol>
+<li>所以不需要发射到port执行单元执行，占用硬件资源。也没有延迟</li>
+<li>但是需要划分前面部分的decode的带宽，和ROB(reorder buffer)的资源<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sub eax, eax</span><br><span class="line">xor eax, eax</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><p>使用<a target="_blank" rel="noopener" href="https://github.com/travisdowns/uarch-bench">uarch-bench</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">xor eax, eax</span><br><span class="line">dec edi</span><br><span class="line">jnz .loop</span><br></pre></td></tr></table></figure>
+<p>由于第一条指令是Zero idioms；后两条指令可以macro-fusion。</p>
+<p>所以各部分平均执行次数为</p>
+<table>
+<thead>
+<tr>
+<th>指令个数</th>
+<th>UOPS_ISSUED</th>
+<th>UOPS_EXECUTED</th>
+<th>UOPS_RETIRED</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+</tr>
+</tbody></table>
+<h3 id="特殊的情况"><a href="#特殊的情况" class="headerlink" title="特殊的情况"></a>特殊的情况</h3><p>有些架构可能不支持srcImm0-dstReg的指令的Zero idioms</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov eax, 0 </span><br></pre></td></tr></table></figure>
+<h2 id="mov-Elimination"><a href="#mov-Elimination" class="headerlink" title="mov Elimination"></a>mov Elimination</h2><p><img src="https://pic.shaojiemike.top/img/20220704163913.png"></p>
+<ol>
+<li>由于是在寄存器重命名阶段(Rename)时实现的<ol>
+<li>所以不需要发射到port执行单元执行，占用硬件资源。也没有延迟</li>
+<li>但是需要划分前面部分的decode的带宽，和ROB(reorder buffer)的资源</li>
+</ol>
+</li>
+</ol>
+<h3 id="例子-1"><a href="#例子-1" class="headerlink" title="例子"></a>例子</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">add eax,4</span><br><span class="line">mov ebx,eax ; //寄存器重命名，ebx指向eax即可</span><br><span class="line">sub ebx,ecx</span><br><span class="line">dec edi</span><br><span class="line">jnz .loop</span><br></pre></td></tr></table></figure>
+<p>由于第二条指令是mov Elimination；后两条指令可以macro-fusion。</p>
+<p>所以各部分平均执行次数为</p>
+<table>
+<thead>
+<tr>
+<th>指令个数</th>
+<th>UOPS_ISSUED</th>
+<th>UOPS_EXECUTED</th>
+<th>UOPS_RETIRED</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>4</td>
+<td>3</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<h2 id="被覆盖的结果是否能消除"><a href="#被覆盖的结果是否能消除" class="headerlink" title="被覆盖的结果是否能消除"></a>被覆盖的结果是否能消除</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mov eax, 1 ; will be eliminated?</span><br><span class="line">mov eax, 2 </span><br><span class="line">dec edi</span><br><span class="line">jnz .loop</span><br></pre></td></tr></table></figure>
+<p>第一个mov被覆盖了。这是属于编译器的工作。CPU做不到这点(即使做得到，为了实现这点设计的硬件开销也会很大，不值得)</p>
+<h2 id="无效操作是否能消除"><a href="#无效操作是否能消除" class="headerlink" title="无效操作是否能消除"></a>无效操作是否能消除</h2><p>一般和0的立即数作用有关</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xor eax, eax </span><br><span class="line">sub ebx, eax ; will be eliminated? (eax is always 0)</span><br></pre></td></tr></table></figure>
+<p>第二条指令在IvyBridge也不会消除。这同样是编译器的工作</p>
+<p>但是llvm-mca通过ZeroRegister的实现，可以消除。</p>
+<p>类似的还有</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov eax, 0</span><br><span class="line">mov ebx, 0</span><br><span class="line">cmp eax, ebx ; eax and ebx are always equal</span><br></pre></td></tr></table></figure>
+<p>一般也不会消除。这同样是编译器的工作</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://randomascii.wordpress.com/2012/12/29/the-surprising-subtleties-of-zeroing-a-register/">https://randomascii.wordpress.com/2012/12/29/the-surprising-subtleties-of-zeroing-a-register/</a></p>
+<p><a target="_blank" rel="noopener" href="https://easyperf.net/blog/2018/04/22/What-optimizations-you-can-expect-from-CPU">https://easyperf.net/blog/2018/04/22/What-optimizations-you-can-expect-from-CPU</a></p>
+<p><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/zh-hans/%E5%AF%84%E5%AD%98%E5%99%A8%E9%87%8D%E5%91%BD%E5%90%8D">https://zh.m.wikipedia.org/zh-hans/%E5%AF%84%E5%AD%98%E5%99%A8%E9%87%8D%E5%91%BD%E5%90%8D</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-05-22T16:00:00.000Z" title="5/22/2022, 4:00:00 PM">2022-05-22</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.318Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">5 minutes read (About 785 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/05/22/Work/Programming/2.1-Assembly/PTX_SASS/">cuda Assembly:PTX &amp; SASS</a></p><div class="content"><h2 id="两种汇编"><a href="#两种汇编" class="headerlink" title="两种汇编"></a>两种汇编</h2><ol>
+<li>parallel thread execution (PTX) 内联汇编有没有关系<ol>
+<li>PTX是编程人员可以操作的最底层汇编，原因是SASS代码的实现会经常根据GPU架构而经常变换</li>
+<li><a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda//pdf/Inline_PTX_Assembly.pdf">https://docs.nvidia.com/cuda//pdf/Inline_PTX_Assembly.pdf</a></li>
+<li>ISA指令手册 <a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#instruction-set">https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#instruction-set</a></li>
+<li><img src="https://pic.shaojiemike.top/img/20220522110749.png"></li>
+</ol>
+</li>
+<li>SASS<ol>
+<li>Streaming ASSembly(Shader Assembly?) 没有官方的证明</li>
+<li>没有官方详细的手册，有基本介绍：<a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#ampere">https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#ampere</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/161624982">https://zhuanlan.zhihu.com/p/161624982</a></li>
+<li>从可执行程序反汇编SASS<ol>
+<li><a target="_blank" rel="noopener" href="https://www.findhao.net/easycoding/2339.html">https://www.findhao.net/easycoding/2339.html</a></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="SASS-指令基本信息"><a href="#SASS-指令基本信息" class="headerlink" title="SASS 指令基本信息"></a>SASS 指令基本信息</h2><p>对于Ampere架构</p>
+<p>指令方向</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(instruction) (destination) (source1), (source2) ...</span><br></pre></td></tr></table></figure>
+
+<p>各种寄存器说明</p>
+<ul>
+<li><code>RX</code> for registers</li>
+<li><code>URX</code> for uniform registers</li>
+<li><code>SRX</code> for special system-controlled registers</li>
+<li><code>PX</code> for predicate registers</li>
+<li><code>c[X][Y]</code> for constant memory</li>
+</ul>
+<h2 id="SASS-举例说明1"><a href="#SASS-举例说明1" class="headerlink" title="SASS 举例说明1"></a>SASS 举例说明1</h2><p>SASS的难点在于指令的后缀。由于手册确实，需要结合PTX的后缀查看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/*0028*/         IMAD R6.CC, R3, R5, c[0x0][0x20]; </span><br><span class="line">/*0030*/         IMAD.HI.X R7, R3, R5, c[0x0][0x24]; </span><br><span class="line">/*0040*/         LD.E R2, [R6]; //load</span><br></pre></td></tr></table></figure>
+
+<h3 id="line1"><a href="#line1" class="headerlink" title="line1"></a>line1</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/*0028*/ IMAD R6.CC, R3, R5, c[0x0][0x20];</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#extended-precision-arithmetic-instructions-mad-cc">Extended-precision integer multiply-add</a>: multiply R3 with R5, sum with constant in bank 0, offset 0x20, store in R6 with <strong>carry-out</strong>.</p>
+<p>c[BANK][ADDR] is a constant memory。</p>
+<p> <code>.CC</code> means “set the flags”</p>
+<h3 id="line2"><a href="#line2" class="headerlink" title="line2"></a>line2</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/*0030*/ IMAD.HI.X R7, R3, R5, c[0x0][0x24];</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#integer-arithmetic-instructions-mad">Integer multiply-add with extract</a>: multiply R3 with R5, <strong>extract upper half</strong>, sum that upper half with constant in bank 0, offset 0x24, store in R7 with carry-in.</p>
+<h3 id="line3"><a href="#line3" class="headerlink" title="line3"></a>line3</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/*0040*/         LD.E R2, [R6]; //load</span><br></pre></td></tr></table></figure>
+<p>LD.E is a load from global memory using 64-bit address in R6,R7(表面上是R6，其实是R6 与 R7 组成的地址对)</p>
+<h3 id="summary"><a href="#summary" class="headerlink" title="summary"></a>summary</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">R6 = R3*R5 + c[0x0][0x20], saving carry to CC</span><br><span class="line">R7 = (R3*R5 + c[0x0][0x24])&gt;&gt;32 + CC</span><br><span class="line">R2 = *(R7&lt;&lt;32 + R6)</span><br></pre></td></tr></table></figure>
+<p>寄存器是32位的原因是 SMEM的bank是4字节的。c数组将32位的基地址分开存了。</p>
+<p>first two commands <strong>multiply</strong> two 32-bit values (R3 and R5) and <strong>add</strong> 64-bit value c[0x0][0x24]&lt;&lt;32+c[0x0][0x20], </p>
+<p>leaving 64-bit address result in the R6,R7 pair</p>
+<p>对应的代码是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kernel f (uint32* x) // 64-bit pointer</span><br><span class="line">&#123;</span><br><span class="line">   R2 = x[R3*R5]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="SASS-Opt-Code分析2"><a href="#SASS-Opt-Code分析2" class="headerlink" title="SASS Opt Code分析2"></a>SASS Opt Code分析2</h2><p><img src="https://pic.shaojiemike.top/img/20220523155804.png"></p>
+<ul>
+<li>LDG - Load form Global Memory</li>
+<li>ULDC - Load from Constant Memory into Uniform register</li>
+<li>USHF - Uniform Funnel Shift （猜测是特殊的加速shift）</li>
+<li>STS - Store within Local or Shared Window</li>
+</ul>
+<h3 id="流水STS"><a href="#流水STS" class="headerlink" title="流水STS"></a>流水STS</h3><p>观察 偏移 </p>
+<ul>
+<li>4</li>
+<li>2060(delta&#x3D;2056)</li>
+<li>4116(delta&#x3D;2056)</li>
+<li>8228(delta&#x3D;2 * 2056)</li>
+<li>6172(delta&#x3D;-1 * 2056)</li>
+<li>10284(delta&#x3D;2 * 2056)</li>
+<li>12340(delta&#x3D;2056)</li>
+</ul>
+<p>可见汇编就是中间写反了，导致不连续，不然能隐藏更多延迟</p>
+<h3 id="STS缓存寄存器来源"><a href="#STS缓存寄存器来源" class="headerlink" title="STS缓存寄存器来源"></a>STS缓存寄存器来源</h3><p>那么这些寄存器是怎么来的呢？感觉就是写反了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">IMAD.WIDE.U32 R16, R16, R19, c[0x0][0x168] </span><br><span class="line">LDG.E R27, [R16.64] </span><br><span class="line">IMAD.WIDE R30, R19, c[0x0][0x164], R16 </span><br><span class="line">LDG.E R31, [R30.64] </span><br><span class="line">IMAD.WIDE R32, R19, c[0x0][0x164], R30 </span><br><span class="line">LDG.E R39, [R32.64] </span><br><span class="line"># important R41 R37</span><br><span class="line">IMAD.WIDE R34, R19, c[0x0][0x164], R32 </span><br><span class="line">IMAD.WIDE R40, R19, c[0x0][0x164], R34 </span><br><span class="line">LDG.E R41, [R40.64] </span><br><span class="line">LDG.E R37, [R34.64] </span><br></pre></td></tr></table></figure>
+<h3 id="Fix"><a href="#Fix" class="headerlink" title="Fix"></a>Fix</h3><p>原因是前面是手动展开的，假如等待编译器自动展开for循环就不会有这个问题<br><img src="https://pic.shaojiemike.top/img/20220523160553.png"></p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://forums.developer.nvidia.com/t/solved-sass-code-analysis/41167/2">https://forums.developer.nvidia.com/t/solved-sass-code-analysis/41167/2</a></p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/35055014/how-to-understand-the-result-of-sass-analysis-in-cuda-gpu">https://stackoverflow.com/questions/35055014/how-to-understand-the-result-of-sass-analysis-in-cuda-gpu</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-03-12T16:00:00.000Z" title="3/12/2022, 4:00:00 PM">2022-03-12</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.282Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">16 minutes read (About 2451 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/03/12/Work/Architecture/companySpecificDesign/AMD-CPU/">AMD CPU</a></p><div class="content"><h2 id="AMD-history"><a href="#AMD-history" class="headerlink" title="AMD history"></a>AMD history</h2><p>超微半导体公司（英語：Advanced Micro Devices, Inc.；縮寫：AMD、超微，或譯「超威」），創立於1969年，是一家專注於微处理器及相關技術設計的跨国公司，总部位于美國加州舊金山灣區矽谷內的森尼韦尔市。</p>
+<h2 id="AMD-EPYC-7452-32-Core-Processor"><a href="#AMD-EPYC-7452-32-Core-Processor" class="headerlink" title="AMD EPYC 7452 32-Core Processor"></a>AMD EPYC 7452 32-Core Processor</h2><p><img src="https://pic.shaojiemike.top/PicGoPicGo7452_1.jpg"><br>由 AMD 于 2019 年年中设计和推出。 是基于 Zen 2 微架构的多芯片处理器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">&gt; cat lscpu.txt              </span><br><span class="line">Architecture:          x86_64</span><br><span class="line">CPU op-mode(s):        32-bit, 64-bit</span><br><span class="line">Byte Order:            Little Endian</span><br><span class="line">CPU(s):                64</span><br><span class="line">On-line CPU(s) list:   0-63</span><br><span class="line">Thread(s) per core:    1</span><br><span class="line">Core(s) per socket:    32</span><br><span class="line">Socket(s):             2</span><br><span class="line">NUMA node(s):          2</span><br><span class="line">Vendor ID:             AuthenticAMD</span><br><span class="line">CPU family:            23</span><br><span class="line">Model:                 49</span><br><span class="line">Model name:            AMD EPYC 7452 32-Core Processor</span><br><span class="line">Stepping:              0</span><br><span class="line">CPU MHz:               2345.724</span><br><span class="line">BogoMIPS:              4691.44</span><br><span class="line">Virtualization:        AMD-V</span><br><span class="line">L1d cache:             32K</span><br><span class="line">L1i cache:             32K</span><br><span class="line">L2 cache:              512K</span><br><span class="line">L3 cache:              16384K</span><br><span class="line">NUMA node0 CPU(s):     0-31</span><br><span class="line">NUMA node1 CPU(s):     32-63</span><br><span class="line">Flags:               </span><br><span class="line">(Intel) fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht </span><br><span class="line"></span><br><span class="line">(AMD)   syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm </span><br><span class="line"></span><br><span class="line">        constant_tsc art rep_good nopl nonstop_tsc extd_apicid aperfmperf eagerfpu </span><br><span class="line"></span><br><span class="line">(intel) pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand </span><br><span class="line"></span><br><span class="line">(AMD)   lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_l2 </span><br><span class="line"></span><br><span class="line">        cpb cat_l3 cdp_l3 hw_pstate sme retpoline_amd </span><br><span class="line"></span><br><span class="line">        ssbd ibrs ibpb stibp </span><br><span class="line"></span><br><span class="line">        vmmcall </span><br><span class="line"></span><br><span class="line">(intel) fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni </span><br><span class="line"></span><br><span class="line">        xsaveopt xsavec xgetbv1 </span><br><span class="line"></span><br><span class="line">(intel) cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local </span><br><span class="line"></span><br><span class="line">(AMD)   clzero irperf xsaveerptr </span><br><span class="line"></span><br><span class="line">        arat </span><br><span class="line"></span><br><span class="line">(AMD)   npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif </span><br><span class="line"></span><br><span class="line">(intel) umip </span><br><span class="line"></span><br><span class="line">(AMD)   overflow_recov succor smca</span><br></pre></td></tr></table></figure>
+
+<h2 id="CPU-Thread-Socket"><a href="#CPU-Thread-Socket" class="headerlink" title="CPU\Thread\Socket"></a>CPU\Thread\Socket</h2><ol>
+<li>CPU(s):64 &#x3D; the number of logical cores &#x3D; “Thread(s) per core” × “Core(s) per socket” × “Socket(s)” &#x3D; 1 * 32 * 2</li>
+<li>One socket is one physical CPU package (which occupies one socket on the motherboard);</li>
+<li>each socket hosts a number of physical cores, and each core can run one or more threads.</li>
+<li>In this case, you have two sockets, each containing a 32-core AMD EPYC 7452 CPU, and since that not supports hyper-threading, each core just run a thread.</li>
+</ol>
+<h2 id="CPU-flags"><a href="#CPU-flags" class="headerlink" title="CPU flags"></a><a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/43539/what-do-the-flags-in-proc-cpuinfo-mean">CPU flags</a></h2><h3 id="Intel-defined-CPU-features-CPUID-level-0x00000001-edx"><a href="#Intel-defined-CPU-features-CPUID-level-0x00000001-edx" class="headerlink" title="Intel-defined CPU features, CPUID level 0x00000001 (edx)"></a>Intel-defined CPU features, CPUID level 0x00000001 (edx)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">fpu：板载 FPU（浮点支持）</span><br><span class="line">vme：虚拟 8086 模式增强功能</span><br><span class="line">de: 调试扩展 (CR4.DE)</span><br><span class="line">pse：页表大小扩展（4MB 内存页表）</span><br><span class="line">tsc：时间戳计数器（RDTSC）</span><br><span class="line">msr：特定模型的寄存器（RDMSR、WRMSR）</span><br><span class="line">pae：物理地址扩展（支持超过 4GB 的 RAM）</span><br><span class="line">mce：机器检查异常</span><br><span class="line">cx8：CMPXCHG8 指令（64 位比较和交换）</span><br><span class="line">apic：板载 APIC(Advanced Programmable Interrupt Controller)</span><br><span class="line">sep：SYS ENTER/SYS EXIT</span><br><span class="line">mtrr：内存类型范围寄存器</span><br><span class="line">pge：页表全局启用（PDE 和 PTE 中的全局位）</span><br><span class="line">mca：机器检查架构</span><br><span class="line">cmov：CMOV 指令（条件移动）（也称为 FCMOV）</span><br><span class="line">pat：页表属性表</span><br><span class="line">pse36：36 位 PSE（大页表）</span><br><span class="line">pn：处理器序列号</span><br><span class="line">clflush：缓存行刷新指令</span><br><span class="line">mmx：多媒体扩展</span><br><span class="line">fxsr: FXSAVE/FXRSTOR, CR4.OSFXSR #  enables Streaming SIMD Extensions (SSE) instructions and fast FPU save &amp; restore.</span><br><span class="line">sse：英特尔 SSE 矢量指令</span><br><span class="line">sse2：sse2</span><br><span class="line">ht：超线程和/或多核</span><br></pre></td></tr></table></figure>
+
+<h4 id="没有使用到的"><a href="#没有使用到的" class="headerlink" title="没有使用到的"></a>没有使用到的</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ss：CPU自监听</span><br><span class="line">tm：自动时钟控制（Thermal Monitor）</span><br><span class="line">ia64：英特尔安腾架构 64 位（不要与英特尔的 64 位 x86 架构混淆，标志为 x86-64 或由标志 lm 指示的“AMD64”位）</span><br><span class="line">pbe：Pending Break Enable（PBE# 引脚）唤醒支持</span><br></pre></td></tr></table></figure>
+
+<h3 id="AMD-defined-CPU-features-CPUID-level-0x80000001"><a href="#AMD-defined-CPU-features-CPUID-level-0x80000001" class="headerlink" title="AMD-defined CPU features, CPUID level 0x80000001"></a>AMD-defined CPU features, CPUID level 0x80000001</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">syscall: SYSCALL (Fast System Call) and SYSRET (Return From Fast System Call)</span><br><span class="line">nx：执行禁用 # NX 位（不执行）是 CPU 中使用的一项技术，用于分隔内存区域，以供处理器指令（代码）存储或数据存储使用</span><br><span class="line">mmxext: AMD MMX extensions</span><br><span class="line">fxsr_opt: FXSAVE/FXRSTOR optimizations</span><br><span class="line">pdpe1gb: One GB pages (allows hugepagesz=1G)</span><br><span class="line">rdtscp: Read Time-Stamp Counter and Processor ID</span><br><span class="line">lm: Long Mode (x86-64: amd64, also known as Intel 64, i.e. 64-bit capable)</span><br></pre></td></tr></table></figure>
+
+<h4 id="没有使用到的-1"><a href="#没有使用到的-1" class="headerlink" title="没有使用到的"></a>没有使用到的</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mp: Multiprocessing Capable.</span><br><span class="line">3dnowext: AMD 3DNow! extensions</span><br><span class="line">3dnow: 3DNow! (AMD vector instructions, competing with Intel&#x27;s SSE1)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Other-features-Linux-defined-mapping-映射？"><a href="#Other-features-Linux-defined-mapping-映射？" class="headerlink" title="Other features, Linux-defined mapping(映射？)"></a>Other features, Linux-defined mapping(映射？)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">constant_tsc：TSC(Time Stamp Counter) 以恒定速率滴答</span><br><span class="line">art: Always-Running Timer</span><br><span class="line">rep_good：rep 微码运行良好</span><br><span class="line">nopl: The NOPL (0F 1F) instructions # NOPL is long-sized bytes &quot;do nothing&quot; operation</span><br><span class="line">nonstop_tsc: TSC does not stop in C states</span><br><span class="line">extd_apicid: has extended APICID (8 bits) (Advanced Programmable Interrupt Controller)</span><br><span class="line">aperfmperf: APERFMPERF # On x86 hardware, APERF and MPERF are MSR registers that can provide feedback on current CPU frequency.</span><br><span class="line">eagerfpu: Non lazy FPU restore</span><br></pre></td></tr></table></figure>
+
+<h3 id="Intel-defined-CPU-features-CPUID-level-0x00000001-ecx"><a href="#Intel-defined-CPU-features-CPUID-level-0x00000001-ecx" class="headerlink" title="Intel-defined CPU features, CPUID level 0x00000001 (ecx)"></a>Intel-defined CPU features, CPUID level 0x00000001 (ecx)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">pni: SSE-3 (“2004年,新内核Prescott New Instructions”)</span><br><span class="line">pclmulqdq: 执行四字指令的无进位乘法 - GCM 的加速器）</span><br><span class="line">monitor: Monitor/Mwait support (Intel SSE3 supplements)</span><br><span class="line">ssse3：补充 SSE-3</span><br><span class="line">fma：融合乘加</span><br><span class="line">cx16: CMPXCHG16B # double-width compare-and-swap (DWCAS) implemented by instructions such as x86 CMPXCHG16B</span><br><span class="line">sse4_1：SSE-4.1</span><br><span class="line">sse4_2：SSE-4.2</span><br><span class="line">x2apic: x2APIC</span><br><span class="line">movbe：交换字节指令后移动数据</span><br><span class="line">popcnt：返回设置为1指令的位数的计数（汉明权，即位计数）</span><br><span class="line">aes/aes-ni：高级加密标准（新指令）</span><br><span class="line">xsave：保存处理器扩展状态：还提供 XGETBY、XRSTOR、XSETBY</span><br><span class="line">avx：高级矢量扩展</span><br><span class="line">f16c：16 位 fp 转换 (CVT16)</span><br><span class="line">rdrand：从硬件随机数生成器指令中读取随机数</span><br></pre></td></tr></table></figure>
+
+<h3 id="More-extended-AMD-flags-CPUID-level-0x80000001-ecx"><a href="#More-extended-AMD-flags-CPUID-level-0x80000001-ecx" class="headerlink" title="More extended AMD flags: CPUID level 0x80000001, ecx"></a>More extended AMD flags: CPUID level 0x80000001, ecx</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">lahf_lm：在长模式下从标志 (LAHF) 加载 AH 并将 AH 存储到标志 (SAHF)</span><br><span class="line">cmp_legacy：如果是,超线程无效</span><br><span class="line">svm：“安全虚拟机”：AMD-V</span><br><span class="line">extapic：扩展的 APIC 空间</span><br><span class="line">cr8_legacy：32 位模式下的 CR8</span><br><span class="line">abm：高级位操作</span><br><span class="line">sse4a：SSE-4A</span><br><span class="line">misalignsse：指示当一些旧的 SSE 指令对未对齐的数据进行操作时是否产生一般保护异常 (#GP)。还取决于 CR0 和对齐检查位</span><br><span class="line">3dnowprefetch：3DNow预取指令</span><br><span class="line">osvw：表示 OS Visible Workaround，它允许 OS 绕过处理器勘误表。</span><br><span class="line">ibs：基于指令的采样</span><br><span class="line">xop：扩展的 AVX 指令</span><br><span class="line">skinit：SKINIT/STGI 指令 # x86虚拟化的系列指令</span><br><span class="line">wdt：看门狗定时器</span><br><span class="line">tce：翻译缓存扩展</span><br><span class="line">topoext：拓扑扩展 CPUID 叶</span><br><span class="line">perfctr_core：核心性能计数器扩展</span><br><span class="line">perfctr_nb：NB 性能计数器扩展</span><br><span class="line">bpext：数据断点扩展</span><br><span class="line">perfctr_l2：L2 性能计数器扩展</span><br></pre></td></tr></table></figure>
+
+<h3 id="辅助标志：Linux-定义-用于分散在各种-CPUID-级别的功能"><a href="#辅助标志：Linux-定义-用于分散在各种-CPUID-级别的功能" class="headerlink" title="辅助标志：Linux 定义 - 用于分散在各种 CPUID 级别的功能"></a>辅助标志：Linux 定义 - 用于分散在各种 CPUID 级别的功能</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cpb：AMD 核心性能提升</span><br><span class="line">cat_l3：缓存分配技术L3</span><br><span class="line">cdp_l3：代码和数据优先级 L3</span><br><span class="line">hw_pstate：AMD HW-PSstate Hardware P-state</span><br><span class="line">sme：AMD 安全内存加密</span><br><span class="line">retpoline_amd：AMD Retpoline 缓解 # 防止被攻击的安全策略</span><br></pre></td></tr></table></figure>
+
+<h3 id="Virtualization-flags-Linux-defined"><a href="#Virtualization-flags-Linux-defined" class="headerlink" title="Virtualization flags: Linux defined"></a>Virtualization flags: Linux defined</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vmmcall：比 VMCALL 更喜欢 VMMCALL</span><br></pre></td></tr></table></figure>
+
+<h3 id="Intel-defined-CPU-features-CPUID-level-0x00000007-0-ebx"><a href="#Intel-defined-CPU-features-CPUID-level-0x00000007-0-ebx" class="headerlink" title="Intel-defined CPU features, CPUID level 0x00000007:0 (ebx)"></a>Intel-defined CPU features, CPUID level 0x00000007:0 (ebx)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">fsgsbase：&#123;RD/WR&#125;&#123;FS/GS&#125;BASE 指令</span><br><span class="line">bmi1：第一 组位操作扩展</span><br><span class="line">avx2: AVX2 instructions</span><br><span class="line">smep：主管模式执行保护</span><br><span class="line">bmi2：第二 组位操作扩展</span><br><span class="line">cqm：缓存 QoS 监控(Quality of Service )</span><br><span class="line">rdt_a：资源总监技术分配</span><br><span class="line">rdseed：RDSEED 指令,RDRAND 用于仅需要高质量随机数的应用程序</span><br><span class="line">adx：ADCX 和 ADOX 指令</span><br><span class="line">smap：超级用户模式访问保护</span><br><span class="line">clflushopt：CLFLUSHOPT 指令, Optimized CLFLUSH，优化的缓存行刷回, 能够把指定缓存行（Cache Line）从所有级缓存中淘汰，若该缓存行中的数据被修改过，则将该数据写入主存；支持现状：目前主流处理器均支持该指令。</span><br><span class="line">clwb: CLWB instruction （Cache Line Write Back，缓存行写回）作用与 CLFLUSHOPT 相似，但在将缓存行中的数据写回之后，该缓存行仍将呈现为未被修改过的状态；支持现状</span><br><span class="line">sha_ni: SHA1/SHA256 Instruction Extensions</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展状态功能，CPUID-级别-0x0000000d-1-eax"><a href="#扩展状态功能，CPUID-级别-0x0000000d-1-eax" class="headerlink" title="扩展状态功能，CPUID 级别 0x0000000d:1 (eax)"></a>扩展状态功能，CPUID 级别 0x0000000d:1 (eax)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">xsaveopt: Optimized XSAVE</span><br><span class="line">xsavec: XSAVEC 使用压缩保存处理器扩展状态</span><br><span class="line">xgetbv1: XGETBV with ECX = 1</span><br></pre></td></tr></table></figure>
+
+<h3 id="Intel-defined-CPU-QoS-sub-leaf-CPUID-level-0x0000000F-0-edx"><a href="#Intel-defined-CPU-QoS-sub-leaf-CPUID-level-0x0000000F-0-edx" class="headerlink" title="Intel-defined CPU QoS sub-leaf, CPUID level 0x0000000F:0 (edx)"></a>Intel-defined CPU QoS sub-leaf, CPUID level 0x0000000F:0 (edx)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cqm_llc: LLC QoS # last level cache (LLC)</span><br><span class="line">cqm_occup_llc: LLC occupancy monitoring #  Memory Bandwidth Monitoring (MBM)</span><br><span class="line">cqm_mbm_total: LLC total MBM monitoring</span><br><span class="line">cqm_mbm_local: LLC local MBM monitoring</span><br></pre></td></tr></table></figure>
+
+<h3 id="AMD-defined-CPU-features-CPUID-level-0x80000008-ebx"><a href="#AMD-defined-CPU-features-CPUID-level-0x80000008-ebx" class="headerlink" title="AMD-defined CPU features, CPUID level 0x80000008 (ebx)"></a>AMD-defined CPU features, CPUID level 0x80000008 (ebx)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">clzero：CLZERO 指令,随 Zen 微体系结构引入的 AMD 供应商特定 x86 指令。CLZERO 通过向行中的每个字节写入零来清除由 RAX 寄存器中的逻辑地址指定的缓存行。</span><br><span class="line">irperf：指令退休性能计数器</span><br><span class="line">xsaveerptr：始终保存/恢复 FP 错误指针</span><br></pre></td></tr></table></figure>
+
+<h3 id="Thermal-and-Power-Management-leaf-CPUID-level-0x00000006-eax"><a href="#Thermal-and-Power-Management-leaf-CPUID-level-0x00000006-eax" class="headerlink" title="Thermal and Power Management leaf, CPUID level 0x00000006 (eax)"></a>Thermal and Power Management leaf, CPUID level 0x00000006 (eax)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arat: Always Running APIC Timer</span><br></pre></td></tr></table></figure>
+
+<h3 id="AMD-SVM-特征识别，CPUID-级别-0x8000000a-edx"><a href="#AMD-SVM-特征识别，CPUID-级别-0x8000000a-edx" class="headerlink" title="AMD SVM 特征识别，CPUID 级别 0x8000000a (edx)"></a>AMD SVM 特征识别，CPUID 级别 0x8000000a (edx)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">npt：AMD 嵌套页表支持</span><br><span class="line">lbrv：AMD LBR 虚拟化支持</span><br><span class="line">svm_lock：AMD SVM 锁定 MSR</span><br><span class="line">nrip_save：AMD SVM next_rip 保存</span><br><span class="line">tsc_scale：AMD TSC 缩放支持</span><br><span class="line">vmcb_clean：AMD VMCB 清洁位支持</span><br><span class="line">flushbyasid：AMD 逐个 ASID 支持</span><br><span class="line">解码辅助：AMD 解码辅助支持</span><br><span class="line">pausefilter: AMD 过滤暂停拦截</span><br><span class="line">pfthreshold：AMD 暂停过滤器阈值</span><br><span class="line">avic：虚拟中断控制器</span><br><span class="line">vmsave_vmload：虚拟 VMSAVE VMLOAD</span><br><span class="line">vgif：虚拟 GIF</span><br></pre></td></tr></table></figure>
+
+<h3 id="Intel-defined-CPU-features-CPUID-level-0x00000007-0-ecx"><a href="#Intel-defined-CPU-features-CPUID-level-0x00000007-0-ecx" class="headerlink" title="Intel-defined CPU features, CPUID level 0x00000007:0 (ecx)"></a>Intel-defined CPU features, CPUID level 0x00000007:0 (ecx)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">umip：用户模式指令保护</span><br></pre></td></tr></table></figure>
+
+<h3 id="AMD-defined-CPU-features-CPUID-level-0x80000007-ebx"><a href="#AMD-defined-CPU-features-CPUID-level-0x80000007-ebx" class="headerlink" title="AMD-defined CPU features, CPUID level 0x80000007 (ebx)"></a>AMD-defined CPU features, CPUID level 0x80000007 (ebx)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">overflow_recov：MCA 溢出恢复支持 # Machine Check Architecture (MCA)</span><br><span class="line">succor：不可纠正的错误控制和恢复</span><br><span class="line">smca：可扩展的 MCA</span><br></pre></td></tr></table></figure>
+
+<h3 id="不知道的flags"><a href="#不知道的flags" class="headerlink" title="不知道的flags"></a>不知道的flags</h3><p>ssbd ibrs ibpb stibp</p>
+<h3 id="Processor-P-states-and-C-states"><a href="#Processor-P-states-and-C-states" class="headerlink" title="Processor P-states and C-states"></a><a target="_blank" rel="noopener" href="https://www.thomas-krenn.com/en/wiki/Processor_P-states_and_C-states">Processor P-states and C-states</a></h3><p>英特尔处理器支持多种技术来优化功耗。 在本文中，我们概述了 p 状态（运行期间电压和 CPU 频率的优化）和 c 状态（如果内核不必执行任何指令，则优化功耗）。</p>
+<h3 id="ADCX-和-ADOX"><a href="#ADCX-和-ADOX" class="headerlink" title="ADCX 和 ADOX"></a>ADCX 和 ADOX</h3><p>ADCX<br>将两个无符号整数加上进位，从<strong>进位</strong>标志中读取进位，并在必要时将其设置在那里。 不影响进位以外的其他标志。<br>ADOX<br>将两个无符号整数加上进位，从<strong>溢出</strong>标志中读取进位，并在必要时将其设置在那里。 不影响溢出以外的其他标志。</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/43539/what-do-the-flags-in-proc-cpuinfo-mean">https://unix.stackexchange.com/questions/43539/what-do-the-flags-in-proc-cpuinfo-mean</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2022-01-23T16:00:00.000Z" title="1/23/2022, 4:00:00 PM">2022-01-23</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.286Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">4 minutes read (About 572 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2022/01/23/Work/Architecture/GPU/ampere/">Nvidia Arch : Ampere &amp; Hopper &amp; Pascal</a></p><div class="content"><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>GPU Processing Clusters (GPCs),</p>
+<p>Texture Processing Clusters (TPCs),</p>
+<h3 id="Streaming-Multiprocessors-SMs"><a href="#Streaming-Multiprocessors-SMs" class="headerlink" title="Streaming Multiprocessors (SMs)"></a>Streaming Multiprocessors (SMs)</h3><ul>
+<li>CUDA cores: basic integer&#x2F;floating point arithmetic – high throughput, low latency</li>
+<li>Load&#x2F;Store (LD&#x2F;ST): issues memory accesses to appropriate controller – possibly high latency</li>
+<li>Special Function Unit (SFU): trigonometric math functions, etc – reduced throughput</li>
+<li>special tensor cores (Since Turing and Volta): have specialized matrix arithmetic capabilities</li>
+</ul>
+<h2 id="H100"><a href="#H100" class="headerlink" title="H100"></a>H100</h2><h3 id="GH100"><a href="#GH100" class="headerlink" title="GH100"></a>GH100</h3><p><img src="https://pic.shaojiemike.top/img/20220409151747.png" alt="img"><br><img src="https://pic.shaojiemike.top/img/20220409151853.png"></p>
+<p>上面两张图组成一个SM，Special Function Units (SFUs)</p>
+<p><img src="https://pic.shaojiemike.top/img/20220409152202.png"></p>
+<h2 id="P40"><a href="#P40" class="headerlink" title="P40"></a>P40</h2><h3 id="GP102"><a href="#GP102" class="headerlink" title="GP102"></a>GP102</h3><p><img src="https://pic.shaojiemike.top/img/20220512220904.png"><br><img src="https://pic.shaojiemike.top/img/20220512220943.png"><br>图中红框是一个SM</p>
+<h2 id="A100"><a href="#A100" class="headerlink" title="A100"></a>A100</h2><h3 id="GA100"><a href="#GA100" class="headerlink" title="GA100"></a>GA100</h3><p><img src="https://pic.shaojiemike.top/img/nvidia-ampere-sp-sm-block-diagram.jpg"></p>
+<p><img src="https://pic.shaojiemike.top/img/nvidia-ampere-ga100-block-diagram.jpg"></p>
+<p><img src="https://pic.shaojiemike.top/img/nvidia-pascal-volta-ampere-comparison-table.jpg"></p>
+<h2 id="RTX-3090"><a href="#RTX-3090" class="headerlink" title="RTX 3090"></a>RTX 3090</h2><p>10496个流处理器，核心加速频率1.70GHz，384-bit 24GB GDDR6X显存。</p>
+<h3 id="GA102"><a href="#GA102" class="headerlink" title="GA102"></a>GA102</h3><p>在之前的GA100大核心中，每组SM是64个INT32单元、64个FP32单元及32个FP64单元组成的，但在GA102核心中，FP64单元大幅减少，增加了RT Core，Tensor Core也略微减少。</p>
+<p><img src="https://pic.shaojiemike.top/img/20220124205146.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220124205252.png"></p>
+<h2 id="游戏卡与专业卡的区别"><a href="#游戏卡与专业卡的区别" class="headerlink" title="游戏卡与专业卡的区别"></a>游戏卡与专业卡的区别</h2><ol>
+<li>应用方面不同<ol>
+<li>游戏卡会对三维图像处理有特殊处理，有光线追踪单元</li>
+<li>专业计算卡，可能对某些格式的解压压缩有特殊单元，或者对半精度计算有特殊支持。</li>
+</ol>
+</li>
+<li>做工不同<ol>
+<li>专业卡由于在服务器上24小时不同工作，在多相供电，散热都堆料处理，游戏卡不同(公版，非公版肯定不一样)</li>
+</ol>
+</li>
+<li>驱动不同<ol>
+<li>游戏卡对应游戏软件的优化驱动，专业卡有对专业软件的驱动支持</li>
+</ol>
+</li>
+<li>价格不同<ol>
+<li>专业卡贵4倍不止。</li>
+</ol>
+</li>
+<li>参数的不同，对于同一颗核心（以RTX3090与A100 40G举例）<ol>
+<li>A100的GA100是8块完整的，GA102是7块。</li>
+<li>A100领先的地方<ol>
+<li>堆料完爆对手</li>
+<li>显存往往更多，AI应用</li>
+<li>访存更快</li>
+<li>支持 High bandwidth memory (HBM)</li>
+<li>在多精度和半精度有优势（NVIDIA A100 SXM4 40 GB	VS.NVIDIA GeForce RTX 3090）<img src="https://pic.shaojiemike.top/img/20220124203515.png"></li>
+</ol>
+</li>
+<li>RTX3090领先的地方<ol>
+<li>频率更高</li>
+<li>有视频输出接口，支持OpenGL，DirectX</li>
+<li>有RT core 光追</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/img/20220124204312.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220124204341.png"></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/394352476">https://zhuanlan.zhihu.com/p/394352476</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-12-08T16:00:00.000Z" title="12/8/2021, 4:00:00 PM">2021-12-08</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.286Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">31 minutes read (About 4618 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/12/08/Work/Architecture/ISA/arm/">Arm vs X86 (unfinished)</a></p><div class="content"><h2 id="ARM-Ltd-history"><a href="#ARM-Ltd-history" class="headerlink" title="ARM Ltd history"></a>ARM Ltd history</h2><h3 id="诞生"><a href="#诞生" class="headerlink" title="诞生"></a>诞生</h3><p>1981年，被Intel拒绝的Acorn(橡子) Computer Ltd公司，一气之下觉得基于当时新型处理器的研究——简化指令集，自己设计一款微处理器。</p>
+<p>1985年，第一款芯片问世Acorn RISC Machine，简称ARM。</p>
+<h3 id="转型模式"><a href="#转型模式" class="headerlink" title="转型模式"></a>转型模式</h3><p>1990年，Acorn为了和苹果合作，专门成立了一家公司，名叫ARM，但是全称是Advanced RISC Machines。</p>
+<p>虽然有苹果的合资，但是初期极其艰难，ARM决定改变他们的产品策略——他们不再生产芯片，转而以授权的方式，将芯片设计方案转让给其他公司，即“Partnership”开放模式。</p>
+<p>通过IP（Intellectual Property，知识产权）授权，授权费和版税就成了ARM的主要收入来源。这种授权模式，极大地降低了自身的研发成本和研发风险。风险共担、利益共享的模式使得低成本创新成为可能。</p>
+<h3 id="新模式下的移动黄金时代来临"><a href="#新模式下的移动黄金时代来临" class="headerlink" title="新模式下的移动黄金时代来临"></a>新模式下的移动黄金时代来临</h3><ul>
+<li><p>1993年，ARM将产品授权给德州仪器，给ARM公司带来了重要的突破。也给ARM公司树立了声誉，证实了授权模式的可行性。</p>
+</li>
+<li><p>ARM+Nokia，诺基亚6110成为了第一部采用ARM处理器的GSM手机，上市后获得了极大的成功，成为当年的机皇。<br>1998年4月17日，业务飞速发展的ARM控股公司，同时在伦敦证交所和纳斯达克上市。<br>虽然后来苹果公司，逐步卖掉了所持有的ARM股票，鉴于苹果研究人员对ARM芯片架构非常熟悉，iPod也继续使用了ARM芯片。</p>
+</li>
+<li><p>ARM+Apple：创造移动互联网、iPhone、ARM指令集的黄金时代。<br>第一代iPhone，使用了ARM设计、三星制造的芯片。Iphone的热销，App Store的迅速崛起，让全球移动应用彻底绑定在ARM指令集上。</p>
+</li>
+<li><p>苹果的A系列处理器是基于ARM指令集架构授权自研内核的成功典范。</p>
+<ul>
+<li>2012年9月，苹果随iPhone5上市发布了A6处理器SoC，这颗SoC基于ARMv7架构打造的Swift内核微架构开启了苹果基于ARM架构自研处理器内核的序幕。</li>
+<li>2013年9月，苹果率先发布搭载基于ARMv8架构研发的64位Cyclone架构的双核A7处理器。A7作为世界首款64位智能手机处理器，在性能表现力压还在32位四核方案上竞争的安卓阵营。</li>
+<li>2020年，苹果宣称新发布的A14 Bionic芯片性能已经堪比部分笔记本处理器。</li>
+<li>2021年，M1诞生</li>
+</ul>
+</li>
+</ul>
+<p>紧接着，2008年，谷歌推出了Android（安卓）系统，也是基于ARM指令集。</p>
+<p>从ARM角度来看，苹果M1一旦成功也将帮助ARM实现一直以来希望撕开X86垄断的个人计算机市场的野心。</p>
+<h3 id="投胎日本，助力”富岳”"><a href="#投胎日本，助力”富岳”" class="headerlink" title="投胎日本，助力”富岳”"></a>投胎日本，助力”富岳”</h3><p>2016年7月18日，曾经投资阿里巴巴的孙正义和他的日本软银集团，以243亿英镑（约309亿美元）收购了ARM集团。</p>
+<p>至此，ARM成为软银集团旗下的全资子公司。不过，当时软银集团表示，不会干预或影响ARM未来的商业计划和决策。</p>
+<p>在2020年6月22日，日本超算“富岳”（Fugaku）成为史上第一台基于ARM芯片的全球超算TOP500冠军。</p>
+<p>小结：轻资产、开放合作、共赢。 ARM在低功耗方面的DNA，刚好赶上了移动设备爆发式发展的时代，最终造就了它的辉煌。在即将到来的万物互联时代，可以预见，ARM极有可能取得更大的成功。</p>
+<h3 id="Nvidia垄断收购风波"><a href="#Nvidia垄断收购风波" class="headerlink" title="Nvidia垄断收购风波"></a>Nvidia垄断收购风波</h3><p>2020年9月13日，NVIDIA（英伟达）和软银集团 (SoftBank Group Corp., SBG) 宣布了一项最终协议，根据此协议，NVIDIA 将以 400 亿美元的价格从软银集团和软银愿景基金（统称“软银”）收购 Arm Limited。</p>
+<p>但是这场收购在全球IT行业掀起轩然大波，包括苹果、Intel、高通、三星、特斯拉等大部分巨头均表示反对。英国也反对。至今悬而未决。</p>
+<h2 id="64bits-VS-32bits"><a href="#64bits-VS-32bits" class="headerlink" title="64bits VS 32bits"></a>64bits VS 32bits</h2><p>主要区别在</p>
+<ol>
+<li>通用寄存器一个是64位，一个是32位，</li>
+<li>指令寻址能力增加，32位只能内存寻址4GB&#x3D;4*1024*1024*1024 bytes</li>
+</ol>
+<p>一些常见问题：</p>
+<ol>
+<li>64位机器会比32位更快吗？<ol>
+<li>理论上计算不会，但是由于处理器一般先进，访存空间更大，会有些影响。和寄存器数量什么都有关。</li>
+</ol>
+</li>
+<li>32位机器就只有4GB内存？错误<ol>
+<li>其实32位处理器是可以使用4GB以上内存的，比如Pentium Pro的处理器具有36位物理地址，它就具有64GB（2^36b&#x3D;64GB）的寻址空间，Intel称之为PAE(Physical Address Extension)。</li>
+</ol>
+</li>
+</ol>
+<h2 id="x86-64位"><a href="#x86-64位" class="headerlink" title="x86 64位"></a>x86 64位</h2><p>Intel并<strong>没有开发</strong>64位版本的x86指令集。64位的指令集名为x86-64（有时简称为x64），实际上是AMD设计开发的。Intel想做64位计算，它知道如果从自己的32位x86架构进化出64位架构，新架构效率会很低，于是它搞了一个新64位处理器项目名为<strong>IA64</strong>。由此制造出了Itanium系列处理器。</p>
+<p>同时AMD知道自己造不出能与IA64兼容的处理器，于是它把x86扩展一下，加入了64位寻址和64位寄存器。最终出来的架构，就是 AMD64，成为了64位版本的x86处理器的标准。IA64项目并不算得上成功，现如今基本被放弃了。Intel最终采用了AMD64。Intel当前给出的移动方案，是采用了AMD开发的64位指令集（有些许差别）的64位处理器。</p>
+<p>x86-64架构诞生颇有时代意义。当时，处理器的发展遇到了瓶颈，内存寻址空间由于受到32位CPU的限制而只能最大到约4G。AMD<strong>主动</strong>把32位x86（或称为IA-32）扩充为64位。它以一个称为AMD64的架构出现（在重命名前也称为x86-64），且以这个技术为基础的第一个产品是单内核的Opteron和Athlon 64处理器家族。由于AMD的64位处理器产品线首先进入市场，且微软也不愿意为Intel和AMD开发两套不同的64位操作系统，Intel<strong>也被迫</strong>采纳AMD64指令集且增加某些新的扩充到他们自己的产品，命名为EM64T架构（显然他们不想承认这些指令集是来自它的主要对手），EM64T后来被Intel<strong>正式更名</strong>为Intel 64。<strong>这两者被统称为x86-64或x64</strong>，开创了x86的64位时代。</p>
+<h2 id="ARM-64位"><a href="#ARM-64位" class="headerlink" title="ARM 64位"></a>ARM 64位</h2><p>而ARM在看到移动设备对64位计算的需求后，于2011年发布了<strong>ARMv8</strong> 64位架构，这是为了下一代ARM指令集架构工作若干年后的结晶。为了基于原有的原则和指令集，开发一个简明的64位架构，ARMv8使用了两种执行模式，AArch32和AArch64。顾名思义，一个运行32位代码，一个运行64位代码。ARM设计的巧妙之处，是处理器在运行中可以无缝地在两种模式间切换。这意味着64位指令的解码器是全新设计的，不用兼顾32位指令，而处理器依然可以向后兼容。</p>
+<h2 id="为什么X86比ARM更耗电呢？"><a href="#为什么X86比ARM更耗电呢？" class="headerlink" title="为什么X86比ARM更耗电呢？"></a>为什么X86比ARM更耗电呢？</h2><p>在cpu同制程工艺下，</p>
+<p>ARM的处理器有个特点，就是乱序执行能力不如X86。</p>
+<p><strong>X86</strong>为了增强对随机操作命令情况下的处理能力，加强了乱序指令的执行、单核的多线程能力。</p>
+<p>缺点就是，无法很有效的关闭和恢复处理器子模块，因为一旦关闭，恢复起来就很慢，从而造成低性能。为了保持高性能，就不得不让大部分的模块都保持开启，并且时钟也保持切换。这样做的直接后果就是耗电高。</p>
+<p><strong>ARM</strong>的指令强在确定次序的执行，并且依靠多核而不是单核多线程来执行。这样容易保持子模块和时钟信号的关闭，显然就更省电。</p>
+<h2 id="ARM-架构"><a href="#ARM-架构" class="headerlink" title="ARM 架构"></a>ARM 架构</h2><p><img src="https://pic.shaojiemike.top/img/1619838284793005359.png"><br><img src="https://pic.shaojiemike.top/img/20211212223918.png"></p>
+<h3 id="ARM架构新命名"><a href="#ARM架构新命名" class="headerlink" title="ARM架构新命名"></a>ARM架构新命名</h3><p>ARM11芯片之后，也就是从ARMv7架构开始，改以Cortex命名，并分为三个系列，分别是Cortex-A，Cortex-R，Cortex-M。呵呵，发现了没，三个字母又是A、R、M。</p>
+<ul>
+<li><p>Cortex-A系列（A：Application）<br>针对日益增长的消费娱乐和无线产品设计，用于具有高计算要求、运行丰富操作系统及提供交互媒体和图形体验的应用领域，如智能手机、平板电脑、汽车娱乐系统、数字电视等。<br>Cortex-A目前有A7x系列为代表的性能大核产品线和A5x系列为代表低功耗小核产品线。<br>其中大核运行短时间的高性能需求任务；小核运行低性能需求的任务或者在待机状态支持背景任务运行。</p>
+</li>
+<li><p>Cortex-R系列 （R：Real-time）<br>针对需要运行实时操作的系统应用，面向如汽车制动系统、动力传动解决方案、大容量存储控制器等深层嵌入式实时应用。</p>
+</li>
+<li><p>Cortex-M系列（M：Microcontroller）<br>该系列面向微控制器microcontroller (MCU) 领域，主要针对成本和功耗敏感的应用，如智能测量、人机接口设备、汽车和工业控制系统、家用电器、消费性产品和医疗器械等。智能互联时代应用前景非常广阔。</p>
+</li>
+<li><p>Cortex-SC系列（SC：SecurCore）<br>其实，除了上述三大系列之外，还有一个主打安全的（SC：SecurCore），主要用于政府安全芯片。</p>
+</li>
+</ul>
+<h3 id="ARM-v9架构"><a href="#ARM-v9架构" class="headerlink" title="ARM v9架构"></a>ARM v9架构</h3><p>自 2011 年 10 月 Arm 首次公布 Armv8架构以来，已经有近 10 年的时间了</p>
+<ol>
+<li>支持SVE2(可以打通512位矢量寄存器和128等各层次的使用，不用重新写)和矩阵乘法</li>
+<li>安全、AI 以及改进矢量扩展(Scalable Vector Extensions，简称SVE)和 DSP 能力<ol>
+<li>新的可变向量长度 SIMD 指令集的首次迭代范围相当有限，而且更多的是针对 HPC 工作负载，缺少了许多通用性较强的指令</li>
+</ol>
+</li>
+<li>具有保密功能的计算架构</li>
+</ol>
+<p>2021年3月31日，ARM V9发布</p>
+<p><img src="https://pic.shaojiemike.top/img/20211212224049.png"><br><img src="https://pic.shaojiemike.top/img/20211212224116.png"></p>
+<h3 id="苹果-A16-架构"><a href="#苹果-A16-架构" class="headerlink" title="苹果 A16 架构"></a>苹果 A16 架构</h3><p>来自极客湾</p>
+<p><img src="https://pic.shaojiemike.top/img/20230919220937.png"></p>
+<p>白色部分为加宽的部分</p>
+<p><img src="https://pic.shaojiemike.top/img/20230919221311.png"></p>
+<h2 id="aarm64-指令是多少位的？"><a href="#aarm64-指令是多少位的？" class="headerlink" title="aarm64 指令是多少位的？"></a>aarm64 指令是多少位的？</h2><p>AArch64：AArch64 state只支持A64指令集。这是一个固定长度的指令集，使用32位指令编码。</p>
+<p>Arch32：AArch32 state支持以下指令集：</p>
+<p>  A32：这是一个固定长度的指令集，使用32位指令编码。它是与ARMv7 ARM指令集兼容。</p>
+<p>  T32：这是一个可变长度指令集，它同时使用16位和32位指令编码。它与ARMv7 Thumb®指令集兼容。</p>
+<p>而CISC指令集都是变长的。</p>
+<p><img src="https://pic.shaojiemike.top/img/20211007160335.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20230919221412.png"></p>
+<h3 id="指令的长度"><a href="#指令的长度" class="headerlink" title="指令的长度"></a>指令的长度</h3><p>指令长度的范围可以说是相当广泛，从微控制器的4 bit，到VLIW系统的数百bit。在个人电脑，大型机，超级电脑内的处理器，其内部的指令长度介于8到64 bits（在x86处理器结构内，最长的指令长达15 bytes，等于120 bits）。在一个指令集架构内，不同的指令可能会有不同长度。在一些结构，特别是大部分的精简指令集（RISC），指令是固定的长度，长度对应到结构内一个字的大小。在其他结构，长度则是byte的整数倍或是一个halfword。</p>
+<p><a target="_blank" rel="noopener" href="https://www.eet-china.com/mp/a23067.html">https://www.eet-china.com/mp/a23067.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://winddoing.github.io/post/7190.html">https://winddoing.github.io/post/7190.html</a></p>
+<h2 id="寄存器的区别"><a href="#寄存器的区别" class="headerlink" title="寄存器的区别"></a>寄存器的区别</h2><h3 id="AArch64"><a href="#AArch64" class="headerlink" title="AArch64"></a>AArch64</h3><p>In AArch64 state, the following registers are available:</p>
+<ul>
+<li><strong>Thirty-one</strong> 64-bit general-purpose registers X0-X30, the bottom halves of which are accessible as W0-W30.</li>
+<li><strong>Four</strong> stack pointer registers SP_EL0, SP_EL1, SP_EL2, SP_EL3.</li>
+<li><strong>Three</strong> exception link registers ELR_EL1, ELR_EL2, ELR_EL3.</li>
+<li><strong>Three</strong> saved program status registers SPSR_EL1, SPSR_EL2, SPSR_EL3.</li>
+<li><strong>One</strong> program counter.</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/img/20211209163144.png"><br>X31 stack pointer<br><img src="https://pic.shaojiemike.top/img/20211209163209.png"><br><img src="https://pic.shaojiemike.top/img/20210929164711.png"></p>
+<p>You can write the register names either in all <strong>upper case or all lower case.</strong></p>
+<p>In AArch64 state, the PC is not a general purpose register and you <strong>cannot access</strong> it by name.</p>
+<p>All these registers are 64 bits <strong>wide</strong> except SPSR_EL1, SPSR_EL2, and SPSR_EL3, which are 32 bits <strong>wide</strong>.</p>
+<p>Most A64 integer instructions can operate on either 32-bit or 64-bit registers.</p>
+<p>The names Wn and Xn, where n is in the range 0-30.  W means 32-bit and X means 64-bit.<br><img src="https://pic.shaojiemike.top/img/20211007160806.png"></p>
+<p>更具体的细节请看 ARMv8 Instruction Set Overview 4.4.1  General purpose (integer) registers</p>
+<h3 id="AArch64-A64-Advanced-SIMD-NEON"><a href="#AArch64-A64-Advanced-SIMD-NEON" class="headerlink" title="AArch64 A64 Advanced SIMD (NEON)"></a>AArch64 A64 Advanced SIMD (NEON)</h3><p>更具体的细节请看 ARMv8 Instruction Set Overview 4.4.2  FP&#x2F;SIMD  registers 或者 Assembly Arm文章<br><img src="https://pic.shaojiemike.top/img/20221030162733.png"><br>向量寄存器有32个v0 - v31, 由于表示方法 Qn 也是 128位，所以汇编有时以 %qn出现(n为第几个寄存器)<br><img src="https://pic.shaojiemike.top/img/20211025115835.png"><br><img src="https://pic.shaojiemike.top/img/20211007160751.png"></p>
+<h3 id="AArch32"><a href="#AArch32" class="headerlink" title="AArch32"></a>AArch32</h3><p>In all ARM processors in AArch32 state, the following registers are available and accessible in any processor mode:</p>
+<ul>
+<li>15 general-purpose registers R0-R12, the Stack Pointer (SP), and Link Register (LR).</li>
+<li>1 Program Counter (PC).</li>
+<li>1 Application Program Status Register (APSR).</li>
+</ul>
+<p>r11是optional的，backtrace时候会启用，被称为FP，即frame pointer。</p>
+<p>r12 IP The Intra-Procedure-call scratch register. （可简单的认为暂存SP）</p>
+<p>r13 SP The Stack Pointer.</p>
+<p>r14 LR The Link Register. 用于保存函数调用的返回地址</p>
+<p>r15 PC The Program Counter.</p>
+<h4 id="arm函数调用的寄存器FP-frame-pointer-LP-Link-Pointer-BP-in-X86"><a href="#arm函数调用的寄存器FP-frame-pointer-LP-Link-Pointer-BP-in-X86" class="headerlink" title="arm函数调用的寄存器FP(frame pointer)+LP(Link Pointer)&#x3D;BP in X86"></a>arm函数调用的寄存器FP(frame pointer)+LP(Link Pointer)&#x3D;BP in X86</h4><p>x86的bp寄存器其实有两个功能：</p>
+<ol>
+<li>指向栈底</li>
+<li>指向返回地址<br>arm却把这两个功能拆开了，用两个存，为的就是减少一步访存。</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/img/20211209164945.png"></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/tangg555/article/details/62231285">https://blog.csdn.net/tangg555/article/details/62231285</a></p>
+<h3 id="X86-64"><a href="#X86-64" class="headerlink" title="X86(-64)"></a>X86(-64)</h3><p>The x86 architecture has 8 General-Purpose Registers (GPR), 6 Segment Registers, 1 Flags Register and an Instruction Pointer. 64-bit x86 has additional registers.<br><img src="https://pic.shaojiemike.top/img/20210929165951.png"></p>
+<ol>
+<li>General-Purpose Registers (GPR) - 16-bit naming conventions<ol>
+<li>Accumulator register (AX). Used in arithmetic operations</li>
+<li>Counter register (CX). Used in shift&#x2F;rotate instructions and loops.</li>
+<li>Data register (DX). Used in arithmetic operations and I&#x2F;O operations.</li>
+<li>Base register (BX). Used as a pointer to data (located in segment register DS, when in segmented mode).</li>
+<li>Stack Pointer register (SP). Pointer to the top of the stack.</li>
+<li>Stack Base Pointer register (BP). Used to point to the base of the stack.</li>
+<li>Source Index register (SI). Used as a pointer to a source in stream operations.</li>
+<li>Destination Index register (DI). Used as a pointer to a destination in stream operations.</li>
+</ol>
+</li>
+<li>Segment Registers<ol>
+<li>Stack Segment (SS). Pointer to the stack.</li>
+<li>Code Segment (CS). Pointer to the code.</li>
+<li>Data Segment (DS). Pointer to the data.</li>
+<li>Extra Segment (ES). Pointer to extra data (‘E’ stands for ‘Extra’).</li>
+<li>F Segment (FS). Pointer to more extra data (‘F’ comes after ‘E’).</li>
+<li>G Segment (GS). Pointer to still more extra data (‘G’ comes after ‘F’).</li>
+</ol>
+</li>
+<li>General-Purpose Registers 64-bit<ol>
+<li>rax - register a <strong>extended</strong></li>
+<li>rbx - register b extended</li>
+<li>rcx - register c extended</li>
+<li>rdx - register d extended</li>
+<li>rbp - register <strong>base pointer</strong> (start of stack)</li>
+<li>rsp - register <strong>stack pointer</strong> (current location in stack, growing downwards)</li>
+<li>rsi - register source <strong>index</strong> (source for data copies)</li>
+<li>rdi - register destination index (destination for data copies)</li>
+</ol>
+</li>
+</ol>
+<p>RIP (EIP)<br><img src="https://pic.shaojiemike.top/img/20210929170619.png"></p>
+<h3 id="X86-SIMD"><a href="#X86-SIMD" class="headerlink" title="X86-SIMD"></a>X86-SIMD</h3><p><a target="_blank" rel="noopener" href="http://home.ustc.edu.cn/~shaojiemike/posts/simd/#simd%E5%AF%84%E5%AD%98%E5%99%A8">http://home.ustc.edu.cn/~shaojiemike/posts/simd/#simd%E5%AF%84%E5%AD%98%E5%99%A8</a></p>
+<h3 id="关于零寄存器"><a href="#关于零寄存器" class="headerlink" title="关于零寄存器"></a>关于零寄存器</h3><p>某个寄存器是只读的，存的值一直为0</p>
+<p>Most RISC architectures have a “zero register”(WZR&#x2F;XZR reg31 for ARM) which always reads as zero and cannot be written to.</p>
+<p>While the x86&#x2F;x64 architectures do <strong>not</strong> have an architectural zero register.</p>
+<p>通过zero Idiom :</p>
+<p>The register renamer detects certain instructions (<code>xor reg, reg</code> and <code>sub reg, reg</code> and various others) that always zero a register</p>
+<h2 id="kunpeng-920"><a href="#kunpeng-920" class="headerlink" title="kunpeng 920"></a>kunpeng 920</h2><h3 id="history"><a href="#history" class="headerlink" title="history"></a>history</h3><p>2019年1月，华为跟进一步发布自研服务器芯片鲲鹏920。该服务器芯片搭载了64颗海思基于ARMv8架构自研的泰山内核。整体服务器性能较市场现有竞品提升20%。2019年5月，华为宣布获得ARMv8架构永久授权，并且强调华为海思有持续自行开发设计基于ARM授权架构的处理器。</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/2baba0c179bcd5a68981135868034c6f.png"></p>
+<ul>
+<li>AMBA（Advanced Microcontroller Bus Architecture）是ARM公司定义的一个总线架构，用来连接不同的功能模块（如CPU核心、内存控制器、I&#x2F;O端口等）。AMBA是一种开放标准，用于连接和管理集成在SOC（System on Chip）上的各种组件。它是为了高带宽和低延迟的内部通信而设计的，确保不同组件之间的高效数据传输。</li>
+<li>ARM的SCP和MCP固件（System Control Processor &amp; Management Control Processor firmware）则是指ARM提供的用于系统控制处理器和管理控制处理器的固件。这些固件通常负责处理系统管理任务，例如电源管理、系统启动和监控、安全性管理等。SCP和MCP是ARM架构中用于系统级管理和控制的专门处理器或子系统。</li>
+</ul>
+<h3 id="chip"><a href="#chip" class="headerlink" title="chip"></a>chip</h3><p>wikiChip <a target="_blank" rel="noopener" href="https://en.wikichip.org/wiki/hisilicon/microarchitectures/taishan_v110">https://en.wikichip.org/wiki/hisilicon/microarchitectures/taishan_v110</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">Architecture:                    aarch64</span><br><span class="line">CPU op-mode(s):                  64-bit</span><br><span class="line">Byte Order:                      Little Endian</span><br><span class="line">CPU(s):                          96</span><br><span class="line">On-line CPU(s) list:             0-95</span><br><span class="line">Thread(s) per core:              1</span><br><span class="line">Core(s) per socket:              48</span><br><span class="line">Socket(s):                       2</span><br><span class="line">NUMA node(s):                    4</span><br><span class="line">Vendor ID:                       0x48</span><br><span class="line">Model:                           0</span><br><span class="line">Stepping:                        0x1</span><br><span class="line">CPU max MHz:                     2600.0000</span><br><span class="line">CPU min MHz:                     200.0000</span><br><span class="line">BogoMIPS:                        200.00</span><br><span class="line">L1d cache:                       6 MiB</span><br><span class="line">L1i cache:                       6 MiB</span><br><span class="line">L2 cache:                        48 MiB</span><br><span class="line">L3 cache:                        192 MiB</span><br><span class="line">NUMA node0 CPU(s):               0-23</span><br><span class="line">NUMA node1 CPU(s):               24-47</span><br><span class="line">NUMA node2 CPU(s):               48-71</span><br><span class="line">NUMA node3 CPU(s):               72-95</span><br><span class="line">Vulnerability Itlb multihit:     Not affected</span><br><span class="line">Vulnerability L1tf:              Not affected</span><br><span class="line">Vulnerability Mds:               Not affected</span><br><span class="line">Vulnerability Meltdown:          Not affected</span><br><span class="line">Vulnerability Spec store bypass: Not affected</span><br><span class="line">Vulnerability Spectre v1:        Mitigation; __user pointer sanitization</span><br><span class="line">Vulnerability Spectre v2:        Not affected</span><br><span class="line">Vulnerability Srbds:             Not affected</span><br><span class="line">Vulnerability Tsx async abort:   Not affected</span><br><span class="line">Flags:                           fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm j</span><br><span class="line">                                 scvt fcma dcpop asimddp asimdfhm</span><br></pre></td></tr></table></figure>
+
+<p>鲲鹏920明显的几个特点，96个核，4个NUMA node, cache相较于Intel特别大</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>致谢ARM、驭势资本、EETOP…等原编著者，来源华为云社区<br><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/262835">https://bbs.huaweicloud.com/blogs/262835</a></p>
+<p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation">https://developer.arm.com/documentation</a></p>
+<p>RIP register</p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/42215105/understanding-rip-register-in-intel-assembly">https://stackoverflow.com/questions/42215105/understanding-rip-register-in-intel-assembly</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-12-08T16:00:00.000Z" title="12/8/2021, 4:00:00 PM">2021-12-08</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.318Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">8 minutes read (About 1237 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/12/08/Work/Programming/2.1-Assembly/assembly-arm/">Assembly Arm</a></p><div class="content"><p>关于X86 与 arm的寄存器的区别写在了arm那篇下</p>
+<h2 id="arm"><a href="#arm" class="headerlink" title="arm"></a>arm</h2><p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/dui0068/b/CIHEDHIF">https://developer.arm.com/documentation/dui0068/b/CIHEDHIF</a></p>
+<h2 id="Arm-的四种寻址方式"><a href="#Arm-的四种寻址方式" class="headerlink" title="Arm 的四种寻址方式"></a>Arm 的四种寻址方式</h2><p><a target="_blank" rel="noopener" href="https://azeria-labs.com/memory-instructions-load-and-store-part-4/">ldr &amp; str</a></p>
+<p><img src="https://pic.shaojiemike.top/img/20230205152911.png"><br><img src="https://pic.shaojiemike.top/img/20220719162149.png"></p>
+<h2 id="Aarch64"><a href="#Aarch64" class="headerlink" title="Aarch64"></a>Aarch64</h2><p>Arm A64 Instruction Set Architecture<br><a target="_blank" rel="noopener" href="https://modexp.wordpress.com/2018/10/30/arm64-assembly/">https://modexp.wordpress.com/2018/10/30/arm64-assembly/</a></p>
+<p>直接阅读文档 Arm® A64 Instruction Set Architecture<br>Armv8, for Armv8-A architecture profile最有效</p>
+<h3 id="指令后缀说明"><a href="#指令后缀说明" class="headerlink" title="指令后缀说明"></a>指令后缀说明</h3><p>read from ARMv8 Instruction Set Overview 4.2  Instruction  Mnemonics</p>
+<p>The container is one of:<br><img src="https://pic.shaojiemike.top/img/20211025094947.png"></p>
+<p>The subtype is one of:<br><img src="https://pic.shaojiemike.top/img/20211025095427.png"></p>
+<p>combine</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;name&gt;&#123;&lt;subtype&gt;&#125;      &lt;container&gt; </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic.shaojiemike.top/img/20211113205251.png"></p>
+<p>注意后缀的作用主体<br><img src="https://pic.shaojiemike.top/img/20230205153128.png"><br><img src="https://pic.shaojiemike.top/img/20211113210709.png"></p>
+<h3 id="指令速查"><a href="#指令速查" class="headerlink" title="指令速查"></a>指令速查</h3><p>官网查找指令: <a target="_blank" rel="noopener" href="https://developer.arm.com/architectures/instruction-sets/intrinsics">https://developer.arm.com/architectures/instruction-sets/intrinsics</a></p>
+<p><img src="https://pic.shaojiemike.top/img/20211025100800.png"><br><img src="https://pic.shaojiemike.top/img/20211025100853.png"><br><img src="https://pic.shaojiemike.top/img/20211025100907.png"></p>
+<p><a target="_blank" rel="noopener" href="https://armconverter.com/?disasm&code=0786b04e">https://armconverter.com/?disasm&amp;code=0786b04e</a></p>
+<p><img src="https://pic.shaojiemike.top/img/20211113205847.png"></p>
+<h3 id="SIMD-vector"><a href="#SIMD-vector" class="headerlink" title="SIMD&#x2F;vector"></a>SIMD&#x2F;vector</h3><p>几乎每个指令都可以同时作用在不同寄存器和vector或者scalar上。比如add指令，并没有像X86一样设计vadd或者addps等单独<br>的指令，如果一定要区分，只能从寄存器是不是vector下手。</p>
+<p>根据这个图，确实是有做向量操作的add，FADD是float-add的意思，ADDP是将相邻的寄存器相加放入目的寄存器的意思。不影响是标量scalar还是向量vector的操作。addv是将一个向量寄存器里的每个分量归约求和的意思，确实只能用在向量指令。<br><img src="https://pic.shaojiemike.top/img/20211025112813.png"></p>
+<!-- ![](https://pic.shaojiemike.top/img/20211025122202.png) -->
+<p>由于需要满足64或者128位只有下面几种情况<br><img src="https://pic.shaojiemike.top/img/20221030162500.png"></p>
+<p>需要额外注意的是另外一种写法，位操作指令，不在乎寄存器形状shape</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 128位and</span><br><span class="line">and %q3 %q7 -&gt; %q3</span><br><span class="line">and v3.16b, v3.16b, v7.16b</span><br></pre></td></tr></table></figure>
+<p>是同一个意思，但是不支持<code>and v3.8h, v3.8h, v7.8h</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DUP <span class="comment">//Duplicate general-purpose register to vector.or Duplicate vector element to vector or scalar.</span></span><br><span class="line">addp <span class="comment">//Add Pair of elements (scalar). This instruction adds two vector elements in the source SIMD&amp;FP register and writes </span></span><br><span class="line"><span class="comment">//the scalar result into the destination SIMD&amp;FP register.</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="calculate"><a href="#calculate" class="headerlink" title="calculate"></a>calculate</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">add</span><br><span class="line">addp <span class="comment">//Add Pair of elements (scalar). This instruction adds two vector elements in the source SIMD&amp;FP register and writes the scalar result into the destination SIMD&amp;FP register.</span></span><br><span class="line">adds <span class="comment">// Add , setting ﬂags.</span></span><br><span class="line">eor <span class="comment">// Bitwise Exclusive OR</span></span><br><span class="line">orr <span class="comment">// Move (register) copies the value in a source register to the destination register. Alias of ORR.</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Address"><a href="#Address" class="headerlink" title="Address"></a>Address</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ADRP <span class="comment">// Form PC-relative address to 4KB page.</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Branch"><a href="#Branch" class="headerlink" title="Branch"></a>Branch</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">b.cond <span class="comment">// branch condition eg. b.ne</span></span><br><span class="line">bl <span class="comment">//Branch with Link branches to a PC-relative oﬀset, setting the register X30 to PC+4 </span></span><br><span class="line"><span class="comment">//带链接的跳转。 首先将当前指令的下一条指令地址保存在LR寄存器，然后跳转的lable。通常用于调用子程序，可通过在子程序的尾部添加mov  pc, lr 返回。</span></span><br><span class="line">blr <span class="comment">//Branch with Link to Register calls a subroutine at an address in a register, setting register X30 to PC+4.</span></span><br><span class="line">cbnz <span class="comment">//Compare and Branch on Nonzero compares the value in a register with zero, and conditionally branches to a label at a PC-relative offset if the comparison is not equal. It provides a hint that this is not a subroutine call or return. This instruction does not affect the condition flags.</span></span><br><span class="line">tbnz <span class="comment">// test and branch not zero</span></span><br><span class="line">ret <span class="comment">//Return from subroutine, branches unconditionally to an address in a register, with a hint that this is a subroutine return.</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Load-Store"><a href="#Load-Store" class="headerlink" title="Load&#x2F;Store"></a>Load&#x2F;Store</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ldrb <span class="comment">// b是byte的意思</span></span><br><span class="line">ldar <span class="comment">// LDAR Load-Acquire(申请锁) Register </span></span><br><span class="line">STLR <span class="comment">//Store-Release(释放锁) Register </span></span><br><span class="line">ldp <span class="comment">// load pair(two) register</span></span><br><span class="line">stp <span class="comment">// store pair(two) register</span></span><br><span class="line"><span class="built_in">ldr</span>(b/h/sb/sh/sw) <span class="comment">// load register , sb/sh/sw is signed byte/half/word</span></span><br><span class="line">str <span class="comment">// store register</span></span><br><span class="line">ldur <span class="comment">// load register (unscaled) unscaled means that in the machine-code, the offset will not be encoded with a scaled offset like ldr uses. or offset is minus.</span></span><br><span class="line">prfm <span class="comment">// prefetch memory</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Control-conditional"><a href="#Control-conditional" class="headerlink" title="Control&#x2F;conditional"></a>Control&#x2F;conditional</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ccmp <span class="comment">// comdition compare</span></span><br><span class="line">CMEQ <span class="comment">// Compare bitwise Equal (vector). This instruction compares each vector element from the frst source SIMD&amp;FP register with the corresponding vector element from the second source SIMD&amp;FP register</span></span><br><span class="line">CSEL <span class="comment">// If the condition is true, Conditional Select writes the value of the frst source register to the destination register. If the condition is false, it writes the value of the second source register to the destination register.</span></span><br><span class="line">CSINC <span class="comment">//Conditional Select Increment returns</span></span><br><span class="line">CSINV <span class="comment">//Conditional Select Invert returns</span></span><br><span class="line">CSNEG <span class="comment">//Conditional Select Negation returns</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Logic-Move"><a href="#Logic-Move" class="headerlink" title="Logic&amp;Move"></a>Logic&amp;Move</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">ASRV <span class="comment">//Arithmetic Shift Right Variable</span></span><br><span class="line">lsl <span class="comment">//logic shift left</span></span><br><span class="line">orr <span class="comment">//bitwise(逐位) or</span></span><br><span class="line">eor <span class="comment">//Bitwise Exclusive OR</span></span><br><span class="line">TST/ANDS <span class="comment">//Test bits (immediate), setting the condition flags and discarding the result. Alias of ANDS.</span></span><br><span class="line">MOVZ <span class="comment">//Move wide with zero moves an optionally-shifted 16-bit immediate value to a register</span></span><br><span class="line">UBFM <span class="comment">// Unigned Bitfield Move. This instruction is used by the aliases LSL (immediate), LSR (immediate), UBFIZ, UBFX, UXTB, and UXTH</span></span><br><span class="line">BFM <span class="comment">//Bitfield Move</span></span><br><span class="line"><span class="built_in">BIC</span> (shifted <span class="keyword">register</span>) <span class="comment">//Bitwise Bit Clear</span></span><br><span class="line">CLZ <span class="comment">// Count Leading Zeros counts the number of binary zero bits before the frst binary one bit in the value of the source register, and writes the result to the destination register.</span></span><br><span class="line">REV, REV16, REVSH, <span class="keyword">and</span> RBIT <span class="comment">// below</span></span><br><span class="line">REV <span class="comment">//Reverse byte order in a word.</span></span><br><span class="line">REV16 <span class="comment">//Reverse byte order in each halfword independently.</span></span><br><span class="line">REVSH <span class="comment">//Reverse byte order in the bottom halfword, and sign extend to 32 bits.</span></span><br><span class="line">RBIT <span class="comment">//Reverse the bit order in a 32-bit word.</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic.shaojiemike.top/img/20211209180945.png"></p>
+<h3 id="Modifier"><a href="#Modifier" class="headerlink" title="Modifier"></a>Modifier</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uxtb <span class="comment">// zero extend byte 无符号（Unsigned）扩展一个字节（Byte）到 32位</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="system"><a href="#system" class="headerlink" title="system"></a>system</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dmb  //data memory barrier</span><br><span class="line">SVC //The SVC instruction causes an exception. This means that the processor mode changes to Supervisor,</span><br></pre></td></tr></table></figure>
+
+<h3 id="ARM-no-push-pop"><a href="#ARM-no-push-pop" class="headerlink" title="ARM no push&#x2F;pop"></a>ARM no push&#x2F;pop</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUSH &#123;r3&#125;</span><br><span class="line">POP &#123;r3&#125;</span><br></pre></td></tr></table></figure>
+
+<p>are aliases for</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">str r3, [sp, #-4]!</span><br><span class="line">ldr r3, [sp], #4</span><br></pre></td></tr></table></figure>
+
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.cs.virginia.edu/~evans/cs216/guides/x86.html">https://www.cs.virginia.edu/~evans/cs216/guides/x86.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/gaojinshan/article/details/11534569">https://blog.csdn.net/gaojinshan/article/details/11534569</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-11-03T06:51:23.000Z" title="11/3/2021, 6:51:23 AM">2021-11-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.322Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">3 minutes read (About 449 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/11/03/Work/Programming/info/Intel_Intrinsics_Guide/">Intel® Intrinsics Guide</a></p><div class="content"><h2 id="符号说明"><a href="#符号说明" class="headerlink" title="符号说明"></a>符号说明</h2><p> <code>_mm_sin_ps</code> intrinsic is a packed <strong>128-bit</strong> vector of <strong>four</strong> <strong>32-bit</strong> precision floating point numbers.The intrinsic computes the sine of each of these four numbers and returns the four results in a packed 128-bit vector.</p>
+<h2 id="ISA"><a href="#ISA" class="headerlink" title="ISA"></a>ISA</h2><h3 id="AVX2-AVX"><a href="#AVX2-AVX" class="headerlink" title="AVX2 &amp; AVX"></a>AVX2 &amp; AVX</h3><p>AVX2在AVX的基础上完善了256位寄存器的一些实现</p>
+<h3 id="FMA"><a href="#FMA" class="headerlink" title="FMA"></a>FMA</h3><p>float-point multiply add&#x2F;sub </p>
+<p>include 128&#x2F;256 bits regs</p>
+<h3 id="AVX-VNNI"><a href="#AVX-VNNI" class="headerlink" title="AVX_VNNI"></a>AVX_VNNI</h3><p>AVX-VNNI is a VEX-coded variant of the AVX512-VNNI instruction set extension. It provides the same set of operations, but is limited to 256-bit vectors and does not support any additional features of EVEX encoding, such as broadcasting, opmask registers or accessing more than 16 vector registers. This extension allows to support VNNI operations even when full AVX-512 support is not implemented by the processor.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dpbusd  //_mm_dpbusd_avx_epi32</span><br><span class="line">dpwssd // b 与 w 是 byte 和dword。 us和ss是ab两数是不是signed</span><br><span class="line">dpwssds // 最后的s是 signed saturation饱和计算的意思，计算不允许越界。</span><br></pre></td></tr></table></figure>
+<p><img src="https://pic.shaojiemike.top/img/1635924569974.jpg"></p>
+<h3 id="AVX-512"><a href="#AVX-512" class="headerlink" title="AVX-512"></a>AVX-512</h3><p>有时间再看吧<br><img src="https://pic.shaojiemike.top/img/20211103153031.png"></p>
+<h3 id="KNC"><a href="#KNC" class="headerlink" title="KNC"></a>KNC</h3><p>current generation of Intel Xeon Phi co-processors (codename “<strong>Knight’s Corner</strong>“, abbreviated KNC) supports <strong>512-bit</strong> SIMD instruction set called “Intel® Initial Many Core Instructions” (abbreviated Intel® IMCI).</p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/22670205/are-there-simdsse-avx-instructions-in-the-x86-compatible-accelerators-intel">https://stackoverflow.com/questions/22670205/are-there-simdsse-avx-instructions-in-the-x86-compatible-accelerators-intel</a></p>
+<h3 id="AMX"><a href="#AMX" class="headerlink" title="AMX"></a>AMX</h3><p>Intel® <strong>Advanced Matrix Extensions</strong> (Intel® AMX) is a new 64-bit programming paradigm consisting of two components:</p>
+<ul>
+<li>A set of 2-dimensional registers (tiles) representing sub-arrays from a larger 2-dimensional memory image</li>
+<li>An accelerator that is able to operate on tiles; the first implementation of this accelerator is called TMUL (tile matrix multiply unit).<br><img src="https://pic.shaojiemike.top/img/20211103154101.png"></li>
+</ul>
+<p>这个不适用于特殊矩阵和稀疏矩阵，这类一般先转换化简再SIMD</p>
+<h3 id="SVML"><a href="#SVML" class="headerlink" title="SVML"></a>SVML</h3><p>Short Vector Math Library Operations (SVML)</p>
+<p>The Intel® oneAPI DPC++&#x2F;C++ Compiler provides short vector math library (SVML) intrinsics to compute vector math functions. These intrinsics are available for IA-32 and Intel® 64 architectures running on supported operating systems. The prototypes for the SVML intrinsics are available in the immintrin.h file.</p>
+<p>Using SVML intrinsics is faster than repeatedly calling the scalar math functions. However, the intrinsics differ from the scalar functions in accuracy.</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2></div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-11-03T06:40:48.000Z" title="11/3/2021, 6:40:48 AM">2021-11-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.338Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">5 minutes read (About 747 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/11/03/Work/HPC/tricks/manualAVX256/">Manual AVX256 SIMD</a></p><div class="content"><h2 id="类型区别"><a href="#类型区别" class="headerlink" title="类型区别"></a>类型区别</h2><p>The __m256 data type can hold eight 32-bit floating-point values. </p>
+<p>The __m256d data type can hold four 64-bit double precision floating-point values. </p>
+<p>The __m256i data type can hold thirty-two 8-bit, sixteen 16-bit, eight 32-bit, or four 64-bit integer values</p>
+<h2 id="向量预取"><a href="#向量预取" class="headerlink" title="向量预取"></a>向量预取</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_mm512_mask_prefetch_i32extgather_ps</span><br></pre></td></tr></table></figure>
+<h2 id="Load-Store"><a href="#Load-Store" class="headerlink" title="Load &amp; Store"></a>Load &amp; Store</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">__m256i _mm256_loadu_epi32 (void const* mem_addr) //读入连续的256位数据，为32位int</span><br><span class="line">_mm256_lddqu_si256 //上面识别不了也可以考虑这个</span><br><span class="line">__m256d _mm256_loadu_pd (double const * mem_addr) // 读入连续4个double</span><br><span class="line">__m256d _mm256_broadcast_sd (double const * mem_addr) // 读取一个double，并复制4份</span><br><span class="line">__m256d _mm256_i64gather_pd (double const* base_addr, __m256i vindex, const int scale) // 间隔读取</span><br><span class="line">scatter // 类似间隔读取</span><br><span class="line">_mm512_mask_prefetch_i32extgather_ps // 有选择预取</span><br><span class="line">mask // 根据掩码选择不读，0等操作</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_mm256_stream_pd // 跳过cache直接写入内存，但是需要对齐</span><br><span class="line">_mm_storeu_si128 // int直接写入内存，不需要对齐</span><br></pre></td></tr></table></figure>
+<h3 id="不连续读取"><a href="#不连续读取" class="headerlink" title="不连续读取"></a>不连续读取</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">long long int vindexList = [0,2,4,6];</span><br><span class="line">__m256i vindex = __mm256_loadu_epi64(vindexList);</span><br><span class="line">__m256d vj1 = __mm256_i64gather_pd(&amp;rebuiltCoord[jj*k], vindex, 1);</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置每个元素"><a href="#设置每个元素" class="headerlink" title="设置每个元素"></a>设置每个元素</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">__m256d _mm256_set_pd (double e3, double e2, double e1, double e0) // 设置为四个元素</span><br><span class="line">__m256d _mm256_set1_pd (double a) // 设置为同一个元素</span><br></pre></td></tr></table></figure>
+<h2 id="Arithmetic"><a href="#Arithmetic" class="headerlink" title="Arithmetic"></a>Arithmetic</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">_mm256_hadd_epi16 // Horizontally add eg.dst[15:0] := a[31:16] + a[15:0]</span><br><span class="line">_mm256_mulhi_epi16 // Multiply the packed signed 16-bit integers in a and b, producing intermediate 32-bit integers, and store the high 16 bits of the intermediate integers in dst.</span><br><span class="line">_mm256_sign_epi16 // 根据b的值，将-a/0/a存入dst</span><br><span class="line">// 乘加，乘减，的计算组合也有</span><br></pre></td></tr></table></figure>
+<h3 id="横向结果归约"><a href="#横向结果归约" class="headerlink" title="横向结果归约"></a>横向结果归约</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_mm256_reduce_add_ph // 求和</span><br></pre></td></tr></table></figure>
+<h3 id="手动实现向量浮点abs绝对值"><a href="#手动实现向量浮点abs绝对值" class="headerlink" title="手动实现向量浮点abs绝对值"></a>手动实现向量浮点abs绝对值</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">static const double DP_SIGN_One = 0x7fffffffffffffff;</span><br><span class="line">__m256d vDP_SIGN_Mask = _mm256_set1_pd(DP_SIGN_One);</span><br><span class="line">vj1 = _mm256_and_pd(vj1, vDP_SIGN_Mask);</span><br></pre></td></tr></table></figure>
+<h2 id="Shift"><a href="#Shift" class="headerlink" title="Shift"></a>Shift</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_mm_bsrli_si128 // byte shift right </span><br><span class="line">_mm_slli_epi16 // shift left</span><br></pre></td></tr></table></figure>
+
+<h2 id="logic"><a href="#logic" class="headerlink" title="logic"></a>logic</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_mm_test_all_zeros</span><br><span class="line">_mm_test_all_ones //判断是不是全0或1</span><br></pre></td></tr></table></figure>
+
+<h2 id="Elementary-Math-Functions"><a href="#Elementary-Math-Functions" class="headerlink" title="Elementary Math Functions"></a>Elementary Math Functions</h2><p>向量化 取反、sqrt</p>
+<h2 id="Convert"><a href="#Convert" class="headerlink" title="Convert"></a>Convert</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_mm256_cvtepi32_pd // Convert_Int32_To_FP64</span><br></pre></td></tr></table></figure>
+
+<h2 id="Compare"><a href="#Compare" class="headerlink" title="Compare"></a>Compare</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_mm256_cmp_pd // 按照double 32 bit 比较</span><br></pre></td></tr></table></figure>
+
+<h2 id="Swizzle（混合）"><a href="#Swizzle（混合）" class="headerlink" title="Swizzle（混合）"></a>Swizzle（混合）</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">_mm256_blendv_pd // 根据mask结果，从a和b里选择写入dst</span><br><span class="line">_mm_blend_epi32 // 寄存器内数据的移动</span><br><span class="line">_mm256_permute4x64_epi64 // 寄存器高位复制到低位</span><br><span class="line">VEXTRACTF128 __m128d _mm256_extractf128_pd (__m256d a, int offset); // 寄存器内数据的移动</span><br><span class="line">VUNPCKHPD __m512d _mm512_unpackhi_pd( __m512d a, __m512d b); //寄存器内数据的移动</span><br></pre></td></tr></table></figure>
+
+<h2 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">__m256d _mm256_undefined_pd (void)</span><br><span class="line">__m128i low = _mm256_castsi256_si128(v);  //__m256i 变 type __m128i,源向量较低的128位不变地传递给结果。这种内在的特性不会向生成的代码引入额外的操作。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic.shaojiemike.top/img/20220729190524.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Select4(SRC, control) &#123;</span><br><span class="line">CASE (control[1:0]) OF</span><br><span class="line">    0: TMP ←SRC[31:0];</span><br><span class="line">    1: TMP ←SRC[63:32];</span><br><span class="line">    2: TMP ←SRC[95:64];</span><br><span class="line">    3: TMP ←SRC[127:96];</span><br><span class="line">ESAC;</span><br><span class="line">RETURN TMP</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">VSHUFPS (VEX.128 encoded version) ¶</span><br><span class="line">DEST[31:0]  ←Select4(SRC1[127:0], imm8[1:0]);</span><br><span class="line">DEST[63:32] ←Select4(SRC1[127:0], imm8[3:2]);</span><br><span class="line">DEST[95:64] ←Select4(SRC2[127:0], imm8[5:4]);</span><br><span class="line">DEST[127:96]←Select4(SRC2[127:0], imm8[7:6]);</span><br><span class="line">DEST[MAXVL-1:128] ←0</span><br></pre></td></tr></table></figure>
+<p><img src="https://pic.shaojiemike.top/img/2a0f1af33818c9900201c5b9090b905.jpg"><br>之后float类型转换为double，再求和。</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm256_loadu_pd&ig_expand=4317">https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm256_loadu_pd&amp;ig_expand=4317</a></p>
+</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/categories/Architecture/page/2/">Previous</a></div><div class="pagination-next"><a href="/categories/Architecture/page/4/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/categories/Architecture/">1</a></li><li><a class="pagination-link" href="/categories/Architecture/page/2/">2</a></li><li><a class="pagination-link is-current" href="/categories/Architecture/page/3/">3</a></li><li><a class="pagination-link" href="/categories/Architecture/page/4/">4</a></li><li><a class="pagination-link" href="/categories/Architecture/page/5/">5</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">404</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">33</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">500</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">26</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">25</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">117</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">8</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">52</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-31T22:47:56.000Z">2024-05-31</time></p><p class="title"><a href="/2024/05/31/Thinking/4-viewOnOthers/FinancialValues/">Financial Values</a></p><p class="categories"><a href="/categories/thinking/">thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-26T15:34:38.000Z">2024-05-26</time></p><p class="title"><a href="/2024/05/26/OutOfWork/1-lifeAndCareer/travelPreparation/">Travel Preparation</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-22T11:18:58.000Z">2024-04-22</time></p><p class="title"><a href="/2024/04/22/Work/Architecture/microHardware/cacheCoherence/">Memory Consistency and Cache Coherence </a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-20T06:54:32.000Z">2024-04-20</time></p><p class="title"><a href="/2024/04/20/Work/software/windows/WinUsefulTools/">Windows Useful Tools</a></p><p class="categories"><a href="/categories/software/">software</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-19T07:40:25.000Z">2024-04-19</time></p><p class="title"><a href="/2024/04/19/Work/Programming/2-languageGrammar/c/CplusDebugPrint/">C &amp; C++: Debug Print like icecream in Python</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">17</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

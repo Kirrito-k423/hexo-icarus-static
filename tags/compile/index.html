@@ -1,0 +1,1120 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="robots" content="noindex"><meta><title>Tag: compile - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta property="og:type" content="blog"><meta property="og:title" content="SHAOJIE&#039;S BOOK"><meta property="og:url" content="http://icarus.shaojiemike.top/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:author" content="Shaojie Tan"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top"},"headline":"SHAOJIE'S BOOK","image":["http://icarus.shaojiemike.top/img/og_image.png"],"author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":""}</script><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">compile</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-10-12T16:00:00.000Z" title="10/12/2023, 4:00:00 PM">2023-10-12</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.322Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/operating-system/">operating system</a></span><span class="level-item">an hour read (About 10843 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/10/12/Work/Programming/4-compile/Cprogramcompileandrunprocess/">C program compile&amp;run process</a></p><div class="content"><h2 id="编译总流程"><a href="#编译总流程" class="headerlink" title="编译总流程"></a>编译总流程</h2><p>编译是指编译器读取源程序（字符流），对之进行词法和语法的分析，将高级语言指令转换为功能等效的汇编代码。</p>
+<ol>
+<li>预处理阶段：<ol>
+<li>把<code>#include</code>语句以及一些宏插入程序文本中，得到<code>main.i</code>和<code>sum.i</code>文件。</li>
+</ol>
+</li>
+<li>编译阶段:<ol>
+<li>将文本文件<code>main.i</code>和<code>sum.i</code>编译成文本文件<code>main.s</code>和<code>sum.c</code>的汇编语言程序。<br>低级的汇编语言为不同的高级语言提供了通用输出语言。</li>
+</ol>
+</li>
+<li>汇编阶段:<ol>
+<li>将<code>main.s</code>和<code>sum.s</code>翻译成机器语言的二进制指令，并打包成一种叫做可重定位目标程序的格式，并将结果保存在main.o和sum.o两个文件中。这种文件格式就比较接近elf格式了。</li>
+</ol>
+</li>
+<li>链接阶段:<ol>
+<li>合并<code>main.o</code>和<code>sum.o</code>，得到可执行目标文件，就是elf格式文件。</li>
+</ol>
+</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/img/20230602165640.png"><br><img src="https://pic.shaojiemike.top/img/20220820153439.png"></p>
+<!-- ![](https://pic.shaojiemike.top/img/InkedQQ%E6%88%AA%E5%9B%BE20210802192937_LI.jpg) -->
+
+<!-- ![](https://pic.shaojiemike.top/img/Inked112521_UvDL_2430084_LI.jpg) -->
+
+<h3 id="目标文件"><a href="#目标文件" class="headerlink" title="目标文件"></a>目标文件</h3><p>目标文件有三种形式：</p>
+<ul>
+<li>可重定位目标文件。包含二进制代码和数据，其形式可以在编译时与其他可重定位目标文件合并起来，创建一个可执行目标文件。</li>
+<li>可执行目标文件。包含二进制代码和数据，其形式可以被直接复制到内存并执行。</li>
+<li>共享目标文件。一种特殊类型的可重定位目标文件，可以在加载或者运行时被动态地加载进内存并链接。</li>
+</ul>
+<h2 id="1-预处理"><a href="#1-预处理" class="headerlink" title="1 预处理"></a>1 预处理</h2><ul>
+<li>预处理器： 将<code>.c</code> 文件转化成 <code>.i</code>文件.</li>
+</ul>
+<h3 id="生成预处理文件"><a href="#生成预处理文件" class="headerlink" title="生成预处理文件"></a>生成预处理文件</h3><ul>
+<li>使用的gcc命令是：<code>gcc –E filename.cpp -o filename.i</code><ul>
+<li><code>-E  Preprocess only; do not compile, assemble or link.</code></li>
+<li>通过<code>-C</code>能保留头文件里的注释，如<code>gcc -E -C circle.c -o circle.c</code></li>
+</ul>
+</li>
+<li>另一种方式 <code>gcc -save-temps -c -o main.o main.c</code></li>
+<li>也可以调用<code>cpp filename.cpp -o filename.i</code>命令</li>
+</ul>
+<h3 id="理解预处理文件"><a href="#理解预处理文件" class="headerlink" title="理解预处理文件"></a>理解预处理文件</h3><ul>
+<li>输出文件会出现许多名叫 <code>linemarkers</code>类似<code># linenum filename flags</code>的注释，这些注释是为了让编译器能够定位到源文件的行号，以便于编译器能够在编译错误时给出正确的行号。<ul>
+<li>They mean that the following line originated in file filename at line linenum.</li>
+<li><code>flags</code> meaning<ul>
+<li>‘1’ This indicates the start of a new file.</li>
+<li>‘2’ This indicates returning to a file (after having included another file)</li>
+<li>‘3’ This indicates that the following text comes from a <strong>system header file</strong>, so certain warnings should be suppressed</li>
+<li>‘4’ This indicates that the following text should be treated as being wrapped in an implicit extern “C” block.<ul>
+<li>‘4’表示接下来的文本应被视为被包含在隐式的“extern “C””块中。在C++中，函数名和变量名可以有不同的命名空间，但是使用“extern “C””修饰时可以取消这种区别，使得函数名和变量名可以在C++和C代码之间共享。因此，在C++中使用“extern “C””来声明C函数或变量时，需要使用‘4’来指示编译器此处的文本应该被视为C代码，而不是C++代码。[来自chatGPT的解释]</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="预处理内容-过程"><a href="#预处理内容-过程" class="headerlink" title="预处理内容(过程)"></a>预处理内容(过程)</h3><p>除开注释被替换成空格，包括代码里的预处理命令：</p>
+<ol start="0">
+<li><code>#error &quot;text&quot;</code> 的作用是在编译时生成一个错误消息，它会导致编译过程中断。 同理有<code>#warning</code></li>
+<li>宏定义指令，如 <code>#define a b</code> 对于这种伪指令，预编译所要做的是将程序中的所有a用b替换，但作为字符串常量的 a则不被替换。还有 #undef，则将取消对某个宏的定义，使以后该串的出现不再被替换。</li>
+<li>条件编译指令，如<code>#ifdef SNIPER</code>，<code>#if defined SNIPER &amp;&amp; SNIPER == 0</code>,#ifndef，#else，#elif，#endif等。 这些伪指令的引入使得程序员可以通过定义不同的宏来决定编译程序对哪些代码进行处理。预编译程序将根据有关的文件，将那些不必要的代码过滤掉<ol>
+<li>gcc编译<a target="_blank" rel="noopener" href="https://www.linuxtopia.org/online_books/an_introduction_to_gcc/gccintro_34.html">使用<code>-DSNIPER=5</code></a></li>
+</ol>
+</li>
+<li>头文件包含指令，如<code>#include &quot;FileName&quot;</code>或者#include 等。<br>该指令将头文件中的定义统统都加入到它所产生的输出文件中，以供编译程序对之进行处理。</li>
+<li>特殊符号，预编译程序可以识别一些特殊的符号。<br>例如在源程序中出现的<code>LINE</code>标识将被解释为当前行号（十进制数），<code>FILE</code>则被解释为当前被编译的C源程序的名称。<br>预编译程序对于在源程序中出现的这些串将用合适的值进行替换。</li>
+</ol>
+<h3 id="头文件搜索优先级"><a href="#头文件搜索优先级" class="headerlink" title="头文件搜索优先级"></a>头文件搜索优先级</h3><p><code>#include &quot;&quot;</code> vs <code>#include &lt;&gt;</code> <a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/cpp/Search-Path.html">区别在于</a>前者会在文件的当前目录寻找，但是后者只会在编译器编译的official路径寻找</p>
+<p><a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html">通常的搜索顺序</a>是：</p>
+<ul>
+<li><p>包含指定源文件的目录（对于在 <code>#include</code> 命令中以<strong>引号</strong>包括的文件名）。</p>
+</li>
+<li><p>采用<code>-iquote</code>选项指定的目录，依照出现在命令行中的顺序进行搜索。只对 <code>#include</code> 命令中采用引号的头文件名进行搜索。</p>
+</li>
+<li><p>所有header file的搜寻会从<code>-I</code>开始, 依照出现在命令行中的顺序进行搜索。（可以使用<code>-I/path/file</code>只添加一个头文件，尤其是在编译的兼容性修改时）</p>
+</li>
+<li><p>采用环境变量 CPATH 指定的目录。</p>
+</li>
+<li><p>采用<code>-isystem</code>选项指定的目录，依照出现在命令行中的顺序进行搜索。</p>
+</li>
+<li><p>然后找环境变量 <code>C_INCLUDE_PATH,CPLUS_INCLUDE_PATH,OBJC_INCLUDE_PATH</code>指定的路径</p>
+</li>
+<li><p>再找系统默认目录<code>(/usr/include、/usr/local/include、/usr/lib/gcc-lib/i386-linux/2.95.2/include......)</code></p>
+</li>
+<li><p>通过如下命令可以查看头文件搜索目录 <code>gcc -xc -E -v - &lt; /dev/null</code> 或者 <code>g++ -xc++ -E -v - &lt; /dev/null</code>*. <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/66338913/how-to-change-default-clang-include-directory-search-paths">如果想改，需要重新编译gcc</a></p>
+</li>
+<li><p>或者在编译出错时，<code>g++ -H -v</code>查看是不是项目下的同名头文件优先级高于sys-head-file</p>
+</li>
+</ul>
+<h2 id="2-编译优化Compile"><a href="#2-编译优化Compile" class="headerlink" title="2 编译优化Compile"></a>2 编译优化Compile</h2><ul>
+<li>将经过预处理之后的程序转换成特定汇编代码(assembly code)的过程</li>
+<li>一般将<code>.c/.h</code>或者<code>.i</code>文件转换成<code>.s</code>文件，</li>
+</ul>
+<h3 id="生成汇编代码"><a href="#生成汇编代码" class="headerlink" title="生成汇编代码"></a>生成汇编代码</h3><ul>
+<li>使用的gcc命令是：<code>gcc –S filename.cpp -o filename.s</code>，对应于<ul>
+<li><code>-S   Compile only; do not assemble or link.</code></li>
+<li>理论上<code>gcc –S filename.i -o filename.s</code> 也是可行的。但是我遇到头文件冲突的问题<code>error: declaration for parameter ‘__u_char’ but no such parameter</code></li>
+</ul>
+</li>
+<li>编译命令 <code>cc –S filename.cpp -o filename.s</code>  </li>
+<li>或者<code>cc1</code>命令</li>
+</ul>
+<h3 id="编译内容（过程）"><a href="#编译内容（过程）" class="headerlink" title="编译内容（过程）"></a>编译内容（过程）</h3><ul>
+<li>词法分析、语法分析、语意分析、中间代码生成，在语法检查、类型检查之后，将其翻译成等价的<strong>中间代码表示</strong>或汇编代码</li>
+<li>优化（<code>-O3</code>）<ul>
+<li>常规优化：删除死代码、减少寄存器传输、常量折叠、提取中间量</li>
+<li>高阶优化：循环展开、指针优化、函数内联，自动SIMD向量化</li>
+</ul>
+</li>
+<li>关于内联函数<ul>
+<li>内联函数是在函数定义前加上关键字inline的函数。它用于请求编译器将函数的代码插入到每个调用该函数的地方，而不是通过函数调用来执行。这样可以减少函数调用的开销，提高程序的执行效率。</li>
+<li>内联函数一般适用于函数体较小、频繁调用的函数，但最终是<strong>编译器决定</strong>是否将函数内联，编译器可以忽略对内联函数的请求。</li>
+</ul>
+</li>
+</ul>
+<p>如果想把 C 语言变量的名称作为汇编语言语句中的注释，可以加上 <code>-fverbose-asm</code> 选项：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -S -O3 -fverbose-asm ../src/pivot.c -o pivot_O1.s</span><br><span class="line">objdump -Sd ../build/bin/pivot &gt; pivot1.s</span><br></pre></td></tr></table></figure>
+
+<h3 id="理解汇编文件"><a href="#理解汇编文件" class="headerlink" title="理解汇编文件"></a>理解汇编文件</h3><p>请阅读 GNU assembly file一文</p>
+<h2 id="3-汇编assemble"><a href="#3-汇编assemble" class="headerlink" title="3 汇编assemble"></a>3 汇编assemble</h2><p>汇编器：将.s 文件转化成 .o文件，</p>
+<h3 id="生成可重定位目标程序"><a href="#生成可重定位目标程序" class="headerlink" title="生成可重定位目标程序"></a>生成可重定位目标程序</h3><ul>
+<li>使用的gcc 命令是：<code>gcc –c</code>，<ul>
+<li><code>-c   Compile and assemble, but do not link.</code></li>
+</ul>
+</li>
+<li>汇编命令是 <code>as</code>；</li>
+</ul>
+<h3 id="汇编过程"><a href="#汇编过程" class="headerlink" title="汇编过程"></a>汇编过程</h3><ul>
+<li>汇编实际上指汇编器(as)把汇编语言代码翻译成**目标机器指令(二进制)**的过程。</li>
+<li>目标文件中所存放的也就是与源程序等效的目标的机器语言代码。</li>
+<li>目标文件由段组成。通常一个目标文件中至少有两个段：</li>
+</ul>
+<ol>
+<li>代码段：该段中所包含的主要是程序的指令。该段一般是可读和可执行的，但一般却不可写。</li>
+<li>数据段：主要存放程序中要用到的各种全局变量或静态的数据。一般数据段都是可读，可写，可执行的。<br><img src="https://pic.shaojiemike.top/img/20230521202224.png"></li>
+</ol>
+<h3 id="查看理解"><a href="#查看理解" class="headerlink" title="查看理解"></a>查看理解</h3><ul>
+<li>查看汇编代码 <code>objdump -Sd ../build/bin/pivot &gt; pivot1.s</code><ul>
+<li><code>-S</code> 以汇编代码的形式显示C++原程序代码，如果有debug信息，会显示源代码。</li>
+</ul>
+</li>
+<li><code>nm file.o</code> 查看目标文件中的符号表</li>
+</ul>
+<p>注意，这时候的目标文件里的使用的函数可能没定义，需要链接其他目标文件<code>.a .so .o .dll</code>(Dynamic Link Library的缩写，Windows动态链接库)</p>
+<h2 id="nm-命令"><a href="#nm-命令" class="headerlink" title="nm 命令"></a>nm 命令</h2><p>List symbol names in object files.</p>
+<ol>
+<li>符号值。默认显示十六进制，也可以指定；</li>
+<li>符号类型。小写表示是本地符号，大写表示全局符号(external);</li>
+<li>符号名称。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>符号类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A</td>
+<td>符号值是绝对的。在进一步的连接中，不会被改变。</td>
+</tr>
+<tr>
+<td>B</td>
+<td>符号位于未初始化数据段(known as BSS).</td>
+</tr>
+<tr>
+<td>C</td>
+<td>共用(common)符号. 共用符号是未初始化的数据。在连接时，多个共用符号可能采用一个同样的名字，如果这个符号在某个地方被定义，共用符号被认为是未定义的引用.</td>
+</tr>
+<tr>
+<td>D</td>
+<td>已初始化数据段的符号</td>
+</tr>
+<tr>
+<td>G</td>
+<td>已初始化数据段中的小目标(small objective)符号. 一些目标文件格式允许更有效的访问小目标数据，比如一个全局的int变量相对于一个大的全局数组。</td>
+</tr>
+<tr>
+<td>I</td>
+<td>其他符号的直接应用，这是GNU扩展的，很少用了. N 调试符号.</td>
+</tr>
+<tr>
+<td>R</td>
+<td>只读数据段符号. S 未初始化数据段中的小目标(small object)符号.</td>
+</tr>
+<tr>
+<td>T</td>
+<td>代码段的符号.</td>
+</tr>
+<tr>
+<td>U</td>
+<td>未定义符号.</td>
+</tr>
+<tr>
+<td>V</td>
+<td>弱对象(weak object)符号. 当一个已定义的弱符号被连接到一个普通定义符号，普通定义符号可以正常使用，当一个未定义的弱对象被连接到一个未定义的符号，弱符号的值为0.</td>
+</tr>
+<tr>
+<td>W</td>
+<td>一个没有被指定一个弱对象符号的弱符号(weak symbol)。 - a.out目标文件中的刺符号(stabs symbol). 这种情况下，打印的下一个值是其他字段，描述字段，和类型。刺符号用于保留调试信息.</td>
+</tr>
+<tr>
+<td>?</td>
+<td>未知符号类型，或者目标文件特有的符号类型.</td>
+</tr>
+</tbody></table>
+<h2 id="4-链接过程"><a href="#4-链接过程" class="headerlink" title="4 链接过程"></a>4 链接过程</h2><p>通过使用<code>ld</code>命令，将编译好的目标文件连接成一个可执行文件或动态库。</p>
+<ul>
+<li>链接器的核心工作就是符号表解析、重定位和库文件链接三个部分。(具体细节看<a target="_blank" rel="noopener" href="https://hansimov.gitbook.io/csapp/part2/ch07-linking/7.7-relocation">CSAPP7.5-7.7</a>)<ul>
+<li><strong>符号解析</strong><ul>
+<li>每个可重定位目标程序中都存在符号表的数据结构，包含了一些被声明的函数和变量的符号。依上例，main.o和sum.o都有一个这样的结构。符号表中的每一项都包含一个符号名字和一个符号定义的地址。</li>
+<li>符号解析的任务就是将这些符号和它们所在的源文件、库文件中的定义进行匹配。这个过程会生成符号表，用于给链接器在后续的重定位中找到函数所在的地址。</li>
+<li>对于符号解析有<strong>重载</strong>（不同的类，函数名相同）的特殊情况，比如<code>Foo::bar(int,long)</code>会变成<code>bar__3Fooil</code>。其中3是名字字符数</li>
+</ul>
+</li>
+<li><strong>重定位</strong>：在符号解析完成后，链接器会把不同的目标文件合并在一起，此时就需要对目标代码进行地址的修正，使得各个目标文件之间的函数调用或者变量访问都可以正确。这个过程叫做重定位。链接器会根据符号表信息，将每个函数调用位置中的符号替换成实际的地址。</li>
+<li><strong>库文件链接</strong>：链接器还需要为程序链接不同的库文件，包括系统库和用户库。这些库文件可能是静态库或者动态库。<ul>
+<li>如果是静态库，链接器会从库文件中提取目标代码并将其与目标文件合并成一个可执行文件。</li>
+<li>如果是动态库，则需要在运行时动态加载库文件，并将其链接到应用程序中。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="符号和符号表"><a href="#符号和符号表" class="headerlink" title="符号和符号表"></a>符号和符号表</h3><p>见 Linux Executable file: Structure &amp; Running</p>
+<h3 id="符号解析"><a href="#符号解析" class="headerlink" title="符号解析"></a>符号解析</h3><ul>
+<li>局部变量<ul>
+<li>编译器只允许每个模块中每个局部符号有一个定义。同时确保它们拥有唯一的名字。</li>
+</ul>
+</li>
+<li>全局变量<ul>
+<li>缺失情况：当编译器遇到一个不是在当前模块中定义的符号（变量或函数名）时，会假设该符号是在其他某个模块中定义的，生成一个链接器符号表条目，并把它交给链接器处理。如果链接器在它的任何输入模块中都找不到这个被引用符号的定义，就输出<code>undefined reference to</code></li>
+<li>同名情况：编译器报错或者选择一个，<ul>
+<li>函数和已初始化的全局变量是强符号，</li>
+<li>未初始化的全局变量是弱符号。</li>
+</ul>
+</li>
+<li>选择规则：<ul>
+<li>规则 1：不允许有多个同名的强符号。</li>
+<li>规则 2：如果有一个强符号和多个弱符号同名，那么选择强符号。</li>
+<li>规则 3：如果有多个弱符号同名，那么从这些弱符号中任意选择一个。</li>
+<li>规则 2 和规则 3 的应用会造成一些不易察觉的运行时错误，对于不警觉的程序员来说，是很难理解的，尤其是如果重复的符号定义还有不同的类型时。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="重定位"><a href="#重定位" class="headerlink" title="重定位"></a>重定位</h3><p>一旦链接器完成了符号解析这一步，就把代码中的每个符号引用和正好一个符号定义（即它的一个输入目标模块中的一个符号表条目）关联起来。此时，链接器就知道它的输入目标模块中的<strong>代码节和数据节</strong>的确切大小。现在就可以开始重定位步骤了，在这个步骤中，将合并输入模块，并为每个符号分配运行时地址。重定位由两步组成：</p>
+<ul>
+<li><strong>重定位节和符号定义</strong>。<ul>
+<li>在这一步中，链接器将所有相同类型的节合并为同一类型的新的聚合节。<ul>
+<li>例如，来自所有输入模块的<code>.data</code> 节被全部合并成一个节，这个节成为输出的可执行目标文件的<code>.data</code> 节。</li>
+<li>然后，链接器将<strong>运行时内存地址</strong>赋给新的聚合节，赋给输入模块定义的每个节，以及赋给输入模块定义的每个符号。</li>
+<li>当这一步完成时，程序中的每条指令和全局变量都有唯一的运行时内存地址了。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>重定位节中的符号引用</strong>。<ul>
+<li>在这一步中，链接器修改代码节和数据节中对每个符号的引用，使得它们指向正确的运行时地址。</li>
+<li>要执行这一步，链接器依赖于可重定位目标模块中称为重定位条目（relocation entry）的数据结构，我们接下来将会描述这种数据结构。</li>
+</ul>
+</li>
+</ul>
+<h4 id="重定位条目"><a href="#重定位条目" class="headerlink" title="重定位条目"></a>重定位条目</h4><p>当汇编器生成一个目标模块时，它并不知道数据和代码最终将放在内存中的什么位置。它也不知道这个模块引用的任何外部定义的函数或者全局变量的位置。所以，无论何时汇编器遇到对最终位置未知的目标引用，它就会生成一个重定位条目，告诉链接器在将目标文件合并成可执行文件时如何修改这个引用。</p>
+<p>代码的重定位条目放在 <code>.rel.text</code> 中。已初始化数据的重定位条目放在 <code>.rel.data</code> 中。</p>
+<p>下面 展示了 ELF 重定位条目的格式。</p>
+<ol>
+<li>offset 是需要被修改的引用的节偏移。</li>
+<li>symbol 标识被修改引用应该指向的符号。</li>
+<li>type 告知链接器如何修改新的引用。<ol>
+<li>ELF 定义了 32 种不同的重定位类型，有些相当隐秘。我们只关心其中两种最基本的重定位类型：<ol>
+<li><code>R_X86_64_PC32</code>。重定位一个使用 32 位 PC 相对地址的引用。回想一下 3.6.3 节，一个 PC 相对地址就是距程序计数器（PC）的当前运行时值的偏移量。当 CPU 执行一条使用 PC 相对寻址的指令时，它就将在指令中编码的 32 位值加上 PC 的当前运行时值，得到有效地址（如 call 指令的目标），PC 值通常是下一条指令在内存中的地址。(将 PC 压入栈中来使用)</li>
+<li><code>R_X86_64_32</code>。重定位一个使用 32 位绝对地址的引用。通过绝对寻址，CPU 直接使用在指令中编码的 32 位值作为有效地址，不需要进一步修改。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>addend 是一个有符号常数，一些类型的重定位要使用它对被修改引用的值做偏移调整。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">long</span> offset;    <span class="comment">/* Offset of the reference to relocate */</span></span><br><span class="line">    <span class="type">long</span> type:<span class="number">32</span>,   <span class="comment">/* Relocation type */</span></span><br><span class="line">         symbol:<span class="number">32</span>; <span class="comment">/* Symbol table index */</span></span><br><span class="line">    <span class="type">long</span> addend;    <span class="comment">/* Constant part of relocation expression */</span></span><br><span class="line">&#125; Elf64_Rela;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="目标文件与库的位置"><a href="#目标文件与库的位置" class="headerlink" title="目标文件与库的位置"></a>目标文件与库的位置</h3><p><img src="https://pic.shaojiemike.top/img/20211214150609.png"><br><img src="https://pic.shaojiemike.top/img/20211214150641.png"><br><img src="https://pic.shaojiemike.top/img/20211213234151.png"></p>
+<h2 id="4-1-静态链接"><a href="#4-1-静态链接" class="headerlink" title="4.1 静态链接"></a>4.1 静态链接</h2><p><strong>静态库static library</strong>就是将相关的目标模块打包形成的单独的文件。使用ar命令。</p>
+<ul>
+<li>在Linux系统中，静态库以一种称为存档(archive)的特殊文件格式存放在磁盘中。</li>
+<li>存档文件是一组连接起来的可重定位目标文件的集合，有一个头部用来描述每个成员目标文件的大小和位置。</li>
+<li>存档文件名由后缀.a标识。</li>
+</ul>
+<h3 id="优点与问题"><a href="#优点与问题" class="headerlink" title="优点与问题"></a>优点与问题</h3><p>静态库的优点在于：</p>
+<ul>
+<li>程序员不需要显式的指定所有需要链接的目标模块，因为指定是一个耗时且容易出错的过程；</li>
+<li>链接时，连接程序只从静态库中拷贝被程序引用的目标模块，这样就减小了可执行文件在磁盘和内存中的大小。</li>
+</ul>
+<p>问题：</p>
+<ul>
+<li>几乎所有程序都需要printf这样的库函数，每个可执行文件都包含该模块的代码段和数据段，浪费磁盘空间。</li>
+<li>linux采用虚拟内存管理内存分配，每个进程的内存空间是独立的，运行时所有程序都要把这些库函数代码段和数据段加载到自己的内存里，浪费内存。</li>
+<li>静态库和所有的软件一样，需要定期维护和更新。如果应用程序员想要使用一个库的最新版本，他们必须以某种方式了解到该库的更新情况，然后显式地将他们的程序与更新了的库重新链接。</li>
+</ul>
+<h3 id="静态链接过程"><a href="#静态链接过程" class="headerlink" title="静态链接过程"></a>静态链接过程</h3><p>深入理解计算机系统P477,静态库例子</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -static -o prog2c main2.o -L. -lvector</span><br></pre></td></tr></table></figure>
+
+<p>图 7-8 概括了链接器的行为。<code>-static</code> 参数告诉编译器驱动程序，链接器应该构建一个完全链接的可执行目标文件，它可以加载到内存并运行，在加载时无须更进一步的链接。<code>-lvector</code> 参数是 <code>libvector.a</code> 的缩写，-L. 参数告诉链接器在当前目录下查找 libvector.a。</p>
+<p><img src="https://1087580735-files.gitbook.io/~/files/v0/b/gitbook-legacy-files/o/assets%2F-MHt_spaxGgCbp2POnfq%2F-MI8p7rbEV-s_nV5Ru6X%2F-MI8pkPoBiVWj0eMXoIA%2F07-08%20%E4%B8%8E%E9%9D%99%E6%80%81%E5%BA%93%E9%93%BE%E6%8E%A5.png?alt=media&token=fcb51f44-d9fc-4e95-8889-4888b9f920ae"></p>
+<!-- ![](https://pic.shaojiemike.top/img/20211213233758.png) -->
+
+<ul>
+<li>当链接器运行时，它判定 main2.o 引用了 addvec.o 定义的 addvec 符号，所以复制 addvec.o 到可执行文件。</li>
+<li>因为程序不引用任何由 multvec.o 定义的符号，所以链接器就不会复制这个模块到可执行文件。</li>
+<li>链接器还会复制 libc.a 中的 printf.o 模块，以及许多 C 运行时系统中的其他模块。</li>
+</ul>
+<h2 id="4-2-动态链接"><a href="#4-2-动态链接" class="headerlink" title="4.2 动态链接"></a>4.2 动态链接</h2><ul>
+<li>共享库（shared library）是致力于解决静态库缺陷的一个现代创新产物。共享库是一个目标模块，在运行或加载时，可以加载到任意的内存地址，并和一个在内存中的程序链接起来。<ul>
+<li>共享库也称为共享目标（shared object），在 Linux 系统中通常用 .so 后缀来表示。微软的操作系统大量地使用了共享库，它们称为 DLL（动态链接库）。</li>
+</ul>
+</li>
+<li>这个过程称为动态链接（dynamic linking），是由一个叫做动态链接器（dynamic linker）的程序来执行的。</li>
+</ul>
+<p>共享库是以两种不同的方式来“共享”的：</p>
+<ul>
+<li>首先，在任何给定的文件系统中，对于一个库只有一个. so 文件。所有引用该库的可执行目标文件共享这个 .so 文件中的代码和数据，而不是像静态库的内容那样被复制和嵌入到引用它们的可执行的文件中。</li>
+<li>其次，在内存中，一个共享库的 .text 节的一个副本可以被不同的正在运行的进程共享</li>
+</ul>
+<p><img src="https://1087580735-files.gitbook.io/~/files/v0/b/gitbook-legacy-files/o/assets%2F-MHt_spaxGgCbp2POnfq%2F-MI8qpMNa8rVv2h1gw56%2F-MI8r4myxZNQCTrFzKsH%2F07-16%20%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%85%B1%E4%BA%AB%E5%BA%93.png?alt=media&token=0901e781-87bf-4e4f-b1f9-31ca05c51f7c" alt="ld-link"></p>
+<!-- ![](https://pic.shaojiemike.top/img/20220106154610.png)
+![](https://pic.shaojiemike.top/img/20220106154641.png)
+![](https://pic.shaojiemike.top/img/20220106154652.png) -->
+<!-- ![](https://pic.shaojiemike.top/img/20220106161412.png) -->
+
+<p>如上创建了一个可执行目标文件 prog2l，而此文件的形式使得它在运行时可以和 libvector.so 链接。基本的思路是：</p>
+<ul>
+<li>当创建可执行文件时，静态执行一些链接<ul>
+<li>此时，没有任何 libvector.so 的代码和数据节真的被复制到可执行文件 prog2l 中。反之，链接器复制了一些重定位和符号表信息，它们使得运行时可以解析对 libvector.so 中代码和数据的引用。</li>
+</ul>
+</li>
+<li>然后在程序加载时，动态完成链接过程。<ul>
+<li>动态链接可以在可执行文件第一次加载和运行时发生（加载时链接）<ul>
+<li>Common case for Linux,handled automatically by the dynamic linker (ld-linux.so).</li>
+<li>Standard C library (libc.so)usually dynamically linked.</li>
+</ul>
+</li>
+<li>动态链接也可以在程序开始运行后发生（运行时链接）.<ul>
+<li>In Linux,this is done by calls to the <code>dlopen()</code> <a target="_blank" rel="noopener" href="https://hansimov.gitbook.io/csapp/part2/ch07-linking/7.11-loading-and-linking-shared-libraries-from-applications">interface.</a><ul>
+<li>Distributing software.</li>
+<li>High-performance web servers.</li>
+<li>Runtime library interpositioning.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="加载情况一"><a href="#加载情况一" class="headerlink" title="加载情况一"></a>加载情况一</h3><p>情况：在应用程序被加载后执行前时，动态链接器加载和链接共享库的情景。</p>
+<p>核心思想：由动态链接器接管，加载管理和关闭共享库（比如，如果没有其他共享库还在使用这个共享库，dlclose函数就卸载该共享库。）。</p>
+<ol>
+<li>首先，加载部分链接的可执行文件 prog2l。</li>
+<li>prog2l 包含一个 <code>.interp</code> 节，这一节包含动态链接器的路径名，动态链接器本身就是一个共享目标（如在 Linux 系统上的 ld-linux.so）. 加载器不会像它通常所做地那样将控制传递给应用，而是加载和运行这个动态链接器。然后，动态链接器通过执行下面的重定位完成链接任务：<ol>
+<li>重定位 libc.so 的文本和数据到某个内存段。</li>
+<li>重定位 libvector.so 的文本和数据到另一个内存段。</li>
+<li>重定位 prog2l 中所有对由 libc.so 和 libvector.so 定义的符号的引用。</li>
+</ol>
+</li>
+</ol>
+<p>最后，动态链接器将控制传递给应用程序。从这个时刻开始，共享库的位置就固定了，并且在程序执行的过程中都不会改变。</p>
+<h3 id="加载情况二"><a href="#加载情况二" class="headerlink" title="加载情况二"></a>加载情况二</h3><p>情况：应用程序在运行时要求动态链接器加载和链接某个共享库，而无需在编译时将那些库链接到应用。</p>
+<p>实际应用情况：</p>
+<ul>
+<li>分发软件。微软 Wmdows 应用的开发者常常利用共享库来分发软件更新。他们生成一个共库的新版本，然后用户可以下载，并用它替代当前的版本。下一次他们运行应用程序时，应用将自动链接和加载新的共享库。</li>
+<li>构建高性能 Web 服务器。<ul>
+<li>许多 Web 服务器生成动态内容，比如个性化的 Web 页面、账户余额和广告标语</li>
+<li>早期的 Web 服务器通过使用 fork 和 execve 创建一个子进程，并在该子进程的上下文中运行 CGI 程序来生成动态内容。</li>
+<li>然而，现代高性能的 Web 服务器可以使用基于动态链接的更有效和完善的方法来生成动态内容。</li>
+</ul>
+</li>
+</ul>
+<p>思路是将每个生成动态内容的函数打包在共享库中。</p>
+<ol>
+<li>当一个来自 Web 浏览器的请求到达时，服务器动态地加载和链接适当的函数，然后直接调用它，而不是使用 fork 和 execve 在子进程的上下文中运行函数。</li>
+<li>函数会一直缓存在服务器的地址空间中，所以只要一个简单的函数调用的开销就可以处理随后的请求了。这对一个繁忙的网站来说是有很大影响的。更进一步地说，在运行时无需停止服务器，就可以更新已存在的函数，以及添加新的函数。</li>
+</ol>
+<h3 id="动态库的优点"><a href="#动态库的优点" class="headerlink" title="动态库的优点"></a>动态库的优点</h3><ul>
+<li>更新动态库，无需重新链接；对于大系统，重新链接是一个非常耗时的过程；</li>
+<li>运行中可供多个程序使用，内存中只需要有一份，节省内存。运行时一个共享库的代码段和数据段在物理内存中只有一份，但映射到多个虚拟内存片段上，供不同程序使用。其中代码段是只读的，整个操作系统绝对只有一份。但数据段有可能被修改，在修改的时候则会复制一个副本，每个进程有自己的一个内存副本。</li>
+<li>共享库是.so文件，不会和我们自己的代码一起合并成可执行文件，不占磁盘空间。</li>
+</ul>
+<h2 id="动态链接"><a href="#动态链接" class="headerlink" title="动态链接"></a>动态链接</h2><h2 id="fPIC，fPIE"><a href="#fPIC，fPIE" class="headerlink" title="fPIC，fPIE"></a>fPIC，fPIE</h2><p>编译器<code>yasm</code>的参数<code>-DPIE</code></p>
+<p>如果同一份代码可能被加载到进程空间的任意虚拟地址上执行(如共享库和动态加载代码),那么就需要使用-fPIC生成位置无关代码。</p>
+<h3 id="如何实现动态链接"><a href="#如何实现动态链接" class="headerlink" title="如何实现动态链接"></a>如何实现动态链接</h3><ol>
+<li>共享库是.so文件，不会和我们自己的代码一起合并成可执行文件，不占磁盘空间。</li>
+<li>运行时一个共享库的代码段和数据段在物理内存中只有一份，但映射到多个虚拟内存片段上，供不同程序使用。<ol>
+<li>其中代码段是只读的，整个操作系统绝对只有一份。</li>
+<li>但数据段有可能被修改，在修改的时候则会复制一个副本，每个进程有自己的一个内存副本。</li>
+</ol>
+</li>
+<li>共享库的代码段和数据段加载到任意的内存段中，位置不固定。</li>
+<li>加载完成后，进行符号重定位。回想一下之前说过的重定位过程，需要修改所有符号引用的地址。<ol>
+<li>由于动态链接在运行时才确定共享库代码段和数据段的内存地址，所以在运行时才能进行重定位。</li>
+<li>运行时修改代码，想想就觉得不优雅。而且Linux不允许在运行时修改代码段。</li>
+</ol>
+</li>
+<li>由此，要完成动态链接，还需要引入了最后一个重要的概念，位置无关代码，即在加载时无需重定位的代码。</li>
+</ol>
+<h2 id="位置无关代码（Position-Independent-Code-PIC）"><a href="#位置无关代码（Position-Independent-Code-PIC）" class="headerlink" title="位置无关代码（Position-Independent Code, PIC）"></a>位置无关代码（Position-Independent Code, PIC）</h2><ul>
+<li><p>问题：多个进程是如何共享程序的一个副本的呢？</p>
+<ul>
+<li>一种方法是给每个共享库分配一个事先预备的专用的(虚拟)地址空间片，然后要求加载器总是在这个地址加载共享库。</li>
+<li>问题。<ul>
+<li>地址空间的使用效率不高，因为即使一个进程不使用这个库，那部分空间还是会被分配出来。</li>
+<li>难以管理。我们必须保证没有片会重叠。<ul>
+<li>库修改了之后，我们必须确认已分配给它的片还适合它的大小。如果不适合了，必须找一个新的片。</li>
+<li>创建了一个新的库，我们还必须为它寻找空间。随着时间的进展，假设在一个系统中有了成百个库和库的各个版本库，就很难避免地址空间分裂成大量小的、未使用而又不再能使用的小洞。</li>
+<li>更糟的是，对每个系统而言，库在内存中的分配都是不同的，这就引起了更多令人头痛的管理问题。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>可以加载而无需重定位的代码称为位置无关代码（Position-Independent Code，PIC）</p>
+<ul>
+<li>无限多个进程可以共享一个共享模块的代码段的单一副本。（当然，每个进程仍然会有它自己的读&#x2F;写数据块。）</li>
+</ul>
+</li>
+<li><p>在一个 x86-64 系统中，对同一个目标模块中<strong>符号的引用</strong>是不需要特殊处理使之成为 PIC。可以用 PC 相对寻址来编译这些引用，构造目标文件时由静态链接器重定位。</p>
+</li>
+<li><p>然而，对共享模块定义的<strong>外部过程</strong>和对<strong>全局变量的引用</strong>需要一些特殊的技巧，接下来我们会谈到。</p>
+</li>
+</ul>
+<h3 id="PIC-数据引用"><a href="#PIC-数据引用" class="headerlink" title="PIC 数据引用"></a>PIC 数据引用</h3><ul>
+<li>目标：生成对全局变量的 PIC 引用</li>
+<li>思想：无论我们在内存中的何处加载一个目标模块（包括共享目标模块），数据段与代码段的距离总是保持不变。因此，代码段中任何指令和数据段中任何变量之间的距离都是一个运行时常量，与代码段和数据段的绝对内存位置是无关的。由于数据段是可以在运行时修改的，所以可以把对代码段的修改转化为对数据段的修改。</li>
+<li>实现：在数据段前面加入一个数据结构，全局偏移量表（Global Offset Table，GOT）。每一个被该模块引用的全局数据目标（过程或全局变量），都在GOT里有一个8字节条目，并为每个条目生成一个重定位条目。</li>
+<li>实际使用：在加载时，动态链接器会重定位 GOT 中的每个条目，使得它包含目标的正确的绝对地址。然后程序执行时就能正确访问正确的绝对地址了。</li>
+</ul>
+<h3 id="PIC-函数调用"><a href="#PIC-函数调用" class="headerlink" title="PIC 函数调用"></a>PIC 函数调用</h3><ul>
+<li>情况：假设程序调用一个由共享库定义的函数。编译器没有办法预测这个函数的运行时地址，因为定义它的共享模块在运行时可以加载到任意位置。</li>
+<li>简单方法：为该引用生成一条重定位记录，然后动态链接器在程序加载的时候再解析它。不过，这种方法并不是 PIC，因为它需要链接器修改调用模块的代码段。</li>
+</ul>
+<p>解决方法：延迟绑定（lazy binding），将过程地址的绑定推迟到第一次调用该过程时。</p>
+<p>动机：使用延迟绑定的动机是对于一个像 libc.so 这样的共享库输出的成百上千个函数中，一个典型的应用程序只会使用其中很少的一部分。把函数地址的解析推迟到它实际被调用的地方，能避免动态链接器在加载时进行成百上千个其实并不需要的重定位。</p>
+<p>结果：第一次调用过程的运行时开销很大，但是其后的每次调用都只会花费一条指令和一个间接的内存引用。</p>
+<p>实现：延迟绑定是通过两个数据结构之间简洁但又有些复杂的交互来实现的，这两个数据结构是：GOT 和过程链接表（Procedure Linkage Table，PLT）。如果一个目标模块调用定义在共享库中的任何函数，那么它就有自己的 GOT 和 PLT。GOT 是数据段的一部分，而 PLT 是代码段的一部分。</p>
+<p>首先，让我们介绍这两个表的内容。</p>
+<ul>
+<li>过程链接表（PLT）。PLT 是一个数组，其中每个条目是 16 字节代码。<ul>
+<li><code>PLT[0]</code> 是一个特殊条目，它跳转到动态链接器中。</li>
+<li>每个被可执行程序调用的库函数都有它自己的 PLT 条目。每个条目都负责调用一个具体的函数。</li>
+<li><code>PLT[1]</code>（图中未显示）调用系统启动函数（<code>__libc_start_main</code>），它初始化执行环境，调用 main 函数并处理其返回值从 PLT[2] 开始的条目调用用户代码调用的函数。在我们的例子中，PLT[2] 调用 addvec，PLT[3]（图中未显示）调用 printf。</li>
+</ul>
+</li>
+<li>全局偏移量表（GOT）。正如我们看到的，GOT 是一个数组，其中每个条目是 8 字节地址。<ul>
+<li>和 PLT 联合使用时，GOT[O] 和 GOT[1] 包含动态链接器在解析函数地址时会使用的信息。GOT[2] 是动态链接器在 ld-linux.so 模块中的入口点。</li>
+<li>其余的每个条目对应于一个被调用的函数，其地址需要在运行时被解析。每个条目都有一个相匹配的 PLT 条目。例如，GOT[4] 和 PLT[2] 对应于 addvec。初始时，每个 GOT 条目都指向对应 PLT 条目的第二条指令。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://1087580735-files.gitbook.io/~/files/v0/b/gitbook-legacy-files/o/assets%2F-MHt_spaxGgCbp2POnfq%2F-MI8rhjF1mF76R_jsq8k%2F-MI8rvz0lzamUy-llAv6%2F07-19%20%E7%94%A8PLT%E5%92%8CGOT%E8%B0%83%E7%94%A8%E5%A4%96%E9%83%A8%E5%87%BD%E6%95%B0.png?alt=media&token=df2fe32e-88f9-4bfd-b4ed-9de49f30fe2a" alt="PLT"></p>
+<p>上图a 展示了 GOT 和 PLT 如何协同工作，在 addvec 被第一次调用时，延迟解析它的运行时地址：</p>
+<ol>
+<li>第 1 步。不直接调用 addvec，程序调用进入 PLT[2]，这是 addvec 的 PLT 条目。</li>
+<li>第 2 步。第一条 PLT 指令通过 GOT[4] 进行间接跳转。因为每个 GOT 条目初始时都指向它对应的 PLT 条目的第二条指令，这个间接跳转只是简单地把控制传送回 PLT[2] 中的下一条指令。</li>
+<li>第 3 步。在把 addvec 的 ID（0x1）压入栈中之后，PLT[2] 跳转到 PLT[0]。</li>
+<li>第 4 步。PLT[0] 通过 GOT[1] 间接地把动态链接器的一个参数压入栈中，然后通过 GOT[2] 间接跳转进动态链接器中。动态链接器使用两个栈条目来确定 addvec 的运行时位置，用这个地址重写 GOT[4]，再把控制传递给 addvec。</li>
+</ol>
+<p>上图b 给出的是后续再调用 addvec 时的控制流：</p>
+<ol>
+<li>第 1 步。和前面一样，控制传递到 PLT[2]。</li>
+<li>第 2 步。不过这次通过 GOT[4] 的间接跳转会将控制直接转移到 addvec。</li>
+</ol>
+<h4 id="库搜索优先级"><a href="#库搜索优先级" class="headerlink" title="库搜索优先级"></a>库搜索优先级</h4><p>静态库</p>
+<ol>
+<li>gcc先从-L寻找；</li>
+<li>再找环境变量LIBRARY_PATH指定的搜索路径；</li>
+<li>再找内定目录 &#x2F;lib &#x2F;usr&#x2F;lib &#x2F;usr&#x2F;local&#x2F;lib 这是当初compile gcc时写在程序内的。</li>
+</ol>
+<p>动态库</p>
+<ol>
+<li>编译目标代码时指定的动态库搜索路径-L；</li>
+<li>环境变量LD_LIBRARY_PATH指定的动态库搜索路径；</li>
+<li>配置文件&#x2F;etc&#x2F;ld.so.conf中指定的动态库搜索路径；</li>
+<li>默认的动态库搜索路径&#x2F;lib &#x2F;usr&#x2F;lib&#x2F; &#x2F;usr&#x2F;local&#x2F;lib</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">shaojiemike@snode6 /lib/modules/5.4.0-107-generic/build  [06:32:26]</span><br><span class="line">&gt; gcc -print-search-dirs</span><br><span class="line">install: /usr/lib/gcc/x86_64-linux-gnu/9/</span><br><span class="line">programs: =/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/bin/</span><br><span class="line">libraries: =/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib/:/lib/x86_64-linux-gnu/9/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/9/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/lib/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../:/lib/:/usr/lib/</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-加载器"><a href="#5-加载器" class="headerlink" title="5. 加载器"></a>5. 加载器</h2><p>加载器：将可执行程序加载到内存并进行执行，loader和ld-linux.so。</p>
+<p>将可执行文件加载运行</p>
+<h2 id="其他技巧：GNU用于理解和处理目标文件的相关命令"><a href="#其他技巧：GNU用于理解和处理目标文件的相关命令" class="headerlink" title="其他技巧：GNU用于理解和处理目标文件的相关命令"></a>其他技巧：GNU用于理解和处理目标文件的相关命令</h2><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ar</td>
+<td>创建静态库，插入、删除、列出和提取成员；</td>
+</tr>
+<tr>
+<td>stringd</td>
+<td>列出目标文件中所有可以打印的字符串；</td>
+</tr>
+<tr>
+<td>strip</td>
+<td>从目标文件中删除符号表信息；</td>
+</tr>
+<tr>
+<td><strong>nm</strong></td>
+<td>列出目标文件符号表中定义的符号；</td>
+</tr>
+<tr>
+<td>size</td>
+<td>列出目标文件中节的名字和大小；</td>
+</tr>
+<tr>
+<td><strong>readelf</strong></td>
+<td>显示一个目标文件的完整结构，包括ELF 头中编码的所有信息。</td>
+</tr>
+<tr>
+<td>objdump</td>
+<td>显示目标文件的所有信息，最有用的功能是反汇编.text节中的二进制指令。</td>
+</tr>
+<tr>
+<td><strong>ldd</strong></td>
+<td>列出可执行文件在运行时需要的共享库。</td>
+</tr>
+</tbody></table>
+<h2 id="动态查看进程调用命令"><a href="#动态查看进程调用命令" class="headerlink" title="动态查看进程调用命令"></a>动态查看进程调用命令</h2><p>ltrace 跟踪进程调用库函数过程<br>strace 系统调用的追踪或信号产生的情况<br>Relyze 图形化收费试用</p>
+<h2 id="debugging-symbols"><a href="#debugging-symbols" class="headerlink" title="debugging symbols"></a>debugging symbols</h2><ul>
+<li>编译时加入<code>-g</code>选项，可以生成调试信息，这样在gdb中可以查看源代码。</li>
+<li>但是在复杂的编译过程中，最后可执行文件丢失了debugging symbols，所以研究一下怎么生成debugging symbols， 编译过程中的传递，以及如何查看。</li>
+</ul>
+<h3 id="debugging-symbols的内容"><a href="#debugging-symbols的内容" class="headerlink" title="debugging symbols的内容"></a>debugging symbols的内容</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">objdump -g &lt;archive_file&gt;.a</span><br><span class="line"><span class="comment"># 如果.o文件有debugging symbols，会输出各section详细信息</span></span><br><span class="line">Contents of the .debug_aranges section (loaded from predict-c.o):</span><br><span class="line"><span class="comment"># 没有则如下</span></span><br><span class="line">cabac-a.o:     file format elf64-x86-64</span><br><span class="line"></span><br><span class="line">dct-a.o:     file format elf64-x86-64</span><br><span class="line"></span><br><span class="line">deblock-a.o:     file format elf64-x86-64</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="生成debugging-symbols"><a href="#生成debugging-symbols" class="headerlink" title="生成debugging symbols"></a>生成debugging symbols</h3><ul>
+<li>预处理过程<ul>
+<li>应该会保留debugging symbols所需的信息，在实验后发现，执行<code>gcc -E -g testBigExe.cpp -o testDebug.i</code>相对于无<code>-g</code>的命令，只会多一行信息<code># 1 &quot;/staff/shaojiemike/test/OS//&quot;</code></li>
+</ul>
+</li>
+<li>编译过程<ul>
+<li>执行<code>gcc -S -g testBigExe.cpp -o testDebug.s</code>，对比之前的汇编文件，由72行变成9760行。具体解析参考 GNU assembly file一文</li>
+<li><img src="https://pic.shaojiemike.top/img/20230521195333.png" alt="-g前后"></li>
+</ul>
+</li>
+<li>汇编过程：保留了debug信息的汇编代码生成带debug信息的目标文件<br><img src="https://pic.shaojiemike.top/img/20230521201900.png"></li>
+<li>链接(Linker)</li>
+</ul>
+<h2 id="编译代码中OpenMP实现"><a href="#编译代码中OpenMP实现" class="headerlink" title="编译代码中OpenMP实现"></a>编译代码中OpenMP实现</h2><p>简单的<code>#pragma omp for</code>，编译后多出汇编代码如下。当前可以创建多少个线程默认汇编并没有显示的汇编指令。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">call omp_get_num_threads@PLT</span><br><span class="line">movl %eax, %ebx</span><br><span class="line">call omp_get_thread_num@PLT</span><br><span class="line">movl %eax, %ecx</span><br><span class="line"></span><br><span class="line">call	GOMP_barrier@PLT</span><br></pre></td></tr></table></figure>
+
+<p>某些atomic的导语会变成<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/12366806/assembly-instruction-to-replace-openmp-critical-region">对应汇编</a></p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><ul>
+<li>chatGPT说：后端阶段（例如汇编器和连接器），则主要是对汇编代码和目标代码进行优化，例如指令调度、地址计算、代码缩减等。但是我持严重怀疑态度, 链接过程有这么多优化吗？</li>
+</ul>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><p>基础不牢，地动山摇。ya 了。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/LiuYanYGZ/p/5574601.html">https://www.cnblogs.com/LiuYanYGZ/p/5574601.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://hansimov.gitbook.io/csapp/part2/ch07-linking/7.5-symbols-and-symbol-tables">https://hansimov.gitbook.io/csapp/part2/ch07-linking/7.5-symbols-and-symbol-tables</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-10-12T16:00:00.000Z" title="10/12/2023, 4:00:00 PM">2023-10-12</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.310Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">24 minutes read (About 3579 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/10/12/Work/Programming/5-Running/cProgramCompile/">C Program Compile Problems</a></p><div class="content"><p>TODO:[5] please fix all in free time</p>
+<h2 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h2><p>版本冲突的几个主要原因：</p>
+<ol>
+<li>老项目会自己开发New func &amp; macro&#x2F;definitions</li>
+<li>New sys-header also develop new func &amp; macro&#x2F;definitions<ol>
+<li>Conflict1: redefinition of the same macro&#x2F;definitions. 大家都需要某个功能，老项目原本自己写了这部分代码。随着时间的发展 merge 到了sys-file。old project compile in new sys with the diff code conflict for same purpose.<ol>
+<li>FIX: delete the old project code, and use the sys <code>STL</code></li>
+</ol>
+</li>
+<li>Conflict2: New sys develop a new func(e.g., <code>__THROW</code>) in it’s header files, part sys header(e.g, <code>iostream</code>) is included by old project, but the definition of new func is not included for lower search priority.<ol>
+<li>FIX: update old project to support the new func (because you can not degrade the sys-files).</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="tricks"><a href="#tricks" class="headerlink" title="tricks"></a>tricks</h3><ol>
+<li>find definition <code>xxx</code> in header search path</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ag -us <span class="string">&quot;def.*xxx&quot;</span> /usr/include /usr/lib/gcc/x86_64-linux-gnu/11/include /usr/local/include</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>After each updates(code changing), you should guarantee the <strong>benchmark</strong>（official makefile&#x2F;simple testcase） compile maintain the correct compilation.</li>
+</ol>
+<h2 id="1"><a href="#1" class="headerlink" title="1"></a>1</h2><p>compile multipim with pin3.28 under g++11</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h:44:19: error: missing binary operator before token <span class="string">&quot;(&quot;</span> </span><br><span class="line">4| <span class="comment">#if __GLIBC_PREREQ(2,15) &amp;&amp; defined(_GNU_SOURCE)</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/21338385/what-does-the-compiler-error-missing-binary-operator-before-token-mean">SO(StackOverflow)</a> show similar errors, I guess the <code>Gabriel Devillers</code> answer the key point, self head file’s higher priority lead to the no define of <code>__GLIBC_PREREQ()</code></li>
+<li>I successfully found head file in directory <code>PIN/extras/crt/include/features.h</code></li>
+<li>fix by remove or adjust the head file searching order?<ol>
+<li>just rename to <code>feature_bk.h</code></li>
+</ol>
+</li>
+</ol>
+<h3 id="1-1"><a href="#1-1" class="headerlink" title="1.1"></a>1.1</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">In file included from pin/extras/crt/include/sys/cdefs.h:84,</span><br><span class="line">                 from pin/extras/crt/include/features.h:33,</span><br><span class="line">                 from pin/extras/cxx/include/__config:228,</span><br><span class="line">                 from pin/extras/cxx/include/string:510,</span><br><span class="line">                 from build/opt/g_std/g_string.h:31,</span><br><span class="line">                 from build/opt/access_tracing.h:29,</span><br><span class="line">                 from build/opt/access_tracing.cpp:26:</span><br><span class="line">/usr/include/x86_64-linux-gnu/sys/cdefs.h:146:55: error: missing binary operator before token <span class="string">&quot;(&quot;</span></span><br><span class="line">  146 | <span class="comment">#if __USE_FORTIFY_LEVEL == 3 &amp;&amp; (__glibc_clang_prereq (9, 0)                  \</span></span><br><span class="line">      |                                                       ^     </span><br></pre></td></tr></table></figure>
+
+<p> We find the definition</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/MultiPIM_icarus0 on git:main x [16:45:13] C:2</span></span><br><span class="line">$ ag -us <span class="string">&quot;__glibc_clang_prereq&quot;</span> /usr/include ./pin ./common ./build/opt /usr/lib/gcc/x86_64-linux-gnu/11/include /usr/local/include</span><br><span class="line">/usr/include/features.h</span><br><span class="line">179:<span class="comment"># define __glibc_clang_prereq(maj, min) \</span></span><br><span class="line">182:<span class="comment"># define __glibc_clang_prereq(maj, min) 0</span></span><br><span class="line">413:<span class="comment"># elif _FORTIFY_SOURCE &gt; 2 &amp;&amp; (__glibc_clang_prereq (9, 0)                \</span></span><br></pre></td></tr></table></figure>
+
+<p>TODO: maybe <code>include_next</code> in <code>pin/extras/crt/include/features.h</code></p>
+<h2 id="2"><a href="#2" class="headerlink" title="2"></a>2</h2><p>during the officail pintool compilation of pin2.14 under g++11</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">if</span> !defined(__GXX_ABI_VERSION) || CC_USED_ABI_VERSION != __GXX_ABI_VERSION</span></span><br><span class="line">    <span class="meta">#<span class="keyword">error</span> The C++ ABI of your compiler does not match the ABI of the pin kit.</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>TODO:</p>
+<h2 id="3"><a href="#3" class="headerlink" title="3"></a>3</h2><p>compile multipim with pin3.28 under g++11 after adding crt include path.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">In file included from /usr/include/c++/11/bits/localefwd.h:40,                                                 </span><br><span class="line">                from /usr/include/c++/11/string:43,                                                           </span><br><span class="line">                from build/opt/g_std/g_string.h:31,                                                           </span><br><span class="line">                from build/opt/access_tracing.h:29,                                                           </span><br><span class="line">                from build/opt/access_tracing.cpp:26:                                        </span><br><span class="line">/usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h: In <span class="keyword">function</span> <span class="string">&#x27;int std::__convert_from_v(const __c_locale&amp;, char*, int, const char*, ...)&#x27;</span>:                                            </span><br><span class="line">/usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:75:16: error: variable <span class="string">&#x27;std::__c_locale __old&#x27;</span> has initializer but incomplete <span class="built_in">type</span></span><br><span class="line">   75 |     __c_locale __old = __gnu_cxx::__uselocale(__cloc);                                      </span><br><span class="line">      |                ^~~~~</span><br><span class="line">/usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:75:47: error: cannot convert <span class="string">&#x27;const __c_locale&#x27;</span> to <span class="string">&#x27;locale_t&#x27;</span> &#123;aka <span class="string">&#x27;__locale_t*&#x27;</span>&#125;</span><br><span class="line">75 |     __c_locale __old = __gnu_cxx::__uselocale(__cloc);                                      </span><br><span class="line">   |                                               ^~~~~~                                        </span><br><span class="line">   |                                               |                                             </span><br><span class="line">   |                                               const __c_locale                        </span><br><span class="line">   /usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:52:34: note:   initializing argument 1 of <span class="string">&#x27;__locale_t* __gnu_cxx::__uselocale(locale_t)&#x27;</span>                                                 </span><br><span class="line">   52 |   extern <span class="string">&quot;C&quot;</span> __typeof(uselocale) __uselocale;                                               </span><br><span class="line">      |                                  ^~~~~~~~~~~          </span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://cplusplus.com/forum/beginner/88530/">error: initializer but incomplete type</a> is caused by compiler-think undefined type.</p>
+<p>But the define is just before lines <code>typedef __locale_t	__c_locale;</code></p>
+<p>And found the conflict defined</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/MultiPIM_icarus0/pin on git:main x [9:56:26]</span></span><br><span class="line">$ ag __locale_t</span><br><span class="line">extras/crt/include/xlocale.h</span><br><span class="line">33:struct __locale_t;</span><br><span class="line">34:typedef struct __locale_t* locale_t;</span><br></pre></td></tr></table></figure>
+
+<p>replace these two lines to std header file</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">__locale_struct</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* Note: LC_ALL is not a valid index into this array.  */</span></span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">__locale_data</span> *__locales[<span class="number">13</span>]; <span class="comment">/* 13 = __LC_LAST. */</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* To increase the speed of this solution we add some special members.  */</span></span><br><span class="line">  <span class="type">const</span> <span class="type">unsigned</span> <span class="type">short</span> <span class="type">int</span> *__ctype_b;</span><br><span class="line">  <span class="type">const</span> <span class="type">int</span> *__ctype_tolower;</span><br><span class="line">  <span class="type">const</span> <span class="type">int</span> *__ctype_toupper;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Note: LC_ALL is not a valid index into this array.  */</span></span><br><span class="line">  <span class="type">const</span> <span class="type">char</span> *__names[<span class="number">13</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">__locale_struct</span> *<span class="type">__locale_t</span>;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">__locale_t</span> <span class="type">locale_t</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4"><a href="#4" class="headerlink" title="4"></a>4</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">In file included from /usr/include/c++/11/cstdlib:75,</span><br><span class="line">                 from /usr/include/c++/11/ext/string_conversions.h:41,</span><br><span class="line">                 from /usr/include/c++/11/bits/basic_string.h:6608,</span><br><span class="line">                 from /usr/include/c++/11/string:55,</span><br><span class="line">                 from build/opt/g_std/g_string.h:31,</span><br><span class="line">                 from build/opt/access_tracing.h:29,</span><br><span class="line">                 from build/opt/access_tracing.cpp:26:</span><br><span class="line">/usr/include/stdlib.h:97: note: this is the location of the previous definition</span><br><span class="line">   97 | <span class="comment">#define MB_CUR_MAX      (__ctype_get_mb_cur_max ())</span></span><br><span class="line">      | </span><br><span class="line">/usr/include/stdlib.h:98:45: error: expected initializer before <span class="string">&#x27;__THROW&#x27;</span></span><br><span class="line">   98 | extern size_t __ctype_get_mb_cur_max (void) __THROW __wur;</span><br><span class="line">      |                                             ^~~~~~~</span><br></pre></td></tr></table></figure>
+
+<p>This shows error of the definition the <code>__THROW</code>. Ensure that the <code>__THROW</code> <strong>macro</strong> is correctly defined or included in your code.  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ ag -us <span class="string">&quot;def.*__THROW&quot;</span> /usr/include ./pin ./common ./build/opt /usr/lib/gcc/x86_64-linux-gnu/11/include /usr/local/include</span><br><span class="line">/usr/include/x86_64-linux-gnu/sys/cdefs.h</span><br><span class="line">79:<span class="comment">#  define __THROW    __attribute__ ((__nothrow__ __LEAF))</span></span><br><span class="line">80:<span class="comment">#  define __THROWNL  __attribute__ ((__nothrow__))</span></span><br><span class="line">86:<span class="comment">#    define __THROW  noexcept (true)</span></span><br><span class="line">88:<span class="comment">#    define __THROW  throw ()</span></span><br></pre></td></tr></table></figure>
+
+<p>So <code>__THROW</code> is defined in <code>/usr/include/x86_64-linux-gnu/sys/cdefs.h</code></p>
+<p>Stupid idea is to sudo vim the sys-header <code>stdlib.h</code> add codes:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* TSJ 231009: add for the miss of definition of __THROW */</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;x86_64-linux-gnu/sys/cdefs.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<!-- But in this place I think this is because `__THROW` is undefined under different `-std=c++xx` flag (where xx is the C++ standard version)  -->
+<!-- which may affect the behavior of macros and language features, so make sure it's set correctly. -->
+
+<h3 id="4-1"><a href="#4-1" class="headerlink" title="4.1"></a>4.1</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">In file included from build/opt/pin_cmd.cpp:30:</span><br><span class="line">/usr/include/wordexp.h:66:45: error: expected initializer before <span class="string">&#x27;__THROW&#x27;</span></span><br><span class="line">   66 | extern void wordfree (wordexp_t *__wordexp) __THROW;</span><br><span class="line">      |                                             ^~~~~~~</span><br><span class="line"></span><br><span class="line"><span class="comment"># wordexp.h -&gt; &lt;features.h&gt; -&gt; sys/cdefs.h</span></span><br></pre></td></tr></table></figure>
+
+<p>The more likely scenario is pin-def <code>cdefs.h</code> lack the definition of macro <code>__THROW</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ag -usg <span class="string">&quot;cdefs\.h&quot;</span> /usr/include ./pin ./common ./build/opt /usr/lib/gcc/x86_64-linux-gnu/11/include /usr/local/include</span><br><span class="line">/usr/include/bsd/sys/cdefs.h</span><br><span class="line">/usr/include/x86_64-linux-gnu/sys/cdefs.h</span><br><span class="line">pin/extras/crt/include/sys/cdefs.h</span><br></pre></td></tr></table></figure>
+
+<p>It’s a bad idea to <code>include_next</code> which lead to <code>7.1</code> error.</p>
+<p>The easy solution is to degrade the <code>wordexp.h</code> with remove the only one  macro <code>__THROW</code>.</p>
+<h2 id="5"><a href="#5" class="headerlink" title="5"></a>5</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">In file included from pin/source/include/pin/pin.H:27,</span><br><span class="line">                 from build/opt/decoder.h:31,</span><br><span class="line">                 from build/opt/core.h:30,</span><br><span class="line">                 from build/opt/ooo_core.h:34,</span><br><span class="line">                 from build/opt/contention_sim.cpp:35:</span><br><span class="line">pin/extras/components/include/util/intel-fp.hpp: At global scope:</span><br><span class="line">pin/extras/components/include/util/intel-fp.hpp:21:9: error: <span class="string">&#x27;UINT64&#x27;</span> does not name a <span class="built_in">type</span>; did you mean <span class="string">&#x27;UINT64_C&#x27;</span>?</span><br><span class="line">   21 |         UINT64 _significand; ///&lt; The floating-point significand.</span><br><span class="line">      |         ^~~~~~</span><br><span class="line">      |         UINT64_C</span><br></pre></td></tr></table></figure>
+
+<p>Type is not defined, include to fix</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/MultiPIM_icarus0 on git:main x [16:16:38]                 </span></span><br><span class="line">$ ag <span class="string">&#x27; UINT64;&#x27;</span>                                                                               </span><br><span class="line">pin/extras/crt/include/types.h                                                                </span><br><span class="line">70:typedef unsigned __int64 UINT64;                                                           </span><br><span class="line">86:typedef uint64_t UINT64;    </span><br></pre></td></tr></table></figure>
+
+<h3 id="5-1"><a href="#5-1" class="headerlink" title="5.1"></a>5.1</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">In file included from build/opt/debug_zsim.cpp:28:</span><br><span class="line">/usr/include/gelf.h:70:9: error: <span class="string">&#x27;Elf64_Section&#x27;</span> does not name a <span class="built_in">type</span>; did you mean <span class="string">&#x27;Elf64_Ssize&#x27;</span>?</span><br><span class="line">   70 | typedef Elf64_Section GElf_Section;</span><br><span class="line">      |         ^~~~~~~~~~~~~</span><br><span class="line">      |         Elf64_Ssize</span><br></pre></td></tr></table></figure>
+
+<p>We found the definition</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/MultiPIM_icarus0 on git:main x [15:57:57] C:2</span></span><br><span class="line">$ ag -us <span class="string">&quot;Elf64_Section&quot;</span> /usr/include ./pin ./common ./build/opt /usr/lib/gcc/x86_64-linux-gnu/11/include /usr/local/include</span><br><span class="line">/usr/include/gelf.h</span><br><span class="line">70:typedef Elf64_Section GElf_Section;</span><br><span class="line"></span><br><span class="line">/usr/include/elf.h</span><br><span class="line">52:typedef uint16_t Elf64_Section;</span><br><span class="line">532:  Elf64_Section     st_shndx;               /* Section index */</span><br></pre></td></tr></table></figure>
+
+<p>the reason is header higher search priority</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ag -usg <span class="string">&quot;elf.h&quot;</span> /usr/include ./pin ./common ./build/opt /usr/lib/gcc/x86_64-linux-gnu/11/include /usr/local/include</span><br><span class="line">/usr/include/gelf.h</span><br><span class="line">/usr/include/elf.h</span><br><span class="line">pin/extras/crt/include/elf.h</span><br><span class="line">pin/extras/crt/include/freebsd/3rd-party/sys/x86/include/elf.h <span class="comment"># used by pin/extras/crt/include/elf.h</span></span><br></pre></td></tr></table></figure>
+
+<p>We can not just add <code>#include_next</code> in pin’s <code>elf.h</code> due the redefined of many structs. </p>
+<p>We fix it by add missing macro definitions in suitable header file <code>pin/extras/crt/include/freebsd/3rd-party/include/elf.h</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Type for section indices, which are 16-bit quantities.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf32_Section;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">uint16_t</span> Elf64_Section;</span><br></pre></td></tr></table></figure>
+
+<h2 id="6"><a href="#6" class="headerlink" title="6"></a>6</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">In file included from pin/source/include/pin/pin.H:96,</span><br><span class="line">                 from build/opt/decoder.h:32,</span><br><span class="line">                 from build/opt/decoder.cpp:26:</span><br><span class="line">pin/source/include/pin/gen/ins_api_xed_ia32.PH:65:27: error: reference to <span class="string">&#x27;USIZE&#x27;</span> is ambiguous</span><br><span class="line">   65 | extern PIN_DEPRECATED_API USIZE INS_MemoryWriteSize(INS ins);</span><br><span class="line">      |                           ^~~~~</span><br></pre></td></tr></table></figure>
+
+<p>conflict define in current path header and search path header, select one to comment.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/MultiPIM_icarus0 on git:main x [16:39:02]</span></span><br><span class="line">$ ag <span class="string">&#x27; USIZE;&#x27;</span> pin</span><br><span class="line">pin/extras/crt/include/types.h</span><br><span class="line">122:typedef ADDRINT USIZE;</span><br><span class="line">pin/source/include/pin/gen/types_foundation.PH</span><br><span class="line">41:typedef unsigned int USIZE;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-1"><a href="#6-1" class="headerlink" title="6.1"></a>6.1</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">In file included from build/opt/slab_alloc.h:43,</span><br><span class="line">                 from build/opt/event_recorder.h:32,</span><br><span class="line">                 from build/opt/cache.cpp:29:</span><br><span class="line">build/opt/mutex.h: At global scope:</span><br><span class="line">build/opt/mutex.h:56:30: error: reference to <span class="string">&#x27;mutex&#x27;</span> is ambiguous</span><br><span class="line">   56 | class aligned_mutex : public mutex &#123;&#125; ATTR_LINE_ALIGNED;</span><br><span class="line">      |                              ^~~~~</span><br><span class="line">In file included from pin/extras/cxx/include/mutex:190,</span><br><span class="line">                 from pin/extras/cxx/include/__locale:18,</span><br><span class="line">                 from pin/extras/cxx/include/ios:215,</span><br><span class="line">                 from pin/extras/cxx/include/iostream:37,</span><br><span class="line">                 from build/opt/memory_hierarchy.h:32,</span><br><span class="line">                 from build/opt/cache_arrays.h:29,</span><br><span class="line">                 from build/opt/cache.h:29,</span><br><span class="line">                 from build/opt/cache.cpp:26:</span><br><span class="line">pin/extras/cxx/include/__mutex_base:32:78: note: candidates are: <span class="string">&#x27;class std::__1::mutex&#x27;</span></span><br><span class="line">   32 | class _LIBCPP_TYPE_VIS _LIBCPP_THREAD_SAFETY_ANNOTATION(capability(<span class="string">&quot;mutex&quot;</span>)) mutex</span><br><span class="line">      |                                                                              ^~~~~</span><br><span class="line">In file included from build/opt/slab_alloc.h:43,</span><br><span class="line">                 from build/opt/event_recorder.h:32,</span><br><span class="line">                 from build/opt/cache.cpp:29:</span><br><span class="line">build/opt/mutex.h:34:7: note:                 <span class="string">&#x27;class mutex&#x27;</span></span><br><span class="line">   34 | class mutex : public GlobAlloc &#123;</span><br><span class="line">      |       ^~~~~</span><br></pre></td></tr></table></figure>
+
+<p>It seems the class redefine, we comment pintool part code to fix it.</p>
+<h2 id="7"><a href="#7" class="headerlink" title="7"></a>7</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">In file included from pin/extras/cxx/include/mutex:190,</span><br><span class="line">                 from pin/extras/cxx/include/__locale:18,</span><br><span class="line">                 from pin/extras/cxx/include/ios:215,</span><br><span class="line">                 from pin/extras/cxx/include/iostream:37,</span><br><span class="line">                 from build/opt/memory_hierarchy.h:32,</span><br><span class="line">                 from build/opt/access_tracing.h:30,</span><br><span class="line">                 from build/opt/access_tracing.cpp:26:</span><br><span class="line">pin/extras/cxx/include/__mutex_base: In member <span class="keyword">function</span> <span class="string">&#x27;void std::__1::condition_variable::__do_timed_wait(std::__1::unique_lock&lt;std::__1::mutex&gt;&amp;, std::__1::chrono::time_point&lt;std::__1::chrono::steady_clock, std::__1::chrono::duration&lt;long long int, std::__1::ratio&lt;1, 1000000000&gt; &gt; &gt;)&#x27;</span>:</span><br><span class="line">pin/extras/cxx/include/__mutex_base:508:16: error: <span class="string">&#x27;pthread_cond_clockwait&#x27;</span> was not declared <span class="keyword">in</span> this scope; did you mean <span class="string">&#x27;pthread_cond_wait&#x27;</span>?</span><br><span class="line">  508 |     int __ec = pthread_cond_clockwait(&amp;__cv_, __lk.mutex()-&gt;native_handle(), CLOCK_MONOTONIC, &amp;__ts);</span><br><span class="line">      |                ^~~~~~~~~~~~~~~~~~~~~~</span><br><span class="line">      |                pthread_cond_wait</span><br></pre></td></tr></table></figure>
+
+<p>After Reading header file, It seem compiler believe system contain the function.</p>
+<p>TODO: 阅读system header file 的include和底层代码实现: 线程，print，syscall。e.g., <code>pthread_cond_clockwait</code> function is defined where</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/MultiPIM_icarus0 on git:main x [15:10:32]</span></span><br><span class="line">$ ag pthread_cond_clockwait /usr/include</span><br><span class="line">/usr/include/pthread.h</span><br><span class="line">1171:extern int pthread_cond_clockwait (pthread_cond_t *__restrict __cond,</span><br></pre></td></tr></table></figure>
+
+<p>Of course，We assume <code>pin/extras/crt/include/pthread.h</code> has higher include priority. We will prove it in the later.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># the exsit include</span></span><br><span class="line">$ ag pthread.h  pin/extras/cxx</span><br><span class="line">pin/extras/cxx/include/__threading_support</span><br><span class="line">32:<span class="comment"># include &lt;pthread.h&gt;</span></span><br><span class="line"><span class="comment"># So who include __threading_support</span></span><br><span class="line">$ ag __threading_support pin/extras/cxx</span><br><span class="line">pin/extras/cxx/include/__mutex_base <span class="comment"># the error header</span></span><br><span class="line">16:<span class="comment">#include &lt;__threading_support&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Reading <code>__threading_support</code> code, the include under a <code>#ifdef</code> condition</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">if</span> defined(_LIBCPP_HAS_THREAD_API_PTHREAD)</span></span><br><span class="line"><span class="meta"># <span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line">...</span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> defined(_LIBCPP_HAS_THREAD_API_C11)</span></span><br><span class="line"><span class="meta"># <span class="keyword">include</span> <span class="string">&lt;threads.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>So which file define <code>_LIBCPP_HAS_THREAD_API_PTHREAD</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ ag -u _LIBCPP_HAS_THREAD_API_PTHREAD</span><br><span class="line"></span><br><span class="line">pin/extras/cxx/include/__config</span><br><span class="line">1134:    !defined(_LIBCPP_HAS_THREAD_API_PTHREAD) &amp;&amp; \</span><br><span class="line">1149:<span class="comment">#    define _LIBCPP_HAS_THREAD_API_PTHREAD</span></span><br><span class="line">1152:<span class="comment">#    define _LIBCPP_HAS_THREAD_API_PTHREAD</span></span><br><span class="line">1160:<span class="comment">#if defined(_LIBCPP_HAS_THREAD_API_PTHREAD)</span></span><br><span class="line">1170:<span class="comment">#if defined(_LIBCPP_HAS_NO_THREADS) &amp;&amp; defined(_LIBCPP_HAS_THREAD_API_PTHREAD)</span></span><br><span class="line">1171:<span class="comment">#error _LIBCPP_HAS_THREAD_API_PTHREAD may only be defined when \</span></span><br><span class="line">1199:<span class="comment">#if (defined(_LIBCPP_HAS_THREAD_API_PTHREAD) &amp;&amp; defined(__GLIBC__)) \</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># second one define it</span></span><br><span class="line"><span class="comment"># and find #include &lt;__config&gt; in the error header</span></span><br></pre></td></tr></table></figure>
+
+<p>According to <code>-MMD</code> option’s result <code>.d</code> file, we make sure include the <code>pin/extras/cxx/include/__config</code> one.<br>And add <code>#warning</code> preprocessor directive or check <code>-MD</code> option result to make sure <code>include &lt;pthread.h&gt;</code>. But the point is include <code>pin/extras/crt/include/pthread.h</code></p>
+<p>First Idea: I believe that changing the potentially buggy Pin <code>crt</code> code is a bad idea. The more likely scenario is that we are using the <code>crt</code> incorrectly. So, let’s identify how to trigger the bug starting from <code>build/opt/memory_hierarchy.h:32</code>, and then replicate it in a simple pintool to verify whether we are indeed using it incorrectly.</p>
+<p>But the real situation is pintool just <code>#include &lt;iostream&gt;</code> and the simple pintool also include without compilation error. Weird scenario deserves more research.</p>
+<h3 id="7-1"><a href="#7-1" class="headerlink" title="7.1"></a>7.1</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pass</span></span><br><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/MultiPIM_icarus0/pin/source/tools/ManualExamples on git:main x [10:02:19]</span></span><br><span class="line">$  g++ -Wall -Werror -Wno-unknown-pragmas -DPIN_CRT=1 -fno-stack-protector -DTARGET_IA32E -DHOST_IA32E -fPIC -DTARGET_LINUX -fabi-version=2 -I../../../sou</span><br><span class="line">rce/include/pin -I../../../source/include/pin/gen -isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/cxx/include -isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include -isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/arch-x86_64 -isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/kernel/uapi -isystem /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/kernel/uapi/asm-x86 -I../../../extras/components/include -I../../../extras/xed-int</span><br><span class="line">el64/include/xed -I../../../source/tools/Utils -I../../../source/tools/InstLib -O3 -fomit-frame-pointer -MD -c inscount0.cpp</span><br><span class="line"></span><br><span class="line"><span class="comment"># failed</span></span><br><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/MultiPIM_icarus0/pin/source/tools/ManualExamples on git:main x [10:02:53]</span></span><br><span class="line">$  g++ -Wall -Werror -Wno-unknown-pragmas -DPIN_CRT=1 -fno-stack-protector -DTARGET_IA32E -DHOST_IA32E -fPIC -DTARGET_LINUX -fabi-version=2 -I../../../sou</span><br><span class="line">rce/include/pin -I../../../source/include/pin/gen -isystem /staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/cxx/include -isystem /staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/crt/include -isystem /staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/crt/include/arch-x86_64 -isystem /staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/crt/include/kernel/uapi -isystem /staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/crt/include/kernel/uapi/asm-x86 -I../../../extras/components/include -I../../../extras/xed-intel64/include/xed -I../../../source/tools/Utils -I../../../source/tools/InstLib -O3 -fomit-frame-pointer -MD -c inscount0.cpp</span><br><span class="line">In file included from /staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/cxx/include/mutex:190,</span><br><span class="line">                 from /staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/cxx/include/__locale:18,</span><br><span class="line">                 from /staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/cxx/include/ios:215,</span><br><span class="line">                 from /staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/cxx/include/iostream:37,</span><br><span class="line">                 from inscount0.cpp:6:</span><br><span class="line">/staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/cxx/include/__mutex_base: In member <span class="keyword">function</span> <span class="string">&#x27;void std::__1::condition_variable::__do_timed_wait(std::__1::unique_lock&lt;std::__1::mutex&gt;&amp;, std::__1::chrono::time_point&lt;std::__1::chrono::steady_clock, std::__1::chrono::duration&lt;long long int, std::__1::ratio&lt;1, 1000000000&gt; &gt; &gt;)&#x27;</span>:</span><br><span class="line">/staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/cxx/include/__mutex_base:508:16: error: <span class="string">&#x27;pthread_cond_clockwait&#x27;</span> was not declared <span class="keyword">in</span> this scope; did you mean <span class="string">&#x27;pthread_cond_wait&#x27;</span>?</span><br><span class="line">  508 |     int __ec = pthread_cond_clockwait(&amp;__cv_, __lk.mutex()-&gt;native_handle(), CLOCK_MONOTONIC, &amp;__ts);</span><br><span class="line">      |                ^~~~~~~~~~~~~~~~~~~~~~</span><br><span class="line">      |                pthread_cond_wait</span><br></pre></td></tr></table></figure>
+
+<p>After the compile compare, we decide the error is due to our change in pin code.</p>
+<p>But we just change a little.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/MultiPIM_icarus0 on git:main x [10:09:58]                                                                                                                                                                        </span></span><br><span class="line">$ diff /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux pin </span><br><span class="line">diff <span class="string">&#x27;--color=auto&#x27;</span> -r /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/features.h pin/extras/crt/include/features.h</span><br><span class="line">32a33</span><br><span class="line">&gt; <span class="comment">#include_next &lt;features.h&gt;</span></span><br><span class="line">diff <span class="string">&#x27;--color=auto&#x27;</span> -r /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/freebsd/3rd-party/include/elf.h pin/extras/crt/include/freebsd/3rd-party/include/elf.h</span><br><span class="line">42a43,46</span><br><span class="line">&gt; /* Type <span class="keyword">for</span> section indices, <span class="built_in">which</span> are 16-bit quantities.  */</span><br><span class="line">&gt; typedef uint16_t Elf32_Section;</span><br><span class="line">&gt; typedef uint16_t Elf64_Section;</span><br><span class="line">&gt; </span><br><span class="line">diff <span class="string">&#x27;--color=auto&#x27;</span> -r /staff/shaojiemike/Download/pin-3.28-98749-g6643ecee5-gcc-linux/extras/crt/include/sys/cdefs.h pin/extras/crt/include/sys/cdefs.h</span><br><span class="line">44a45</span><br><span class="line">&gt; </span><br><span class="line">82a84,114</span><br><span class="line">&gt; <span class="comment">#include_next &lt;sys/cdefs.h&gt;</span></span><br><span class="line">&gt; </span><br><span class="line">&gt; </span><br><span class="line">&gt; /* GCC can always grok prototypes.  For C++ programs we add throw()</span><br><span class="line">&gt;    to <span class="built_in">help</span> it optimize the <span class="keyword">function</span> calls.  But this only works with</span><br><span class="line">&gt;    gcc 2.8.x and egcs.  For gcc 3.4 and up we even mark C <span class="built_in">functions</span></span><br><span class="line">&gt;    as non-throwing using a <span class="keyword">function</span> attribute since programs can use</span><br><span class="line">&gt;    the -fexceptions options <span class="keyword">for</span> C code as well.  */</span><br><span class="line">&gt; // <span class="comment"># if !defined __cplusplus \</span></span><br><span class="line">&gt; //      &amp;&amp; (__GNUC_PREREQ (3, 4) || __glibc_has_attribute (__nothrow__))</span><br><span class="line">&gt; // <span class="comment">#  define __THROW	__attribute__ ((__nothrow__ __LEAF))</span></span><br><span class="line">&gt; // <span class="comment">#  define __THROWNL	__attribute__ ((__nothrow__))</span></span><br><span class="line">&gt; // <span class="comment">#  define __NTH(fct)	__attribute__ ((__nothrow__ __LEAF)) fct</span></span><br><span class="line">&gt; // <span class="comment">#  define __NTHNL(fct)  __attribute__ ((__nothrow__)) fct</span></span><br><span class="line">&gt; // <span class="comment"># else</span></span><br><span class="line">&gt; // <span class="comment">#  if defined __cplusplus &amp;&amp; (__GNUC_PREREQ (2,8) || __clang_major &gt;= 4)</span></span><br><span class="line">&gt; // <span class="comment">#   if __cplusplus &gt;= 201103L</span></span><br><span class="line">&gt; // <span class="comment">#    define __THROW	noexcept (true)</span></span><br><span class="line">&gt; // <span class="comment">#   else</span></span><br><span class="line">&gt; // <span class="comment">#    define __THROW	throw ()</span></span><br><span class="line">&gt; // <span class="comment">#   endif</span></span><br><span class="line">&gt; // <span class="comment">#   define __THROWNL	__THROW</span></span><br><span class="line">&gt; // <span class="comment">#   define __NTH(fct)	__LEAF_ATTR fct __THROW</span></span><br><span class="line">&gt; // <span class="comment">#   define __NTHNL(fct) fct __THROW</span></span><br><span class="line">&gt; // <span class="comment">#  else</span></span><br><span class="line">&gt; // <span class="comment">#   define __THROW</span></span><br><span class="line">&gt; // <span class="comment">#   define __THROWNL</span></span><br><span class="line">&gt; // <span class="comment">#   define __NTH(fct)	fct</span></span><br><span class="line">&gt; // <span class="comment">#   define __NTHNL(fct) fct</span></span><br><span class="line">&gt; // <span class="comment">#  endif</span></span><br><span class="line">&gt; // <span class="comment"># endif</span></span><br></pre></td></tr></table></figure>
+
+<p>Rollback two include_next to pass the benchmark.</p>
+<h2 id="8"><a href="#8" class="headerlink" title="8"></a>8</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">In file included from pin/extras/cxx/include/limits.h:57,</span><br><span class="line">                 from pin/extras/cxx/include/climits:41,</span><br><span class="line">                 from pin/extras/cxx/include/ratio:82,</span><br><span class="line">                 from pin/extras/cxx/include/chrono:830,</span><br><span class="line">                 from pin/extras/cxx/include/__threading_support:15,</span><br><span class="line">                 from pin/extras/cxx/include/atomic:579,</span><br><span class="line">                 from pin/extras/cxx/include/memory:687,</span><br><span class="line">                 from pin/extras/cxx/include/algorithm:653,</span><br><span class="line">                 from pin/extras/cxx/include/__string:57,</span><br><span class="line">                 from pin/extras/cxx/include/string_view:179,</span><br><span class="line">                 from pin/extras/cxx/include/string:511,</span><br><span class="line">                 from build/opt/g_std/g_string.h:31,</span><br><span class="line">                 from build/opt/access_tracing.h:29,</span><br><span class="line">                 from build/opt/access_tracing.cpp:26:</span><br><span class="line">build/opt/common/global_const.h:32:16: error: expected unqualified-id before numeric constant</span><br><span class="line">   32 | const unsigned PAGE_SIZE=(1UL&lt;&lt;<span class="string">PAGE_SHIFT);</span></span><br><span class="line"><span class="string">      |                ^~~~~~~~~</span></span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/typename/article/details/6347005">Ref</a> suggest us to test the macro define</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">In file included from build/opt/common/common_structures.h:20,</span><br><span class="line">                 from build/opt/memory_hierarchy.h:39,</span><br><span class="line">                 from build/opt/access_tracing.h:30,</span><br><span class="line">                 from build/opt/access_tracing.cpp:26:</span><br><span class="line">build/opt/common/global_const.h:33:2: error: <span class="comment">#error &quot;PAGE_SIZE is defined&quot;</span></span><br><span class="line">   33 | <span class="comment">#error &quot;PAGE_SIZE is defined&quot;</span></span><br><span class="line">      |  ^~~~~</span><br></pre></td></tr></table></figure>
+
+<p>and we find the redefined in</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ icarus0 in ~/github/MultiPIM_icarus0 on git:main x [10:28:46]</span></span><br><span class="line">$ ag -u <span class="string">&quot;define PAGE_SIZE&quot;</span></span><br><span class="line">pin/extras/crt/include/limits.h</span><br><span class="line">124:<span class="comment">#define PAGE_SIZE 4096</span></span><br><span class="line">pin/extras/crt/include/kernel/uapi/linux/a.out.h</span><br><span class="line">120:<span class="comment">#define PAGE_SIZE 0x400</span></span><br></pre></td></tr></table></figure>
+
+<p>FIX: set <code>#ifdef</code> in old pintool code.</p>
+<h2 id="9-ld"><a href="#9-ld" class="headerlink" title="9 ld"></a>9 ld</h2><p>During the zsim-like multipim compilation, <code>dumptrace</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">g++ -o build/opt/dumptrace -Wl,-R/staff/shaojiemike/github/MultiPIM_icarus0/common/libconfig/lib -L/usr/lib/x86_64-linux-gnu/hdf5/serial/ build/opt/dumptrace.ot build/opt/access_tracing.ot build/opt/memory_hierarchy.ot build/opt/config.ot build/opt/galloc.ot build/opt/log.ot build/opt/pin_cmd.ot -Lcommon/libconfig/lib -lconfig++ -lhdf5 -lhdf5_hl</span><br><span class="line"></span><br><span class="line">/usr/bin/ld: build/opt/dumptrace.ot: <span class="keyword">in</span> <span class="keyword">function</span> `std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;::basic_string&lt;decltype(nullptr)&gt;(char const*)<span class="string">&#x27;:</span></span><br><span class="line"><span class="string">/staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/cxx/include/string:841: undefined reference to `std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;::__init(char const*, unsigned long)&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>After reading the code, <code>template</code> function <code>init</code> denifition seems no problem. So the first judgement is this is due to the new pin lib missing.</p>
+<h3 id="9-1-crude-solution"><a href="#9-1-crude-solution" class="headerlink" title="9.1 : crude solution"></a>9.1 : crude solution</h3><p>Copy all missing lib from <code>inscount0.so</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -o build/opt/dumptrace -Wl,--hash-style=sysv /staff/shaojiemike/github/MultiPIM_icarus0/pin/intel64/runtime/pincrt/crtbeginS.o -Wl,-Bsymbolic -Wl,--version-script=/staff/shaojiemike/github/MultiPIM_icarus0/pin/source/include/pin/pintool.ver -fabi-version=2 -Wl,-R/staff/shaojiemike/github/MultiPIM_icarus0/common/libconfig/lib -L/staff/shaojiemike/github/MultiPIM_icarus0/pin/intel64/runtime/pincrt -L/staff/shaojiemike/github/MultiPIM_icarus0/pin/intel64/lib -L/staff/shaojiemike/github/MultiPIM_icarus0/pin/intel64/lib-ext -L/staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/xed-intel64/lib -L/usr/lib/x86_64-linux-gnu/hdf5/serial/ build/opt/dumptrace.ot build/opt/access_tracing.ot build/opt/memory_hierarchy.ot build/opt/config.ot build/opt/galloc.ot build/opt/log.ot build/opt/pin_cmd.ot -Lcommon/libconfig/lib -lconfig++ -lhdf5 -lhdf5_hl -lpin -lxed /staff/shaojiemike/github/MultiPIM_icarus0/pin/intel64/runtime/pincrt/crtendS.o -lpindwarf -ldl-dynamic -nostdlib -lc++ -lc++abi -lm-dynamic -lc-dynamic -lunwind-dynamic</span><br></pre></td></tr></table></figure>
+
+<p>which lead error</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/ld: build/opt/config.ot: undefined reference to symbol <span class="string">&#x27;__cxa_get_exception_ptr@@CXXABI_1.3.1&#x27;</span></span><br><span class="line">/usr/bin/ld: /lib/x86_64-linux-gnu/libstdc++.so.6: error adding symbols: DSO missing from <span class="built_in">command</span> line</span><br><span class="line">collect2: error: ld returned 1 <span class="built_in">exit</span> status</span><br></pre></td></tr></table></figure>
+
+<p>forget add <code>-shared</code> option to eliminate the error msg, but the I guess <code>build/opt/dumptrace</code> is an excutable, because the code</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span>* argv[])</span> </span>&#123;</span><br><span class="line">    <span class="built_in">InitLog</span>(<span class="string">&quot;&quot;</span>); <span class="comment">//no log header</span></span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">info</span>(<span class="string">&quot;Prints an access trace&quot;</span>);</span><br><span class="line">        <span class="built_in">info</span>(<span class="string">&quot;Usage: %s &lt;trace&gt;&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ...&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-2-pick-in-details"><a href="#9-2-pick-in-details" class="headerlink" title="9.2 pick in details"></a>9.2 pick in details</h3><p><code>dumptrace</code> is executable and <code>inscount0.so</code> is a dynamic library. We should analyse the lack part.</p>
+<p>First we try to delete part and lower pin-lib priority</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -o build/opt/dumptrace -Wl,-R/staff/shaojiemike/github/MultiPIM_icarus0/common/libconfig/lib -L/usr/lib/x86_64-linux-gnu/hdf5/serial/ build/opt/dumptrace.ot build/opt/access_tracing.ot build/opt/memory_hierarchy.ot build/opt/config.ot build/opt/galloc.ot build/opt/log.ot build/opt/pin_cmd.ot -Lcommon/libconfig/lib -lconfig++ -lhdf5 -lhdf5_hl  -L/staff/shaojiemike/github/MultiPIM_icarus0/pin/intel64/runtime/pincrt -L/staff/shaojiemike/github/MultiPIM_icarus0/pin/intel64/lib -L/staff/shaojiemike/github/MultiPIM_icarus0/pin/intel64/lib-ext -L/staff/shaojiemike/github/MultiPIM_icarus0/pin/extras/xed-intel64/lib -lpin -lxed -lpindwarf -ldl-dynamic -nostdlib -lc++ -lc++abi -lm-dynamic -lc-dynamic -lunwind-dynamic</span><br></pre></td></tr></table></figure>
+
+<p>which alse error with <code>__cxa_get_exception_ptr@@CXXABI_1.3.1</code> and <code>error adding symbols: DSO missing from command line</code></p>
+<p>TODO: ???</p>
+<h3 id="9-3"><a href="#9-3" class="headerlink" title="9.3"></a>9.3</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/ld: build/opt/dumptrace.ot: <span class="keyword">in</span> <span class="keyword">function</span> `AccessTraceReader::<span class="built_in">read</span>()<span class="string">&#x27;:</span></span><br><span class="line"><span class="string">/staff/shaojiemike/github/MultiPIM_icarus0/build/opt/access_tracing.h:70: undefined reference to `__assert2&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-10-09T16:00:00.000Z" title="10/9/2023, 4:00:00 PM">2023-10-09</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.322Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">4 minutes read (About 552 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/10/09/Work/Programming/info/cABI/">C++ ABI</a></p><div class="content"><h2 id="ABI-Application-Binary-Interface"><a href="#ABI-Application-Binary-Interface" class="headerlink" title="ABI (Application Binary Interface)"></a>ABI (Application Binary Interface)</h2><p>According to <a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html">REF</a></p>
+<p>“ library API + compiler ABI &#x3D; library ABI ”</p>
+<ol>
+<li>library API(Application Programing Interface)<ol>
+<li>e.g., types&#x2F;functions&#x2F;exceptionsSTH in (STL) include files</li>
+</ol>
+</li>
+<li>compiler Application Binary Interface, or ABI<ol>
+<li>sth during the compilation process, e.g., alignment&#x2F;funcNameHandling</li>
+</ol>
+</li>
+</ol>
+<h3 id="example"><a href="#example" class="headerlink" title="example:"></a>example:</h3><p>TODO:</p>
+<ol>
+<li>the different version lead to what during the compilation</li>
+<li>why we miss this during small C project programming.</li>
+</ol>
+<h2 id="ABI-Management"><a href="#ABI-Management" class="headerlink" title="ABI Management"></a>ABI Management</h2><p>We are talking about GNU G++ support</p>
+<ol>
+<li>Release versioning on the libstdc++.so binary<ol>
+<li>e.g, <code>GCC 11.1.0 using libstdc++.so.6.0.29</code> icarus0 11.4.0 using previous version in document</li>
+</ol>
+</li>
+<li>Symbol versioning on the <code>libstdc++.so</code> binary.<ol>
+<li>mapfile: <code>libstdc++-v3/config/abi/pre/gnu.ver</code> in <a target="_blank" rel="noopener" href="https://github.com/mickael-guene/gcc/blob/master/libstdc%2B%2B-v3/config/abi/pre/gnu.ver">github code</a> which shows the detail symbol in diff-verion.</li>
+<li><code>GCC 11.1.0: GLIBCXX_3.4.29, CXXABI_1.3.13</code></li>
+</ol>
+</li>
+</ol>
+<h2 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h2><h3 id="which-verisons-can-be-chosen"><a href="#which-verisons-can-be-chosen" class="headerlink" title="which verisons can be chosen"></a>which verisons can be chosen</h3><p>TODO: Is there a way to lower the abi verison during the compilation</p>
+<h3 id="how-to-change-when-compile"><a href="#how-to-change-when-compile" class="headerlink" title="how to change when compile"></a>how to change when compile</h3><p>The GNU C++ compiler, g++, has a <a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Dialect-Options.html">compiler command line option</a> to switch between various different C++ ABIs. This explicit version switch is the flag <code>-fabi-version</code>. In addition, some g++ command line options may change the ABI as a side-effect of use. Such flags include <code>-fpack-struct</code> and <code>-fno-exceptions</code>, but include others: see the complete list in the GCC manual under the heading Options for Code Generation Conventions.</p>
+<p>-fabi-version&#x3D;n | Use version n of the C++ ABI. The default is version 0.(Version 2 is the version of the C++ ABI that first appeared in G++ 3.4, and was the default through G++ 4.9.) ABI: an application binary interface (ABI) is an interface between two binary program modules. Often, one of these modules is a library or operating system facility, and the other is a program that is being run by a user.</p>
+<h3 id="check-the-veriosn-a-program-using"><a href="#check-the-veriosn-a-program-using" class="headerlink" title="check the veriosn a program using"></a>check the veriosn a program using</h3><p><code>ldd -v /bin/ls</code> show many <code>libc.so.6</code> in different <code>GLIBC</code> version, chatGPT explain this due to maintain <strong>backward compatibility</strong> as much as possible to ensure that older programs continue to work on newer systems. This is achieved through versioned symbols and by providing <strong>multiple versions of shared libraries.</strong></p>
+<p>TODO: If i write a simple C program using DLL, what is the <code>ldd -v</code> print out? will be a simgle verison of <code>libc.so.6</code>? or the equal question is If <code>/bin/ls</code> use diff api in diff versions of DDL.</p>
+<h2 id="old-program-request-which-version"><a href="#old-program-request-which-version" class="headerlink" title="old program request which version"></a>old program request which version</h2><p>TODO:</p>
+<h2 id="PROBLEM-ABI-compability"><a href="#PROBLEM-ABI-compability" class="headerlink" title="PROBLEM: ABI compability"></a>PROBLEM: ABI compability</h2><p>during the pintool compilation process</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">if</span> !defined(__GXX_ABI_VERSION) || CC_USED_ABI_VERSION != __GXX_ABI_VERSION</span></span><br><span class="line">    <span class="meta">#<span class="keyword">error</span> The C++ ABI of your compiler does not match the ABI of the pin kit.</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>TODO:</p>
+<ol>
+<li>check the project using which ABI to program</li>
+<li>Is there a way to lower the abi verison during the compilation<ol>
+<li>or compile a program using</li>
+</ol>
+</li>
+</ol>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<div id='refer-anchor'></div>
+
+<p>无</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-25T16:00:00.000Z" title="7/25/2023, 4:00:00 PM">2023-07-25</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.322Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">15 minutes read (About 2206 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/07/25/Work/Programming/4-compile/llvm/">llvm</a></p><div class="content"><h2 id="llvm"><a href="#llvm" class="headerlink" title="llvm"></a>llvm</h2><p>LLVM项目开始于一种比Java字节码更低层级的IR，因此，初始的首字母缩略词是Low Level Virtual Machine。它的想法是发掘低层优化的机会，采用链接时优化。</p>
+<p><img src="https://pic.shaojiemike.top/img/20230523164536.png"></p>
+<h3 id="插一嘴：链接时优化"><a href="#插一嘴：链接时优化" class="headerlink" title="插一嘴：链接时优化"></a>插一嘴：链接时优化</h3><ul>
+<li>GCC也支持链接时优化，称为LTO（Link Time Optimization），通过把多个编译单元中分别生成的目标文件在链接时进行全局的优化，可以提高程序的执行效率。</li>
+<li>具体内容：大幅度减少可执行文件的体积<ul>
+<li>冗余代码和变量&#x2F;函数的消除：对于在多个模块中出现的相同代码&#x2F;变量&#x2F;函数，链接时优化可以将它们合并，从而减少可执行文件的体积，提高程序的执行效率。</li>
+<li>内联函数：将函数调用直接替换为函数本身的代码，从而减少函数调用的开销，提高程序的执行效率。</li>
+<li>循环展开和向量化：内联函数后，或许能进一步将循环展开和向量化，从而减少循环体内的分支判断，优化程序的执行效率。</li>
+</ul>
+</li>
+</ul>
+<h3 id="IR：gcc与llvm的区别"><a href="#IR：gcc与llvm的区别" class="headerlink" title="IR：gcc与llvm的区别"></a>IR：gcc与llvm的区别</h3><p>学过编译原理的人都知道，编译过程主要可以划分为前端与后端：</p>
+<ul>
+<li>前端把源代码翻译成中间表示 (IR)。</li>
+<li>后端把IR编译成目标平台的机器码。当然，IR也可以给解释器解释执行。</li>
+</ul>
+<p>经典的编译器如gcc：在设计上前端到后端编写是强耦合的，你不需要知道，无法知道，也没有API来操作它的IR。</p>
+<ul>
+<li><p>好处是：因为不需要暴露中间过程的接口，编译器可以在内部做任何想做的平台相关的优化。</p>
+</li>
+<li><p>坏处是，每当一个新的平台出现，这些编译器都要各自为政实现一个从自己的IR到新平台的后端。</p>
+<ul>
+<li>甚至如果当一种新语言出现，且需要实现一个新的编译器，那么可能需要设计一个新的IR，以及针对大部分平台实现这个IR的后端。</li>
+<li>如果有M种语言、N种目标平台，那么最坏情况下要实现 M*N 个前后端。这是很低效的。</li>
+</ul>
+</li>
+<li><p>LLVM的核心设计了一个叫 LLVM IR 的通用中间表示， 并以库(Library) 的方式提供一系列接口， 为你提供诸如操作IR、生成目标平台代码等等后端的功能。</p>
+</li>
+<li><p>在使用通用IR的情况下，如果有M种语言、N种目标平台，那么最优情况下我们只要实现 M+N 个前后端。</p>
+</li>
+</ul>
+<h2 id="llvm-IR"><a href="#llvm-IR" class="headerlink" title="llvm IR"></a>llvm IR</h2><ul>
+<li>LLVM IR 中间表示是适用于多种编程语言的通用中间表示，支持C、C++、Objective-C、Swift、Java、Python等多种编程语言。</li>
+<li>它是一种低级别的语言，类似于汇编语言，但比汇编语言更高级，包含了类型、变量、函数、控制流等高级语言的特性。</li>
+<li>LLVM编译器可以将多种编程语言编译成LLVM IR，从而可以在LLVM IR层面进行各种优化处理，再将LLVM IR转换为目标平台的机器码。<ul>
+<li>比如要将Python脚本编译成LLVM IR中间表示，可以使用Python LLVM编译器llvmlite和numba。</li>
+</ul>
+</li>
+</ul>
+<h3 id="LLVM-IR表示与转换"><a href="#LLVM-IR表示与转换" class="headerlink" title="LLVM IR表示与转换"></a>LLVM IR表示与转换</h3><p>LVM IR实际上有三种表示：</p>
+<ul>
+<li>.ll 格式：人类可以阅读的文本。</li>
+<li>.bc 格式：适合机器存储的二进制文件。</li>
+<li>内存表示</li>
+</ul>
+<p>各种格式是如何生成并相互转换：</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>转换命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>.c -&gt; .ll</td>
+<td>clang -emit-llvm -S a.c -o a.ll</td>
+</tr>
+<tr>
+<td>.c -&gt; .bc</td>
+<td>clang -emit-llvm -c a.c -o a.bc</td>
+</tr>
+<tr>
+<td>.ll -&gt; .bc</td>
+<td>llvm-as a.ll -o a.bc</td>
+</tr>
+<tr>
+<td>.bc -&gt; .ll</td>
+<td>llvm-dis a.bc -o a.ll</td>
+</tr>
+<tr>
+<td>.bc -&gt; .s</td>
+<td>llc a.bc -o a.s</td>
+</tr>
+</tbody></table>
+<p>对于LLVM IR来说，<code>.ll</code>文件就相当于汇编，<code>.bc</code>文件就相当于机器码。 这也是llvm-as和llvm-dis指令为什么叫as和dis的缘故。</p>
+<h2 id="llvm-前端"><a href="#llvm-前端" class="headerlink" title="llvm 前端"></a>llvm 前端</h2><p><img src="https://pic.shaojiemike.top/img/20230523162028.png" alt="前端"></p>
+<p>clang实现的前端包括</p>
+<ul>
+<li>词法分析(识别标记)<ul>
+<li>处理源代码的文本输入，将语言结构分解为一组单词和标记，去除注释、空白、制表符等。每个单词或者标记必须属于语言子集，语言的保留字被变换为编译器内部表示。</li>
+<li>词法分析报错的例子包括：拼写错误、注释没有正确结束、字符串没有正确结束等。</li>
+</ul>
+</li>
+<li>语法分析(标记结构完整)<ul>
+<li>语法分析器会根据语法规则验证程序的正确性，如缺少右括号、是否缺少关键字、变量未定义、函数应该有返回值等。</li>
+</ul>
+</li>
+<li>语义分析(有无语义矛盾)<ul>
+<li>借助符号表检验代码没有违背语言类型系统。这个表存储标识符（符号）和它们各自的类型之间的映射，以及其它内容。</li>
+<li>类型检查的一种直觉的方法是，在解析之后，遍历AST的同时从符号表收集关于类型的信息。</li>
+<li>例子：定义了两个变量 a 冲突。</li>
+</ul>
+</li>
+</ul>
+<h2 id="llvm-后端"><a href="#llvm-后端" class="headerlink" title="llvm 后端"></a>llvm 后端</h2><p>见 llvm Backend 一文</p>
+<h2 id="clang"><a href="#clang" class="headerlink" title="clang"></a>clang</h2><h3 id="clang-与-llvm的关系"><a href="#clang-与-llvm的关系" class="headerlink" title="clang 与 llvm的关系"></a>clang 与 llvm的关系</h3><p>Clang 是 LLVM 项目中的一个 C&#x2F;C++&#x2F;Objective-C 编译器，它使用 LLVM 的前端和后端进行代码生成和优化。它可以将 C&#x2F;C++&#x2F;Objective-C 代码编译为 LLVM 的中间表示（LLVM IR），然后进一步将其转换为目标平台的机器码。Clang 拥有很好的错误信息展示和提示，支持多平台使用，是许多开发者的首选编译器之一。同时，Clang 也作为 LLVM 项目的一个前端，为 LLVM 的生态系统提供了广泛的支持和应用。</p>
+<h3 id="clang-的开发与苹果公司的关系"><a href="#clang-的开发与苹果公司的关系" class="headerlink" title="clang 的开发与苹果公司的关系"></a>clang 的开发与苹果公司的关系</h3><p>Clang 的开发起源于苹果公司的一个项目，即 LLVM&#x2F;Clang 项目。在 2005 年，苹果公司希望能够使用一种更加灵活、可扩展、优化的编译器来替代 GCC 作为其操作系统 macOS (Mac OS X) 开发环境的默认编译器。由于当时的 GCC 开发被其维护者们认为变得缓慢和难以维护，苹果公司决定开发一款新的编译器，这就是 Clang 诞生的原因。Clang 的开发团队由该项目的创立者 Chris Lattner 领导，他带领团队将 Clang 发展为一款可扩展、模块化、高效的编译器，并成功地将其嵌入到苹果公司的开发工具链 Xcode 中，成为了 macOS 开发环境中默认的编译器之一。</p>
+<p>Clang 是一个开源项目，在苹果公司的支持下，Clang 的开发得到了全球各地的开发者们的广泛参与和贡献。现在，Clang 成为了 LLVM 生态中的一个重要组成部分，被广泛地应用于多平台的编译器开发中。</p>
+<h3 id="clang-cannot-find-iostream"><a href="#clang-cannot-find-iostream" class="headerlink" title="clang-cannot-find-iostream"></a>clang-cannot-find-iostream</h3><p><code>Clang</code> and <code>Clang++</code> “borrow” the header files from <code>GCC</code> &amp; <code>G++</code>. It looks for the directories these usually live in and picks the latest one. If you’ve installed a later GCC without the corresponding G++, Clang++ gets confused and can’t find header files. In your instance, for example, if you’ve installed gcc 11 or 12.</p>
+<p>You can use <code>clang-10 -v -E</code> or <code>clang++-10 -v -E</code> to get details on what versions of header files it’s trying to use.</p>
+<p>安装g++-12解决</p>
+<h2 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h2><p><code>github/tools</code>目录下有许多实用工具</p>
+<ul>
+<li><code>llvm-as</code>：把LLVM IR从人类能看懂的文本格式汇编成二进制格式。注意：此处得到的不是目标平台的机器码。</li>
+<li><code>llvm-dis</code>：llvm-as的逆过程，即反汇编。 不过这里的反汇编的对象是LLVM IR的二进制格式，而不是机器码。</li>
+<li><code>opt</code>：优化LLVM IR。输出新的LLVM IR。</li>
+<li><code>llc</code>：把LLVM IR编译成汇编码。需要用as进一步得到机器码。</li>
+<li><code>lli</code>：解释执行LLVM IR。</li>
+</ul>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>文章部分内容<strong>来自ChatGPT-3.5</strong>，暂时没有校验其可靠性(看上去貌似说得通)。</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/122522485">https://zhuanlan.zhihu.com/p/122522485</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-05-20T16:00:00.000Z" title="5/20/2023, 4:00:00 PM">2023-05-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-03T08:43:50.318Z" title="6/3/2024, 8:43:50 AM">2024-06-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">18 minutes read (About 2675 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/05/20/Work/Programming/2.1-Assembly/assemblyGNUFile/">GNU Assembly File</a></p><div class="content"><h2 id="GNU汇编语法"><a href="#GNU汇编语法" class="headerlink" title="GNU汇编语法"></a>GNU汇编语法</h2><h3 id="伪指令"><a href="#伪指令" class="headerlink" title="伪指令"></a>伪指令</h3><ul>
+<li><strong>指示（Directives）</strong>: 以点号开始，用来指示对编译器，连接器，调试器有用的结构信息。指示本身不是汇编指令。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">伪指令</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">.file</td>
+<td align="center">指定由哪个源文件生成的汇编代码。</td>
+</tr>
+<tr>
+<td align="center">.data</td>
+<td align="center">表示数据段(section)的开始地址</td>
+</tr>
+<tr>
+<td align="center">.text</td>
+<td align="center">指定下面的指令属于代码段。</td>
+</tr>
+<tr>
+<td align="center">.string</td>
+<td align="center">表示数据段中的字符串常量。</td>
+</tr>
+<tr>
+<td align="center">.globl main</td>
+<td align="center">指明标签main是一个可以在其它模块的代码中被访问的全局符号 。</td>
+</tr>
+<tr>
+<td align="center">.align</td>
+<td align="center">数据对齐指令</td>
+</tr>
+<tr>
+<td align="center">.section</td>
+<td align="center">段标记</td>
+</tr>
+<tr>
+<td align="center">.type</td>
+<td align="center">设置一个符号的属性值</td>
+</tr>
+</tbody></table>
+<ul>
+<li>语法：<code>.type name , description</code><ul>
+<li>description取值如下：<ul>
+<li><code>%function</code> 表示该符号用来表示一个函数名</li>
+<li><code>%object</code> 表示该符号用来表示一个数据对象</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>至于其它的指示你可以忽略。</p>
+<h2 id="实践：阅读汇编文件"><a href="#实践：阅读汇编文件" class="headerlink" title="实践：阅读汇编文件"></a>实践：阅读汇编文件</h2><p>从最简单的C文件入手</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line"> <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行<code>gcc -S -O3 main.c -o main.s</code>，得到<code>main.s</code>文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"> .file &quot;simple.cpp&quot;</span><br><span class="line"> .text</span><br><span class="line"> .section .text.startup,&quot;ax&quot;,@progbits</span><br><span class="line"> .p2align 4</span><br><span class="line"> .globl main</span><br><span class="line"> .type main, @function</span><br><span class="line">main:</span><br><span class="line">.LFB0:</span><br><span class="line"> .cfi_startproc</span><br><span class="line"> endbr64</span><br><span class="line"> xorl %eax, %eax</span><br><span class="line"> ret</span><br><span class="line"> .cfi_endproc</span><br><span class="line">.LFE0:</span><br><span class="line"> .size main, .-main</span><br><span class="line"> .ident &quot;GCC: (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0&quot;</span><br><span class="line"> .section .note.GNU-stack,&quot;&quot;,@progbits</span><br><span class="line"> .section .note.gnu.property,&quot;a&quot;</span><br><span class="line"> .align 8</span><br><span class="line"> .long  1f - 0f</span><br><span class="line"> .long  4f - 1f</span><br><span class="line"> .long  5</span><br><span class="line">0:</span><br><span class="line"> .string  &quot;GNU&quot;</span><br><span class="line">1:</span><br><span class="line"> .align 8</span><br><span class="line"> .long  0xc0000002</span><br><span class="line"> .long  3f - 2f</span><br><span class="line">2:</span><br><span class="line"> .long  0x3</span><br><span class="line">3:</span><br><span class="line"> .align 8</span><br><span class="line">4:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>下面回答<strong>来自ChatGPT-3.5</strong>，暂时没有校验其可靠性(看上去貌似说得通)。</li>
+</ul>
+<h3 id="section"><a href="#section" class="headerlink" title="section"></a>section</h3><ul>
+<li><code>.section .rodata.str1.1,&quot;aMS&quot;,@progbits,1</code><ul>
+<li><code>rodata.str1.1</code>是一个标号（label）, 意思是只读数据段的字符串常量</li>
+<li><code>aMS</code>是一个属性值：<ul>
+<li>可分配的（allocatable），即程序运行时需要动态分配空间才能分配该代码段，</li>
+<li>不可执行 （M），</li>
+<li>数据的类型为串（S）</li>
+<li>其余属性值：对齐方式的通常为 b（byte对齐），w（word对齐），或者其他更大的对齐单位，例如 d（double word对齐）。</li>
+</ul>
+</li>
+<li><code>@progbits</code>: 表示该段的类型是程序数据段（PROGBITS），这种类型的段包含程序的代码和数据。</li>
+<li><code>1</code>: 表示该段的对齐方式是2^1 &#x3D; 2个字节（按字节对齐）。如果不写这个数字，默认对齐到当前机器的字长。</li>
+</ul>
+</li>
+<li><code>.section .text.startup,&quot;ax&quot;,@progbits</code> 其中<code>ax</code>表示该段是可分配的（allocatable）和可执行的（executable）。</li>
+<li>“<code>.section .note.GNU-stack</code>“指令用于告诉链接器是否允许在堆栈上执行代码。</li>
+<li>“<code>.section .note.gnu.property</code>“指令用于指定一些属性，这里是一个GNU特性标记。</li>
+</ul>
+<h3 id="汇编的入口"><a href="#汇编的入口" class="headerlink" title="汇编的入口"></a>汇编的入口</h3><ul>
+<li>汇编的执行流程：入口函数在哪里</li>
+<li>入口函数在该文件中的名称为“main”，定义于“<code>.text.startup” section</code>，其首地址为“<code>.globl main</code>”。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.section .text.startup,&quot;ax&quot;,@progbits</span><br><span class="line">.p2align 4</span><br><span class="line">.globl main</span><br><span class="line">.type main, @function</span><br></pre></td></tr></table></figure>
+
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><p><img src="https://pic.shaojiemike.top/img/20230521194515.png"></p>
+<ul>
+<li>为了确保这些初始化操作可以在程序启动时正确执行，编译器将把这些构造函数和析构函数的调用代码打包成若干个函数，统一放在名字为“<code>_GLOBAL__sub_I_xxx</code>”的section中。<ul>
+<li>因为在C++程序编译后的二进制文件中，全局变量、静态变量和全局对象等信息都需要进行初始化操作，包括构造函数（初始化对象）和析构函数（清理对象）。</li>
+<li>在这段汇编代码中，也就是那个”_GLOBAL__sub_I_main”函数，它是C++全局变量和静态变量的构造函数，它调用了预初始化函数 “<code>ios_base::Init()</code>“，并注册了一个在程序退出时调用的析构函数 “<code>__cxa_atexit</code>“。</li>
+</ul>
+</li>
+<li>在”<code>.init_array</code>“ section中，定义了一个”_GLOBAL__sub_I_main”的地址，这是在程序启动时需要调用的所有C++全局和静态对象的初始化函数列表，编译器链接这个列表并在程序启动时依次调用这些初始化函数。</li>
+<li>总之，这两个section的存在是为了保证C++全局变量和静态变量的正确初始化。</li>
+</ul>
+<p>其中四条指令都定义了一些符号或变量，并分配了一些内存空间，这些在程序里的意义如下：</p>
+<ol>
+<li>“<code>.quad _GLOBAL__sub_I_main</code>“:</li>
+</ol>
+<p>在程序启动时，将调用所有全局静态对象的构造函数。这些构造函数被放在一个名为”_GLOBAL__sub_I_xxx”的section中，而每个section都是由一个指向该section所有对象的地址列表所引用。这里的”.quad _GLOBAL__sub_I_main”是为了将”_GLOBAL__sub_I_main”函数的地址添加到该列表中。</p>
+<ol start="2">
+<li>“<code>.local _ZStL8__ioinit</code>“:</li>
+</ol>
+<p>这条指令定义了一个本地符号”_ZStL8__ioinit”，它表示C++标准输入输出的初始化过程。由于该符号是一个本地符号，所以只能在编辑该文件的当前单元中使用该符号。</p>
+<ol start="3">
+<li>“<code>.comm _ZStL8__ioinit,1,1</code>“:</li>
+</ol>
+<p>这条指令定义了一个名为”_ZStL8__ioinit”的未初始化的弱符号，并为该符号分配了1个大小的字节空间。这个弱符号定义了一个C++标准输入输出部分的全局状态对象。在全用动态库时，不同的动态库可能有自己的IO状态，所以为了确保C++输入输出的状态正确，需要为其指定一个单独的段来存储这些状态数据。在这里，”.comm _ZStL8__ioinit,1,1”将会为”_ZStL8__ioinit”符号分配一个字节大小的空间。</p>
+<ol start="4">
+<li>“<code>.hidden __dso_handle</code>“:</li>
+</ol>
+<p>这条指令定义了一个隐藏的符号 “__dso_handle”。这个符号是一个链接器生成的隐式变量，其定义了一个指向被当前动态库使用的全局数据对象的一个指针。该符号在被链接进来的库中是隐藏的，不会被其他库或者main函数本身调用，但是在main返回后，可以用来检查库是否已经被卸载。</p>
+<h3 id="末尾的元数据"><a href="#末尾的元数据" class="headerlink" title="末尾的元数据"></a>末尾的元数据</h3><p><img src="https://pic.shaojiemike.top/img/20230521191453.png"></p>
+<p>这段代码是一些特殊的指令和数据，主要是用于向可执行文件添加一些元数据（metadata）。这些元数据可能包含各种信息，如调试信息、特定平台的指令集支持等等。</p>
+<p>具体来说：</p>
+<ul>
+<li>“.long”指令用于定义一个长整型数值，这里用来计算地址之间的差值。<ul>
+<li>例如，第一行”<code>.long 1f - 0f</code>“建立了一个长整型数值，表示”1:”标签相对于当前指令地址（即0f）的偏移量。偏移量可以用来计算标签对应的指令地址，从而可用于跳转或计算指针偏移量。</li>
+<li>“<code>4f - 1f</code>“，即”4:”标签相对于”1:”标签的偏移量；</li>
+</ul>
+</li>
+<li>“<code>.long 0xc0000002</code>“表示这是一个特殊的属性标记，标识这个文件可以在Linux平台上执行。它是用来告诉操作系统这个程序是用特定指令集编译的。</li>
+<li>“<code>.long 0x3</code>“表示另一个属性标记，表示这个文件可以加载到任意地址。</li>
+</ul>
+<p>总之，这些元数据可能对程序运行起到关键作用，但在大多数情况下可能都没有明显的作用，因此看起来没有用。</p>
+<h2 id="比较汇编的debugging-symbols"><a href="#比较汇编的debugging-symbols" class="headerlink" title="比较汇编的debugging symbols"></a>比较汇编的debugging symbols</h2><p>执行<code>gcc -S -g testBigExe.cpp -o testDebug.s</code>，对比之前的汇编文件，由72行变成9760行。</p>
+<ul>
+<li><img src="https://pic.shaojiemike.top/img/20230521195333.png" alt="-g前后"></li>
+</ul>
+<h3 id="loc"><a href="#loc" class="headerlink" title=".loc"></a>.loc</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.LBE32:</span><br><span class="line"> .file 3 &quot;/usr/include/c++/9/bits/char_traits.h&quot;</span><br><span class="line"> .loc 3 342 2 is_stmt 1 view .LVU4</span><br><span class="line"> .loc 1 5 11 is_stmt 0 view .LVU5</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第一行：<code>.loc 3 342 2</code> 表示当前指令对应的源代码文件ID为3，在第342行，第2列（其中第1列是行号，第2列是第几个字符），同时<code>is_stmt</code>为1表示这条指令是语句的起始位置。</li>
+<li>第二行：<code>.loc 1 5 11</code> 表示当前指令对应的源代码文件ID为1，在第5行，第11列，同时<code>is_stmt</code>为0表示这条指令不是语句的起始位置。</li>
+<li><code>view .LVU4</code> 表示当前指令所处的作用域（scope）是.LVU4。作用域是指该指令所在的函数、代码块等一段范围内的所有变量和对象的可见性。在这个例子中，.LVU4 是一个局部变量作用域，因为它是位于一个C++标准库头文件中的一个函数的起始位置。</li>
+</ul>
+<h3 id="debug-section"><a href="#debug-section" class="headerlink" title="debug section"></a>debug section</h3><p>新增的这些 section 存储了 DWARF 调试信息。DWARF（Debugging With Attributed Record Formats）是一种调试信息的标准格式，包括代码中的变量、类型、函数、源文件的映射关系，以及代码的编译相关信息等等。</p>
+<p>具体来说，这些 section 存储的内容如下：</p>
+<ul>
+<li><code>.debug_info</code>：包含程序的调试信息，包括编译单元、类型信息、函数和变量信息等。</li>
+<li><code>.debug_abbrev</code>：包含了 .debug_info 中使用到的所有缩写名称及其对应的含义，用于压缩格式和提高效率。</li>
+<li><code>.debug_loc</code>：存储每个程序变量或表达式的地址范围及其地址寄存器、表达式规则等信息。在调试时用来确定变量或表达式的值和范围。</li>
+<li><code>.debug_aranges</code>：存储简化版本的地址范围描述，允许调试器加速地定位代码和数据的位置。</li>
+<li><code>.debug_ranges</code>：存储每个编译单元（CU）的地址范围，每个范围都是一个有限开区间。</li>
+<li><code>.debug_line</code>：存储源代码行号信息，包括每行的文件、行号、是否为语句起始位置等信息。</li>
+<li><code>.debug_str</code>：包含了所有字符串，如文件名、函数名等，由于每个调试信息的数据都是字符串，因此这是所有调试信息的基础。</li>
+</ul>
+<p>需要注意的是，这些 section 中的信息是根据编译器的配置和选项生成的，因此不同编译器可能会生成略有不同的调试信息。</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><ul>
+<li>在编译的过程中，哪个阶段 label会变成真实执行地址</li>
+</ul>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zuofaqi/articles/12853734.html">https://www.cnblogs.com/zuofaqi/articles/12853734.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zuofaqi/articles/12853734.html">https://www.cnblogs.com/zuofaqi/articles/12853734.html</a></p>
+</div></article></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">404</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">33</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">500</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">26</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">25</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">117</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">8</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">52</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-31T22:47:56.000Z">2024-05-31</time></p><p class="title"><a href="/2024/05/31/Thinking/4-viewOnOthers/FinancialValues/">Financial Values</a></p><p class="categories"><a href="/categories/thinking/">thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-26T15:34:38.000Z">2024-05-26</time></p><p class="title"><a href="/2024/05/26/OutOfWork/1-lifeAndCareer/travelPreparation/">Travel Preparation</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-22T11:18:58.000Z">2024-04-22</time></p><p class="title"><a href="/2024/04/22/Work/Architecture/microHardware/cacheCoherence/">Memory Consistency and Cache Coherence </a></p><p class="categories"><a href="/categories/Architecture/">Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-20T06:54:32.000Z">2024-04-20</time></p><p class="title"><a href="/2024/04/20/Work/software/windows/WinUsefulTools/">Windows Useful Tools</a></p><p class="categories"><a href="/categories/software/">software</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-19T07:40:25.000Z">2024-04-19</time></p><p class="title"><a href="/2024/04/19/Work/Programming/2-languageGrammar/c/CplusDebugPrint/">C &amp; C++: Debug Print like icecream in Python</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">17</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
