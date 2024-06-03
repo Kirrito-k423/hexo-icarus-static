@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>llvm - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="llvmLLVM项目开始于一种比Java字节码更低层级的IR，因此，初始的首字母缩略词是Low Level Virtual Machine。它的想法是发掘低层优化的机会，采用链接时优化。  插一嘴：链接时优化 GCC也支持链接时优化，称为LTO（Link Time Optimization），通过把多个编译单元中分别生成的目标文件在链接时进行全局的优化，可以提高程序的执行效率。 具体内容：大幅度减"><meta property="og:type" content="blog"><meta property="og:title" content="llvm"><meta property="og:url" content="http://icarus.shaojiemike.top/Work/Programming/4-compile/llvm.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="llvmLLVM项目开始于一种比Java字节码更低层级的IR，因此，初始的首字母缩略词是Low Level Virtual Machine。它的想法是发掘低层优化的机会，采用链接时优化。  插一嘴：链接时优化 GCC也支持链接时优化，称为LTO（Link Time Optimization），通过把多个编译单元中分别生成的目标文件在链接时进行全局的优化，可以提高程序的执行效率。 具体内容：大幅度减"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230523164536.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230523162028.png"><meta property="article:published_time" content="2023-07-25T16:00:00.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:10.107Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="llvm"><meta property="article:tag" content="compile"><meta property="article:tag" content="clang"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/img/20230523164536.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/Work/Programming/4-compile/llvm.html"},"headline":"llvm","image":["https://pic.shaojiemike.top/img/20230523164536.png","https://pic.shaojiemike.top/img/20230523162028.png"],"datePublished":"2023-07-25T16:00:00.000Z","dateModified":"2024-06-03T07:54:10.107Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"llvmLLVM项目开始于一种比Java字节码更低层级的IR，因此，初始的首字母缩略词是Low Level Virtual Machine。它的想法是发掘低层优化的机会，采用链接时优化。  插一嘴：链接时优化 GCC也支持链接时优化，称为LTO（Link Time Optimization），通过把多个编译单元中分别生成的目标文件在链接时进行全局的优化，可以提高程序的执行效率。 具体内容：大幅度减"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/Work/Programming/4-compile/llvm.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">llvm</h1><div class="content"><h2 id="llvm"><a href="#llvm" class="headerlink" title="llvm"></a>llvm</h2><p>LLVM项目开始于一种比Java字节码更低层级的IR，因此，初始的首字母缩略词是Low Level Virtual Machine。它的想法是发掘低层优化的机会，采用链接时优化。</p>
+<p><img src="https://pic.shaojiemike.top/img/20230523164536.png"></p>
+<h3 id="插一嘴：链接时优化"><a href="#插一嘴：链接时优化" class="headerlink" title="插一嘴：链接时优化"></a>插一嘴：链接时优化</h3><ul>
+<li>GCC也支持链接时优化，称为LTO（Link Time Optimization），通过把多个编译单元中分别生成的目标文件在链接时进行全局的优化，可以提高程序的执行效率。</li>
+<li>具体内容：大幅度减少可执行文件的体积<ul>
+<li>冗余代码和变量&#x2F;函数的消除：对于在多个模块中出现的相同代码&#x2F;变量&#x2F;函数，链接时优化可以将它们合并，从而减少可执行文件的体积，提高程序的执行效率。</li>
+<li>内联函数：将函数调用直接替换为函数本身的代码，从而减少函数调用的开销，提高程序的执行效率。</li>
+<li>循环展开和向量化：内联函数后，或许能进一步将循环展开和向量化，从而减少循环体内的分支判断，优化程序的执行效率。</li>
+</ul>
+</li>
+</ul>
+<h3 id="IR：gcc与llvm的区别"><a href="#IR：gcc与llvm的区别" class="headerlink" title="IR：gcc与llvm的区别"></a>IR：gcc与llvm的区别</h3><p>学过编译原理的人都知道，编译过程主要可以划分为前端与后端：</p>
+<ul>
+<li>前端把源代码翻译成中间表示 (IR)。</li>
+<li>后端把IR编译成目标平台的机器码。当然，IR也可以给解释器解释执行。</li>
+</ul>
+<p>经典的编译器如gcc：在设计上前端到后端编写是强耦合的，你不需要知道，无法知道，也没有API来操作它的IR。</p>
+<ul>
+<li><p>好处是：因为不需要暴露中间过程的接口，编译器可以在内部做任何想做的平台相关的优化。</p>
+</li>
+<li><p>坏处是，每当一个新的平台出现，这些编译器都要各自为政实现一个从自己的IR到新平台的后端。</p>
+<ul>
+<li>甚至如果当一种新语言出现，且需要实现一个新的编译器，那么可能需要设计一个新的IR，以及针对大部分平台实现这个IR的后端。</li>
+<li>如果有M种语言、N种目标平台，那么最坏情况下要实现 M*N 个前后端。这是很低效的。</li>
+</ul>
+</li>
+<li><p>LLVM的核心设计了一个叫 LLVM IR 的通用中间表示， 并以库(Library) 的方式提供一系列接口， 为你提供诸如操作IR、生成目标平台代码等等后端的功能。</p>
+</li>
+<li><p>在使用通用IR的情况下，如果有M种语言、N种目标平台，那么最优情况下我们只要实现 M+N 个前后端。</p>
+</li>
+</ul>
+<h2 id="llvm-IR"><a href="#llvm-IR" class="headerlink" title="llvm IR"></a>llvm IR</h2><ul>
+<li>LLVM IR 中间表示是适用于多种编程语言的通用中间表示，支持C、C++、Objective-C、Swift、Java、Python等多种编程语言。</li>
+<li>它是一种低级别的语言，类似于汇编语言，但比汇编语言更高级，包含了类型、变量、函数、控制流等高级语言的特性。</li>
+<li>LLVM编译器可以将多种编程语言编译成LLVM IR，从而可以在LLVM IR层面进行各种优化处理，再将LLVM IR转换为目标平台的机器码。<ul>
+<li>比如要将Python脚本编译成LLVM IR中间表示，可以使用Python LLVM编译器llvmlite和numba。</li>
+</ul>
+</li>
+</ul>
+<h3 id="LLVM-IR表示与转换"><a href="#LLVM-IR表示与转换" class="headerlink" title="LLVM IR表示与转换"></a>LLVM IR表示与转换</h3><p>LVM IR实际上有三种表示：</p>
+<ul>
+<li>.ll 格式：人类可以阅读的文本。</li>
+<li>.bc 格式：适合机器存储的二进制文件。</li>
+<li>内存表示</li>
+</ul>
+<p>各种格式是如何生成并相互转换：</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>转换命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>.c -&gt; .ll</td>
+<td>clang -emit-llvm -S a.c -o a.ll</td>
+</tr>
+<tr>
+<td>.c -&gt; .bc</td>
+<td>clang -emit-llvm -c a.c -o a.bc</td>
+</tr>
+<tr>
+<td>.ll -&gt; .bc</td>
+<td>llvm-as a.ll -o a.bc</td>
+</tr>
+<tr>
+<td>.bc -&gt; .ll</td>
+<td>llvm-dis a.bc -o a.ll</td>
+</tr>
+<tr>
+<td>.bc -&gt; .s</td>
+<td>llc a.bc -o a.s</td>
+</tr>
+</tbody></table>
+<p>对于LLVM IR来说，<code>.ll</code>文件就相当于汇编，<code>.bc</code>文件就相当于机器码。 这也是llvm-as和llvm-dis指令为什么叫as和dis的缘故。</p>
+<h2 id="llvm-前端"><a href="#llvm-前端" class="headerlink" title="llvm 前端"></a>llvm 前端</h2><p><img src="https://pic.shaojiemike.top/img/20230523162028.png" alt="前端"></p>
+<p>clang实现的前端包括</p>
+<ul>
+<li>词法分析(识别标记)<ul>
+<li>处理源代码的文本输入，将语言结构分解为一组单词和标记，去除注释、空白、制表符等。每个单词或者标记必须属于语言子集，语言的保留字被变换为编译器内部表示。</li>
+<li>词法分析报错的例子包括：拼写错误、注释没有正确结束、字符串没有正确结束等。</li>
+</ul>
+</li>
+<li>语法分析(标记结构完整)<ul>
+<li>语法分析器会根据语法规则验证程序的正确性，如缺少右括号、是否缺少关键字、变量未定义、函数应该有返回值等。</li>
+</ul>
+</li>
+<li>语义分析(有无语义矛盾)<ul>
+<li>借助符号表检验代码没有违背语言类型系统。这个表存储标识符（符号）和它们各自的类型之间的映射，以及其它内容。</li>
+<li>类型检查的一种直觉的方法是，在解析之后，遍历AST的同时从符号表收集关于类型的信息。</li>
+<li>例子：定义了两个变量 a 冲突。</li>
+</ul>
+</li>
+</ul>
+<h2 id="llvm-后端"><a href="#llvm-后端" class="headerlink" title="llvm 后端"></a>llvm 后端</h2><p>见 llvm Backend 一文</p>
+<h2 id="clang"><a href="#clang" class="headerlink" title="clang"></a>clang</h2><h3 id="clang-与-llvm的关系"><a href="#clang-与-llvm的关系" class="headerlink" title="clang 与 llvm的关系"></a>clang 与 llvm的关系</h3><p>Clang 是 LLVM 项目中的一个 C&#x2F;C++&#x2F;Objective-C 编译器，它使用 LLVM 的前端和后端进行代码生成和优化。它可以将 C&#x2F;C++&#x2F;Objective-C 代码编译为 LLVM 的中间表示（LLVM IR），然后进一步将其转换为目标平台的机器码。Clang 拥有很好的错误信息展示和提示，支持多平台使用，是许多开发者的首选编译器之一。同时，Clang 也作为 LLVM 项目的一个前端，为 LLVM 的生态系统提供了广泛的支持和应用。</p>
+<h3 id="clang-的开发与苹果公司的关系"><a href="#clang-的开发与苹果公司的关系" class="headerlink" title="clang 的开发与苹果公司的关系"></a>clang 的开发与苹果公司的关系</h3><p>Clang 的开发起源于苹果公司的一个项目，即 LLVM&#x2F;Clang 项目。在 2005 年，苹果公司希望能够使用一种更加灵活、可扩展、优化的编译器来替代 GCC 作为其操作系统 macOS (Mac OS X) 开发环境的默认编译器。由于当时的 GCC 开发被其维护者们认为变得缓慢和难以维护，苹果公司决定开发一款新的编译器，这就是 Clang 诞生的原因。Clang 的开发团队由该项目的创立者 Chris Lattner 领导，他带领团队将 Clang 发展为一款可扩展、模块化、高效的编译器，并成功地将其嵌入到苹果公司的开发工具链 Xcode 中，成为了 macOS 开发环境中默认的编译器之一。</p>
+<p>Clang 是一个开源项目，在苹果公司的支持下，Clang 的开发得到了全球各地的开发者们的广泛参与和贡献。现在，Clang 成为了 LLVM 生态中的一个重要组成部分，被广泛地应用于多平台的编译器开发中。</p>
+<h3 id="clang-cannot-find-iostream"><a href="#clang-cannot-find-iostream" class="headerlink" title="clang-cannot-find-iostream"></a>clang-cannot-find-iostream</h3><p><code>Clang</code> and <code>Clang++</code> “borrow” the header files from <code>GCC</code> &amp; <code>G++</code>. It looks for the directories these usually live in and picks the latest one. If you’ve installed a later GCC without the corresponding G++, Clang++ gets confused and can’t find header files. In your instance, for example, if you’ve installed gcc 11 or 12.</p>
+<p>You can use <code>clang-10 -v -E</code> or <code>clang++-10 -v -E</code> to get details on what versions of header files it’s trying to use.</p>
+<p>安装g++-12解决</p>
+<h2 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h2><p><code>github/tools</code>目录下有许多实用工具</p>
+<ul>
+<li><code>llvm-as</code>：把LLVM IR从人类能看懂的文本格式汇编成二进制格式。注意：此处得到的不是目标平台的机器码。</li>
+<li><code>llvm-dis</code>：llvm-as的逆过程，即反汇编。 不过这里的反汇编的对象是LLVM IR的二进制格式，而不是机器码。</li>
+<li><code>opt</code>：优化LLVM IR。输出新的LLVM IR。</li>
+<li><code>llc</code>：把LLVM IR编译成汇编码。需要用as进一步得到机器码。</li>
+<li><code>lli</code>：解释执行LLVM IR。</li>
+</ul>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>文章部分内容<strong>来自ChatGPT-3.5</strong>，暂时没有校验其可靠性(看上去貌似说得通)。</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/122522485">https://zhuanlan.zhihu.com/p/122522485</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>llvm</p><p><a href="http://icarus.shaojiemike.top/Work/Programming/4-compile/llvm.html">http://icarus.shaojiemike.top/Work/Programming/4-compile/llvm.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2023-07-25</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

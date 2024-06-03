@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Css &amp; Scss - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="CSS (Cascading Style Sheets) 和 SCSS (Sassy CSS) 都是用于样式表的编程语言，用于定义网页的外观和布局。"><meta property="og:type" content="blog"><meta property="og:title" content="Css &amp; Scss"><meta property="og:url" content="http://icarus.shaojiemike.top/Work/Programming/2-languageGrammar/CssScss.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="CSS (Cascading Style Sheets) 和 SCSS (Sassy CSS) 都是用于样式表的编程语言，用于定义网页的外观和布局。"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/12/7546253e23912743d82de562415c97af.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220517153027.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/cf83ee2667276d99c1f808543b6035f8.png"><meta property="article:published_time" content="2022-05-16T16:00:00.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:10.099Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="html"><meta property="article:tag" content="css"><meta property="article:tag" content="scss"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2023/12/7546253e23912743d82de562415c97af.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/Work/Programming/2-languageGrammar/CssScss.html"},"headline":"Css & Scss","image":["https://pic.shaojiemike.top/shaojiemike/2023/12/7546253e23912743d82de562415c97af.png","https://pic.shaojiemike.top/img/20220517153027.png","https://pic.shaojiemike.top/shaojiemike/2023/11/cf83ee2667276d99c1f808543b6035f8.png"],"datePublished":"2022-05-16T16:00:00.000Z","dateModified":"2024-06-03T07:54:10.099Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"CSS (Cascading Style Sheets) 和 SCSS (Sassy CSS) 都是用于样式表的编程语言，用于定义网页的外观和布局。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/Work/Programming/2-languageGrammar/CssScss.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">Css &amp; Scss</h1><div class="content"><p>CSS (Cascading Style Sheets) 和 SCSS (Sassy CSS) 都是用于样式表的编程语言，用于定义网页的外观和布局。</p>
+<span id="more"></span>
+
+<h2 id="CSS-vs-SCSS-vs-SASS"><a href="#CSS-vs-SCSS-vs-SASS" class="headerlink" title="CSS vs SCSS vs SASS"></a>CSS vs SCSS vs SASS</h2><ol>
+<li><strong>CSS (Cascading Style Sheets):</strong> 它是一种样式表语言，用于描述网页上的元素应该如何呈现。CSS规则定义了元素的外观，包括颜色、字体、间距、边框等。CSS具有层叠性，允许多个样式规则应用于同一元素，根据特定的规则进行层叠和优先级。</li>
+<li><strong>SCSS (Sassy CSS):</strong> 它是CSS的一种超集，意味着任何有效的CSS也是有效的SCSS。SCSS引入了一些额外的功能，如<strong>变量</strong>、嵌套规则、混合（Mixins）等，以提高样式表的可维护性和可重用性。与纯CSS相比，SCSS的语法更灵活，更便于开发者编写和组织样式代码。</li>
+</ol>
+<p>总体而言，SCSS可以看作是CSS的扩展，它提供了更多的工具和功能，使样式表更易于编写和维护。在实际开发中，开发者可以选择使用纯CSS或者采用SCSS来编写样式，取决于项目的需求和个人偏好。</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>SCSS V.S. SASS</p>
+</div>
+        <div class="message-body">
+            <p>Sass（Syntactically Awesome Stylesheets）和 SCSS（Sassy CSS）都是 CSS 预处理器，它们为 CSS 提供了一些额外的功能和语法。主要的区别在于它们的<strong>语法风格</strong>。</p>
+<ol>
+<li><strong>Sass:</strong></li>
+</ol>
+<ul>
+<li>Sass 使用严格的缩进来表示代码块，类似于 Python。</li>
+<li>不使用大括号 <code>{}</code> 和分号 <code>;</code>，而是通过缩进来表示代码块的开始和结束。</li>
+<li>文件扩展名为 <code>.sass</code>。</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">body</span><br><span class="line">    font: 16px/1.4 &quot;Helvetica Neue&quot;, sans-serif</span><br><span class="line">    color: #333</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>SCSS:</strong></li>
+</ol>
+<ul>
+<li>SCSS 是 Sass 3 引入的新语法，采用了更接近于普通 CSS 的语法。</li>
+<li>使用大括号 <code>{}</code> 表示代码块的开始和结束，使用分号 <code>;</code> 表示语句的结束。</li>
+<li>文件扩展名为 <code>.scss</code>。</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">font</span>: <span class="number">16px</span>/<span class="number">1.4</span> <span class="string">&quot;Helvetica Neue&quot;</span>, sans-serif;</span><br><span class="line">    <span class="attribute">color</span>: <span class="number">#333</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>总体来说，SCSS 更接近于普通的 CSS 语法，更容易学习和使用，因此在实际应用中更为常见。Sass 的缩进风格则更具有一些简洁和优雅的特点，但在可读性上可能相对较弱。选择使用哪种语法主要取决于个人或团队的偏好以及项目的需求。在实际开发中，SCSS 使用更为广泛。</p>
+
+        </div>
+    </article>
+
+<h3 id="hugo兼容性"><a href="#hugo兼容性" class="headerlink" title="hugo兼容性"></a>hugo兼容性</h3><p>scss兼容css语法，</p>
+<ol>
+<li>需要用 <code>hugo extended</code> 版本的拓展功能，将scss翻译成css使用。</li>
+<li>在 Hugo 中，你只能把 Sass 的源文件放到 <code>/assets/scss/</code> 或 <code>/themes/your-theme/assets/scss/</code> 下，没有别的路径可以选择。[^3]</li>
+<li><a target="_blank" rel="noopener" href="https://gohugo.io/hugo-pipes/transpile-sass-to-css/">导入</a></li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; $styles := resources.Get <span class="string">&quot;scss/main.scss&quot;</span> &#125;&#125;</span><br><span class="line">&#123;&#123; with $styles &#125;&#125;</span><br><span class="line">  &#123;&#123; $styles = $styles | toCSS | minify | fingerprint &#125;&#125;</span><br><span class="line">  &lt;link rel=<span class="string">&quot;stylesheet&quot;</span> href=<span class="string">&quot;&#123;&#123; $styles.Permalink &#125;&#125;&quot;</span> integrity=<span class="string">&quot;&#123;&#123; $styles.Data.Integrity &#125;&#125;&quot;</span> media=<span class="string">&quot;screen&quot;</span>&gt;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-变量"><a href="#1-变量" class="headerlink" title="1. 变量:"></a><strong>1. 变量:</strong></h3><p>CSS（层叠样式表）和 SCSS（Sass的一种语法扩展）之间的主要区别在于语法和功能。SCSS是Sass的一种新的语法，它是Sass 3引入的，旨在提供一种更加人类友好的写法，同时保留了Sass的强大功能。以下是一些CSS和SCSS之间的主要区别的例子：</p>
+<p>CSS:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-pseudo">:root</span> &#123;</span><br><span class="line">  <span class="attr">--primary-color</span>: <span class="number">#3498db</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.element</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: <span class="built_in">var</span>(--primary-color);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>SCSS:</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$primary-color</span>: <span class="number">#3498db</span>;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.element</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: <span class="variable">$primary-color</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在SCSS中，你可以使用变量来保存颜色、字体大小等信息，使得样式表更易于维护。</p>
+<h3 id="2-嵌套规则"><a href="#2-嵌套规则" class="headerlink" title="2. 嵌套规则:"></a><strong>2. 嵌套规则:</strong></h3><p>CSS:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.container</span> &#123;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">10px</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.container</span> <span class="selector-class">.header</span> &#123;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">18px</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>SCSS:</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.container</span> &#123;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">10px</span>;</span><br><span class="line"></span><br><span class="line">  <span class="selector-class">.header</span> &#123;</span><br><span class="line">    <span class="attribute">font-size</span>: <span class="number">18px</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>SCSS允许你以嵌套的方式编写样式规则，使得样式层次结构更清晰。</p>
+<h3 id="3-混合器-类似函数"><a href="#3-混合器-类似函数" class="headerlink" title="3. 混合器(类似函数):"></a><strong>3. 混合器(类似函数):</strong></h3><p>SCSS 提供了一种称为 mixin 的特性，它可以让你定义可重用的样式块。</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@mixin</span> border-radius(<span class="variable">$radius</span>) &#123;</span><br><span class="line">  <span class="attribute">border-radius</span>: <span class="variable">$radius</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.element</span> &#123;</span><br><span class="line">  <span class="keyword">@include</span> border-radius(<span class="number">5px</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这使得你可以更灵活地重用样式规则。</p>
+<h3 id="4-继承"><a href="#4-继承" class="headerlink" title="4. 继承:"></a><strong>4. 继承:</strong></h3><p>SCSS 允许你使用 <code>@extend</code> 关键字继承另一个选择器的样式。</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.error</span> &#123;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ff0000</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.alert</span> &#123;</span><br><span class="line">  <span class="keyword">@extend</span> .error;</span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#ffcccc</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这可以减少样式表的重复。</p>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><h3 id="子元素定义"><a href="#子元素定义" class="headerlink" title="子元素定义"></a>子元素定义</h3><p>set <code>xxx</code> to the element <code>b</code> in&#x2F;under <code>a</code></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.a</span> <span class="selector-class">.b</span> &#123;</span><br><span class="line">    xxx</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="大小"><a href="#大小" class="headerlink" title="大小"></a>大小</h2><ul>
+<li><code>vh</code> stands for <strong>viewport height</strong>. <code>100vh</code> is equal to <strong>100%</strong> of the viewport height.</li>
+<li><code>%</code>是父元素的高宽的百分比。</li>
+<li>与<code>padding</code>联动 <code>width: calc(min(100%, 1430px));</code></li>
+<li><code>min-height: calc(100vh - 160px);</code> 使得footer在视野外</li>
+</ul>
+<h3 id="块级元素、内联元素"><a href="#块级元素、内联元素" class="headerlink" title="块级元素、内联元素"></a>块级元素、内联元素</h3><ol>
+<li><strong>块级元素（Block-level elements）：</strong><ul>
+<li>块级元素会在页面上以块的形式显示，它会独占一行或一块空间。</li>
+<li>块级元素的**宽度会占据其父元素的100%**，高度会根据内容的多少而自动调整。</li>
+<li>常见的块级元素有 <code>&lt;div&gt;、&lt;p&gt;、&lt;h1&gt;、&lt;ul&gt;、&lt;li&gt;</code> 等。</li>
+</ul>
+</li>
+<li><strong>内联元素（Inline elements）：</strong><ul>
+<li>内联元素不会以块的形式显示，它会在文本流中显示，只占据其内容的空间。</li>
+<li>内联元素的宽度和高度只会包裹其内容。</li>
+<li>常见的内联元素有 <code>&lt;span&gt;、&lt;a&gt;、&lt;strong&gt;、&lt;em&gt;</code> 等。</li>
+</ul>
+</li>
+</ol>
+<h2 id="位置"><a href="#位置" class="headerlink" title="位置"></a>位置</h2><ul>
+<li><code>static</code> 默认值，无序指明。并且忽略 top, bottom, left, right 或者 z-index 声明。[^1]</li>
+<li><code>fixed</code> 全局页面固定位置。使用”left”, “top”, “right” 以及 “bottom”。<ul>
+<li>多于<code>z-index: 1000;</code>来设置悬浮导航栏</li>
+</ul>
+</li>
+<li><code>absolute</code> 相对于 <code>static</code> 定位以外的<strong>第一个父元素</strong>进行定位（没有符合父元素就相对于<code>&lt;html&gt;</code>）。使用”left”, “top”, “right” 以及 “bottom”。<ul>
+<li>多用于<code>relative</code>元素内, 默认<code>relative</code>不指定位置等于<code>static</code></li>
+</ul>
+</li>
+<li><code>relative</code> 多用于原有位置的上下左右微调 <code>left:20</code>向左移动</li>
+<li><code>sticky</code> 像 <code>position:relative</code> 的拓展; 而当页面滚动超出目标区域时，它的表现就像 <code>position:fixed</code>;，它会固定在目标位置。<ul>
+<li>要求：父元素非<code>static</code>比如<code>position: relative; top:40px;</code> 且有固定高度<code>height: 100vh;</code></li>
+<li>设置<code>top: 100px;</code>表示到顶的距离</li>
+</ul>
+</li>
+</ul>
+<h3 id="水平居中"><a href="#水平居中" class="headerlink" title="水平居中"></a>水平居中</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 父元素 text-align: center; */</span></span><br><span class="line"><span class="selector-class">.su-brand-bar</span>&#123;</span><br><span class="line">	<span class="attribute">width</span>: <span class="number">82%</span>;</span><br><span class="line">	<span class="attribute">margin</span>: <span class="number">0</span> auto;</span><br><span class="line">	<span class="comment">/* margin: calc(100% - 200px); */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>方法二:</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">position:</span> <span class="string">absolute;</span></span><br><span class="line"><span class="attr">left:</span> <span class="number">50</span><span class="string">%;</span></span><br><span class="line"><span class="attr">top:</span> <span class="number">50</span><span class="string">%;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="display"><a href="#display" class="headerlink" title="display"></a>display</h3><p><img src="https://pic.shaojiemike.top/shaojiemike/2023/12/7546253e23912743d82de562415c97af.png"><a href="%5Bdisplay%5D(https://developer.mozilla.org/en-US/docs/Web/CSS/display)">^2</a></p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>flex和inline-flex的区别</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>使用 flex 属性时，容器会被视为块级元素，它会独占一行。其子元素会在主轴方向上排列，占据整个容器的宽度。</li>
+<li>使用 inline-flex 属性时，容器会被视为内联元素，即它只会占据其内容所需的空间。其子元素会在主轴方向上排列，但不会占据整个容器的宽度。</li>
+</ul>
+
+        </div>
+    </article>
+
+<p><img src="https://pic.shaojiemike.top/img/20220517153027.png"></p>
+<h2 id="边框-magin-border-padding"><a href="#边框-magin-border-padding" class="headerlink" title="边框 magin border padding"></a>边框 magin border padding</h2><p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/cf83ee2667276d99c1f808543b6035f8.png"></p>
+<ul>
+<li><code>margin</code> 区域是透明的。<ul>
+<li><code>display: flex;</code>排列时，来实现grid间的距离。</li>
+<li><code>margin-left: 35px;</code></li>
+<li><code>margin-bottom: 35px;</code></li>
+<li>我不理解为什么斯坦福的页面为负数</li>
+</ul>
+</li>
+<li><code>border</code> 一般是有色(虚线)框 <code>border: 3px solid #73AD21;</code></li>
+<li><code>padding</code> 的颜色继承 <code>background-color</code><ul>
+<li><code>padding-left: calc(50% - 715px);</code> 来实现放大时边界为0.</li>
+</ul>
+</li>
+</ul>
+<h2 id="图片"><a href="#图片" class="headerlink" title="图片"></a>图片</h2><h3 id="固定大小div内填充满图片"><a href="#固定大小div内填充满图片" class="headerlink" title="固定大小div内填充满图片"></a>固定大小div内填充满图片</h3><p><code>object-fit</code> 属性规定可替换元素的内容应该如何适应到其使用的高度和宽度。通过设置 <code>object-fit</code>，你可以控制图片在其容器中的显示方式。</p>
+<p><code>object-fit</code> 属性值包括：</p>
+<ul>
+<li><code>fill</code>: 默认值，拉伸图片以填充容器。</li>
+<li><code>cover</code> 将图片按比例缩放并裁剪，以使其完全覆盖容器。</li>
+<li><code>contain</code>: 缩放图片以适应容器，保持其原始宽高比，可能会在容器中留有空白。</li>
+<li><code>none</code>: 保持图片原始尺寸，可能会溢出容器。</li>
+<li><code>scale-down</code>: 缩放图片以适应容器，但不超过其原始尺寸，可能比 <code>contain</code> 更小。</li>
+</ul>
+<p>以下是一个简单的例子：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">img</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>; <span class="comment">/* 设置固定宽度 */</span></span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100px</span>; <span class="comment">/* 设置固定高度 */</span></span><br><span class="line">  <span class="attribute">object-fit</span>: cover; <span class="comment">/* 将图片裁剪并适应容器 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，你可以根据需要调整固定的宽度和高度。</p>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>靠上裁剪成正方形，并带鼠标聚焦效果</p>
+</div>
+        <div class="message-body">
+            <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.person-img-container</span>&#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">150px</span>; <span class="comment">/* 设置容器的宽度 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">150px</span>; <span class="comment">/* 设置容器的高度 */</span></span><br><span class="line">    <span class="attribute">overflow</span>: hidden; <span class="comment">/* 隐藏溢出的部分 */</span></span><br><span class="line">    <span class="attribute">display</span>: inline-block; <span class="comment">/* 或者使用 display: block; */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.person-img-container</span> <span class="selector-tag">img</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100%</span>; <span class="comment">/* 图片宽度占满容器 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>; <span class="comment">/* 图片高度占满容器 */</span></span><br><span class="line">    <span class="attribute">object-fit</span>: cover;</span><br><span class="line">    <span class="attribute">object-position</span>: top; <span class="comment">/* 设置裁剪时图片在容器中的位置为靠上 */</span></span><br><span class="line">    <span class="attribute">border-radius</span>: <span class="number">50%</span>; <span class="comment">/* 将图片的边角设置为50%，使其呈圆形 */</span></span><br><span class="line">    <span class="attribute">border</span>: <span class="number">1px</span> solid <span class="built_in">rgb</span>(<span class="number">146</span>, <span class="number">157</span>, <span class="number">192</span>);</span><br><span class="line">    <span class="attribute">box-shadow</span>: inset <span class="number">0</span> <span class="number">0</span> <span class="number">10px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.5</span>); <span class="comment">/* 添加灰色内阴影，颜色可根据需要调整 */</span></span><br><span class="line">    <span class="attribute">transition</span>: border-radius <span class="number">0.5s</span>; <span class="comment">/* 添加边角变化的过渡效果，时长为0.5秒 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">img</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">border-radius</span>: <span class="number">0</span>; <span class="comment">/* 在悬浮状态下将边角设置为0，使其呈方形 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        </div>
+    </article>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.big-grid</span>&#123;</span><br><span class="line">    <span class="attribute">overflow</span>: hidden; <span class="comment">/* 隐藏超出容器的部分 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.landscape</span> &#123;</span><br><span class="line">    <span class="attribute">object-fit</span>: cover; <span class="comment">/* 填充整个容器，保持纵横比，可能裁剪部分内容 */</span></span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="固定大小div内填充满图片-60-开始"><a href="#固定大小div内填充满图片-60-开始" class="headerlink" title="固定大小div内填充满图片(60%开始)"></a>固定大小div内填充满图片(60%开始)</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.image-container</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: relative;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">40vh</span>;</span><br><span class="line">    <span class="attribute">overflow</span>: hidden;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.big-pic</span>&#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">top</span>: -<span class="number">60%</span>;</span><br><span class="line">    <span class="attribute">object-fit</span>: cover;  </span><br><span class="line">    <span class="comment">/* opacity: .7;  */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="字体"><a href="#字体" class="headerlink" title="字体"></a>字体</h2><h3 id="字体大小"><a href="#字体大小" class="headerlink" title="字体大小"></a>字体大小</h3><p>在 CSS 中，<code>rem</code>、<code>em</code>、<code>px</code> 是用于定义字体大小的不同单位。它们有一些区别，主要涉及相对大小和绝对大小的概念。</p>
+<ol>
+<li><p><strong><code>rem</code>（Root Em）:</strong></p>
+<ul>
+<li><code>rem</code> 是相对于根元素（<code>html</code> 元素）的字体大小的单位。</li>
+<li><code>1rem</code> 等于根元素的字体大小。如果根元素的字体大小为 <code>16px</code>，那么 <code>1rem</code> 就等于 <code>16px</code>。</li>
+</ul>
+</li>
+<li><p><strong><code>em</code>:</strong></p>
+<ul>
+<li><code>em</code> 是相对于父元素的字体大小的单位。</li>
+<li>如果某元素的字体大小为 <code>1em</code>，它将等于其父元素的字体大小。如果嵌套使用，<code>1em</code> 将等于最近的父元素的字体大小。</li>
+</ul>
+</li>
+<li><p><strong><code>px</code>（Pixel）:</strong></p>
+<ul>
+<li><code>px</code> 是像素单位，是一个绝对单位。</li>
+<li><code>px</code> 直接表示像素，不受父元素或根元素字体大小的影响。</li>
+</ul>
+</li>
+</ol>
+<p>使用 <code>rem</code> 和 <code>em</code> 可以使你的样式更具有可扩展性和适应性，因为它们相对于父元素或根元素的字体大小而不是绝对的像素值。</p>
+<p>例如，使用 <code>rem</code> 可以让你的网站在用户调整浏览器字体大小时更具弹性，而使用 <code>em</code> 可以确保你的字体大小相对于其容器的大小而变化。</p>
+<h3 id="字体居中"><a href="#字体居中" class="headerlink" title="字体居中"></a>字体居中</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="selector-tag">p</span> style=&quot;<span class="attribute">text-align</span>:center;&quot;&gt;<span class="number">123</span>&lt;/<span class="selector-tag">p</span>&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 文本在div的位置 */</span></span><br><span class="line"><span class="selector-class">.centered-text</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: flex;</span><br><span class="line">    <span class="attribute">justify-content</span>: center; <span class="comment">/* 水平居中 */</span></span><br><span class="line">    <span class="attribute">align-items</span>: center; <span class="comment">/* 垂直居中 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>; <span class="comment">/* 设置高度，可以根据需要调整 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="周围阴影"><a href="#周围阴影" class="headerlink" title="周围阴影"></a>周围阴影</h3><p>模拟光线射在对象上产生的阴影</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">text-shadow</span>: (inset) <span class="number">20px</span> -<span class="number">19px</span> <span class="number">30px</span> transparent;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>inset 若指定，阴影在字体里</li>
+<li><code>&lt;offset-x&gt; &lt;offset-y&gt;</code> 光照产生阴影的上下左右</li>
+<li><code>&lt;blur-radius&gt;</code> 阴影轮廓模糊正值，0为阴影边缘清晰<!-- 4. `<blur-radius>` 可选，默认为0. 正值放大阴影 --></li>
+<li><code>color</code> 颜色，允许透明色</li>
+</ol>
+<h3 id="炫彩-彩虹-字体"><a href="#炫彩-彩虹-字体" class="headerlink" title="炫彩&#x2F;彩虹 字体"></a>炫彩&#x2F;彩虹 字体</h3><p>在 CSS 中，你可以使用 <code>linear-gradient</code> 或 <code>radial-gradient</code> 来创建渐变效果，也可以使用 <code>@keyframes</code> 创建动画效果，从而实现字体颜色的渐变和幻彩效果。以下是一些示例：</p>
+<h3 id="线性渐变："><a href="#线性渐变：" class="headerlink" title="线性渐变："></a>线性渐变：</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.gradient-text</span> &#123;</span><br><span class="line">  <span class="attribute">background</span>: <span class="built_in">linear-gradient</span>(to right, <span class="number">#ff00ff</span>, <span class="number">#00ffff</span>);</span><br><span class="line">  -webkit-<span class="attribute">background-clip</span>: text;</span><br><span class="line">  <span class="attribute">color</span>: transparent;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，<code>linear-gradient</code> 用于创建水平的渐变背景，然后通过 <code>-webkit-background-clip: text;</code> 和 <code>color: transparent;</code> 将背景应用到文本上，从而实现了文字颜色的渐变效果。</p>
+<h3 id="径向渐变："><a href="#径向渐变：" class="headerlink" title="径向渐变："></a>径向渐变：</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.radial-gradient-text</span> &#123;</span><br><span class="line">  <span class="attribute">background</span>: <span class="built_in">radial-gradient</span>(circle, <span class="number">#ff0000</span>, <span class="number">#00ff00</span>, <span class="number">#0000ff</span>);</span><br><span class="line">  -webkit-<span class="attribute">background-clip</span>: text;</span><br><span class="line">  <span class="attribute">color</span>: transparent;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个例子中使用 <code>radial-gradient</code> 创建了一个径向渐变的背景，然后同样通过 <code>-webkit-background-clip: text;</code> 和 <code>color: transparent;</code> 将背景应用到文本上。</p>
+<h3 id="动画效果："><a href="#动画效果：" class="headerlink" title="动画效果："></a>动画效果：</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@keyframes</span> rainbow &#123;</span><br><span class="line">  <span class="number">0%</span> &#123; <span class="attribute">color</span>: <span class="number">#ff0000</span>; &#125;</span><br><span class="line">  <span class="number">20%</span> &#123; <span class="attribute">color</span>: <span class="number">#ff7f00</span>; &#125;</span><br><span class="line">  <span class="number">40%</span> &#123; <span class="attribute">color</span>: <span class="number">#ffff00</span>; &#125;</span><br><span class="line">  <span class="number">60%</span> &#123; <span class="attribute">color</span>: <span class="number">#00ff00</span>; &#125;</span><br><span class="line">  <span class="number">80%</span> &#123; <span class="attribute">color</span>: <span class="number">#0000ff</span>; &#125;</span><br><span class="line">  <span class="number">100%</span> &#123; <span class="attribute">color</span>: <span class="number">#ff00ff</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.rainbow-text</span> &#123;</span><br><span class="line">  <span class="attribute">animation</span>: rainbow <span class="number">5s</span> infinite; <span class="comment">/* 持续时间为 5 秒，无限循环 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个例子使用 <code>@keyframes</code> 定义了一个彩虹动画，然后通过 <code>animation</code> 属性应用到文本上，实现了文字颜色的动画效果。</p>
+<p>你可以根据具体需求调整颜色值和动画效果。这些效果在现代浏览器中通常都能很好地支持。</p>
+<h2 id="颜色的表示"><a href="#颜色的表示" class="headerlink" title="颜色的表示"></a>颜色的表示</h2><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#888</span></span><br><span class="line"><span class="string">rgba(red,</span> <span class="string">green,</span> <span class="string">blue,</span> <span class="string">alpha)</span> <span class="comment"># 最后一个是透明度 0-1之间</span></span><br><span class="line"><span class="string">black</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[^1]: <a target="_blank" rel="noopener" href="https://www.runoob.com/cssref/pr-class-position.html">Runoob CSS position 属性</a></p>
+<p>[^3] <a target="_blank" rel="noopener" href="https://wocai.de/post/2019/03/%E5%9C%A8-hugo-%E4%B8%AD%E4%BD%BF%E7%94%A8-sass/">hugo + sass</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Css &amp; Scss</p><p><a href="http://icarus.shaojiemike.top/Work/Programming/2-languageGrammar/CssScss.html">http://icarus.shaojiemike.top/Work/Programming/2-languageGrammar/CssScss.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2022-05-16</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>ServerLogin - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="ip a输出的含义ip a &amp;#x3D; ip address  lo是linux中的虚拟网络接口同一台机器的不同进程进行通信时会用到。实现了同一台机器的进程之间的socket通信。虚拟网络接口不需要驱动程序。 link&amp;#x2F;ether是二层协议mac地址： ac:1f:6b:8a:e4:ba广播地址：ff:ff:ff:ff:ff:ff inet（v4）是三层协议ip地址：202.38.73"><meta property="og:type" content="blog"><meta property="og:title" content="ServerLogin"><meta property="og:url" content="http://icarus.shaojiemike.top/Work/network/example/serverLogin.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="ip a输出的含义ip a &amp;#x3D; ip address  lo是linux中的虚拟网络接口同一台机器的不同进程进行通信时会用到。实现了同一台机器的进程之间的socket通信。虚拟网络接口不需要驱动程序。 link&amp;#x2F;ether是二层协议mac地址： ac:1f:6b:8a:e4:ba广播地址：ff:ff:ff:ff:ff:ff inet（v4）是三层协议ip地址：202.38.73"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/PicGo20210715171246.png"><meta property="og:image" content="https://pic.shaojiemike.top/PicGo47fdc72c93482c252ad1a2034615a1c.png"><meta property="og:image" content="https://pic.shaojiemike.top/PicGo20210715200304.png"><meta property="article:published_time" content="2021-07-15T05:37:10.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:10.111Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="ip"><meta property="article:tag" content="ethernet"><meta property="article:tag" content="gateway"><meta property="article:tag" content="broadcast"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/PicGo20210715171246.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/Work/network/example/serverLogin.html"},"headline":"ServerLogin","image":["https://pic.shaojiemike.top/PicGo20210715171246.png","https://pic.shaojiemike.top/PicGo47fdc72c93482c252ad1a2034615a1c.png","https://pic.shaojiemike.top/PicGo20210715200304.png"],"datePublished":"2021-07-15T05:37:10.000Z","dateModified":"2024-06-03T07:54:10.111Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"ip a输出的含义ip a &#x3D; ip address  lo是linux中的虚拟网络接口同一台机器的不同进程进行通信时会用到。实现了同一台机器的进程之间的socket通信。虚拟网络接口不需要驱动程序。 link&#x2F;ether是二层协议mac地址： ac:1f:6b:8a:e4:ba广播地址：ff:ff:ff:ff:ff:ff inet（v4）是三层协议ip地址：202.38.73"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/Work/network/example/serverLogin.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">ServerLogin</h1><div class="content"><h2 id="ip-a输出的含义"><a href="#ip-a输出的含义" class="headerlink" title="ip a输出的含义"></a>ip a输出的含义</h2><p>ip a &#x3D; ip address<br><img src="https://pic.shaojiemike.top/PicGo20210715171246.png"></p>
+<ol>
+<li>lo是linux中的虚拟网络接口<br>同一台机器的不同进程进行通信时会用到。实现了同一台机器的进程之间的socket通信。虚拟网络接口不需要驱动程序。</li>
+<li>link&#x2F;ether是二层协议<br>mac地址： ac:1f:6b:8a:e4:ba<br>广播地址：ff:ff:ff:ff:ff:ff</li>
+<li>inet（v4）是三层协议<br>ip地址：202.38.73.26&#x2F;24<br>广播地址：202.38.73.255</li>
+<li>inet6是三层协议<br>ipv6地址：fe80::ae1f:6bff:fe8a:e4ba&#x2F;64</li>
+</ol>
+<h3 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h3><ol>
+<li>LOWER_UP 是物理层链路标志（网络层以下的层，IP 一般位于此层）。 LOWER_UP 表示插入了以太网电缆并且设备已连接到网络。</li>
+<li>LOOPBACK 接口不与其他主机通信。 通过它发送的所有数据包都将被返回，只能接收被退回的数据包。</li>
+<li>BROADCAST——该设备具有向共享同一链路的所有主机发送数据包的功能。一个典型的例子是以太网链路。</li>
+<li>POINTOPOINT——链路只有两端，每一端连接一个节点。发送到此链接的所有数据包都将到达对等方，我们收到的所有数据包都来自这个对等方。</li>
+<li>NBMA 如果 LOOPBACK、BROADCAST 和 POINTOPOINT 均未设置，则假定接口为 NMBA（非广播多路访问）。这是最通用的设备类型，也是最复杂的设备类型，因为连接到 NBMA 链接的主机无法在没有额外配置信息的情况下发送给任何人。</li>
+<li>MULTICAST – 是一个咨询标志，指示接口知道多播，即将数据包发送到相邻节点的某个子集。广播是多播的一种特殊情况，其中多播组由链路上的所有节点组成。需要强调的是，软件不得将缺少此标志解释为无法在此接口上使用多播。根据定义，任何 POINTOPOINT 和 BROADCAST 链路都是多播的，因为我们可以直接访问所有邻居，因此可以直接访问它们的任何部分。当然，由于费用高，不建议在纯广播链路上使用高带宽组播传输，但并非严格禁止。</li>
+<li>the loopback “lo,” the ethernet以太网(以太网是一种计算机局域网技术) “eth0,” and the WiFi “wlan0.”</li>
+<li>mtu 1500：&#96;&#96;maximal transfer unit’’最大传输单位为1500</li>
+<li>qdisc ：&#96;&#96;queuing discipline’’显示了接口上使用的排队算法。<ol>
+<li>noqueue 表示该接口不排队任何东西，</li>
+<li>noop 表示该接口处于黑洞模式，即发送给它的所有数据包都被立即丢弃。</li>
+<li><a target="_blank" rel="noopener" href="https://serverfault.com/questions/474230/linux-traffic-control-qdisc-mq">mq 调度器做两件事：</a><br>将设备 TX 队列作为类，允许将不同的 qdiscs 附加到它们，这些 qdiscs 被嫁接到 TX 队列<br>当前所有设备队列根 qdiscs 的累积统计信息<br>它默认用于多队列设备而不是常规的 pfifo_fast qdisc，但也可以手动附加以在附加非多队列（共享）qdisc 后恢复多队列行为。</li>
+</ol>
+</li>
+<li>state UP：网络接口已启动</li>
+<li>group default：接口组</li>
+<li>qlen 1000：传输队列长度</li>
+<li>scope global eth0: 任何地方有效</li>
+<li>scope link: 只在这个设备有效</li>
+<li>scope global dynamic mngtmpaddr noprefixroute 大概是动态的时刻变化来保证隐私的</li>
+<li>valid_lft forever: 有效生命周期</li>
+<li>preferred_lft forever: 首选寿命</li>
+</ol>
+<h3 id="其他名称解释"><a href="#其他名称解释" class="headerlink" title="其他名称解释"></a>其他名称解释</h3><p>接口标志汇总在尖括号中：</p>
+<ol>
+<li>PROMISC——设备监听链路上的所有流量并将其提供给内核，即使这些流量不是发往我们的，不是广播的，也不是发往我们所属的多播组的。 通常这种模式只存在于广播链路上，用于网桥和网络监控。</li>
+<li>ALLMULTI – 设备接收在链路上徘徊的所有多播数据包。 此模式由多播路由器使用。</li>
+<li>NOARP——这个标志与其他标志不同。 它没有不变的值，其解释取决于所涉及的网络协议。 通常，它表示设备不需要地址解析，并且软件或硬件知道如何在没有协议栈任何帮助的情况下传送数据包。</li>
+<li>DYNAMIC – 是一个咨询标志，指示接口是动态创建和销毁的。</li>
+<li>SLAVE——这个接口绑定到一些其他接口以共享链接容量。</li>
+</ol>
+<h3 id="广播地址是什么"><a href="#广播地址是什么" class="headerlink" title="广播地址是什么"></a>广播地址是什么</h3><p>网络中的每个机器的网卡都接收所有的包，而网络层以后就只接收两种包了，<br>一种是目标地址是自己的，另外一种就是目标地址是广播地址的，<br>广播地址是你的网络号和决定的，除了网络号部分的地方全是1（二进制的 1）即可<br>举例：<br>你的ip是192.168.1.1 掩码是255.255.255.0 那么你的网络号是192.168.1 而你的广播地址就是：192.168.1.255 了。<br>那么你的操作系统会把发向 192.168.1.1 和 192.168.1.255 的包接收下来处理，那么发送 这个广播消息的机器就是利用“广播地址在子网中传播信息”了。</p>
+<h3 id="什么情况下能访问私有地址？"><a href="#什么情况下能访问私有地址？" class="headerlink" title="什么情况下能访问私有地址？"></a>什么情况下能访问私有地址？</h3><p><img src="https://pic.shaojiemike.top/PicGo47fdc72c93482c252ad1a2034615a1c.png"><br>处于同一个网关下</p>
+<h4 id="怎么判断网络处于同一个网关下"><a href="#怎么判断网络处于同一个网关下" class="headerlink" title="怎么判断网络处于同一个网关下"></a>怎么判断网络处于同一个网关下</h4><p>想判断两个ip地址是不是在同一个网段，只需将ip地址与子网掩码做与运算，如果得出的结果一样，则这两个ip地址是同一个子网当中。<br><img src="https://pic.shaojiemike.top/PicGo20210715200304.png"></p>
+<h2 id="网关、路由器、三层交换机是什么，区别"><a href="#网关、路由器、三层交换机是什么，区别" class="headerlink" title="网关、路由器、三层交换机是什么，区别"></a>网关、路由器、三层交换机是什么，区别</h2><h3 id="网关"><a href="#网关" class="headerlink" title="网关"></a>网关</h3><p>网关是一个大概念，不具体特指一类产品，只要连接两个不同的网络的设备都可以叫网关；而‘路由器’么一般特指能够实现路由寻找和转发的特定类产品，路由器很显然能够实现网关的功能。</p>
+<p>换句话说，<strong>路由器可以实现网关的功能，但是路由器功能不仅仅是实现网关；网关可以由路由器实现，但是也不仅仅是由路由器实现</strong>。</p>
+<p>与网桥只是简单地传达信息不同，当信息到达网关以后，网关要对信息重新进行加工，以适应目的系统的需求。</p>
+<h3 id="交换机"><a href="#交换机" class="headerlink" title="交换机"></a>交换机</h3><p>交换机：工作在<strong>数据链路层</strong>，原理等同于多端口网桥。作用是连接数个相同网段的不同主机，减少网内冲突，隔离冲突域。利用存储转发和过滤技术来从物理上分割网段。</p>
+<h3 id="路由器-Router"><a href="#路由器-Router" class="headerlink" title="路由器(Router)"></a>路由器(Router)</h3><p>是连接因特网中各局域网、广域网的设备，是用于连接多个逻辑上分开的网络，所谓逻辑网络是代表一个单独的网络或者一个子网。</p>
+<p>当数据从一个子网传输到另一个子网时，可通过路由器的路由功能来完成。</p>
+<p>因此，路由器具有判断网络地址和选择IP路径的功能，它能在多网络互联环境中，建立灵活的连接，可用完全不同的数据分组和介质访问方法连接各种子网，路由器只接受源站或其他路由器的信息，属网络层的一种互联设备。它会根据信道的情况自动选择和设定路由，以***路径，按前后顺序发送信号。</p>
+<h3 id="路由器和交换机的区别"><a href="#路由器和交换机的区别" class="headerlink" title="路由器和交换机的区别"></a>路由器和交换机的区别</h3><p>路由和交换机之间的主要区别就是交换机发生在OSI参考模型第二层(<strong>数据链路层</strong>)，而路由发生在第三层，即<strong>网络层</strong>。这一区别决定了路由和交换机在移动信息的过程中需使用不同的控制信息，所以说两者实现各自功能的方式是不同的。</p>
+<h3 id="chivier服务器动态公网IP说法存疑"><a href="#chivier服务器动态公网IP说法存疑" class="headerlink" title="chivier服务器动态公网IP说法存疑"></a>chivier服务器动态公网IP说法存疑</h3><p>服务器开机的时候也没有连wlt,也有IP</p>
+<h3 id="服务器IP到底是不是内网"><a href="#服务器IP到底是不是内网" class="headerlink" title="服务器IP到底是不是内网"></a>服务器IP到底是不是内网</h3><p>看ip a可以判断</p>
+<h3 id="修改DNS服务器，从外面能不能访问到内网"><a href="#修改DNS服务器，从外面能不能访问到内网" class="headerlink" title="修改DNS服务器，从外面能不能访问到内网"></a>修改DNS服务器，从外面能不能访问到内网</h3><p>并不能，DNS服务器只是域名与IP地址的映射，你需要链接到网关才能找到内网ip</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://netbeez.net/blog/linux-interface-information/">https://netbeez.net/blog/linux-interface-information/</a></p>
+<p><a target="_blank" rel="noopener" href="http://linux-ip.net/gl/ip-cref/ip-cref-node17.html">http://linux-ip.net/gl/ip-cref/ip-cref-node17.html</a></p>
+<p>网络所属网关判断 <a target="_blank" rel="noopener" href="https://network.51cto.com/art/201901/591192.htm">https://network.51cto.com/art/201901/591192.htm</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/miracleon/article/details/102250801">https://blog.csdn.net/miracleon/article/details/102250801</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>ServerLogin</p><p><a href="http://icarus.shaojiemike.top/Work/network/example/serverLogin.html">http://icarus.shaojiemike.top/Work/network/example/serverLogin.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2021-07-15</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

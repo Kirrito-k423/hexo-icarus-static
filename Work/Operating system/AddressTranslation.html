@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Address Translation - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       Split address translation (virtual-to-physical mapping) part to individual post"><meta property="og:type" content="blog"><meta property="og:title" content="Address Translation"><meta property="og:url" content="http://icarus.shaojiemike.top/Work/Operating%20system/AddressTranslation.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       Split address translation (virtual-to-physical mapping) part to individual post"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211125085519.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211225203420.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230531013325.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230531014017.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230530235440.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230530234611.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230531001850.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230530230207.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/Inked20150612143923193_LI.jpg"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/28fd143481da7fb75e87468fa762c3ec.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/681fdd0d2e93aa0b5aa61b0c2824fd09.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230531002651.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230531003352.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230531004332.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230531005210.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230531005233.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230714103544.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230727103944.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230530204850.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230717113743.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230531010647.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211223203052.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211223203104.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211125085411.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230531012707.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20211224151428.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/459a41c9597a2ae8e42196df9261d2ba.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/7d45fd8a8160b0e0d8c26ebb544bc987.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/2eb8b3089237b0e4334501454980fdb5.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/aff45004e6a85a632c154aea6b28eab9.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/a1ee79c9d2d507bca071803325af2737.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/80bf0c19c556f8a8f0ffb4dd12c3dd0f.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/289fe66bb3c0a5e9272fbd1388c8e498.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/47597806f9cd655404c45f4274f14931.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/fd798c2c37707e40504df690a3ad2bc4.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/5a43b66d061a0ee999820cc166bb73ae.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/8cdb8675e0d21ebb71db5d4f6e04f20b.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/c01c0e361d29e8a1b7c6d5214ff6a8a7.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/d73116335314673335ac8f45a79c8c7f.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/f35088cd53d95a7406ee4589c16b7345.png"><meta property="article:published_time" content="2023-11-02T01:36:19.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:10.091Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="page table"><meta property="article:tag" content="tlb"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/img/20211125085519.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/Work/Operating%20system/AddressTranslation.html"},"headline":"Address Translation","image":["https://pic.shaojiemike.top/img/20211125085519.png","https://pic.shaojiemike.top/img/20211225203420.png","https://pic.shaojiemike.top/img/20230531013325.png","https://pic.shaojiemike.top/img/20230531014017.png","https://pic.shaojiemike.top/img/20230530235440.png","https://pic.shaojiemike.top/img/20230530234611.png","https://pic.shaojiemike.top/img/20230531001850.png","https://pic.shaojiemike.top/img/20230530230207.png","https://pic.shaojiemike.top/img/Inked20150612143923193_LI.jpg","https://pic.shaojiemike.top/shaojiemike/2023/11/28fd143481da7fb75e87468fa762c3ec.png","https://pic.shaojiemike.top/shaojiemike/2023/11/681fdd0d2e93aa0b5aa61b0c2824fd09.png","https://pic.shaojiemike.top/img/20230531002651.png","https://pic.shaojiemike.top/img/20230531003352.png","https://pic.shaojiemike.top/img/20230531004332.png","https://pic.shaojiemike.top/img/20230531005210.png","https://pic.shaojiemike.top/img/20230531005233.png","https://pic.shaojiemike.top/img/20230714103544.png","https://pic.shaojiemike.top/img/20230727103944.png","https://pic.shaojiemike.top/img/20230530204850.png","https://pic.shaojiemike.top/img/20230717113743.png","https://pic.shaojiemike.top/img/20230531010647.png","https://pic.shaojiemike.top/img/20211223203052.png","https://pic.shaojiemike.top/img/20211223203104.png","https://pic.shaojiemike.top/img/20211125085411.png","https://pic.shaojiemike.top/img/20230531012707.png","https://pic.shaojiemike.top/img/20211224151428.png","https://pic.shaojiemike.top/shaojiemike/2023/11/459a41c9597a2ae8e42196df9261d2ba.png","https://pic.shaojiemike.top/shaojiemike/2023/11/7d45fd8a8160b0e0d8c26ebb544bc987.png","https://pic.shaojiemike.top/shaojiemike/2023/11/2eb8b3089237b0e4334501454980fdb5.png","https://pic.shaojiemike.top/shaojiemike/2023/11/aff45004e6a85a632c154aea6b28eab9.png","https://pic.shaojiemike.top/shaojiemike/2023/11/a1ee79c9d2d507bca071803325af2737.png","https://pic.shaojiemike.top/shaojiemike/2023/11/80bf0c19c556f8a8f0ffb4dd12c3dd0f.png","https://pic.shaojiemike.top/shaojiemike/2023/11/289fe66bb3c0a5e9272fbd1388c8e498.png","https://pic.shaojiemike.top/shaojiemike/2023/11/47597806f9cd655404c45f4274f14931.png","https://pic.shaojiemike.top/shaojiemike/2023/11/fd798c2c37707e40504df690a3ad2bc4.png","https://pic.shaojiemike.top/shaojiemike/2023/11/5a43b66d061a0ee999820cc166bb73ae.png","https://pic.shaojiemike.top/shaojiemike/2023/11/8cdb8675e0d21ebb71db5d4f6e04f20b.png","https://pic.shaojiemike.top/shaojiemike/2023/11/c01c0e361d29e8a1b7c6d5214ff6a8a7.png","https://pic.shaojiemike.top/shaojiemike/2023/11/d73116335314673335ac8f45a79c8c7f.png","https://pic.shaojiemike.top/shaojiemike/2023/11/f35088cd53d95a7406ee4589c16b7345.png"],"datePublished":"2023-11-02T01:36:19.000Z","dateModified":"2024-06-03T07:54:10.091Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       Split address translation (virtual-to-physical mapping) part to individual post"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/Work/Operating%20system/AddressTranslation.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">Address Translation</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>Split address translation (virtual-to-physical mapping) part to individual post</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-solid fa-check mr-2"></i>Excellent Video Resource</p>
+</div>
+        <div class="message-body">
+            <p>Digital Design &amp; Computer Architecture - <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=YADfG57jW4k">Lecture 26a: Virtual Memory II</a> (ETH Zürich, Spring 2021)</p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-solid fa-check mr-2"></i>Outstanding Blog or Overview Paper</p>
+</div>
+        <div class="message-body">
+            <p><a target="_blank" rel="noopener" href="https://safari.ethz.ch/digitaltechnik/spring2021/doku.php?id=schedule">Digital Design and Computer Architecture</a>, ETH Zürich, Spring 2021</p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000039328970">Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism</a>[^3]</p>
+
+        </div>
+    </article>
+
+<h2 id="Overview-motivation-designed-path-and-research-trend"><a href="#Overview-motivation-designed-path-and-research-trend" class="headerlink" title="Overview motivation, designed-path and research-trend"></a>Overview motivation, designed-path and research-trend</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line">stateDiagram-v2</span><br><span class="line">  [*] --&gt; Motivation</span><br><span class="line">  state Motivation &#123;</span><br><span class="line">    %% nodes: can not be the same</span><br><span class="line">    idea: virtual-to-physical space mapping</span><br><span class="line">    concept: traslation metadata</span><br><span class="line">    target: availability and access speed = latency * times</span><br><span class="line">    %% link</span><br><span class="line">    idea --&gt; concept : store and access</span><br><span class="line">    concept --&gt; target</span><br><span class="line">    %% style</span><br><span class="line">    class target badBadEvent</span><br><span class="line">  &#125;</span><br><span class="line">  Motivation --&gt; DesignedPath</span><br><span class="line">  state DesignedPath &#123;</span><br><span class="line">    %% nodes</span><br><span class="line">    struct: Page-based VM：page frame and page table (nomore Segment)</span><br><span class="line">    path1: smaller metadata</span><br><span class="line">    path2: cache 2 lower latency</span><br><span class="line">    %% link</span><br><span class="line">    [*] --&gt; struct: 1960s(chatgpt)</span><br><span class="line">    struct --&gt; path1</span><br><span class="line">    struct --&gt; path2</span><br><span class="line"></span><br><span class="line">    state path1 &#123;</span><br><span class="line">        %% node</span><br><span class="line">        p1w1: multi-level PT</span><br><span class="line">        p1w2: superpage (ISCA&#x27;92 [^19])</span><br><span class="line">        p1w3: hashed-based PT</span><br><span class="line">        %% link</span><br><span class="line">        p1w1 --&gt; p1w2</span><br><span class="line">        p1w2 --&gt; p1w3</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    state path2 &#123;</span><br><span class="line">        %% node</span><br><span class="line">        p2w1: TLB 1968[^15]</span><br><span class="line">        p2w2: two level TLB (ISCA&#x27;92 [^17])</span><br><span class="line">        p2w3: Shared L2 TLB (HPCA&#x27;11 [^16])</span><br><span class="line">        p2w10: PWC (ISCA&#x27;10 [^26] [^27])</span><br><span class="line">        %% link</span><br><span class="line">        p2w1 --&gt; p2w2</span><br><span class="line">        p2w2 --&gt; p2w3</span><br><span class="line">        p2w3 --&gt; p2w10</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  DesignedPath --&gt; HardwareTrend</span><br><span class="line">  state HardwareTrend &#123;</span><br><span class="line">    %% nodes</span><br><span class="line">    ht1: capacity gap between lastlevel caches and main memory is unlikely to shrink</span><br><span class="line">    ht2: And graph apps mem-access more sparse</span><br><span class="line">    ht3: btw~ 4 level radix tree PTW is constly</span><br><span class="line"></span><br><span class="line">    ht1 --&gt; ht2</span><br><span class="line">    ht2 --&gt; ht3: miss rate increse</span><br><span class="line">  &#125;</span><br><span class="line">  HardwareTrend --&gt; ResearchTrend :  Is VM still a good idea?(HPCA&#x27;10)</span><br><span class="line">  state ResearchTrend &#123;</span><br><span class="line">    %% nodes</span><br><span class="line">    trend1: **洋务运动/Conservatives** small changes to lubricate SYS</span><br><span class="line">    trend2: **明治维新君主立宪**  Key component replacement</span><br><span class="line">    trend3: **辛亥革命/Reformers** ab init redesign </span><br><span class="line"></span><br><span class="line">    %% link</span><br><span class="line">    state trend1 &#123;</span><br><span class="line">        t1p1: TLBPrefetch(ISCA&#x27;02)</span><br><span class="line">        t1p2: ISPASS&#x27;22 [^12]</span><br><span class="line">        t1p3: MixTLBS(ASPLOS&#x27;17[^18])</span><br><span class="line">        t1p4: ASPLOS&#x27;22 [^10]</span><br><span class="line">        t1p5: UpTLBReach(MICRO&#x27;12/HPCA&#x27;14/ISCA&#x27;17)</span><br><span class="line">        t1p6: Synergistic TLB(MICRO&#x27;10)</span><br><span class="line">        t1p7: ContiguityAware TLBs(ISCA&#x27;19)</span><br><span class="line">        t1p8: TLB Prefetchers(ASPLOS&#x27;10)</span><br><span class="line">        t1p9: LargeMemTLB(ISCA&#x27;17)</span><br><span class="line">        t1p10: OS Support(ASPLOS’19)</span><br><span class="line">        t1p11: BigTLBsmallPage(ASPLOS’23)</span><br><span class="line">        t1p12: Tailored Page Sizes(ISCA’20)</span><br><span class="line"></span><br><span class="line">        state if_state1 &lt;&lt;choice&gt;&gt;</span><br><span class="line">        [*] --&gt; if_state1: Increase LB/Cache reach/hit</span><br><span class="line">        if_state1 --&gt; t1p1: TLB/PWC</span><br><span class="line">        if_state1 --&gt; t1p2: Cache/Prefetch</span><br><span class="line">        if_state1 --&gt; t1p3: Superpage</span><br><span class="line"></span><br><span class="line">        t1p1 --&gt; t1p8</span><br><span class="line">        t1p8 --&gt; t1p6</span><br><span class="line">        t1p6 --&gt; t1p5</span><br><span class="line">        t1p5 --&gt; t1p9</span><br><span class="line">        t1p9 --&gt; t1p7</span><br><span class="line">        t1p7 --&gt; t1p11</span><br><span class="line"></span><br><span class="line">        t1p2 --&gt; t1p4</span><br><span class="line"></span><br><span class="line">        t1p3 --&gt; t1p10</span><br><span class="line">        t1p10 --&gt; t1p12</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    state trend2 &#123;</span><br><span class="line">        %% node</span><br><span class="line">        t2p1: 2 level fat-PT(ASPLOS&#x27;22 [^10])</span><br><span class="line">        t2p2: hash-table (SIGMETRICS’16[^2])</span><br><span class="line">        t2p3: Cuckoo-hash(ASPLOS&#x27;20[^3])</span><br><span class="line"></span><br><span class="line">        state if_state2 &lt;&lt;choice&gt;&gt;</span><br><span class="line">        [*] --&gt; if_state2: abandon 4-level radix tree/Alternative PT</span><br><span class="line">        if_state2 --&gt; t2p1: small change</span><br><span class="line">        if_state2 --&gt; t2p2: other structure</span><br><span class="line">        t2p2 --&gt; t2p3</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    state trend3 &#123;</span><br><span class="line">        %% node</span><br><span class="line">        t3p1: LargeMemManager(ISCA&#x27;13[^28])</span><br><span class="line">        t3p4: RMemMapping(ISCA&#x27;15[^22])</span><br><span class="line">        t3p2: NDP-AT(PACT&#x27;17 [^14])</span><br><span class="line">        t3p3: Utopia(MICRO&#x27;23[^1])</span><br><span class="line">        t3p5: Mosaic Pages(ASPLOS&#x27;23)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        state if_state3 &lt;&lt;choice&gt;&gt;</span><br><span class="line">        [*] --&gt; if_state3: contiguous V-Pages maps2 P-P(1)</span><br><span class="line">        if_state3 --&gt; t3p1: back2segment</span><br><span class="line">        if_state3 --&gt; t3p2: restrict AT</span><br><span class="line">        t3p1 --&gt; t3p4</span><br><span class="line">        t3p2 --&gt; t3p5</span><br><span class="line">        t3p5 --&gt; t3p3</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  ResearchTrend --&gt; DifferentiatedTrack</span><br><span class="line">  state DifferentiatedTrack &#123;</span><br><span class="line">       track1: PIM</span><br><span class="line">       track2: Virtual Sys</span><br><span class="line"></span><br><span class="line">       state track1 &#123;</span><br><span class="line">            tr1p1: NDP-AT(PACT&#x27;17 [^14])</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       state track2 &#123;</span><br><span class="line">            tr2p1: Virtualization(MICRO&#x27;14[^24])</span><br><span class="line">            tr2p2: BabelFish(ISCA&#x27;20)</span><br><span class="line">            tr2p3: PTEMagne/vmitosis(ASPLOS&#x27;21)</span><br><span class="line"></span><br><span class="line">            tr2p1 --&gt; tr2p2</span><br><span class="line">            tr2p2 --&gt; tr2p3</span><br><span class="line">       &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>mermaid &#96;</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>explained in details</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>Limiting associativity means that a page cannot reside anywhere in the physical memory but only in a fixed number of locations. For instance, <strong>direct-mapped VM</strong> maps each virtual page to a single page frame. Note that multiple virtual pages could map to the same physical frame, resulting in page conflicts. <strong>Increasing the associativity</strong> adds more flexibility to the page mapping and reduces <strong>conflicts</strong>.[^14]</li>
+<li>Due to rare page swapping, contiguous virtual pages are often mapped to contiguous physical pages [71], [72][^14]</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>Papers to be explored</p>
+</div>
+        <div class="message-body">
+            <p>To reduce TLB misses, recent studies have proposed to optimize TLB organizations by clustering, coalescing, contiguity [14, 18, 21, 42, 54–56, 64, 72], prefetching [15, 41, 63], speculative TLBs [9], and large part-of-memory TLBs [47, 62]. To increase TLB reach, support for huge pages has been extensively studied [21, 26, 27, 29, 43, 49, 51–53, 57, 60, 67, 69], with OS-level improvements [26, 43, 51, 52]. Other works propose direct segments [10, 25] and devirtualized memory [31], and suggest that applications manage virtual memory [2].[^3]</p>
+<p>TODO: Related work in Utopia[^1]</p>
+
+        </div>
+    </article>
+
+<h2 id="虚拟地址和物理地址"><a href="#虚拟地址和物理地址" class="headerlink" title="虚拟地址和物理地址"></a>虚拟地址和物理地址</h2><article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>Initial idea of virtual memory</p>
+</div>
+        <div class="message-body">
+            <p>Idea: Give the programmer the illusion of a <strong>large</strong> address space while having a <strong>small</strong> physical memory[^29]</p>
+<p>So that the programmer does not worry about managing physical memory </p>
+
+        </div>
+    </article>
+
+<ul>
+<li>在现代的操作系统中，为了让多任务的程序能方便的运行在操作系统上，需要完成的一个很重要的抽象是「每个程序有自己的地址空间，且地址空间范围(虚拟地址长度决定)是一样的」。</li>
+<li>程序自身看到的地址空间，就是虚拟内存。而访问虚拟内存的地址就是虚拟地址（Virtual Address），与之对应的是物理地址（Physical Address）。</li>
+<li>这样的设计会导致上层的应用程序可能会访问同一个值相等的虚拟地址，所以操作系统需要做的就是替这些程序维护这个虚拟地址到物理地址的映射(页表)。甚者，为了统一和连贯，内核自己本身访问内存也将会通过虚拟地址。</li>
+</ul>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-solid fa-check mr-2"></i>Benefits of Automatic Management of Memory</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>Programmer does not deal with physical addresses</li>
+<li>Each process has its own independent mapping metadata from virtual 2 physical addresses</li>
+</ul>
+<p>Enables:[^29]</p>
+<ol>
+<li>Code and data to be located anywhere in physical memory<br>(relocation and flexible location of data)</li>
+<li>Isolation&#x2F;separation of code and data of different processes in physical processes<br>(protection and isolation)</li>
+<li>Code and data sharing between multiple processes<br>(sharing)</li>
+</ol>
+
+        </div>
+    </article>
+
+<p>!!! tip notate “VM make Physical Memory as a Cache”</p>
+<pre><code>Physical memory is a **cache for pages stored on disk**(1). In fact, it is a fully-associative cache in modern systems (a virtual page can potentially be mapped to any physical frame)[^29]
+
+This is because caching is a **equal object mapping** technique. And page and frame is the equal object pair.
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/39e11a4835f419a8be2bbe0173221827.png)
+
+Similar caching issues exist as we have covered earlier:
+
+- Placement: where and how to place/find a page in cache?
+- Replacement: what page to remove to make room in cache?
+- Granularity of management: large, small, uniform pages?
+- Write policy: what do we do about writes? Write back?
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/54d8016159d29d9d189eda560cbf6e44.png)
+</code></pre>
+<ol>
+<li>L1 cache for cache line in DRAM. Because <a target="_blank" rel="noopener" href="https://www.quora.com/Is-the-line-size-of-a-cache-equal-to-the-block-size-Why-why-not">block size is always cache line size</a>.</li>
+</ol>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>rCore V2P mapping</p>
+</div>
+        <div class="message-body">
+            <p>如下图所示，这里的图表示了非教学版 rCore 的虚拟地址和物理地址的映射关系。可以看到内核的数据放在了一段高虚拟地址空间，然后会映射到 0x80200000 开始的一段低物理地址空间；而所有的用户程序，将通过操作系统维护的页表映射到不同的物理空间。</p>
+<p><img src="https://pic.shaojiemike.top/img/20211125085519.png"></p>
+<p>注意，编译过程中，链接后<strong>各个段在虚拟空间</strong>上的地址就确定了.</p>
+
+        </div>
+    </article>
+
+<p>??? failure annotate “Key Observation : Full associate VA2PA mapping is not necessary”</p>
+<pre><code>Paper NAT[^14] show that modern server workloads do not need a fully associative VM and can tolerate associativity ranging from direct-mapped(1) to 4-way associative.
+
+Table II (left) shows the page conflict(2) rate as associativity varies. As shown, little associativity is enough to eliminate all page conflicts and match fully associative VM.
+
+Table II (right) estimates the average memory access time (AMAT) increase due to page conflicts.
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/be81ae3f3a0925260941e15c442c0dc6.png)
+
+**MY DEDUCTION**: Antoher words, most apps&#39;s virtual space is focus in `8GB * 2 = 16GB`.
+
+Table IV. 
+
+- `Total segments` represents the total number of virtual segments. 
+- `99% coverage` indicates the number of virtual segments required to cover 99% of the physical address space. 
+- `Largest segment` shows the fraction of the physical address space covered with the largest virtual segment. 
+- `Largest 32 segments` shows the fraction of the physical space covered with the largest 32 segments.
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/4eb4f5d4e48bb0b1750a5ad9a1cfd960.png)
+
+First, for some applications, such as MySQL and Memcached, a single large segment covers most of the physical memory, and therefore Direct map would eliminate most TLB misses
+
+Third, although there could be hundreds of segments, the associativity requirements for 8GB dataset(Table II) indicate that associativity can be reduced to a small number. The reason is that although segments are not fully contiguous, the OS tends to cluster the segments (as shown in Figure 3), and therefore nearby segments do not conflict with each other.
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/0e29c3221967347ff2a78707bf51c175.png)
+</code></pre>
+<ol>
+<li>cache-like map to 8GB physical memory</li>
+<li>multiple virtual pages(high bits different) could map to the same physical frame, resulting in page conflicts.</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>How to deal with Page conflict which caused by Restrict-associativity?</p>
+</div>
+        <div class="message-body">
+            <p>GUESS: maybe deal with it like when hash conflict. Utopia[^1] use conventional flexReg to assure the robustness.</p>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>Shared Virtual Memory for Heterogeneous Systems</p>
+</div>
+        <div class="message-body">
+            <p>Advantage:</p>
+<ol>
+<li>Unified virtual memory enables “pointeris-a-pointer” semantics, thus avoiding explicit and expensive data copies. </li>
+<li>More importantly, it provides a flat address space that is familiar to common programmers, </li>
+<li>while enforcing the required protection mechanisms to prevent compromising the security of the system.[^14]</li>
+</ol>
+<p>Drawback:</p>
+<ol>
+<li>high translation latency to hundreds of nanoseconds. [^25]</li>
+</ol>
+
+        </div>
+    </article>
+
+<h2 id="Linux-虚拟内存系统"><a href="#Linux-虚拟内存系统" class="headerlink" title="Linux 虚拟内存系统"></a>Linux 虚拟内存系统</h2><h3 id="segmentation"><a href="#segmentation" class="headerlink" title="segmentation"></a>segmentation</h3><p>仔细分析 虚拟内存位于用户栈之上。</p>
+<p><img src="https://pic.shaojiemike.top/img/20211225203420.png">{ width&#x3D;80% }</p>
+<p>Linux 将虚拟内存组织成一些区域（也叫做段）的集合。一个区域（area）就是已经存在着的（已分配的）虚拟内存的连续片（chunk），这些页是以某种方式相关联的。例如，代码段、数据段、堆、共享库段，以及用户栈都是不同的区域。每个存在的虚拟页面都保存在某个区域中，而不属于某个区域的虚拟页是不存在的，并且不能被进程引用。</p>
+<p>!!! note annotate “virtual address space layout of a Linux process”</p>
+<pre><code>Figure 3 shows the virtual address space layout of a Linux process, featuring six virtual segment groups: 
+
+1. the read-only segments, which consist of the binaries (`.text`) and globally visible constants (`.ro`); 
+2. the read-write segments, containing global variables (`.rw` and `.bss`); 
+3. the heap segment, which holds dynamically allocated objects; 
+4. the mmap segments, for objects allocated through the mmap syscall; 
+5. the stack segment; 
+6. and the kernel address space. 
+
+We assume only the dark-colored segments are visible to MPUs. The virtual address space that is not exposed to MPUs (e.g., the kernel space) still enjoys full associativity(1).
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/0e29c3221967347ff2a78707bf51c175.png)
+</code></pre>
+<ol>
+<li>Guess: kernel is used frequently.</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/img/20230531013325.png">{ width&#x3D;80% }</p>
+<p>一个具体区域的区域结构包含下面的字段：</p>
+<ul>
+<li>vm_start：指向这个区域的起始处。</li>
+<li>vm_end：指向这个区域的结束处。</li>
+<li>vm_prot：描述这个区域内包含的所有页的<strong>读写许可</strong>权限。</li>
+<li>vm_flags：描述这个区域内的页面是与其他进程<strong>共享的，还是这个进程私有的</strong>（还描述了其他一些信息）。</li>
+<li>vm_next：指向链表中下—区域结构。</li>
+</ul>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>virtual address usage in Linux</p>
+</div>
+        <div class="message-body">
+            <p>pmap命令会打印出pid程序的虚拟地址分配，数据来自 <code>/proc/$pid/maps</code> 文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ pmap 1233735|<span class="built_in">head</span> -n 10</span><br><span class="line">1233735:   /staff/shaojiemike/github/sniper_PIMProf/lib/sniper -c /staff/shaojiemike/github/sniper_PIMProf/config/base.cfg --general/total_cores=1 --general/output_dir=/staff/shaojiemike/github/sniper-pim/log/default/mlp_pimprof_cpu_1 --config=/staff/shaojiemike/github/sniper_PIMProf/config/pimprof_cpu.cfg -g --general/magic=<span class="literal">true</span> -g --traceinput/stop_with_first_app=<span class="literal">true</span> -g --traceinput/restart_apps=<span class="literal">false</span> -g --traceinput/stop_with_first_app=<span class="literal">false</span> -g --traceinput/enabled=<span class="literal">true</span> -g --traceinput/emulate_syscalls=<span class="literal">true</span> -g --</span><br><span class="line">0000000000400000     40K r---- sniper</span><br><span class="line">000000000040a000   2184K r-x-- sniper</span><br><span class="line">000000000062c000    972K r---- sniper</span><br><span class="line">000000000071f000     24K r---- sniper</span><br><span class="line">0000000000725000     12K rw--- sniper</span><br><span class="line">0000000000728000    112K rw---   [ anon ]</span><br><span class="line">00000000011a4000   3748K rw---   [ anon ]</span><br><span class="line">00007f8d80000000  85380K rw---   [ anon ]</span><br></pre></td></tr></table></figure>
+
+<p>代码段（Code Segment）：</p>
+<p><code>0000000000400000</code> 开始的 40K 区域，权限为 r—-。这是可执行代码段，具有只读权限。</p>
+<p>数据段（Data Segment）：</p>
+<p><code>000000000040a000</code> 开始的 2184K 区域，权限为 r-x–。这可能是包含可执行代码和只读数据的段。<br><code>000000000062c000</code> 开始的 972K 区域，权限为 r—-。这可能是只读数据段。</p>
+
+        </div>
+    </article>
+
+<h3 id="段错误-与-非法操作"><a href="#段错误-与-非法操作" class="headerlink" title="段错误 与 非法操作"></a>段错误 与 非法操作</h3><p>假设 MMU 在试图翻译某个虚拟地址 A 时，触发了一个缺页。这个异常导致控制转移到内核的缺页处理程序，处理程序随后就执行下面的步骤：</p>
+<ul>
+<li><strong>虚拟地址 A 是合法的吗</strong>？换句话说，A 在某个区域结构定义的区域内吗？为了回答这个问题，缺页处理程序搜索区域结构的链表，把 A 和每个区域结构中的 vm_start 和 vm_end 做比较。如果这个指令是不合法的，那么缺页处理程序就触发一个段错误，从而终止这个进程。这个情况在图 9-28 中标识为 “1”。<ul>
+<li>因为一个进程可以创建任意数量的新虚拟内存区域（使用在下一节中描述的 mmap 函数），所以顺序搜索区域结构的链表花销可能会很大。因此在实际中，Linux 使用某些我们没有显示出来的字段，Linux 在链表中构建了一棵树，并在这棵树上进行查找。</li>
+</ul>
+</li>
+<li><strong>试图进行的内存访问是否合法</strong>？换句话说，进程是否有读、写或者执行这个区域内页面的权限？例如，这个缺页是不是由一条试图对这个代码段里的只读页面进行写操作的存储指令造成的？这个缺页是不是因为一个运行在用户模式中的进程试图从内核虚拟内存中读取字造成的？如果试图进行的访问是不合法的，那么缺页处理程序会触发一个保护异常，从而终止这个进程。这种情况在图 9-28 中标识为 “2”。</li>
+</ul>
+<p>注意Segmentation Fault 只会在缺页时触发，声明 <code>int A[10]</code> , 访问 <code>A[11]</code> , 不一定会触发Segmentation Fault（段错误）</p>
+<p><img src="https://pic.shaojiemike.top/img/20230531014017.png">{ width&#x3D;80% }</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Memory Management Unit (MMU)’s functions</p>
+</div>
+        <div class="message-body">
+            <p>In CPU (Central Processing Unit) design, the Memory Management Unit (MMU) is a crucial component responsible for <strong>memory management and address translation</strong>. The MMU serves several key functions:</p>
+<ol>
+<li><p><strong>Virtual Memory Address Translation</strong>: One of the primary roles of the MMU is to translate virtual memory addresses used by software into physical memory addresses. This allows for the implementation of virtual memory, a memory management technique that provides the illusion of a vast, contiguous address space to applications, even when physical memory is limited.</p>
+</li>
+<li><p><strong>Address Protection</strong>: The MMU enforces access control by preventing unauthorized access to memory locations. It ensures that a running program can only access memory it has permission to access. This helps maintain the security and integrity of the system.</p>
+</li>
+<li><p><strong>Page Tables</strong>: The MMU uses page tables to map virtual addresses to physical addresses. Page tables are data structures that store the mapping information. The MMU consults these tables to perform address translation.</p>
+</li>
+<li><p><strong>Address Space Isolation</strong>: The MMU provides address space isolation, ensuring that each running process or application has its own isolated memory space. This isolation prevents one process from inadvertently or maliciously accessing the memory of another process.</p>
+</li>
+<li><p><strong>Caching</strong>: The MMU may manage memory caching to improve memory access speeds. It can cache frequently used memory locations, reducing the need to access slower main memory. Caches are typically organized into levels, such as L1, L2, and L3 caches, and are an integral part of modern CPU design.</p>
+</li>
+<li><p><strong>Memory Protection</strong>: The MMU is responsible for implementing memory protection mechanisms, such as read-only, read-write, execute, and no-access permissions for different memory regions. It ensures that memory regions are used according to their intended purpose.</p>
+</li>
+<li><p><strong>TLB (Translation Lookaside Buffer)</strong>: The MMU may include a TLB, which is a cache for frequently used address translations. The TLB accelerates the address translation process by storing recently used mappings. When a virtual address needs to be translated to a physical address, the TLB is checked first to see if the translation is already present, avoiding the need to consult the page table.</p>
+</li>
+<li><p><strong>Segmentation</strong>: Some MMUs also support memory segmentation, which divides the address space into segments or regions with different attributes. Each segment can have its own base address, limit, and access permissions. Segmentation is common in older CPU architectures like x86.</p>
+</li>
+</ol>
+<p>In summary, the Memory Management Unit in CPU design is responsible for managing memory address translation, protection, isolation, and caching, ensuring that the CPU can efficiently and securely interact with the system’s memory subsystem while providing the illusion of a larger, contiguous virtual address space to applications through the concept of virtual memory.</p>
+
+        </div>
+    </article>
+
+<h2 id="页表-数据结构"><a href="#页表-数据结构" class="headerlink" title="页表 数据结构"></a>页表 数据结构</h2><ul>
+<li><strong>Page table</strong>: table that stores virtual 2 physical page mappings <strong>lookup table</strong> used to translate <code>virtual page addresses</code> to <code>physical frame addresse</code>s (and find where the associated data is)[^29]</li>
+<li><strong>Page size</strong>: the mapping granularity of virtualphysical address spaces<br>,dictates the amount of data transferred from hard disk to DRAM at once</li>
+</ul>
+<ul>
+<li>页表是记录每一虚拟页在内存中缓存的物理块页号。<ul>
+<li>每次地址翻译硬件将一个虚拟地址转换为物理地址时，都会读取页表。</li>
+</ul>
+</li>
+</ul>
+<h3 id="页表的基本组织结构"><a href="#页表的基本组织结构" class="headerlink" title="页表的基本组织结构"></a>页表的基本组织结构</h3><ul>
+<li>页表就是一个<strong>页表条目</strong>（Page Table Entry，PTE）的数组。<ul>
+<li>虚拟地址空间(虚拟地址)中的每个页在页表中一个固定偏移量处都有一个 PTE。</li>
+<li>简化来说，每个 PTE 是由一个有效位（valid bit）和一个 n 位地址字段组成的。<ul>
+<li><strong>有效位</strong>表明了该虚拟页当前是否被缓存在 DRAM 中。</li>
+<li>如果<strong>设置</strong>了有效位，那么地址字段就表示 DRAM 中相应的物理页的起始位置，这个物理页中缓存了该虚拟页。</li>
+<li>如果<strong>没有设置</strong>有效位，那么一个空地址表示这个虚拟页还未被分配。否则，这个地址就指向该虚拟页在磁盘上的起始位置。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>下图就是个示例 <img src="https://pic.shaojiemike.top/img/20230530235440.png">{ width&#x3D;80% }</li>
+</ul>
+<h3 id="特点：按需页面调度"><a href="#特点：按需页面调度" class="headerlink" title="特点：按需页面调度"></a>特点：按需页面调度</h3><ul>
+<li>按需页面调度：如下图，只有实际驻留在物理内存空间中的页(已缓存的)才会对应着物理块。</li>
+<li>如果不命中，系统必须判断这个虚拟页存放在磁盘的哪个位置，在物理内存中选择一个牺牲页，并将虚拟页从磁盘复制到 DRAM 中，替换这个牺牲页。<ul>
+<li>未缓存的：未缓存在物理内存中的已分配页，在磁盘上有对应位置。</li>
+<li>未分配的：VM 系统还未分配（或者创建）的页。未分配的块没有任何数据和它们相关联，因此也就不占用任何磁盘空间。</li>
+</ul>
+</li>
+<li><img src="https://pic.shaojiemike.top/img/20230530234611.png">{ width&#x3D;80% }</li>
+</ul>
+<h3 id="特点：进程的独立页表和独立虚拟地址空间"><a href="#特点：进程的独立页表和独立虚拟地址空间" class="headerlink" title="特点：进程的独立页表和独立虚拟地址空间"></a>特点：进程的独立页表和独立虚拟地址空间</h3><ul>
+<li>操作系统为每个进程提供了一个独立的页表，因而也就是一个独立的虚拟地址空间。</li>
+<li>注意，多个虚拟页面可以映射到同一个共享物理页面上。<ul>
+<li>利用这点，多个程序可以使用同一个动态库文件(.so)文件。比如printf</li>
+<li><img src="https://pic.shaojiemike.top/img/20230531001850.png">{ width&#x3D;80% }</li>
+</ul>
+</li>
+</ul>
+<h2 id="Linux内存分段分页机制"><a href="#Linux内存分段分页机制" class="headerlink" title="Linux内存分段分页机制"></a>Linux内存分段分页机制</h2><p>下图展示了虚拟地址进过分段、分页机制后转化成物理地址的简单过程。其实分段机制是intel芯片为兼容以前产品而保留下来的，然后linux中弱化了这一机制。下面我们先简单介绍一下分段机制：</p>
+<p><img src="https://pic.shaojiemike.top/img/20230530230207.png">{ width&#x3D;80% }</p>
+<ul>
+<li><strong>分段机制</strong>隔绝了各个代码、数据和堆栈区域，它把处理器可寻址的线性地址空间划分成一些较小的称为段的受保护地址空间区域。<ul>
+<li>每个逻辑段对应着一个自然的片段，如函数、数组等，每个逻辑段的长度可以根据需要动态地进行调整。每个逻辑段都有自己的段基址和段长度，当程序执行时，将它们映射到物理内存的若干个物理块中。</li>
+<li>好处：方便了程序员对程序的管理和调试，同时还可以缓解内存碎片的问题，提高内存利用率。</li>
+</ul>
+</li>
+<li><strong>分页机制</strong>会把线性地址空间（段已映射到其中）划分成页面，然后这些线性地址空间页面被映射到物理地址空间的页面上。</li>
+<li><strong>不同之处</strong>：分段机制主要针对程序的逻辑单元进行内存管理，而分页机制则是针对物理内存进行内存管理，把内存视为一个固定大小的块进行划分。</li>
+</ul>
+<article class="message is-default">
+        <div class="message-header"><p><i class="fa-solid fa-quote-right mr-2"></i>segmentation and paging in IntelSDM</p>
+</div>
+        <div class="message-body">
+            <p><strong>Segmentation</strong> provides a mechanism of isolating individual code, data, and stack modules so that multiple<br>programs (or tasks) can run on the same processor without interfering with one another. [^4]</p>
+<p><strong>Paging</strong> provides a mechanism for implementing a conventional demand-paged, virtual-memory system where sections of a program’s<br>execution environment are mapped into physical memory as needed. Paging can also be used to provide isolation<br>between multiple tasks.</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>80x86 分段 + 两级页表实例</p>
+</div>
+        <div class="message-body">
+            <p><img src="https://pic.shaojiemike.top/img/Inked20150612143923193_LI.jpg">{ align&#x3D;right }</p>
+<p>线性地址：</p>
+<ul>
+<li>线性地址的低12位给出 了页面中的偏移量。</li>
+<li>线性地址的高20位构成这个数组的引索值，用于选择对应页面的物理基地址。<ul>
+<li>所以页表要含有2^20（1M）个表项。<ul>
+<li>如果作为一个表来存放的话，而每项占用4个字节，最多将占用4MB内存。</li>
+<li>因此为了减少内存占用量，80x86适用了<strong>两级页表</strong>，高20位线性地址到物理地址的转换也被分成两步进行，每部适用其中10个比特。</li>
+</ul>
+</li>
+<li>页表中的页表项大小为32位。由于只需要其中20位来存放页面的物理基地址，因此剩下的12位可用于存放诸如页面是否存在等属性信息。如果线性地址引索的页表项被标注为存在，我们就从页面中取得物理地址。如果表项中不存在，那么访问对应物理页面时就会产生异常。</li>
+</ul>
+</li>
+</ul>
+<p>两级页表：</p>
+<p>第一级表称为页目录。它被存放在1页中（4k大小），具有2^10（1k）个4字节长度的表项。这些表项指向二级表。它们由线性地址最高10位作为引索。</p>
+<p>第二级表称为页表，长度也是1个页面。线性地址高10位获取指向第二级页表的指针，再加上中间10位，就可以在相应页表中获得物理地址的高20位。</p>
+<p>如下图：两级页表有2^20(1M)项，可以确定页帧&#x2F;页基地址(4G中第几个4K的页表)。后面的12位页内偏移，正好确定是页内的哪一项。</p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>ISCA’13</p>
+</div>
+        <div class="message-body">
+            <p>As depicted in Figure 2, on each data memory reference, data virtual address V is presented to <strong>both</strong> the new direct-segment hardware and the D-TLB. If virtual address V falls within the contiguous virtual address range demarcated by the direct segment’s base and limit register values (i.e., BASE ≤ V &lt; LIMIT), the new hardware provides the translated <strong>physical address</strong> as <code>V + OFFSET</code> and <strong>suppresses</strong> the D-TLB translation process. [^28]</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/28fd143481da7fb75e87468fa762c3ec.png"></p>
+<p>Notably, addresses translated using direct segments never suffer from TLB misses.</p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>ISCA’15</p>
+</div>
+        <div class="message-body">
+            <p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/681fdd0d2e93aa0b5aa61b0c2824fd09.png">[^22]</p>
+
+        </div>
+    </article>
+
+<h2 id="如何使用页表：地址翻译"><a href="#如何使用页表：地址翻译" class="headerlink" title="如何使用页表：地址翻译"></a>如何使用页表：地址翻译</h2><ul>
+<li><strong>Address translation</strong>: the process of determining the physical address from the virtual address</li>
+<li>下图展示了 MMU 如何利用页表来实现这种映射。<ul>
+<li>CPU 中的一个控制寄存器，页表基址寄存器（Page Table Base Register，PTBR）指向当前页表。</li>
+<li>n 位的虚拟地址包含两个部分：一个 p 位的虚拟页面偏移（Virtual Page Offset，VPO）和一个位的虚拟页号（Virtual Page Number，VPN）。</li>
+</ul>
+</li>
+<li>MMU 利用 VPN 来选择适当的 PTE。例如，VPN 0 选择 PTE 0，VPN 1 选择 PTE 1，以此类推。将页表条目中物理页号（Physical Page Number，PPN）和虚拟地址中的 VP。串联起来，就得到相应的物理地址。</li>
+<li>注意，因为物理和虚拟页面都是 P 字节的，所以物理页面偏移（Physical Page Offset，PPO）和 VPO 是相同的。</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/img/20230531002651.png">{ width&#x3D;80% }</p>
+<h3 id="页面命中，硬件执行流程"><a href="#页面命中，硬件执行流程" class="headerlink" title="页面命中，硬件执行流程"></a>页面命中，硬件执行流程</h3><ul>
+<li>第 1 步：处理器生成一个虚拟地址VA，并把它传送给 MMU。</li>
+<li>第 2 步：<strong>MMU 生成 PTE 物理地址</strong>，并从高速缓存&#x2F;主存请求得到它。(页表内容也能被缓存？)</li>
+<li>第 3 步：高速缓存&#x2F;主存向 MMU 返回 PTE。</li>
+<li>第 4 步：MMU 构造物理地址，并把它传送给高速缓存&#x2F;主存。</li>
+<li>第 5 步：高速缓存&#x2F;主存返回所请求的数据字给处理器。</li>
+</ul>
+<h3 id="缺页，硬件执行流程"><a href="#缺页，硬件执行流程" class="headerlink" title="缺页，硬件执行流程"></a>缺页，硬件执行流程</h3><p>页面命中完全是由硬件来处理的，与之不同的是，处理缺页要求硬件和操作系统内核协作完成，如下图所示。</p>
+<ul>
+<li>第 1 步到第 3 步：相同。</li>
+<li>第 4 步：PTE 中的有效位是零，所以 MMU 触发了一次异常，传递 CPU 中的控制到操作系统内核中的缺页异常处理程序。</li>
+<li>第 5 步：缺页处理程序确定出物理内存中的牺牲页，如果这个页面已经被修改了，则把它换出到磁盘。</li>
+<li>第 6 步：缺页处理程序页面调入新的页面，<strong>并更新内存中的 PTE</strong>。</li>
+<li>第 7 步：缺页处理程序返回到原来的进程，<strong>再次执行</strong>导致缺页的指令。CPU 将引起缺页的虚拟地址重新发送给 MMU。因为虚拟页面现在缓存在物理内存中，所以就会命中。</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/img/20230531003352.png">{ width&#x3D;80% }</p>
+<h2 id="页表的存储、结合高速缓存和虚拟内存"><a href="#页表的存储、结合高速缓存和虚拟内存" class="headerlink" title="页表的存储、结合高速缓存和虚拟内存"></a>页表的存储、结合高速缓存和虚拟内存</h2><ul>
+<li>大部分系统的cache是选择物理寻址的</li>
+<li>页表是需要一直驻留在物理内存中的（多级页表除外）。注意，<strong>页表条目可以缓存</strong>，就像其他的数据字一样，因为地址翻译发生在高速缓存查找之前。如下图</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/img/20230531004332.png">{ width&#x3D;80% }</p>
+<h2 id="利用-TLB-加速地址翻译"><a href="#利用-TLB-加速地址翻译" class="headerlink" title="利用 TLB 加速地址翻译"></a>利用 TLB 加速地址翻译</h2><ul>
+<li>每次 CPU 产生一个虚拟地址，MMU 就必须查阅一个 PTE，以便将虚拟地址翻译为物理地址。<ul>
+<li>在最糟糕的情况下，这会要求从内存多取一次数据(多级页表更多次)，代价是几十到几百个周期。</li>
+<li>如果 PTE 碰巧缓存在 L1 中，那么开销就下降到 1 个或 2 个周期。</li>
+</ul>
+</li>
+<li>然而，许多系统都试图消除即使是这样的开销，它们在 MMU 中包括了一个关于 PTE 的小的缓存，称为翻译后备缓冲器（Translation Lookaside Buffer，TLB）。</li>
+<li>TLB 是一个小的、虚拟寻址的缓存，其中每一行都保存着一个由单个 PTE 组成的块。TLB 通常有高度的相联度。<ul>
+<li>如图所示，用于组选择和行匹配的索引和标记字段是从虚拟地址中的虚拟页号中提取出来的。如果 TLB 有个组，那么 TLB 索引（TLBI）是由 VPN 的 t 个<strong>最低位</strong>组成的，而 TLB 标记（TLBT）是由 VPN 中剩余的位组成的。<img src="https://pic.shaojiemike.top/img/20230531005210.png" alt="1">{ width&#x3D;80% }</li>
+</ul>
+</li>
+<li>下图展示了当 TLB 命中时（通常情况）所包括的步骤。这里的关键点是，所有的地址翻译步骤都是在芯片上的 MMU 中执行的，因此非常快。<img src="https://pic.shaojiemike.top/img/20230531005233.png" alt="2">{ width&#x3D;80% }</li>
+</ul>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>VA PA 寻址</p>
+</div>
+        <div class="message-body">
+            <p>TLB是VA寻址的，和cache使用PA寻址不同。</p>
+<p>TLB的深入研究可以参考 <a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/309583874_A_Survey_of_Techniques_for_Architecting_TLBs">2017 A_Survey_of_Techniques_for_Architecting_TLBs</a></p>
+
+        </div>
+    </article>
+
+<h3 id="TLB-Cache-的-VA-PA-细节"><a href="#TLB-Cache-的-VA-PA-细节" class="headerlink" title="TLB Cache 的 VA PA 细节"></a>TLB Cache 的 VA PA 细节</h3><p><img src="https://pic.shaojiemike.top/img/20230714103544.png" alt="va pa">{ width&#x3D;80% }</p>
+<h3 id="TLB-support-multi-size-page"><a href="#TLB-support-multi-size-page" class="headerlink" title="TLB support multi-size page"></a>TLB support multi-size page</h3><p><img src="https://pic.shaojiemike.top/img/20230727103944.png">{ width&#x3D;80% }</p>
+<ul>
+<li>Enabling <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Page_Size_Extension">Page Size Extension,PSE</a> (by setting bit 4, PSE, of the system register CR4) changes this scheme.</li>
+<li>The entries in the page directory have an additional flag, in bit 7, named PS (for page size). This flag was ignored without PSE, but now, the page-directory entry with PS set to 1 does not point to a page table, but to a single large 4 MiB page. The page-directory entry with PS set to 0 behaves as without PSE.</li>
+</ul>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>ASPLOS’17 MIX TLB</p>
+</div>
+        <div class="message-body">
+            <p>Commercial systems typically implement separate set-associative TLBs for different page sizes.[^18] This means that when superpages are allocated aggressively, TLB misses may, counter intuitively, increase even if entries for small pages remain unused (and vice-versa).</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>MICRO’15 Large Pages and Lightweight Memory Management ……</p>
+</div>
+        <div class="message-body">
+            <p>TO DO[^21]</p>
+
+        </div>
+    </article>
+
+<h3 id="TLB的多级结构"><a href="#TLB的多级结构" class="headerlink" title="TLB的多级结构"></a>TLB的多级结构</h3><p>TLB（Translation Lookaside Buffer）在物理结构上可以有多级结构，也可以只有单级结构，具体取决于处理器的架构和设计。 如Intel 的skylake就明显有两级TLB。</p>
+<p><img src="https://pic.shaojiemike.top/img/20230530204850.png">{ width&#x3D;80% }</p>
+<!-- ### Attention: DTLB, STLB, LTLB?
+
+为什么设计了单独的STLB却没有单独的Load TLB：
+
+1. 加载访问的局部性更好,DTLB命中率已经较高,独立的Load TLB优化空间有限。
+2. 存储指令的地址随机访问性更强,STLB可以明显改善其地址翻译。
+
+加载访问的局部性更好,DTLB命中率已经较高,独立的Load TLB优化空间有限。 -->
+
+<h4 id="Attention-L1-Virtually-Indexed-Cache"><a href="#Attention-L1-Virtually-Indexed-Cache" class="headerlink" title="Attention: L1 Virtually Indexed Cache"></a>Attention: L1 Virtually Indexed Cache</h4><p>Skylake架构中,DTLB位于L1数据缓存之后。这说明Skylake的L1数据缓存是虚拟地址索引的缓存(Virtually Indexed Cache), L2 就是物理地址。</p>
+<p>在虚拟地址索引的缓存中,缓存的索引使用的是虚拟地址的一部分,而不是物理地址。主要有以下几点原因:</p>
+<ul>
+<li>简化缓存访问，提高访问速度:可以直接拿到指令的虚拟地址进行索引,不需要等待地址翻译。避免了需要先查询TLB才能获取物理地址再索引的额外延迟。</li>
+<li>缩小关键路径:允许并行进行缓存访问和地址翻译,缩短了关键路径延迟。</li>
+</ul>
+<p>更高命中率:由于运行程序使用的都是虚拟地址,使用虚拟地址索引可以提供更高的时间局部性,提高缓存命中率。<br>简化一致性:由于L1缓存仅被一个core访问,使用虚拟地址索引可以简化缓存一致性协议。<br>但是,虚拟地址索引也存在一个问题,就是当地址映射关系变更时(比如，进程上下午切换),可能需要刷新或回写缓存行。总体来说,Skylake的设计选择了使用虚拟缓存来获得访问速度上的优势</p>
+<article class="message is-blue">
+        <div class="message-header"><p><i class="fa-solid fa-bars mr-2"></i>TLB flush when context switch</p>
+</div>
+        <div class="message-body">
+            <p>In conventional systems, whenever a virtual-to-physical mapping gets modified (e.g., due to a page migration or a page deallocation), all the affected TLB entries of all the running processes are invalidated to maintain TLBs coherent.[^1] </p>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>多核的进程、线程切换时，TLB，页表如何处理？</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>TLB是每个核私有的，如果一个核从一个进程切换到另一个进程，TLB要全部清空。</li>
+<li>但是线程不需要，因为线程共享相同的虚拟地址空间。</li>
+<li>所以线程切换开销远小于进程切换开销</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>同一个核上同一个进程内的线程切换，需要TLB全部flush吗</p>
+</div>
+        <div class="message-body">
+            <p>对于同一个核上,同一个进程内的不同线程之间进行切换,通常不需要完全刷新TLB。</p>
+<p>主要原因如下:</p>
+<p>同一进程内的不同线程共享相同的地址空间和虚拟内存映射,所以不会有地址空间的改变。<br>现代处理器使用地址空间标识符(ASID)来区分不同进程的TLB项。对于同一进程内的线程切换,ASID没有改变,所以TLB项本身是可重用的。<br>Intel处理器会为每个core维护不同的PCID(进程上下文ID),同一进程内的线程切换不会改变PCID,所以TLB项依然有效。<br>操作系统通常采用“当前CPU拥有”(current CPU owns)的方式管理TLB,同一核心上的线程切换不会引入争用问题。<br>即使存在部分无效的TLB项,硬件也会自动标记,不需要手动刷新。<br>线程切换的开销主要在于寄存器状态、线程STACK的保存恢复等,对TLB基本无影响。<br>所以除非涉及地址映射关系的改变,否则同核同进程内线程切换不需要完全刷新或重建TLB,可以直接重用,这也是切换开销较低的原因。</p>
+<p>只有跨进程或跨核心的切换才需要TLB刷新,来使得地址翻译与新的地址空间一致。</p>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>同一个进程内的线程a从A核心切换到B核心，B核心原本运行的就是同一个进程的另一个线程c，这两个核心的TLB需要全部flush吗</p>
+</div>
+        <div class="message-body">
+            <p>对于同一个进程内的线程a从核心A切换到核心B的情况,如果核心B上原本已经运行了同一进程的另一个线程c,那么是否需要完全刷新两个核心的TLB,分析如下:</p>
+<p>由于是同一进程的不同线程,地址空间是相同的,所以TLB的内容理论上是可重用的。<br>但是,不同核心CPUContains不同的TLB,其内容未必完全一致。<br>Intel处理器使用核心级的PCID（Process Context IDentifiers (PCID)）来标识TLB所属的地址空间。两个核心的PCID可能不同。<br>为确保TLB一致性,该场景下操作系统需要将核心B上的PCID更新为和核心A相同。<br>这会导致核心B上的TLB全部失效,需要重新填充。所以对核心B来说,需要完全刷新TLB。<br>但核心A的TLB仍然有效,因为地址空间没有改变,无需刷新。<br>所以线程a迁移时,源核A的TLB保持不变,目标核B的TLB需要完全重建。<br>这是因为多核心情况下,不同核心的TLB可能存在不一致状态。<br>线程迁移需要重新同步TLB的状态,因此目标核上的TLB需要刷新。</p>
+<p>所以综上,线程a在跨核迁移时,源核A的TLB可以重用,目标核B的TLB需要完全刷新,以确保一致性。这是多核心架构下的特有情况。这需要硬件有特殊支持，来实现<br>不同核能识别同一个进程的线程，而不是直接清空刷新。</p>
+<p>关于表示进程，Linux kernel有<a target="_blank" rel="noopener" href="https://livegrep.com/search/linux?q=switch_mm(struct%20mm_struct%20*prev,%20struct%20mm_struct%20*next,%20&fold_case=auto&regex=false&context=true">对应源码</a></p>
+
+        </div>
+    </article>
+
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p><img src="https://pic.shaojiemike.top/img/20230717113743.png">{ width&#x3D;80% }</p>
+<h2 id="多级页表"><a href="#多级页表" class="headerlink" title="多级页表"></a>多级页表</h2><h3 id="缘由"><a href="#缘由" class="headerlink" title="缘由"></a>缘由</h3><ul>
+<li>到目前为止，我们一直假设系统只用一个单独的页表来进行地址翻译。</li>
+<li>如果我们有一个 32 位的地址空间、4KB 的页面(4*1K &#x3D; 12位的PPO，最多余下20位VPN &#x3D; 1M，说明有1M个页表项)和一个 4 字节的 PTE，那么即使应用所引用的只是虚拟地址空间中很小的一部分，也总是需要一个 4MB 的页表驻留在内存中。对于地址空间为 64 位的系统来说，问题将变得更复杂。</li>
+<li>用来<strong>压缩页表大小</strong>的常用方法是使用<strong>层次结构的页表</strong>。</li>
+</ul>
+<h3 id="多级页表构建实例"><a href="#多级页表构建实例" class="headerlink" title="多级页表构建实例"></a>多级页表构建实例</h3><ul>
+<li><p>假设 32 位虚拟地址空间被分为 4KB 的页，而每个页表条目都是 4 字节。</p>
+</li>
+<li><p>还假设在这一时刻，虚拟地址空间有如下形式：内存的前 2K 个页面分配给了代码和数据，接下来的 6K 个页面还未分配，再接下来的 1023 个页面也未分配，接下来的 1 个页面分配给了用户栈。</p>
+</li>
+<li><p>下图 展示了我们如何为这个虚拟地址空间构造一个两级的页表层次结构。<br><img src="https://pic.shaojiemike.top/img/20230531010647.png">{ width&#x3D;80% }</p>
+</li>
+<li><p>一级页表中的每个 PTE 负责映射虚拟地址空间中一个 4MB 的片（chunk），负责1个二级页表。二级页表中的每个 PTE 都负责映射一个 4KB 的虚拟内存页面。</p>
+</li>
+<li><p>每个一级和二级页表都是 4KB 字节，这刚好和一个页面的大小是一样的。</p>
+</li>
+<li><p>优点：</p>
+<ul>
+<li>第一，如果一级页表中的一个 PTE 是空的，那么相应的二级页表就根本不会存在。对于一个典型的程序，4GB 的虚拟地址空间的大部分都会是未分配的。</li>
+<li>第二，只有一级页表才需要总是在主存中，这就减少了主存的压力；只有最经常使用的二级页表才需要缓存在主存中。</li>
+</ul>
+</li>
+</ul>
+<h3 id="多级页表地址翻译"><a href="#多级页表地址翻译" class="headerlink" title="多级页表地址翻译"></a>多级页表地址翻译</h3><p><img src="https://pic.shaojiemike.top/img/20211223203052.png">{ width&#x3D;80% }<br><img src="https://pic.shaojiemike.top/img/20211223203104.png">{ width&#x3D;80% }<br><img src="https://pic.shaojiemike.top/img/20211125085411.png">{ width&#x3D;80% }</p>
+<h3 id="Core-i7-实例"><a href="#Core-i7-实例" class="headerlink" title="Core i7 实例"></a>Core i7 实例</h3><p>层次结构TLB 是虚拟寻址的，是四路组相联的。L1、L2 和 L3 高速缓存是物理寻址的，块大小为 64 字节。</p>
+<p><img src="https://pic.shaojiemike.top/img/20230531012707.png">{ width&#x3D;80% }</p>
+<p>CR3 控制寄存器指向第一级页表（L1）的起始位置。CR3 的值是每个进程上下文的一部分，每次上下文切换时，CR3 的值都会被恢复。</p>
+<p><img src="https://pic.shaojiemike.top/img/20211224151428.png">{ width&#x3D;80% }</p>
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>four levels of the page table</p>
+</div>
+        <div class="message-body">
+            <p>Such levels are known as PGD (Page Global Directory), PUD(Page Upper Directory), PMD (Page Middle Directory), and PTE (Page Table Entry)[^3]</p>
+<p>or In Intel is PML4(Page Map Level4), PDP(Page Directory Page table), PD(Page Directory), PT(Page Table)[^1][^6]</p>
+
+        </div>
+    </article>
+
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>48-Bit Virtual Addresses</p>
+</div>
+        <div class="message-body">
+            <p>While <code>32-bit</code> machines can address a maximum of <code>4GB</code> of virtual address space, <code>48-bit</code> machines have the remarkable capability to access up to <code>256TB</code> of virtual address space. This expanded address range is especially significant in scenarios where large amounts of memory need to be managed and accessed efficiently.</p>
+
+        </div>
+    </article>
+
+<h4 id="Page-Table-Space-Requirements"><a href="#Page-Table-Space-Requirements" class="headerlink" title="Page Table Space Requirements"></a>Page Table Space Requirements</h4><ol>
+<li>In a 64-bit machine, each Page Table Entry (PTE) is 64 bits, which is equivalent to 8 bytes.</li>
+<li>With a 4-level page table structure, each level consists of $2^9 &#x3D; 512$ entries, and therefore requires $512 * 8$ bytes, which equals 4KB.</li>
+</ol>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>Managing a 2TB Dataset</p>
+</div>
+        <div class="message-body">
+            <p>Suppose we have a massive 2TB dataset in memory with 512 million entries, each using a 4KB page size. Here’s how the page table space is allocated at each level:</p>
+<ul>
+<li>The L4 Page Table has 512 million entries and occupies 4GB of memory.</li>
+<li>The L3 Page Table contains 1 million entries and occupies 8MB.</li>
+<li>The L2 Page Table has 2,000 entries, requiring 16KB of memory.</li>
+<li>The L1 Page Table holds 4 entries and occupies just 32 bytes.</li>
+</ul>
+<p>In total, the page table space required for managing this dataset sums up to $4GB + 8MB + 16KB + 32B$, which is much larger than the total <strong>caching</strong> capacity of a modern high-end CPU. [^1] </p>
+
+        </div>
+    </article>
+
+<h2 id="Papers’-Motivations"><a href="#Papers’-Motivations" class="headerlink" title="Papers’ Motivations"></a>Papers’ Motivations</h2><h3 id="Experiment-Object"><a href="#Experiment-Object" class="headerlink" title="Experiment Object"></a>Experiment Object</h3><p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/459a41c9597a2ae8e42196df9261d2ba.png"></p>
+<h3 id="contiguous-VM-regions-directly-to-contiguous-VM"><a href="#contiguous-VM-regions-directly-to-contiguous-VM" class="headerlink" title="contiguous VM regions directly to contiguous VM."></a>contiguous VM regions directly to contiguous VM.</h3><article class="message is-default">
+        <div class="message-header"><p><i class="fa-solid fa-quote-right mr-2"></i>Charles Thacker, 2010 ACM Turing Award Lecture.</p>
+</div>
+        <div class="message-body">
+            <p>“Virtual memory was invented in a time of scarcity. Is it still a good idea?”[^28]</p>
+
+        </div>
+    </article>
+
+<ol>
+<li>TLB and PWC can not cover the huger DRAM range.</li>
+<li>contiguous virtual memory regions directly to contiguous physical memory. -&gt; More direct-map design[^28][^22]</li>
+</ol>
+<h3 id="TLB-related"><a href="#TLB-related" class="headerlink" title="TLB related"></a>TLB related</h3><article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>TLB miss rate for hash-table</p>
+</div>
+        <div class="message-body">
+            <p>Figure 2 compares the TLB miss rate for hash-table probes over a 32GB working set for 4KB and 2MB pages. </p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/7d45fd8a8160b0e0d8c26ebb544bc987.png">{ width&#x3D;80% }</p>
+<p>The figure indicates that even with large pages and a TLB of 1K entries, for every thousand instructions, there are 40 TLB misses, each requiring a page table walk.[^14]</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>L2 TLB MPKI</p>
+</div>
+        <div class="message-body">
+            <p>Figure 3 shows the L2 TLB MPKI of the baseline system, as we increase the L2 TLB size from 1.5K entries up to 64K entries, for 11 memory-intensive workloads.[^1]</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/2eb8b3089237b0e4334501454980fdb5.png"></p>
+<p>We observe that the baseline 1.5K-entry L2 TLB suffers from high average MPKI, 39 on average and up to 77. Even using a drastically larger 64K-entry L2 TLB, the average MPKI remains high at 24 (and up to 54), resulting in frequent PTWs.</p>
+
+        </div>
+    </article>
+
+<p>!!! example annotate “ideal system with perfect TLB”</p>
+<pre><code>Figure 6 shows the execution time speedup of ECH and P-TLB(1) compared to Radix. [^1]
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/88f47032d721402219ce1a629fbabd42.png)
+
+We observe that P-TLB outperforms Radix by 30% and ECH by 22%. 
+
+We conclude that there is room for further improving the performance of address translation.
+</code></pre>
+<ol>
+<li>Every translation request hits in the L1 TLB.</li>
+</ol>
+<h3 id="High-performance-overheads"><a href="#High-performance-overheads" class="headerlink" title="High performance overheads"></a>High performance overheads</h3><p>!!! quote annotate “Page Walk is costly: 1 TLB miss cause 4 references”</p>
+<pre><code>Radix page tables as implemented in the x86-64 architecture
+incur a penalty of four memory references for address translation upon each TLB miss. These 4 references become 24 in
+virtualized setups(1), accounting for 5%–90% of the runtime[^2]
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/3b03f937df627f535d74ae9c6d4cb011.png)&#123; width=80% &#125;[^2]
+</code></pre>
+<ol>
+<li>Hardware-assisted virtualization utilizes two layers of page tables, one for the host system and one for the guest virtual machine. The translation process of simultaneously walking these page tables is done in a “two-dimensional” (2D) manner, requiring 24 instead of 4 memory references.</li>
+</ol>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>MICRO’14</p>
+</div>
+        <div class="message-body">
+            <p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/aff45004e6a85a632c154aea6b28eab9.png">[^24]</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>average PTW latency</p>
+</div>
+        <div class="message-body">
+            <p>Figure 4 shows the average PTW latency (in processor cycles) for Radix and ECH. </p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/a1ee79c9d2d507bca071803325af2737.png"></p>
+<p>We observe that Radix spends 137 cycles and ECH 86 cycles, on average, to complete the PTW.</p>
+
+        </div>
+    </article>
+
+<h3 id="radix-page-table-lack-parallelism"><a href="#radix-page-table-lack-parallelism" class="headerlink" title="radix page table lack parallelism"></a>radix page table lack parallelism</h3><p>its sequential pointer-chasing operation misses an opportunity: it does not exploit the ample memory-level parallelism that current computing systems can support.[^3]</p>
+<h3 id="High-interference-in-memory-hierarchy"><a href="#High-interference-in-memory-hierarchy" class="headerlink" title="High interference in memory hierarchy"></a>High interference in memory hierarchy</h3><article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>translation-induced interference</p>
+</div>
+        <div class="message-body">
+            <p><strong>Utopia</strong> presents an intriguing perspective: the presence of extensive translation metadata can disrupt the memory hierarchy, affecting CPU caches, interconnects, and main memory.</p>
+<p>As discussed in the earlier section “页面命中，硬件执行流程” (Page Hits, Hardware Execution Process), accessing the Page Table Entry (PTE) involves making a physical address access to <code>CR3+VPN1</code>. In the event of a Translation Lookaside Buffer (TLB) miss, one address translation leads to four PTE accesses under the 4-level Page Table (PT) structure. Given that the cache capacity is approximately 8MB, it is reasonable to speculate that four PTE accesses may result in a cache miss approximately half the time, consequently <strong>doubling or even tripling the overhead</strong> compared to a standard memory access. This insight highlights the significant impact of translation metadata on system performance and the need to address this issue effectively.</p>
+<p>Even using the state-of-the-art hash-based PT design in a system that supports both 4KB and 2MB pages, a PTW takes an average of 86 cycles (up to 123) to complete, across 11 data-intensive workloads. [^1]</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>breakdown of the servicing location (DRAM, LLC, L2) of memory requests</p>
+</div>
+        <div class="message-body">
+            <p>Figure 5 demonstrates the breakdown of the servicing location (DRAM, LLC, L2) of memory requests to access the PT in both Radix and ECH, normalized to Radix. We make two key observations. [^1]</p>
+<ol>
+<li>First, an average of 43% of the PT requests are serviced from DRAM, in Radix. This is the key reason behind the long average PTW latency of Radix (137 cycles). </li>
+<li>Second, although ECH reduces the fraction of PT requests that hit in the DRAM, it increases the total number of memory requests (to access the PT) by 62% on average compared Radix.</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/80bf0c19c556f8a8f0ffb4dd12c3dd0f.png"></p>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>L2 TLB is useless</p>
+</div>
+        <div class="message-body">
+            <p>According to last experiment, L2 TLB seems useless.</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>fraction of cache blocks of two caches (L2, LLC) that store PT data</p>
+</div>
+        <div class="message-body">
+            <p>Figure 7 shows the fraction of cache blocks of two caches (L2, LLC) that store PT data (L1 typically does not store PT entries [66–68]), averaged across 500 epochs of 1M instructions, for Radix and ECH. [^1]</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/289fe66bb3c0a5e9272fbd1388c8e498.png"></p>
+<p>We observe that both Radix and ECH use significant fraction of cache capacity in the cache hierarchy. For example, Radix and ECH respectively use 33% and 57% of L2’s total capacity for PT entries. </p>
+<p>The high usage of cache blocks for PT entries reduces the effective capacity of the cache hierarchy, which otherwise could have been used to store the data of (i) the running application and (ii) other applications running on the system if the LLC is shared.</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>reduction in DRAM row buffer conflicts</p>
+</div>
+        <div class="message-body">
+            <p>Figure 8 shows the reduction in DRAM row buffer conflicts provided by ECH and a perfect L1 TLB (P-TLB) compared to Radix. [^1]</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/47597806f9cd655404c45f4274f14931.png"></p>
+<p>We observe that </p>
+<ol>
+<li>ECH increases DRAM row buffer conflicts by 50% due to the increase in memory requests sent to DRAM and </li>
+<li>P-TLB decreases row buffer conflicts by 30% due to the reduced number of DRAM row activations for translation metadata.</li>
+</ol>
+<p>We conclude that designing more compact and efficient translation structures (and thus ideally approaching a perfect TLB) can lead to a significant reduction in memory hierarchy interference.</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>increase data accesses to the swap space</p>
+</div>
+        <div class="message-body">
+            <p>Figure 9 shows the increase in the number of data accesses to the swap space in a system that uses only the restrictive mapping across the whole memory, similar to [49], compared to the baseline system. [^1]</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/fd798c2c37707e40504df690a3ad2bc4.png"></p>
+<p>We observe that employing a restrictive address mapping in the entire memory space causes a significant increase in swap space accesses, <code>2.2×</code> on average, since a large number of virtual pages cannot be mapped inside physical memory and need to be stored into and fetched from the swap space. </p>
+<p>Fetching data from the swap space is orders of magnitude slower than fetching data from DRAM, which leads to significant performance overheads</p>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>Utopia’s motivation</p>
+</div>
+        <div class="message-body">
+            <p>Conventional hashed based PT enable <strong>fast</strong> address translation with <strong>high</strong> translation-induced interference in the memory hierarchy.</p>
+
+        </div>
+    </article>
+
+<h2 id="Solution-to-reduce-V2P-overhead"><a href="#Solution-to-reduce-V2P-overhead" class="headerlink" title="Solution to reduce V2P overhead"></a>Solution to reduce V2P overhead</h2><h3 id="superpage"><a href="#superpage" class="headerlink" title="superpage"></a>superpage</h3><p>??? question annotate “how superpage get work”</p>
+<pre><code>To increase the reach of the TLB, the x86-64 architecture
+supports two large page sizes, 2MB and 1GB. When a large
+page is used, the page table walk is shortened. Specifically, a
+2MB page translation is obtained from the PMD table(1), while
+a 1GB page translation is obtained from the PUD table.[^3] 
+
+The **advantage** of super pages is that 
+1. a single TLB entry will be mapping a much larger amount(2) of virtual memory in turn reducing the number of **TLB misses**.
+2. They also make the **page table walk slightly faster** on a TLB miss.[^5]
+3. Reduce probability of page fault(3) when the first time the memory is accessed.[^9]
+
+The **disadvantage** of super pages is that a process might not need all of that memory and so memory can be wasted.[^5] And requiring larger clear-page copy-page in page faults.[^9]
+
+And superpage will keep the lower bits of page frame address reserved in PTE[^6][^7]
+</code></pre>
+<ol>
+<li>PMD point to the 2MB page location (aligned in 2MB?) + lower bits offset &#x3D;&gt; physical address</li>
+<li>by a factor of 512 for megapages, and 262144 for gigapages</li>
+<li>so reducing the enter&#x2F;exit kernel frequency by a 512 or 262144 times factor</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>How TLB to cache the superpage</p>
+</div>
+        <div class="message-body">
+            <p>explianed in front section.</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>linux Transparent Hugepage Support</p>
+</div>
+        <div class="message-body">
+            <p>OSDI 2002</p>
+
+        </div>
+    </article>
+
+<h3 id="PWC"><a href="#PWC" class="headerlink" title="PWC"></a>PWC</h3><p>??? note annotate “Page Walk Caches (PWCs)”</p>
+<pre><code>PSCs (four in number for a five-level page table) store the recently accessed PTEs of intermediate page table levels. PTW searches all the PSCs concurrently after an STLB miss. In case of more than one hit, the farthest level is considered as it minimizes the page table walk latency.[^12]
+
+To alleviate the overhead of page table walks, the MMU
+of an x86-64 processor has small caches called Page Walk
+Caches (PWCs)(1). The PWCs store recently-accessed PGD,
+PUD, and PMD table entries (but not PTE entries). [^3]
+
+On a TLB miss, before the hardware issues any request
+to the cache hierarchy, it checks the PWCs. It records the
+lowest level table at which it hits. Then, it generates an access
+to the cache hierarchy for the next lower level table.
+</code></pre>
+<ol>
+<li>named as PSC in Intel SDM 4.10.3 Paging-Structure Caches</li>
+</ol>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>PWC in Intel</p>
+</div>
+        <div class="message-body">
+            <p>Page walks are cached in three ways:</p>
+<ol>
+<li>translation caches (TLBs), </li>
+<li>page table entries in the regular data cache hierarchy, </li>
+<li>and through Page Walker Caches (PWCs), such as Intel’s Paging Structure Cache.</li>
+</ol>
+<p>The PWC allows walks to skip lookups for some levels of page table by matching the index bits of each level of the page table node with those cached by previous page walks. </p>
+<p>Intel’s PWC is organized in three depths of translation caching: L4, L3 and L2. </p>
+<ul>
+<li>An L4 PWC holds previous walk paths that share the top 9 bit virtual address, allowing the walker to skip accessing the L4 page table entry, and go directly to the L3 page table entry. As each L4 entry covers 512 GB of virtual address space, this means that accesses that stay within a 512 GB virtual address range will hit in the PWC and be able to skip the L4 lookup.<br>- (Intel SDM version): PML4 can be accessed directly while skipping the PML5 table access if high-order 9 bits of the virtual address (VA[56:48]) required for the PML5 index are matched on a PML5-PSC (PSC holding the entries of the PML5 table).[^11]</li>
+<li>With an L2 PWC, a walk that matches all upper 27 bits of the virtual address will be able to skip the first three levels of the page table, and directly access the level 1 page table node. Such L2 PWC hits enable single-access translations (only a L1 entry access is required) for TLB misses within 2 MB regions of virtual address space.[^10]<br>- (Intel SDM version): In the best case, if VA[56:21] is matched on the PD-PSC (PSC holding the entries of the PD table), the 5-step page walk is reduced to just a single step.[^11]</li>
+</ul>
+<p><strong>Page Walker Caches are excellent</strong>. Page walk caches (PWCs) already reduce the theoretical 4 memory system accesses per page walk to &lt; 1.5 on average (max 2.5 on our random access benchmark), and from 24 to 4.4 for virtualized systems in paper Figure 10[^10]</p>
+<p>But PWC sill rarely performs effectively for workloads with irregular access patterns.[^10]</p>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>Why design PWC but not bigger TLB</p>
+</div>
+        <div class="message-body">
+            <p>to learn in [^26]</p>
+
+        </div>
+    </article>
+
+<h3 id="Hashed-based-instead-of-radix-tree"><a href="#Hashed-based-instead-of-radix-tree" class="headerlink" title="Hashed-based instead of radix tree"></a>Hashed-based instead of radix tree</h3><p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/5a43b66d061a0ee999820cc166bb73ae.png">{ width&#x3D;80%}<a target="_blank" rel="noopener" href="https://www.javatpoint.com/what-is-hashed-page-table-in-operating-system">^13</a></p>
+<ul>
+<li>To solve hash collisions, the each entry in the hash table has a <strong>link list&#x2F;collision chaining</strong> or <strong>open addressing</strong> basic machanisim or newer [^2].</li>
+</ul>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>hash collisions</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>In this example, the logical address includes page number P3 which does <strong>not match</strong> the first element of the link list as it includes page number P1. </li>
+<li>So we will move ahead and check the next element; now, this element has a page number entry, i.e., P3, so further, we will check the frame entry of the element, which is fr5. </li>
+<li>We will append the offset provided in the logical address to this frame number to reach the page’s physical address</li>
+</ol>
+
+        </div>
+    </article>
+
+<ul>
+<li><strong>Advantage</strong>: Assuming that there is no hash collision, only one memory system access is needed for address translation.</li>
+<li><strong>Challenges but solved in paper</strong>: [^3]<br>1. <strong>the loss of spatial locality</strong> in the accesses to the page table. This is caused by hashing, which scatters the page table entries of contiguous virtual pages.<br>2. the need to associate a hash tag (e.g., the virtual page number) with each page table entry, which causes page table entries to <strong>consume more memory space</strong>.<br>3. the need to handle <strong>hash collisions</strong>, which leads to more memory accesses, as the system walks collision chains</li>
+</ul>
+<p>??? info annotate “Research 2016: “Page Table Entry Clustering &amp; Compaction”</p>
+<pre><code>Yaniv and Tsafrir [^2] recently show that the first two limitations are addressable by careful design of page table entries. Specifically, they use **Page Table Entry Clustering**, where multiple contiguous page table entries are placed together in a single hash table entry that has a size equal to a cache line.
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/c0bd8fc0a74337436d3d1a46c0fd81b4.png)
+
+Further, they propose **Page Table Entry Compaction**(1), where unused upper bits of multiple contiguous page table entries are re-purposed to store the hash tag.
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/a9e7d644bc5fb660fdf2319ba82de518.png)&#123; width=50% &#125;
+</code></pre>
+<ol>
+<li>We propose a new technique that further improves hashed page tables by <strong>compacting eight adjacent PTEs in a single 64-byte cache line</strong>, resulting in the spatial locality of hashed page tables similar to that of the x86-64 radix page tables. The clustered page tables, as were previously defined, <strong>cannot pack eight</strong> PTEs and a tag in a single cache line, since PTEs are 8 bytes long. But <strong>we can exploit the unused topmost bits of each PTE and store the tag in this unused space.</strong></li>
+</ol>
+<p>!!! question annotate “Why <strong>not</strong> use Single Global Hash Table”</p>
+<pre><code>A single global hash table that includes page table entries from all the active processes[^3]
+
+- **Advantage**: 1) the hash table is allocated only once, and 2) the table can be sized(1)
+- **drawback** 
+        * neither **multiple page sizes** (e.g., huge pages) nor **page sharing** between processes can be supported without additional complexity.
+        * when a process is killed, the system needs to perform a linear scan of the entire hash table to find and **delete** the associated page table entries. Note that deleting an entry may also be costly
+</code></pre>
+<ol>
+<li>to minimize the need for dynamic table resizing, which is very time consuming.</li>
+</ol>
+<p>??? example annotate “Motivation: high hash collision probability”</p>
+<pre><code>Figure 2 shows the probability of random numbers mapping to the same hash table entry.(1)[^3]
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/8f6b377287f9691aeffe58c5aac6e72a.png)
+
+For the baseline table, we see that only 35% of the entries in the hash table have no collision (i.e, the number of colliding entries is 1). Even for the over-provisioned table(*1.5), only half of the entries in the table have no collision.
+</code></pre>
+<ol>
+<li>We evaluate the following scenario: (1) the table has as many entries as the sum of all the translations required by all the applications, and (2) the hash function is the computationallyexpensive BLAKE cryptographic function [5] which minimizes the probability of collisions.</li>
+</ol>
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>Resizing research to reduce hash collisions but still costly</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li><strong>Resizing Hashed PT</strong>: hash table implementations set an occupancy threshold that, when reached, triggers the resizing of the table.[^3]</li>
+<li><strong>gradual rehashing</strong> : maintain both the old and the new hash tables and gradually move the entries.</li>
+</ol>
+
+        </div>
+    </article>
+
+<p>!!! note annotate “Elastic Cuckoo Hashing”</p>
+<pre><code>Elastic cuckoo hashing is a novel algorithm for cost-effective **gradual resizing** of **d-ary cuckoo hash tables**.
+
+**Key idea 1**: target moved region
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/6fc2ea7a30e6c7d3d8eba04b4f8deb29.png)
+
+Operations： Rehash
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/249e489fb877b86305e385ec169399f1.png)
+
+Operations： Lookup(parallisim) 
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/7dff5b52aafd42ea51058726d901fb08.png)
+
+Operations： insert(1)
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/bb9cff9c77fb9c7160958fa76dcdef2a.png)
+
+**Key idea 2**: resize threshold is just like the machanism in vector space allocation, `k` times bigger
+</code></pre>
+<ol>
+<li>We use <code>x ↔ y</code> to denote the swapping of the values x and y, and use <code>⊥</code> to denote an empty value.</li>
+</ol>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>multi h-tables for per process and diff-superpages in parallel</p>
+</div>
+        <div class="message-body">
+            <p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/8cdb8675e0d21ebb71db5d4f6e04f20b.png"></p>
+<p><strong>Cuckoo Walk</strong> to refer to the procedure of finding the correct translation in elastic cuckoo page tables.</p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Speedup access using CWTs and CWCs</p>
+</div>
+        <div class="message-body">
+            <p><strong>Cuckoo Walk Tables (CWTs)</strong>. These software tables contain information about which way of which elastic cuckoo page table should be accessed to obtain the desired page translation entry To reduce the number of look-ups required.</p>
+<p>MMU’s <strong>Cuckoo Walk Caches</strong> cache CWTs accessible with low latency. These caches replace the page walk caches of radix page tables.</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/c01c0e361d29e8a1b7c6d5214ff6a8a7.png"></p>
+
+        </div>
+    </article>
+
+<h3 id="Clustered-Page-Table"><a href="#Clustered-Page-Table" class="headerlink" title="Clustered Page Table"></a>Clustered Page Table</h3><p>The clustered page tables are <strong>similar</strong> to hashed page tables except that each entry in the hash table <strong>refers to many pages</strong> rather than one single page (as in a hashed page table). Hence, a single entry of a clustered page table can store the mappings for multiple physical page frames. <a target="_blank" rel="noopener" href="https://www.javatpoint.com/what-is-hashed-page-table-in-operating-system">^13</a></p>
+<p>Clustered page tables are <strong>useful for sparse address spaces</strong>, where memory references are scattered throughout the address space (non-contiguous).</p>
+<h3 id="Inverted-Page-Table"><a href="#Inverted-Page-Table" class="headerlink" title="Inverted Page Table"></a>Inverted Page Table</h3><article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>Motivation</p>
+</div>
+        <div class="message-body">
+            <p>The concept of normal paging says that every process maintains its own page table, which includes the entries of all the pages belonging to the process. The large process may have a page table with millions of entries. Such a page table consumes a large amount of memory. Consider we have six processes in execution. So, six processes will have some or the other of their page in the main memory, which would compel their page tables also to be in the main memory consuming a lot of space. This is the drawback of the paging concept.[^13]</p>
+<p>The inverted page table is the <strong>solution to this wastage of memory</strong>. And related <strong>advantage</strong> is Simplified Page Swapping and Improved Cache Performance</p>
+
+        </div>
+    </article>
+
+<div class="annotate" markdown>
+-  Inverted Page Table (IPT) is a **global** structure. Only a fixed portion of memory is required to store the **paging information of all the processes together**.  
+</div>
+
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2023/11/ec8023c74fc42209d99fbc68b7678516.png){ width=80% }
+  <figcaption>Conventional IPT</figcaption>
+</figure>
+
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2023/11/da47361fd208878186029e51271acb7c.png)
+  <figcaption>IPT with hash-table for faster lookup</figcaption>
+</figure>
+
+<p>??? example annotate “How IPT get work”</p>
+<pre><code>The logical address consists of three entries `process id(1)/ ASID(2)`, `page number`, and the `offset`.
+
+The match of `process id` and associated `page number` is searched in the page table and says if the search is found at the `ith` entry of page table, then `i and offset` together generate the physical address for the requested page. **The number i is the physical page number**.
+</code></pre>
+<ol>
+<li>An inverted page table contains the address space information of <strong>all the processes</strong> in execution. Since two different processes can have a similar set of virtual addresses, it becomes necessary to store each process’s process ID to <strong>identify its address space</strong> uniquely in the Inverted Page Table.</li>
+<li>12 bits address-space identifier (ASID) identifies the process currently active on the CPU. This is used to extend the virtual address when accessing the TLB.</li>
+</ol>
+<p>??? example annotate “hashed IPT performence”</p>
+<pre><code>![](https://pic.shaojiemike.top/shaojiemike/2023/11/32d945322580e477ecc9058eb9229efd.png)
+
+The rate of hash table collisions(1) is mainly determined by the ratio of occupied slots to the total number of slots, also called the **load factor**[^2]
+
+**Mod**:conventional modulo hash [^14]
+
+**Fold**:a stronger k-bit XOR folding
+
+So we allocate **four times** of PTE for each 4KB page, due to the 1/4 load factor,
+</code></pre>
+<ol>
+<li>open addressing for resolving conflicts, access the next one exploiting the locality in the DRAM row buffer.</li>
+</ol>
+<p>??? question annotate “Why named Inverted”</p>
+<pre><code>1. Indexing using the frame number(1) instead of the logical page number(2).(why named Inverted)
+2. Refer to translation metadata size, IPT is proportional to physical memory size. But conventional radix PT is proportional to `virtual address * process number`.
+</code></pre>
+<ol>
+<li>the <code>ith</code> entry is correspond to the <code>ith</code> physical page in memory space</li>
+<li>the <code>ith</code> entry is correspond to the <code>ith</code> malloced virtual page ???</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>IPT V.S. One Single PT</p>
+</div>
+        <div class="message-body">
+            <table>
+<thead>
+<tr>
+<th>IPT</th>
+<th>SPT</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>One IPT for all processes</td>
+<td>each process has one</td>
+</tr>
+<tr>
+<td>each memory frame has a PTE in IPT</td>
+<td>each PTE has a (shared) mem-frame</td>
+</tr>
+<tr>
+<td>Not waste mem</td>
+<td>waste mem in multi-processes</td>
+</tr>
+<tr>
+<td>implemented hash table for faster lookup</td>
+<td>NO</td>
+</tr>
+</tbody></table>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Can the Inverted Page System suit all memory systems?</p>
+</div>
+        <div class="message-body">
+            <p>Note: Number of Entries in Inverted page table &#x3D; Number of frames in Physical Address Space(PAS).</p>
+<ul>
+<li>Inverted Page Table is best suited to systems having <strong>limited physical memory but a large virtual address space</strong>.</li>
+<li>Page tables are more efficient for managing large virtual address spaces and provide better protection and control over memory access.</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>Disadvantage</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li><strong>Low searching speed</strong>  the lookup is performed using a logical address(virtual address). It sometimes happens that the entire table is searched to find the match.</li>
+<li><strong>Difficult Shared Memory Implementation</strong>: As the Inverted Page Table stores a single entry for each frame, it becomes difficult to implement the shared memory in the page tables. Chaining techniques are used to map more than one virtual address to the entry specified in the order of frame number.</li>
+</ol>
+
+        </div>
+    </article>
+
+<p>??? note annotate “PACT’17: DIPTA (Distributed Inverted Page Table)”</p>
+<pre><code>DIPTA restricts the associativity so that a page can only reside in a few number of physical locations which are physically adjacent–i.e., in the same memory chip and DRAM row.[^14]
+
+**Ideas**:
+
+1. Put metedata/MMU/data closer, the translation and data fetch time more be overlapped.
+2. Restrict metadata closer to data, the MMU can be positioned deeper, the time more be saved.
+         1. ![](https://pic.shaojiemike.top/shaojiemike/2023/11/c93a9fdbc7a5100a86f97f34187a3f4d.png)
+3. Leveraging Cache Structure for Efficiency: Cache-like designs leverage the benifit of restricting address translation. Two key techniques help make caches fast and efficient:
+      1. **Grouping** `n-ways` metadata together into `sets`
+      2. **Direct-mapping** between sets - From the perspective of an individual set, the cache acts as direct-mapped storage, meaning there is a **predictable** mapping between a memory address and which entry within the set will store it. This **eliminates complex logic** to search the entire cache, streamlining the placement and lookup process.
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/d71f598ac2f56397153ca75ca871da7d.png)
+
+**Overview **
+
+4. General idea ![](https://pic.shaojiemike.top/shaojiemike/2023/11/bce114e3f0c6833756d478c2fe3f1db0.png)
+5. SRAM Design ![](https://pic.shaojiemike.top/shaojiemike/2023/11/386ef7c227260d794fe83c76d389124d.png)
+6. In-DRAM Design ![](https://pic.shaojiemike.top/shaojiemike/2023/11/437a9f70b6949caf3ae8f82fe2d8c10a.png)
+
+**Detail 1**: Speed up by limit multi-ways-check to one DRAM row access.
+
+Change page layout(2) to make **cache-like** `j`-way k-set-assiciative DIPTA just search way in **one** DRAM row(3) to reduce lookup latency.
+
+![](https://pic.shaojiemike.top/shaojiemike/2023/11/c89116b3d438b04553ef70b37529b848.png)
+
+**Drawback**: 
+
+7. the NAT paper ether PACT&#39;17 or first author&#39;s PhD thesis is hard to read and lack graph to explaination. Several few diagrams presentation are inconsistent to the paper writing.
+8. Lack of further discussion about the cache-like DRAM kick-out when the way is conflict or memory full.
+9. Lack of further discussion about the organization of conventional AT components such as the TLB
+10. No proof provided of the design&#39;s effectiveness, e.g., way predictor, Or critical path analysis.
+</code></pre>
+<ol>
+<li>is very similar to the VIPT L1 cache overlap v2p translation and cache index.</li>
+<li><code>j*j</code> matrix transpose, each page is divided to <code>j</code> parts.</li>
+<li>The target DRAM row is determined by the highest order bits of the part of the virtual address that used to identify the DRAM column (i.e., the page offset).</li>
+</ol>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>MICRO’23 Utopia</p>
+</div>
+        <div class="message-body">
+            <p>Finish the total design, and use conventional FlexSeg to deal with way conflict.</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/d73116335314673335ac8f45a79c8c7f.png"></p>
+<p>But Still remains <strong>Drawback</strong>:</p>
+<ol>
+<li>self-consistent basic design <strong>but may not efficient</strong>, especially in the migration from FlexSeg to RestSeg<ol>
+<li>e.g., Maybe translation will fall into dead loop of kick-out of RestSeg and migrate back to RestSeg. If there is no free space in the corresponding set of the RestSeg, the OS performs (i) the migration of the costly-to-translate page from the FlexSeg to the RestSeg and (ii) the migration of the evicted page from the RestSeg to the FlexSeg.</li>
+<li>Utopia proved than less than 0.001% of the memory requests are affected due to migration, But still dare not show the avg latency of one migration.</li>
+</ol>
+</li>
+<li>Not further consider the details of TLB and PIM core and RestSeg co-design in PIM System.</li>
+<li>hash in RestReg is no need</li>
+<li><input checked="" disabled="" type="checkbox"> Cache-like structure lose the expansibility of DRAM size. Using base register and <strong>512MB sharing global RestSeg</strong>, OS can alloc any fragment in DRAM to any process.</li>
+</ol>
+
+        </div>
+    </article>
+
+<h3 id="2-level-fat-PT"><a href="#2-level-fat-PT" class="headerlink" title="2 level fat-PT"></a>2 level fat-PT</h3><p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/f35088cd53d95a7406ee4589c16b7345.png">{ width&#x3D;50% }[^10]</p>
+<h3 id="Near-Memory-Address-Translation"><a href="#Near-Memory-Address-Translation" class="headerlink" title="Near-Memory Address Translation"></a>Near-Memory Address Translation</h3><ol>
+<li>Restricting the virtual-to-physical mapping: determining the physical location of a virtual page based on a <strong>specific set of bits of the virtual address</strong> is considerably faster than accessing the x86-64 multi-level PT.</li>
+<li>and with a highly accurate <strong>way predictor</strong></li>
+<li>translation and <strong>data fetch</strong> to proceed independently and in <strong>parallel</strong>. &#x2F; fully overlap address translation with data fetch.</li>
+</ol>
+<h2 id="example：address-translation-requests-in-MMU"><a href="#example：address-translation-requests-in-MMU" class="headerlink" title="example：address translation requests in MMU"></a>example：address translation requests in MMU</h2><figure markdown>
+  <!-- ![](https://pic.shaojiemike.top/shaojiemike/2023/11/98bdf48740669f0db0afa4143f9a3572.png) -->
+  ![](https://pic.shaojiemike.top/shaojiemike/2023/11/530e9d868c99fc990e185d1c45b6f447.png){ width=80% }
+  <figcaption>relationship of TLB, PTW, PWC, Cache(VIPT L1)</figcaption>
+</figure>
+
+<div class="annotate" markdown>
+1. Translation requests that miss in the L1 TLBs are forwarded to a unified L2 TLB that stores translations for both instructions and data. 
+2. In case of an L2 TLB miss, the MMU triggers a **PTW(Page Table Walker)**(1)
+3. In order to reduce PTW latency, page table walkers are equipped with **page walk caches (PWC)**, which are small dedicated caches for each level of the PT (e.g., search in PWC three times for the first three levels in x86-64). 
+4. In case of a PWC miss, the MMU issues the request(s) for the corresponding level of the PT to the conventional memory hierarchy(2)
+5. and `6.` If the physical address points to a page inside the **swap space** of the storage device, the MMU issues a request to the storage device to move the page from the swap space into the main memory 
+</div>
+
+<ol>
+<li>PTW is performed by a dedicated hardware page table walker capable of performing <strong>multiple concurrent PTWs</strong>. </li>
+<li>Only L2 and LLC I guess, due to L1 typically does not store PT entries[^1], I think this is because VIPT L1 is in the front of DTLB.</li>
+</ol>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>page fault exception</p>
+</div>
+        <div class="message-body">
+            <p>If the physical address is not found in the PT, the MMU raises a page fault exception to pass control to the OS. OS will malloc the missing page in memory.</p>
+
+        </div>
+    </article>
+
+<!-- [<sup>2</sup>](#refer-anchor)
+
+## 🏗施工中🏗
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+觉得有意义写，先占个位子。还没写好呢，建议不要看（逻辑内容都没想清楚），不要急~~
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+
+## 需要进一步的研究学习
+
+暂无
+
+## 遇到的问题
+
+暂无
+
+## 开题缘由、总结、反思、吐槽~~ -->
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>Guvenilir 和 Patt - 2020 - Tailored Page Sizes.pdf</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zmx1026/article/details/46471439">https://blog.csdn.net/zmx1026/article/details/46471439</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1N3411y7Mr?spm_id_from=444.41.0.0">https://www.bilibili.com/video/BV1N3411y7Mr?spm_id_from=444.41.0.0</a></p>
+<p>知乎： 高速缓存与一致性专栏索引 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/136300660">https://zhuanlan.zhihu.com/p/136300660</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/108425561">https://zhuanlan.zhihu.com/p/108425561</a></p>
+<p>[^1]: Utopia: Fast and Efficient Address Translation via Hybrid Restrictive &amp; Flexible Virtual-to-Physical Address Mappings</p>
+<p>[^2]: Hash, Don’t Cache (the Page Table)</p>
+<p>[^3]: ASPLOS’20: Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism</p>
+<p>[^4]: Intel® 64 and IA-32 Architectures Software Developer’s Manual, Vol. 3: System Programming Guide 3A</p>
+<p>[^5]: <a target="_blank" rel="noopener" href="https://www.reddit.com/r/RISCV/comments/v895do/what_are_super_pages_wrt_page_tables/">What are Super pages w.r.t Page tables ?</a></p>
+<p>[^6]: Intel SDM &#x2F;Section 4.5.4 &#x2F;Figure 4-11. Formats of CR3 and Paging-Structure Entries with 4-Level Paging and 5-Level Paging</p>
+<p>[^7]: Intel SDM &#x2F;Section 4.5.4 &#x2F;Figure 4-9. Linear-Address Translation to a 2-MByte Page using 4-Level Paging</p>
+<p>[^8]: <a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/ddi0487/latest/">Arm Architecture Reference Manual for A-profile Architecture</a></p>
+<p>[^9]: <a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/next/admin-guide/mm/transhuge.html">Linux Transparent Hugepage Support</a></p>
+<p>[^10]: ASPLOS’22: Every Walk’s a Hit Making Page Walks Single-Access Cache Hits</p>
+<p>[^11]: Pinning Page Structure Entries to Last-Level Cache for Fast Address Translation</p>
+<p>[^12]: Address Translation Conscious Caching and Prefetching for High Performance Cache Hierarchy</p>
+<p>[^14]: PACT’17 Near-Memory Address Translation</p>
+<p>[^15]: J. F. Couleur and E. L. Glaser, “Shared-access data processing system,” 1968, US Patent 3,412,382. Available: <a target="_blank" rel="noopener" href="http://www.google.com.ar/patents/US3412382">http://www.google.com.ar/patents/US3412382</a></p>
+<p>[^16]: Abhishek Bhattacharjee, Daniel Lustig, and Margaret Martonosi. 2011. Shared Last-level TLBs for Chip Multiprocessors. In Proceedings of the 2011 IEEE 17th International Symposium on High Performance Computer Architecture (HPCA’11).</p>
+<p>[^17]: J. Bradley Chen, Anita Borg, and Norman P. Jouppi. 1992. A Simulation Based Study of TLB Performance. In Proceedings of the 19th Annual International Symposium on Computer Architecture (ISCA’92).</p>
+<p>[^18]: Guilherme Cox and Abhishek Bhattacharjee. 2017. Efficient Address Translation for Architectures with Multiple Page Sizes. In Proceedings of the 22nd International Conference on Architectural Support for Programming Languages and Operating Systems</p>
+<p>[^19]: M. Talluri, S. Kong, M. Hill, and D. Patterson, “Tradeoffs in Supporting Two Page Sizes,” ISCA, 1992.</p>
+<p>[^20]: J. Navarro, S. Iyer, P. Druschel, and A. Cox, “Practical, Transparent Operating System Support for Superpages,” OSDI, 2002.</p>
+<p>[^21]: B. Pham, J. Vesely, G. Loh, and A. Bhattacharjee, “Large Pages and Lightweight Memory Management in Virtualized Systems: Can You Have it Both Ways?,” MICRO, 2015.</p>
+<p>[^22]: ISCA’15 Redundant Memory Mappings for Fast Access to Large Memories.</p>
+<p>[^23]: Swapnil Haria, Mark D. Hill, and Michael M. Swift. 2018. Devirtualizing Memory in Heterogeneous Systems. In Proceedings of the 23rd International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS’18).</p>
+<p>[^24]: Jayneel Gandhi, Arkaprava Basu, Mark D. Hill, and Michael M. Swift. 2014. Efficient Memory Virtualization: Reducing Dimensionality of Nested Page Walks. In Proceedings of the 47th Annual IEEE&#x2F;ACM International Symposium on Microarchitecture (MICRO-47).</p>
+<p>[^25]: “Observations and opportunities in architecting shared virtual memory for heterogeneous systems,” in Proceedings of the 2016 International Symposium on Performance Analysis of Systems and Software, 2016.</p>
+<p>[^26]: T. W. Barr, A. L. Cox, and S. Rixner, “Translation caching: skip, don’t walk (the page table),” in Proceedings of the 2010 International Symposium on Computer Architecture, 2010.</p>
+<p>[^27]: A. Bhattacharjee, “Large-reach memory management unit caches,” in Proceedings of the 2013 International Symposium on Microarchitecture, 2013.</p>
+<p>[^28]: ISCA’13 Efficient Virtual Memory for Big Memory Servers</p>
+<p>[^29]: <a target="_blank" rel="noopener" href="https://safari.ethz.ch/digitaltechnik/spring2021/doku.php?id=schedule">onur mutlu virtual memory PPT</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Address Translation</p><p><a href="http://icarus.shaojiemike.top/Work/Operating system/AddressTranslation.html">http://icarus.shaojiemike.top/Work/Operating system/AddressTranslation.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2023-11-02</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

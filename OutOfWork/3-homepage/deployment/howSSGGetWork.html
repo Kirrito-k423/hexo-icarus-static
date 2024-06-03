@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>How SSG Get Work? &amp; Hugo theme creation - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       It’s not how to customize a Hugo theme but how to create a theme?"><meta property="og:type" content="blog"><meta property="og:title" content="How SSG Get Work? &amp; Hugo theme creation"><meta property="og:url" content="http://icarus.shaojiemike.top/OutOfWork/3-homepage/deployment/howSSGGetWork.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       It’s not how to customize a Hugo theme but how to create a theme?"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/11/50eddce975025e5b6643e786a6f99adc.png"><meta property="article:published_time" content="2023-11-27T07:44:46.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:09.999Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="hugo"><meta property="article:tag" content="homepage"><meta property="article:tag" content="html"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2023/11/50eddce975025e5b6643e786a6f99adc.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/OutOfWork/3-homepage/deployment/howSSGGetWork.html"},"headline":"How SSG Get Work? & Hugo theme creation","image":["https://pic.shaojiemike.top/shaojiemike/2023/11/50eddce975025e5b6643e786a6f99adc.png"],"datePublished":"2023-11-27T07:44:46.000Z","dateModified":"2024-06-03T07:54:09.999Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       It’s not how to customize a Hugo theme but how to create a theme?"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/OutOfWork/3-homepage/deployment/howSSGGetWork.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">How SSG Get Work? &amp; Hugo theme creation</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>It’s not <a target="_blank" rel="noopener" href="https://hygraph.com/blog/hugo-static-site#how-to-customize-a-hugo-theme">how to customize a Hugo theme</a> but how to create a theme?</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>Excellent Video Resource</p>
+</div>
+        <div class="message-body">
+            <p>We’re still on the lookout for an exceptional blog or overview paper to complement our understanding of this topic. Stay tuned for updates!</p>
+
+        </div>
+    </article>
+
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>Outstanding Blog or Overview Paper</p>
+</div>
+        <div class="message-body">
+            <p>The key words are “rethink”, “perspective”</p>
+
+        </div>
+    </article>
+
+<h2 id="Deploy-a-real-time-interaction-example"><a href="#Deploy-a-real-time-interaction-example" class="headerlink" title="Deploy a real-time interaction example"></a>Deploy a real-time interaction example</h2><p>I choose our achived <a target="_blank" rel="noopener" href="https://github.com/swangeese/acsa-web">acsa-lab theme</a> to continue developping.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:swangeese/acsa-web.git acsa-web-test</span><br><span class="line"><span class="built_in">cd</span> acsa-web-test</span><br><span class="line">git <span class="built_in">clone</span> git@github.com:swangeese/acsa-static.git static</span><br><span class="line">hugo server --<span class="built_in">bind</span>=222.195.72.221 --baseURL=http://222.195.72.221 -p 1313 -D -d ./public</span><br></pre></td></tr></table></figure>
+
+<p>If you close your firewall <code>ufw status</code>, you can see your web online.</p>
+<h2 id="how-to-create-a-theme"><a href="#how-to-create-a-theme" class="headerlink" title="how to create a theme?"></a>how to create a theme?</h2><p>create empty theme[^1]</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hugo new theme topdown</span><br></pre></td></tr></table></figure>
+
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>default files structure explaination</p>
+</div>
+        <div class="message-body">
+            <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shaojiemike @ icarus1 in ~/github/acsa-web-test on git:master x [19:37:24]</span></span><br><span class="line">$ tree themes/topdown</span><br><span class="line">themes/topdown</span><br><span class="line">|-- LICENSE</span><br><span class="line">|-- README.md</span><br><span class="line">|-- archetypes</span><br><span class="line">|   `-- default.md</span><br><span class="line">|-- layouts</span><br><span class="line">|   |-- 404.html</span><br><span class="line">|   |-- _default</span><br><span class="line">|   |   |-- baseof.html</span><br><span class="line">|   |   |-- list.html</span><br><span class="line">|   |   `-- single.html</span><br><span class="line">|   |-- index.html</span><br><span class="line">|   `-- partials</span><br><span class="line">|       |-- footer.html</span><br><span class="line">|       |-- head.html</span><br><span class="line">|       `-- header.html</span><br><span class="line">|-- static</span><br><span class="line">|   |-- css</span><br><span class="line">|   `-- js</span><br><span class="line">`-- theme.toml</span><br></pre></td></tr></table></figure>
+
+<p>Only the <code>layouts/_default/baseof.html</code> is not empty</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 文档类型声明，指定文档使用的HTML版本。 --&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- input head.html in partials folder to here --&gt;</span></span><br><span class="line">    &#123;&#123;- partial &quot;head.html&quot; . -&#125;&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- input header.html in partials folder to here --&gt;</span></span><br><span class="line">        &#123;&#123;- partial &quot;header.html&quot; . -&#125;&#125;  </span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;content&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 一个Go语言中的HTML模板引擎语法，表示在这里定义一个名为 &quot;main&quot; 的块。具体的 &quot;main&quot; 块内容将由其他模板文件提供。 --&gt;</span></span><br><span class="line">        &#123;&#123;- block &quot;main&quot; . &#125;&#125;&#123;&#123;- end &#125;&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- input footer.html in partials folder to here --&gt;</span></span><br><span class="line">        &#123;&#123;- partial &quot;footer.html&quot; . -&#125;&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这是一个基本的HTML文档结构，但它包含了一些使用<a target="_blank" rel="noopener" href="https://pkg.go.dev/text/template">Go语言</a>中的<a target="_blank" rel="noopener" href="https://pkg.go.dev/html/template">HTML模板引擎</a>的语法。</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>deploy the empty theme</p>
+</div>
+        <div class="message-body">
+            <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /rep-root</span><br><span class="line">hugo server -t topdown --<span class="built_in">bind</span>=222.195.72.221 --baseURL=http://222.195.72.221:1314 -D -d ../public_2</span><br></pre></td></tr></table></figure>
+
+<p>And the website is clean blank paper</p>
+
+        </div>
+    </article>
+
+<h2 id="Hugo-page-model"><a href="#Hugo-page-model" class="headerlink" title="Hugo page model"></a>Hugo page model</h2><p><img src="https://pic.shaojiemike.top/shaojiemike/2023/11/50eddce975025e5b6643e786a6f99adc.png"></p>
+<p>所以 homepage 点击 后会进入<code>_default</code> 的<code>list.html</code> , 之后再点击会进入<code>single.html</code>。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>不使用default</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>同名文件夹</li>
+<li><a target="_blank" rel="noopener" href="https://gohugo.io/templates/lookup-order/#target-a-template">设置</a><code>type</code>或者 <code>layout</code></li>
+</ol>
+
+        </div>
+    </article>
+
+<!-- ## 🏗施工中🏗
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+觉得有意义写，先占个位子。还没写好呢，建议不要看（逻辑内容都没想清楚），不要急~~
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧 -->
+
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><!-- footnote is for url which the writer do not want reader to click to interupt the reading. -->
+
+<!-- 上面回答部分**来自ChatGPT-3.5**，没有进行正确性的交叉校验。-->
+
+<p>[^1]: <a target="_blank" rel="noopener" href="https://retrolog.io/blog/creating-a-hugo-theme-from-scratch/">Creating a Hugo Theme From Scratch</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>How SSG Get Work? &amp; Hugo theme creation</p><p><a href="http://icarus.shaojiemike.top/OutOfWork/3-homepage/deployment/howSSGGetWork.html">http://icarus.shaojiemike.top/OutOfWork/3-homepage/deployment/howSSGGetWork.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2023-11-27</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#Deploy-a-real-time-interaction-example"><span class="level-left"><span class="level-item">1</span><span class="level-item">Deploy a real-time interaction example</span></span></a></li><li><a class="level is-mobile" href="#how-to-create-a-theme"><span class="level-left"><span class="level-item">2</span><span class="level-item">how to create a theme?</span></span></a></li><li><a class="level is-mobile" href="#Hugo-page-model"><span class="level-left"><span class="level-item">3</span><span class="level-item">Hugo page model</span></span></a></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">4</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Podman - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       Victima 需要使用Podman。先简单学习一下"><meta property="og:type" content="blog"><meta property="og:title" content="Podman"><meta property="og:url" content="http://icarus.shaojiemike.top/Work/software/manager/podman.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       Victima 需要使用Podman。先简单学习一下"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2024-04-18T01:54:32.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:10.075Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="podman"><meta property="article:tag" content="docker"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/Work/software/manager/podman.html"},"headline":"Podman","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2024-04-18T01:54:32.000Z","dateModified":"2024-06-03T07:54:10.075Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       Victima 需要使用Podman。先简单学习一下"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/Work/software/manager/podman.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">Podman</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>Victima 需要使用Podman。先简单学习一下</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Podman是一个开源的、Linux原生的工具，旨在开发、管理和运行开放容器倡议（OCI）标准下的容器和豆荚。Podman是由Red Hat开发的用户友好型容器协调器，是RedHat 8和CentOS 8的默认容器引擎。</p>
+<h2 id="Podman与Docker差异"><a href="#Podman与Docker差异" class="headerlink" title="Podman与Docker差异"></a>Podman与Docker差异</h2><p>Podman是一个无守护进程的容器引擎， and can be run as a <strong>non-root user</strong><a href="%5BGPT-4%5D(https://chat.openai.com/)">^2</a>. ，用于在Linux系统上开发、管理和运行OCI(Open Container Initiative)容器和容器镜像。Podman提供了一个与Docker兼容的命令行工具，可以简单地为docker命令取别名为podman即可使用，所以说如果你会Docker的话可以轻松上手Podman。[^1]</p>
+<h2 id="前提"><a href="#前提" class="headerlink" title="前提"></a>前提</h2><p>类似 docker 也需要设置<code>/etc/subgid &amp; subuid</code></p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>&#x2F;etc&#x2F;subuid的具体解释</p>
+</div>
+        <div class="message-body">
+            <p><code>/etc/subuid</code> 文件在 Linux 系统中非常重要，特别是在使用容器技术（如 Docker 和 Podman）时。该文件用于管理“子用户 ID（subordinate user IDs）”，这些子用户 ID 允许非特权用户在没有提升至超级用户权限的情况下安全地使用容器技术。</p>
+<ol>
+<li>功能和目的</li>
+</ol>
+<p>在 Linux 和其他类 Unix 操作系统中，每个用户都有一个用户 ID（UID）。为了安全运行容器，需要一种机制允许普通用户在容器内以隔离的环境运行程序，同时不影响主系统的安全性。<code>/etc/subuid</code> 文件为此提供了一种方式，通过分配给每个用户一定范围的 UID，这些 UID 只在容器内部有效，并且与主系统的其他用户和资源隔离。</p>
+<ol start="2">
+<li>如何工作</li>
+</ol>
+<ul>
+<li><p><strong>UID 映射</strong>：当普通用户启动容器时，容器内部的用户 ID 将映射到 <code>/etc/subuid</code> 中指定的一个子 UID 范围。这样，容器内部即使是“root”用户，其实也只是一个受限的、普通的子用户，其权限被限制在主机上为其分配的 UID 范围内。</p>
+</li>
+<li><p><strong>安全隔离</strong>：这种方法提高了安全性，因为即使容器内部的程序被攻破，攻击者也只能访问和影响到那个受限的 UID 范围内的资源，而不是整个系统。</p>
+</li>
+</ul>
+<ol start="3">
+<li>文件格式</li>
+</ol>
+<p><code>/etc/subuid</code> 文件的每行都包含三个部分，格式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">用户名:起始UID:UID数量</span><br></pre></td></tr></table></figure>
+
+<p>例如，一行可能如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">johndoe:100000:65536</span><br></pre></td></tr></table></figure>
+
+<p>这意味着用户 <code>johndoe</code> 被分配了从 <code>100000</code> 开始的 <code>65536</code> 个连续的 UID 用于其容器实例。</p>
+<ol start="4">
+<li>使用场景</li>
+</ol>
+<p>在使用 Docker 和 Podman 这类容器技术时，通常需要配置 <code>/etc/subuid</code> 和 <code>/etc/subgid</code>（对应的子组 ID 文件），确保非 root 用户可以安全地运行容器。这也是为什么当你遇到与容器相关的权限问题时，常常需要检查这两个文件是否正确配置。</p>
+<p>总之，<code>/etc/subuid</code> 是 Linux 容器技术中实现用户级别隔离和安全的关键组件之一。</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>宿主机与容器内id的映射</p>
+</div>
+        <div class="message-body">
+            <p>For our examples, I will use the user myuser with a UID of <code>1000</code>, and a UID map setup in <code>/etc/subuid</code> that looks like this:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">myuser:100000:65536</span><br></pre></td></tr></table></figure>
+
+<p>The result looks like this:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ podman unshare <span class="built_in">cat</span> /proc/self/uid_map  </span><br><span class="line">      0              1000                 1  </span><br><span class="line">      1              100000             65536</span><br></pre></td></tr></table></figure>
+
+<p><code>podman unshare cat /proc/self/uid_map</code> 命令显示的输出涉及到<strong>用户 ID（UID）的映射</strong>，这是在运行 Podman 容器时非常重要的安全功能。这里的 UID 映射确保了在容器内部运行的进程与宿主机上的进程隔离，增加了安全性。现在解释这个输出的意义：</p>
+<ol>
+<li>输出解析</li>
+</ol>
+<p>输出显示了两行，每行包含三个数字，这些数字分别代表：</p>
+<ol>
+<li><strong>容器内部的 UID</strong>：这是容器内部看到的用户 ID。</li>
+<li><strong>宿主机上的 UID</strong>：这是对应于容器内 UID 的宿主机上的用户 ID。</li>
+<li><strong>范围长度</strong>：这表示从容器内部 UID 开始的 UID 范围映射到宿主机 UID 的数量。</li>
+</ol>
+<p>具体到这个例子：</p>
+<ul>
+<li><p>第一行 <code>0 1000 1</code> 的意思是：</p>
+<ul>
+<li><strong>容器内的 UID 0</strong>（通常是 root 用户）映射到 <strong>宿主机的 UID 1000</strong>（即 <code>myuser</code> 的 UID）。</li>
+<li><strong>范围长度为 1</strong>，意味着只有一个 UID 被映射，就是 0 到 1000。</li>
+</ul>
+</li>
+<li><p>第二行 <code>1 100000 65536</code> 的意思是：</p>
+<ul>
+<li><strong>容器内的 UID 1</strong> 开始的 <strong>65536</strong> 个 UID（从 1 到 65536）映射到宿主机的 UID <strong>100000</strong> 开始的 65536 个 UID（从 100000 到 165536）。</li>
+<li>这使得容器内的任何 UID（从 1 到 65536）都对应到宿主机上一个安全的、非原始用户范围内的 UID。</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>安全性和实用性</li>
+</ol>
+<p>这种映射机制的主要优点是提供了一种安全的方式，让普通用户能够在没有 root 权限的情况下运行容器。容器内的 root 用户（UID 0）并没有宿主机上的 root 权限，而只是映射到一个普通用户的权限。这极大地限制了如果容器被攻破，攻击者能在宿主机上造成的潜在破坏。</p>
+<p>此外，通过将容器内的其他 UID 映射到宿主机的一个非特权 UID 区间，增加了操作的灵活性，允许容器内运行多用户应用而不会影响到宿主机的安全性或用户数据。</p>
+<p>这种 UID 映射技术是 Linux 容器技术中实现有效隔离和安全的关键组成部分。</p>
+
+        </div>
+    </article>
+
+<h2 id="常见的问题"><a href="#常见的问题" class="headerlink" title="常见的问题"></a>常见的问题</h2><h3 id="rootless-Podman-不支持-ZFS-的存储结构"><a href="#rootless-Podman-不支持-ZFS-的存储结构" class="headerlink" title="rootless-Podman 不支持 ZFS 的存储结构"></a>rootless-Podman 不支持 ZFS 的存储结构</h3><ul>
+<li>现象: Podman非root用户使用会触发 <code>Error setting up pivot dir: mkdir permission denied</code>[^3]</li>
+<li>原因: ZFS远程挂载的空间由于没有足够的信息，不会允许uid被重新映射的非root用户，进行一系列修改操作。[^4]</li>
+<li>解决: You could configure the <code>graphroot</code> flag in the <code>~/.config/containers/storage.conf</code> file to have <strong>storage point at a directory that is not on the NFS share</strong>. [^4]</li>
+</ul>
+<!-- ## 🏗施工中🏗
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+觉得有意义写，先占个位子。还没写好呢，建议不要看（逻辑内容都没想清楚），不要急~~
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧 -->
+
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[^1]: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/473969130">Podman 已成 Linux 官方标配！Docker 没戏了？</a></p>
+<p>[^3]: <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/71516874/podman-non-root-error-setting-up-pivot-dir">Podman Non-Root “Error setting up pivot dir”</a></p>
+<p>[^4]: <a target="_blank" rel="noopener" href="https://www.redhat.com/sysadmin/rootless-podman-nfs">Rootless Podman and NFS</a></p>
+<!-- footnote is for url which the writer do not want reader to click to interupt the reading. -->
+
+<!-- 上面回答部分**来自ChatGPT-3.5**，没有进行正确性的交叉校验。-->
+
+</div><div class="article-licensing box"><div class="licensing-title"><p>Podman</p><p><a href="http://icarus.shaojiemike.top/Work/software/manager/podman.html">http://icarus.shaojiemike.top/Work/software/manager/podman.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-04-18</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#简介"><span class="level-left"><span class="level-item">1</span><span class="level-item">简介</span></span></a></li><li><a class="level is-mobile" href="#Podman与Docker差异"><span class="level-left"><span class="level-item">2</span><span class="level-item">Podman与Docker差异</span></span></a></li><li><a class="level is-mobile" href="#前提"><span class="level-left"><span class="level-item">3</span><span class="level-item">前提</span></span></a></li><li><a class="level is-mobile" href="#常见的问题"><span class="level-left"><span class="level-item">4</span><span class="level-item">常见的问题</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#rootless-Podman-不支持-ZFS-的存储结构"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">rootless-Podman 不支持 ZFS 的存储结构</span></span></a></li></ul></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">5</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

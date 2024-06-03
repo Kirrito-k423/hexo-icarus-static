@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Database basics - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       数据库相关的常用名词和相关概念基础，商业化公司了解"><meta property="og:type" content="blog"><meta property="og:title" content="Database basics"><meta property="og:url" content="http://icarus.shaojiemike.top/Work/Database/Databasebasics.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       数据库相关的常用名词和相关概念基础，商业化公司了解"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2023-08-02T16:00:00.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:10.127Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Database"><meta property="article:tag" content="cloud"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/Work/Database/Databasebasics.html"},"headline":"Database basics","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2023-08-02T16:00:00.000Z","dateModified":"2024-06-03T07:54:10.127Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       数据库相关的常用名词和相关概念基础，商业化公司了解"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/Work/Database/Databasebasics.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">Database basics</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>数据库相关的常用名词和相关概念基础，商业化公司了解</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h2><h3 id="智能云"><a href="#智能云" class="headerlink" title="智能云"></a>智能云</h3><p>AI 加持的 云， 如：百度网盘AI检索</p>
+<h3 id="公有云、私有云和混合云"><a href="#公有云、私有云和混合云" class="headerlink" title="公有云、私有云和混合云"></a>公有云、私有云和混合云</h3><p>“公有云”、”私有云”和”混合云”是云计算中的不同部署模型，它们具有不同的概念和特点：</p>
+<ol>
+<li><strong>公有云（Public Cloud）：</strong><ul>
+<li>公有云是由云服务提供商（如亚马逊AWS、微软Azure、谷歌云等）建立和管理的云计算基础设施。</li>
+<li>这些云服务提供商将计算资源（如虚拟机、存储、数据库等）提供给公众，客户可以按需租用这些资源，通常以按使用量付费。</li>
+<li>公有云是多租户模型，多个客户共享相同的基础设施，但彼此之间的资源是隔离的。</li>
+<li>客户无需关心硬件和基础设施管理，因为这由云服务提供商处理。</li>
+</ul>
+</li>
+<li><strong>私有云（Private Cloud）：</strong><ul>
+<li>私有云是建立在组织内部或由第三方托管的云基础设施，它是专为单一组织或实体使用的。</li>
+<li>私有云通常用于组织对数据隐私、安全性和合规性有严格要求的情况。</li>
+<li>它可以在内部数据中心搭建，也可以托管在专门的私有云提供商设施中。</li>
+<li>私有云通常提供更多的控制权和自定义选项，但通常需要更多的资本支出。</li>
+</ul>
+</li>
+<li><strong>混合云（Hybrid Cloud）：</strong><ul>
+<li>混合云是将公有云和私有云结合使用的模型，允许数据和应用在这两种环境之间进行移动和互操作。</li>
+<li>这种模型允许组织根据需求选择最合适的部署场景，以实现灵活性和成本效益。</li>
+<li>组织可以将敏感数据或特定工作负载保留在私有云中，同时在公有云中运行弹性工作负载。</li>
+<li>混合云需要有效的管理和集成，以确保数据流畅和安全地在不同云环境之间迁移。</li>
+</ul>
+</li>
+</ol>
+<p>总结：公有云、私有云和混合云是不同的云计算部署模型，适用于不同的业务需求。公有云提供商托管云基础设施，私有云专为单一组织提供，而混合云允许组织在两者之间实现灵活性和可操作性。选择哪种部署模型取决于组织的需求，包括安全性、合规性、成本、可扩展性和控制权等因素。</p>
+<h3 id="TP-AP-RTL"><a href="#TP-AP-RTL" class="headerlink" title="TP,AP,RTL"></a>TP,AP,RTL</h3><ol>
+<li><strong>HTAP (Hybrid Transactional&#x2F;Analytical Processing)</strong>: HTAP databases are designed to handle both transactional (OLTP) and analytical (OLAP) workloads within a single database system. This allows real-time data analysis without the need for complex data ETL (Extract, Transform, Load) processes.</li>
+<li><strong>TP (Transaction Processing)</strong>: This refers to the handling of transactional workloads, such as inserting, updating, and deleting records in a database.</li>
+<li><strong>AP (Analytical Processing)</strong>: This refers to the handling of analytical workloads, such as running complex queries and aggregations on large datasets.</li>
+<li><strong>ETL (Extract, Transform, Load)</strong>: ETL is a process used to extract data from source systems, transform it into the desired format, and load it into a target system (e.g., a data warehouse) for analysis.</li>
+<li><strong>Multi-Tenant Serverless</strong>: This refers to a serverless computing model in which multiple tenants (different users or applications) share the same resources and can automatically scale their resource usage based on demand without having to manage infrastructure.</li>
+</ol>
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>Serverless</p>
+</div>
+        <div class="message-body">
+            <p>Serverless 应用： Serverless 不意味着没有服务器，而是指开发者无需管理底层服务器和基础设施。在 Serverless 架构中，应用的部署、扩展、和管理都由云服务提供商处理。典型的 Serverless 架构包括函数即服务（Function as a Service，FaaS）和后端即服务（Backend as a Service，BaaS），例如 AWS Lambda、Azure Functions、或 Firebase。</p>
+
+        </div>
+    </article>
+
+<h2 id="常用大数据数据服务"><a href="#常用大数据数据服务" class="headerlink" title="常用大数据数据服务"></a>常用大数据数据服务</h2><h3 id="Apache-Hadoop-Apache-Hive-and-HMS"><a href="#Apache-Hadoop-Apache-Hive-and-HMS" class="headerlink" title="Apache Hadoop, Apache Hive, and HMS"></a>Apache Hadoop, Apache Hive, and HMS</h3><p>Apache Hadoop, Apache Hive, and the Hive Metastore (HMS) are components of the Hadoop ecosystem used for distributed data storage, processing, and querying. Here’s an overview of each and their relationships:</p>
+<ol>
+<li><strong>Apache Hadoop:</strong><ul>
+<li>Apache Hadoop is an open-source framework for distributed storage and processing of large datasets. It provides a scalable, fault-tolerant, and distributed storage system called the Hadoop Distributed File System (HDFS) and a parallel processing framework known as MapReduce.</li>
+<li>Hadoop is designed for handling Big Data and is widely used for data processing tasks, including data storage, batch processing, and data analysis.</li>
+<li>While Hadoop originally used MapReduce for data processing, it has since evolved to support other processing models, including Apache Spark and Apache Flink.</li>
+</ul>
+</li>
+<li><strong>Apache Hive:</strong><ul>
+<li>Apache Hive is a data warehousing and SQL-like query language system built on top of Hadoop. It provides a high-level abstraction for processing and querying data stored in Hadoop’s HDFS.</li>
+<li>Hive allows users to write SQL-like queries called HiveQL, which it then translates into MapReduce or other Hadoop processing jobs. This makes it easier for users who are familiar with SQL to work with Hadoop.</li>
+<li>Hive is particularly useful for ad-hoc querying, data summarization, and analysis of large datasets.</li>
+</ul>
+</li>
+<li><strong>Hive Metastore (HMS):</strong><ul>
+<li>The Hive Metastore (HMS) is a component of Hive that acts as a centralized metadata repository. It stores metadata about Hive tables, partitions, columns, and their associated schemas.</li>
+<li>The Hive Metastore serves as a catalog for Hive, enabling it to locate and query data stored in HDFS. It provides a mapping between Hive tables and the data files they reference.</li>
+<li>The metadata stored in the Hive Metastore includes information about the structure of the data, such as data types, column names, and file locations.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Relationships:</strong></p>
+<ul>
+<li>Apache Hive is a query and data analysis tool that works on top of Hadoop, making it easier to analyze data stored in HDFS using SQL-like queries.</li>
+<li>The Hive Metastore (HMS) is a critical component of Hive. It stores the metadata required to interpret the data stored in HDFS by Hive. The metadata is essential for Hive to understand the structure of the data, such as table schemas and data file locations.</li>
+<li>Together, Apache Hadoop, Hive, and the Hive Metastore form a powerful ecosystem for storing, processing, and querying large-scale data. Hive uses Hadoop for distributed data storage, and the Hive Metastore keeps track of metadata to enable efficient querying and analysis using HiveQL.</li>
+</ul>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>Hadoop Apache版本与第三方CDH版本的区别</p>
+</div>
+        <div class="message-body">
+            <p>开源，免费的CDH全称：<code>Cloudera&#39;s Distribution, including Apache Hadoop</code>；CDH是Hadoop众多分支中的一种，由Cloudera维护，基于稳定版本的Apache Hadoop构建；[^1]</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>vivo 的 Hive Metastore 扩展基础</p>
+</div>
+        <div class="message-body">
+            <p>大数据元数据服务 Hive Metastore Service（以下简称 HMS），存储着数据仓库中所依赖的所有元数据并提供相应的查询服务，使得计算引擎（Hive、Spark、Presto）能在海量数据中准确访问到需要访问的具体数据，其在离线数仓的稳定构建上扮演着举足轻重的角色。vivo 离线数仓的 Hadoop 集群基于 CDH 5.14.4 版本构建，HMS 的版本选择跟随 CDH 大版本，当前使用版本为 1.1.0-cdh5.14.4。[^2]</p>
+
+        </div>
+    </article>
+
+<p>[^2]: <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/r6gcZN30BgkpnceO_6_GjA">MySQL 到 TiDB：vivo 的 Hive Metastore 横向扩展之路</a></p>
+<h2 id="常见-流行的数据库"><a href="#常见-流行的数据库" class="headerlink" title="常见&#x2F;流行的数据库"></a>常见&#x2F;流行的数据库</h2><p>Here are the characteristics of MySQL, PostgreSQL, MongoDB, and ClickHouse, which are different types of database management systems:</p>
+<ol>
+<li><p><strong>MySQL:</strong></p>
+<ul>
+<li><strong>Relational Database Management System (RDBMS):</strong> MySQL is a popular open-source RDBMS known for its reliability, scalability, and ease of use.</li>
+<li><strong>Structured Data:</strong> It stores data in structured tables with predefined schemas, making it suitable for applications with well-defined data models.</li>
+<li><strong>ACID Compliance:</strong> MySQL ensures ACID (Atomicity, Consistency, Isolation, Durability) properties, making it a good choice for applications requiring data integrity.</li>
+<li><strong>Support for SQL:</strong> It uses SQL for querying and managing data, making it compatible with a wide range of SQL-based tools and applications.</li>
+</ul>
+</li>
+<li><p><strong>PostgreSQL:</strong></p>
+<ul>
+<li><strong>Advanced Open-Source RDBMS:</strong> PostgreSQL is a powerful open-source RDBMS known for its extensibility and support for advanced data types, custom functions, and more.</li>
+<li><strong>Extensible:</strong> It allows you to define custom data types, operators, and functions, making it suitable for complex data requirements.</li>
+<li><strong>ACID Compliance:</strong> Like MySQL, PostgreSQL also ensures ACID compliance, ensuring data integrity.</li>
+<li><strong>Support for JSON and NoSQL:</strong> PostgreSQL offers support for JSON data, making it capable of handling both structured and semi-structured data.</li>
+</ul>
+</li>
+<li><p><strong>MongoDB:</strong></p>
+<ul>
+<li><strong>NoSQL Database:</strong> MongoDB is a NoSQL database that stores data in a flexible, JSON-like format, making it suitable for unstructured or semi-structured data.</li>
+<li><strong>Document-Oriented:</strong> It uses a document-based data model, where data is stored in collections of documents. This allows for flexibility in data schemas.</li>
+<li><strong>Scalability:</strong> MongoDB is designed for horizontal scaling and is well-suited for applications with high data volumes and varied data structures.</li>
+<li><strong>Schemaless:</strong> It’s schemaless, meaning you can add fields to documents on the fly, making it adaptable to changing data requirements.</li>
+</ul>
+</li>
+<li><p><strong>ClickHouse:</strong></p>
+<ul>
+<li><strong>Columnar Database:</strong> ClickHouse is a columnar database management system designed for {&#x3D;&#x3D;analytics and reporting purposes&#x3D;&#x3D;}.</li>
+<li><strong>High Performance:</strong> It’s optimized for analytical queries and is capable of handling large volumes of data with high query performance.</li>
+<li><strong>Columnar Storage:</strong> Data is stored in columns rather than rows, which is efficient for analytical workloads.</li>
+<li><strong>Distributed:</strong> ClickHouse is built for distributed computing, allowing you to scale it horizontally for handling big data workloads.</li>
+</ul>
+</li>
+</ol>
+<p>The choice of which database system to use depends on the specific needs of your application, including the data structure, query requirements, scalability, and performance considerations. Each of these databases has its own strengths and weaknesses, so it’s essential to assess your project’s requirements before making a decision.</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>结构化数据 Structured Data</p>
+</div>
+        <div class="message-body">
+            <p>Structured data is organized and follows a well-defined schema, typically in the form of tables with rows and columns. Each piece of data has a specific type, and it adheres to a fixed structure. Examples of structured data include:</p>
+<ul>
+<li>Relational database tables with rows and columns (e.g., a table for customer information with columns for name, address, and phone number).</li>
+<li>Spreadsheets where data is organized into rows and columns.</li>
+<li>JSON data that adheres to a strict schema, where each key-value pair has a predetermined structure.</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Semi-Structured Data</p>
+</div>
+        <div class="message-body">
+            <p>Semi-structured data is more flexible than structured data but has some level of structure. It doesn’t conform to rigid schemas but still retains some organization. Examples of semi-structured data include:</p>
+<ul>
+<li><strong>JSON Data:</strong> JSON allows flexibility in data structure. While it can have a defined structure, it’s possible to have optional fields or nested structures that vary between records. For example, JSON data representing products might include optional fields like “reviews” or “product images” that aren’t present in every record.</li>
+<li><strong>XML Data:</strong> XML is another semi-structured format. It uses tags to organize data hierarchically but allows for optional or varying elements.</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>NoSQL Data</p>
+</div>
+        <div class="message-body">
+            <p>NoSQL databases, such as MongoDB, Cassandra, and Redis, often deal with semi-structured or unstructured data. They are designed to handle various data types and flexible schemas. Examples of NoSQL data include:</p>
+<ul>
+<li><strong>Document Stores:</strong> In MongoDB, data is stored as JSON-like documents. Each document can have different fields, making it semi-structured.</li>
+<li><strong>Key-Value Stores:</strong> NoSQL key-value stores like Redis store data in an unstructured manner, where values can be strings, numbers, or more complex data structures.</li>
+<li><strong>Wide-Column Stores:</strong> Cassandra is a wide-column store that allows for flexible data models within a column family, which is semi-structured.</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>differences between these data types</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><p><strong>Structure:</strong> Structured data follows a rigid, predefined schema, while semi-structured data has some structure but allows for flexibility, and NoSQL data can be entirely unstructured or semi-structured.</p>
+</li>
+<li><p><strong>Schema Flexibility:</strong> In structured data, any change in the schema often requires significant modifications. In semi-structured and NoSQL data, changes to the data structure can be accommodated more easily.</p>
+</li>
+<li><p><strong>Query Flexibility:</strong> Structured data typically relies on SQL for querying. Semi-structured and NoSQL data often use other query languages or methods that adapt to the data structure.</p>
+</li>
+<li><p><strong>Use Cases:</strong> Structured data is suitable for applications with fixed, well-defined data structures, like traditional business applications. Semi-structured and NoSQL data are better for applications where data formats may change over time or where flexibility is needed, like content management systems, e-commerce, or big data analytics.</p>
+</li>
+</ul>
+<p> Ultimately, the choice between structured, semi-structured, or NoSQL data depends on your specific application and its requirements.</p>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>ClickHouse how to get higher performance</p>
+</div>
+        <div class="message-body">
+            <p>TODO:</p>
+
+        </div>
+    </article>
+
+<h3 id="高性能数据库"><a href="#高性能数据库" class="headerlink" title="高性能数据库"></a>高性能数据库</h3><p>NewSQL 和 MPP (Massively Parallel Processing) 数据库系统都是在处理大规模数据时的高性能数据库解决方案。以下是对 NewSQL 数据库系统（例如 TiDB 和 OceanBase）以及 MPP 数据库系统（例如 GaussDB）的特点和区别：</p>
+<p><strong>NewSQL 数据库（如 开源TiDB(1) 和 阿里蚂蚁自研OceanBase）：</strong><br>{ .annotate }</p>
+<ol>
+<li><p>TiDB is a distributed SQL database built by PingCAP and its open-source community.</p>
+</li>
+<li><p><strong>分布式事务处理：</strong> NewSQL 数据库旨在提供关系数据库的 ACID 事务支持，使其适合需要数据完整性和事务一致性的应用程序。</p>
+</li>
+<li><p><strong>水平扩展性：</strong> NewSQL 数据库可以轻松水平扩展，以适应不断增长的数据和用户负载，而不需要大规模数据迁移。</p>
+</li>
+<li><p><strong>分布式架构：</strong> 它们使用分布式架构，允许数据在多个节点上分布存储和处理，以提高性能和容错性。</p>
+</li>
+<li><p><strong>兼容 SQL：</strong> NewSQL 数据库支持标准 SQL 查询语言，这使得迁移到这些系统相对容易，因为开发人员可以继续使用他们熟悉的查询语言。</p>
+</li>
+<li><p><strong>强调一致性：</strong> NewSQL 数据库强调强一致性，这意味着它们会确保所有数据在事务之间保持一致。</p>
+</li>
+</ol>
+<p><strong>MPP 数据库（如 GaussDB 华为自研发的分布式关系型数据库）：</strong></p>
+<ol>
+<li><strong>并行处理：</strong> MPP 数据库系统专注于大规模数据处理和分析，通过在多个节点上并行执行查询来提高性能。</li>
+<li><strong>列存储：</strong> MPP 数据库通常使用列存储，这对于分析查询非常高效，因为它们只需要访问所需的列数据，而不是整个行。</li>
+<li><strong>复杂查询优化：</strong> MPP 数据库系统经过优化，以处理复杂的分析查询，如数据汇总、连接和聚合。</li>
+<li><strong>数据仓库：</strong> MPP 数据库通常用于数据仓库和分析任务，而不太适用于事务性应用程序。</li>
+<li><strong>高度并行：</strong> MPP 数据库系统将工作负载分布到多个节点，以实现高度并行处理，从而提高了性能。</li>
+</ol>
+<p><strong>区别：</strong></p>
+<ol>
+<li><strong>应用领域：</strong> NewSQL 数据库系统适合于事务性应用程序，强调关系型数据和 ACID 事务。MPP 数据库系统主要用于大规模数据分析和数据仓库任务，重点是高性能查询和分析。</li>
+<li><strong>数据存储：</strong> NewSQL 数据库通常使用行存储，而 MPP 数据库使用列存储。列存储对于分析查询非常高效，但在事务处理中的性能可能较低。</li>
+<li><strong>数据模型：</strong> NewSQL 数据库遵循传统的关系模型，而 MPP 数据库更灵活，通常能够处理半结构化和非结构化数据。</li>
+<li><strong>查询类型：</strong> NewSQL 数据库主要处理事务性查询，而 MPP 数据库专注于复杂的分析查询。</li>
+</ol>
+<p>总之，选择 NewSQL 还是 MPP 数据库取决于您的应用需求。如果您需要处理大量事务性数据和关系型数据，NewSQL 数据库可能更适合。如果您需要进行大规模数据分析和查询，那么 MPP 数据库可能更适合。</p>
+<article class="message is-default">
+        <div class="message-header"><p><i class="fa-solid fa-quote-right mr-2"></i>康俊彬大牛 commentary on TiDB</p>
+</div>
+        <div class="message-body">
+            <p>Tidb一开始炒作NewSQL，结果没有看出来哪里New了，只看出哪里都很慢。 然后炒作HTAP，TP和AP都不如人家专用数据库快，别人ETL就解决了。 现在又炒作多租户Serverless，我基于MySQL来做多租户serverless不比这个强。</p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>企业的选择</p>
+</div>
+        <div class="message-body">
+            <p>NewSQL或MPP像Tidb，OB，高斯都面临一个尴尬，交易型SQL业务根本没有那么高的计算吞吐的需求，但对SQL兼容性以及事务延时有着极强的要求。 大家发现像Oracle一样，存储容量可以扩就完全满足需求了，出现了很多Oracle RAC弱化版的云原生数据库，很受欢迎。</p>
+
+        </div>
+    </article>
+
+<!-- ## 需要进一步的研究学习
+
+暂无
+
+## 遇到的问题
+
+暂无 -->
+
+<!-- ## 开题缘由、总结、反思、吐槽~~ -->
+
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://github.com/cosen1024/Java-Interview/blob/main/MySQL/MySQL.md">https://github.com/cosen1024/Java-Interview/blob/main/MySQL/MySQL.md</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903665367547918">https://juejin.cn/post/6844903665367547918</a></p>
+<p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Database basics</p><p><a href="http://icarus.shaojiemike.top/Work/Database/Databasebasics.html">http://icarus.shaojiemike.top/Work/Database/Databasebasics.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2023-08-02</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

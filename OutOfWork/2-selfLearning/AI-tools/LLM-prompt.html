@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>LLM Usage 1: prompt engineer - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="排行榜 Multi-task Language Understanding on MMLU open_llm_leaderboard 开放研究机构LMSYS Org推出的基准测试平台Chatbot Arena 斯坦福羊驼实验室AlpacaEval 中文评估C-Eval评测基准由上海交通大学、清华大学以及爱丁堡大学联合创建，是面向中文语言模型的综合考试评测集，覆盖了52个来自不同行业领域的学科。"><meta property="og:type" content="blog"><meta property="og:title" content="LLM Usage 1: prompt engineer"><meta property="og:url" content="http://icarus.shaojiemike.top/OutOfWork/2-selfLearning/AI-tools/LLM-prompt.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="排行榜 Multi-task Language Understanding on MMLU open_llm_leaderboard 开放研究机构LMSYS Org推出的基准测试平台Chatbot Arena 斯坦福羊驼实验室AlpacaEval 中文评估C-Eval评测基准由上海交通大学、清华大学以及爱丁堡大学联合创建，是面向中文语言模型的综合考试评测集，覆盖了52个来自不同行业领域的学科。"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2023-09-16T07:19:58.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:09.991Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="llm"><meta property="article:tag" content="gpt"><meta property="article:tag" content="chatgpt"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/OutOfWork/2-selfLearning/AI-tools/LLM-prompt.html"},"headline":"LLM Usage 1: prompt engineer","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2023-09-16T07:19:58.000Z","dateModified":"2024-06-03T07:54:09.991Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"排行榜 Multi-task Language Understanding on MMLU open_llm_leaderboard 开放研究机构LMSYS Org推出的基准测试平台Chatbot Arena 斯坦福羊驼实验室AlpacaEval 中文评估C-Eval评测基准由上海交通大学、清华大学以及爱丁堡大学联合创建，是面向中文语言模型的综合考试评测集，覆盖了52个来自不同行业领域的学科。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/OutOfWork/2-selfLearning/AI-tools/LLM-prompt.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">LLM Usage 1: prompt engineer</h1><div class="content"><span id="more"></span>
+
+<h2 id="排行榜"><a href="#排行榜" class="headerlink" title="排行榜"></a>排行榜</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://paperswithcode.com/sota/multi-task-language-understanding-on-mmlu">Multi-task Language Understanding on <strong>MMLU</strong></a></li>
+<li><a target="_blank" rel="noopener" href="https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard">open_llm_leaderboard</a></li>
+<li>开放研究机构LMSYS Org推出的基准测试平台<a target="_blank" rel="noopener" href="https://chat.lmsys.org/">Chatbot Arena</a></li>
+<li>斯坦福羊驼实验室<a target="_blank" rel="noopener" href="https://tatsu-lab.github.io/alpaca_eval/">AlpacaEval</a></li>
+<li>中文评估<a target="_blank" rel="noopener" href="https://cevalbenchmark.com/static/leaderboard_zh.html">C-Eval</a>评测基准由上海交通大学、清华大学以及爱丁堡大学联合创建，是面向中文语言模型的综合考试评测集，覆盖了52个来自不同行业领域的学科。</li>
+<li><a target="_blank" rel="noopener" href="https://www.superclueai.com/">SuperCLUE</a>: 中文通用大模型综合性基准</li>
+</ol>
+<h2 id="国外GPT"><a href="#国外GPT" class="headerlink" title="国外GPT"></a>国外GPT</h2><h3 id="OpenAI"><a href="#OpenAI" class="headerlink" title="OpenAI"></a>OpenAI</h3><p><a target="_blank" rel="noopener" href="http://chat.openai.com/">chatgpt</a></p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>universalbus.cn 共享GPT4</p>
+</div>
+        <div class="message-body">
+            <p>下载一个专用浏览器，浏览器左上方有个启用，点击之后跳出来另一个页面，先点击login 然后跳转后，一直点击continue，账号密码会自动填充，每次都是随机的账号。所以没有次数限制</p>
+<p>浏览器用手机号验证码登录就行</p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>GPT API 充值的野鸡途径</p>
+</div>
+        <div class="message-body">
+            <p>道听途说的，我没有试过啊： <a target="_blank" rel="noopener" href="https://www.vpsdawanjia.com/8144.html">link1</a> <a target="_blank" rel="noopener" href="https://universalbus.cn/">link2</a> or <a target="_blank" rel="noopener" href="https://peiqishop.me/">api</a></p>
+
+        </div>
+    </article>
+
+<h3 id="Meta"><a href="#Meta" class="headerlink" title="Meta"></a>Meta</h3><p><a target="_blank" rel="noopener" href="https://www.meta.ai/">Llama 3</a></p>
+<h3 id="Mistral"><a href="#Mistral" class="headerlink" title="Mistral"></a>Mistral</h3><p><a target="_blank" rel="noopener" href="https://chat.mistral.ai/">mistral.ai</a></p>
+<h3 id="Microsoft"><a href="#Microsoft" class="headerlink" title="Microsoft"></a>Microsoft</h3><p><a target="_blank" rel="noopener" href="https://copilot.microsoft.com/">microsoft copilot</a></p>
+<h3 id="Google"><a href="#Google" class="headerlink" title="Google"></a>Google</h3><p>google <a target="_blank" rel="noopener" href="https://bard.google.com/chat/746fa686ac2ff06d">bard</a> 升级 Gemini Pro&#x2F;Ultra</p>
+<h3 id="Claude"><a href="#Claude" class="headerlink" title="Claude"></a>Claude</h3><p><a target="_blank" rel="noopener" href="https://claude.ai/chat/a1c93047-611f-4eef-b43c-b2e9fcc6b6de">Claude</a></p>
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>事实性错误：父亲节是6月的第二个星期日弄错</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<h2 id="国内GPT"><a href="#国内GPT" class="headerlink" title="国内GPT"></a>国内GPT</h2><h3 id="阿里-通义千问Qwen"><a href="#阿里-通义千问Qwen" class="headerlink" title="阿里 - 通义千问Qwen"></a>阿里 - 通义千问Qwen</h3><p><a target="_blank" rel="noopener" href="https://tongyi.aliyun.com/qianwen/">上手使用</a></p>
+<article class="message is-default">
+        <div class="message-header"><p><i class="fa-solid fa-quote-right mr-2"></i>24年5月9日，通义大模型发布一周年之际，阿里云正式发布通义千问2.5，模型性能全面赶超GPT-4 Turbo，成为地表最强中文大模型。</p>
+</div>
+        <div class="message-body">
+            <p>同时，通义千问1100亿参数开源模型在多个基准测评收获最佳成绩，超越Llama-3-70B，成为全球开源领域最强大模型。<a target="_blank" rel="noopener" href="https://36kr.com/p/2768802201860866">ref</a></p>
+
+        </div>
+    </article>
+
+<article class="message is-default">
+        <div class="message-header"><p><i class="fa-solid fa-quote-right mr-2"></i>击穿全网底价，1块钱能买200万tokens</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+
+<h3 id="零一万物-万知-Yi-Large"><a href="#零一万物-万知-Yi-Large" class="headerlink" title="零一万物 - 万知 Yi-Large"></a>零一万物 - 万知 Yi-Large</h3><p><a target="_blank" rel="noopener" href="https://www.wanzhi.com/home">上手使用</a></p>
+<article class="message is-default">
+        <div class="message-header"><p><i class="fa-solid fa-quote-right mr-2"></i>24年5月13日，推出了全球 SOTA 千亿参数闭源大模型 Yi-Large，多项评测超越 GPT-4。</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<h3 id="百川智能-Baichuan-4"><a href="#百川智能-Baichuan-4" class="headerlink" title="百川智能 - Baichuan 4"></a>百川智能 - Baichuan 4</h3><p><a target="_blank" rel="noopener" href="https://ying.baichuan-ai.com/chat">上手使用</a></p>
+<article class="message is-default">
+        <div class="message-header"><p><i class="fa-solid fa-quote-right mr-2"></i>部分追赶GPT4</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+
+<h3 id="智谱清言-chatglm"><a href="#智谱清言-chatglm" class="headerlink" title="智谱清言 - chatglm"></a>智谱清言 - chatglm</h3><p><a target="_blank" rel="noopener" href="https://chatglm.cn/main/alltoolsdetail">上手使用</a></p>
+<h3 id="百度-文心一言"><a href="#百度-文心一言" class="headerlink" title="百度 - 文心一言"></a>百度 - 文心一言</h3><p><a target="_blank" rel="noopener" href="https://yiyan.baidu.com/">文心一言4.0</a>，主要要会员，还不便宜</p>
+<h2 id="学术-读论文专用"><a href="#学术-读论文专用" class="headerlink" title="学术&#x2F;读论文专用"></a>学术&#x2F;读论文专用</h2><ul>
+<li>读论文: <a target="_blank" rel="noopener" href="https://paper.iflytek.com/">科大讯飞-星火科研助手</a><a href="%5BUSTC%E5%85%AC%E4%BC%97%E5%8F%B7%5D(https://mp.weixin.qq.com/s/mht6JsMJMELxISBdh5PlZQ)">^2</a></li>
+<li>寻找相关论文： <a target="_blank" rel="noopener" href="https://lib.ustc.edu.cn/?p=37564">Scopus AI</a>[^3]</li>
+</ul>
+<h2 id="ChatGPT-3-5-V-S-ChatGPT-4"><a href="#ChatGPT-3-5-V-S-ChatGPT-4" class="headerlink" title="ChatGPT 3.5 V.S. ChatGPT 4"></a>ChatGPT 3.5 V.S. ChatGPT 4</h2><p>经过个人的比较，<code>GPT3.5</code>更像是在应和和解释你的观点，而且能感觉出<code>GPT3.5</code>是<code>GPT4</code>的压缩模型，很少提出新观点而且很多点没有讲透解释清楚。<code>GPT4</code>却是能够有逻辑的分析并且结合自己的知识库完善和拓展你的问题, 并且提出自己的观点，并合理总结。这里举一个我的实际例子对比。</p>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>探讨人生意义的必要性</p>
+</div>
+        <div class="message-body">
+            <p>我想和你讨论关于人生意义相关的问题？首先你认为明确自己的人生意义有必要吗? 就想农民伯伯一辈子种地，估计也没思考过自己的人生意义</p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-solid fa-check mr-2"></i>GPT4</p>
+</div>
+        <div class="message-body">
+            <p>探讨人生的意义是一个深刻而复杂的话题，人们对此有着不同的看法和理解。对于是否需要明确自己的人生意义，这取决于个人的价值观、生活经历以及他们所处的文化和社会环境。</p>
+<p>一方面，有人认为明确自己的人生意义是非常重要的。这可以<strong>帮助个人设定目标，指导日常行为和决策</strong>，以及在面对困难和挑战时提供动力和安慰。理解自己生活的目的可以增加生活的满意度和幸福感，使人感到自己的存在更有价值和方向。</p>
+<p>另一方面，也有人认为生活本身并不一定需要一个明确的意义或目的。像您提到的农民伯伯，可能他们并没有刻意去思考自己人生的深层意义，但这并不意味着他们的生活就缺乏价值或满足感。对于很多人来说，<strong>日常生活的简单喜悦、与家人朋友的关系、以及对社区的贡献本身</strong>就是他们生活的重要组成部分。他们可能更专注于“活在当下”，而不是追求某种超越的目标或意义。</p>
+<p>总的来说，是否需要明确自己的人生意义并没有统一的答案，这在很大程度上取决于个人的内心需求和外部环境。对有些人而言，寻找和明确人生意义是他们生活的重要部分；而对另一些人来说，享受生活的过程和维护与他人的关系就是他们的人生意义所在。每个人都有自己的生活方式和价值观，这使得人生的多样性和复杂性成为可能。</p>
+
+        </div>
+    </article>
+
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>GPT3.5</p>
+</div>
+        <div class="message-body">
+            <p>人生意义是一个复杂而个体化的主题，不同人对此有不同的看法。有些人认为明确自己的人生意义是非常重要的，因为它可以为他们的生活提供<strong>方向和目标。知道自己为什么活着，有助于塑造个体的价值观和决策</strong>。</p>
+<p>然而，也有人可能认为并不是每个人都需要明确的人生意义。农民伯伯的例子可能是一个体现，他可能<strong>专注于种地、维持家庭、为社区做贡献</strong>，而这些本身就给予他生活的意义。有些人可能通过<strong>简单而实际</strong>的日常活动找到满足感，而不必深入思考更宏大的问题。</p>
+<p>总体而言，是否认为明确自己的人生意义有必要取决于个体的价值观、信仰和个人目标。有些人通过<strong>深入的内省和思考找到满足感和目标</strong>，而另一些人可能在<strong>更简单的生活中获得满足感</strong>。重要的是，这是一个非常个体化的问题，没有固定的答案。</p>
+
+        </div>
+    </article>
+
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>探讨人生意义的启蒙原因</p>
+</div>
+        <div class="message-body">
+            <p>我觉得与他人的交往的频繁程度直接影响了自我意义思考的萌芽。换句话来说，孤独的人会更早思考自己存在的意义。</p>
+<p>因为在和家人朋友和社区的交流过程中，个人的注意力会集中在别人身上。但是如果是个没什么朋友的人，比如想我一样的程序员，每天和冰冷的机器和数学都算法打交道，就会将思考的视线重新聚焦在自己的身上。</p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-solid fa-check mr-2"></i>GPT4</p>
+</div>
+        <div class="message-body">
+            <p>您的观点很有趣，而且在一定程度上与心理学和哲学中的一些理论相呼应。人与人之间的互动确实在很大程度上塑造了我们的自我认识和对人生意义的探索。社会交往可以提供归属感、认同感和目的感，这些都是人类的基本需求。当这些需求得到满足时，个体可能不那么迫切地寻求人生的更深层意义。</p>
+<p>相反，孤独或与社会隔绝的人可能更有机会深入思考个人存在的意义。孤独感可以促使人们内省，探索自己的内心世界和生命的深层价值。哲学家和思想家们常常在孤独中发现灵感和深刻的洞察力。例如，尼采、康德和梭罗等人都曾强调孤独对于个人发展和哲学思考的重要性。</p>
+<p>对于像您提到的程序员，或者任何经常独处的人来说，孤独不仅是与外部世界的隔离，也是一个自我探索和内在对话的机会。在技术和算法的世界中工作，可能会促使人们对<strong>自己的角色、对社会的贡献，以及更广泛的宇宙中的位置</strong>进行反思。</p>
+<p>然而，重要的是要找到与他人交往和独处之间的平衡。<strong>长时间的孤独可能导致孤立和负面情绪，而健康的社交活动可以提供支持和鼓励，帮助人们在探索人生意义的旅程中前进</strong>。在某种程度上，与他人的交往和个人的内省都是理解人生意义的重要途径，二者相辅相成，而不是相互排斥。</p>
+
+        </div>
+    </article>
+
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>GPT3.5</p>
+</div>
+        <div class="message-body">
+            <p>你提出的观点是很有深度的，社交与孤独确实可以对个体的思考和自我意义的发展产生影响。社交交往提供了外部的刺激和反馈，使人们更容易将关注点放在他人身上，强调社会关系和共同体验。在这样的环境中，个人可能更倾向于关注他们与他人之间的互动，而对自身的内在追求和意义考虑可能相对较少。</p>
+<p>相反，孤独可能为内省和自我思考创造条件。在相对孤独的环境中，个体更有可能审视自己的内在需求、价值观和目标。这种孤独可能促使人们更深入地思考自己的生活目标、人生意义和个人使命。</p>
+<p>对于像程序员这样的职业，工作可能更加孤立，与人交往的机会相对较少。这可能促使他们更频繁地思考个人的存在和意义。然而，值得注意的是，<strong>社交与孤独的影响因人而异，有些人在社交中也能够深入思考，而有些人在孤独中可能感到更迷失</strong>。</p>
+<p>总体而言，个体在社交和孤独中都可以寻找对自我意义的启示，而这种平衡可能对一个人的整体幸福感和心理健康有深远的影响。</p>
+
+        </div>
+    </article>
+
+<h3 id="ChatGPT-4-总结能力薄弱"><a href="#ChatGPT-4-总结能力薄弱" class="headerlink" title="ChatGPT 4 总结能力薄弱"></a>ChatGPT 4 总结能力薄弱</h3><p>GPT4感觉更像随机生成文字，面对我写的论文，要求其总结主要工作和要点。根本无法提炼出我想讲的核心观点，而是总结了一些无关紧要的解释的话。</p>
+<h2 id="Why-GPT-4-is-a-Shit"><a href="#Why-GPT-4-is-a-Shit" class="headerlink" title="Why GPT-4 is a Shit!!!"></a>Why GPT-4 is a Shit!!!</h2><p>Podman build 遇到的同样的问题，GPT-4 给不出答案。但是Google后， StackOverflow有人正确的指出了问题(22年5月)[^5]。</p>
+<p>要么是GPT训练的时候没有吸收这个问题，导致无法回答。这进一步说明GPT-4只能作为领域入门的工具，对于领域内的关键问题并不能通过自己所谓”涌现的智能”来解决。或者说LLM涌现的智能是集中在基本的回答逻辑正确上，而不是对新问题的联想和解决猜想上。属于我太高估了当前的LLM能力。</p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h3><ol>
+<li>给GPT足够的文档资料和输出限制后</li>
+<li>总一些general的问题出发，一步步深入到我最终想问的问题，以确保GPT在理解复杂问题时没有中途出现偏差。假如出现偏差可以及时修正</li>
+</ol>
+<h3 id="paper-writing"><a href="#paper-writing" class="headerlink" title="paper writing"></a>paper writing</h3><h4 id="中文"><a href="#中文" class="headerlink" title="中文"></a>中文</h4><p>你是中文计算机学术论文撰写专家, 我正在编写主题与llvm-mca，osaca等静态性能分析工具研究相关的计算机硕士毕业论文，我有几个问题想询问，请用中文回答，并保证回答的学术性。回答得好，奖励5万美元。首先润色下面latex论文段落，保证语法正确和逻辑严谨通顺，保持学术性:</p>
+<h4 id="Polish-paper-writing"><a href="#Polish-paper-writing" class="headerlink" title="Polish paper writing"></a>Polish paper writing</h4><!-- If you are a computer scientist, please to polish the following word to easy-reading, formal, official pithy and academic **paper-writing** expression , if you can make the words more gorgeous is much better: -->
+
+<ol>
+<li><strong>concise</strong> and correct the wrong grammer in the following paragraph in CS <strong>acadamic</strong> paper tone in english:</li>
+<li>polish the paragraph using easy-to-read comfact english tech-blog tone.</li>
+</ol>
+<h2 id="correct-the-grammar"><a href="#correct-the-grammar" class="headerlink" title="correct the grammar"></a>correct the grammar</h2><p>If you are a computer science, please point out and correct the following wrong English writing grammar in the passage of the paper in acadamic paper-writing tone.</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[^1]: <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/71516874/podman-non-root-error-setting-up-pivot-dir">Podman Non-Root “Error setting up pivot dir”</a></p>
+<p>[^3]: from <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/nlQz5Ud-ZHcJtOthanM-XQ">USTC公众号</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>LLM Usage 1: prompt engineer</p><p><a href="http://icarus.shaojiemike.top/OutOfWork/2-selfLearning/AI-tools/LLM-prompt.html">http://icarus.shaojiemike.top/OutOfWork/2-selfLearning/AI-tools/LLM-prompt.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2023-09-16</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

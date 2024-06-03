@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>AI Traning Parallism - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       AI 训练时，有些分布式训练的常见并行概念需要了解。"><meta property="og:type" content="blog"><meta property="og:title" content="AI Traning Parallism"><meta property="og:url" content="http://icarus.shaojiemike.top/Work/Artificial%20Intelligence/Training/AITraningParallism.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       AI 训练时，有些分布式训练的常见并行概念需要了解。"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/8bb70b6e91ba22d2e1535b82dad8cbfe.png"><meta property="article:published_time" content="2024-01-03T08:23:31.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:10.123Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="fun"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2024/01/8bb70b6e91ba22d2e1535b82dad8cbfe.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/Work/Artificial%20Intelligence/Training/AITraningParallism.html"},"headline":"AI Traning Parallism","image":["https://pic.shaojiemike.top/shaojiemike/2024/01/8bb70b6e91ba22d2e1535b82dad8cbfe.png"],"datePublished":"2024-01-03T08:23:31.000Z","dateModified":"2024-06-03T07:54:10.123Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       AI 训练时，有些分布式训练的常见并行概念需要了解。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/Work/Artificial%20Intelligence/Training/AITraningParallism.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">AI Traning Parallism</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>AI 训练时，有些分布式训练的常见并行概念需要了解。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="数据并行-Data-Parallelism"><a href="#数据并行-Data-Parallelism" class="headerlink" title="数据并行 Data Parallelism"></a>数据并行 Data Parallelism</h2><ul>
+<li>思想：把同一个模型放在多个GPU上，batch数据平均分布到各个GPU上，并行计算。</li>
+<li>难点：注意参数同步和信息过期问题。</li>
+<li>优点：加速比线性。部署简单工作量小，每个节点内的计算效率高。适合规模小，计算密集度高的模型。由于部署简单，是最先采用的并行方式。</li>
+<li>缺点：需要在每个节点复制所有模型参数，显存重复度高，利用率低，并不适合大模型的部署。</li>
+</ul>
+<h3 id="特点-具体操作："><a href="#特点-具体操作：" class="headerlink" title="特点+具体操作："></a>特点+具体操作：</h3><ul>
+<li>同构模型，不同数据：每个节点都包含完整的模型，以及模型的参数（weight，parameter），输入数据则根据模型的并行度进行拆分，分别被每个节点读取；<ul>
+<li>假设我们有8张GPU卡或者昇腾的NPU卡来训练图片分类的模型，训练的批量为160，那么每张卡上面分到的批量数据（min-batch）为20，每张卡基于样本数据完成训练。</li>
+</ul>
+</li>
+<li>独立运行：每个节点读取相应的输入数据后，分别独自处理模型的前向和反向传播，并得到Gradients，归并所有的梯度并更新梯度；</li>
+<li>梯度聚合：因为各张卡上处理的数据样本不同，所以获得的梯度会有些差别。因此，需要对梯度进行聚合（求和、均值）等计算来保持和单卡训练相同的结果，最后再更新参数。</li>
+<li>统一通讯：所有节点之间的通信，主要包括前向传播的Loss归并以及反向传播的gradient归并以及更新，这些通信则是通过相应的通信原语（gather&#x2F;reduce&#x2F;broadcast）操作。</li>
+<li>参数更新：梯度聚合会让各卡的模型以相同的梯度值同时进入参数更新阶段，然后针对新的数据进行下一轮训练。</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/8bb70b6e91ba22d2e1535b82dad8cbfe.png">[^1]</p>
+<h2 id="模型并行-Model-Parallelism-层内切分的模型并行"><a href="#模型并行-Model-Parallelism-层内切分的模型并行" class="headerlink" title="模型并行 Model Parallelism (层内切分的模型并行)"></a>模型并行 Model Parallelism (层内切分的模型并行)</h2><ul>
+<li>思想：将模型的每一层，手动拆分成多分到不同GPU上。例如，将模型张量的参数根据特定的维度进行分割，根据手工设计，由系统分配对应训练数据和特征图（可以是分割或复制的方法）。</li>
+<li>难点：需要人为的切分设计。也有必要的数据传输。</li>
+<li>优点：解决了数据并行显存利用率低的问题，其通过对模型的切分，每个节点只需要放置一部分的模型参数，从而使得其可以部署更大的模型。</li>
+</ul>
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/71af329f5066a6a8fe0a8fb27f0d8d7d.png)
+  <figcaption>Megatron-LM模型在训练中采用更为手工的方式，将每个transformer块都进行了分割，实现了高性能的计算。</figcaption>
+</figure>[^2]
+
+<h3 id="张量并行-Tensor-Parallelism-特殊的模型并行"><a href="#张量并行-Tensor-Parallelism-特殊的模型并行" class="headerlink" title="张量并行 Tensor Parallelism (特殊的模型并行)"></a>张量并行 Tensor Parallelism (特殊的模型并行)</h3><ul>
+<li>思想：一个操作中进行并行计算，主要是矩阵-矩阵乘法。张量并行训练是将一个张量沿特定维度分成 N 块，每个设备只持有整个张量的 1&#x2F;N，同时不影响计算图的正确性。这需要额外的通信来确保结果的正确性。</li>
+<li>难点：额外的通信</li>
+<li>优点：每个设备只持有整个张量的 1&#x2F;N</li>
+</ul>
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/dd4f1a5379cf3367d40e446052289c02.png)
+  <figcaption>张量并行</figcaption>
+</figure>
+
+<h2 id="流水线并行-Pipeline-Model-Parallelism-层间切分的模型并行"><a href="#流水线并行-Pipeline-Model-Parallelism-层间切分的模型并行" class="headerlink" title="流水线并行 Pipeline Model Parallelism (层间切分的模型并行)"></a>流水线并行 Pipeline Model Parallelism (层间切分的模型并行)</h2><ul>
+<li>思想：AI训练是重复的有依赖长过程，可以打散成有依赖的基本单元micro-batch进行流水线调度， 提高设备的利用率。</li>
+<li>难点：依赖基本单元间的数据传输时间，如何隐藏。流水线并行的方式更复杂，并且micro-batch的方式减少了单节点计算密集度，增加了节点间的信息传递频率，使得取得一个好的加速比成为一个难题。</li>
+<li>优点：解决了数据并行显存利用率低的问题，其通过对模型的切分，每个节点只需要放置一部分的模型参数，从而使得其可以部署更大的模型。</li>
+</ul>
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/6cafab69c4a73582333438a1259c7946.png)
+  <figcaption>层间拆分来减小参数压力的思想</figcaption>
+</figure>
+
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/f326297810fcb317bf971dcc8be5358a.png)
+  <figcaption>简单流水线GPipe</figcaption>
+</figure>[^3]
+
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/9e44c8adc3e5dab3e48459c5919d2137.png)
+  <figcaption>Generalized流水线PipeDream</figcaption>
+</figure>[^4]
+
+<h2 id="混合并行"><a href="#混合并行" class="headerlink" title="混合并行"></a>混合并行</h2><ul>
+<li>先数据并行 + 后流水线并行</li>
+<li>例子：卷积层参数量小，但计算量大（数据并行）。全连接层参数量大，但计算量小（模型并行）。</li>
+<li>例子2：2021年10月，微软和英伟达联合提出了 PTD-P(Inter-node Pipeline Parallelism, Intra-node Tensor Parallelism, and Data Parallelism)训练加速方法，通过数据并行、张量并行和 Pipeline 并行“三管齐下”的方式，将模型的吞吐量提高 10%以上。该并行方法可以在3072个GPU 上，以502P的算力对一万亿参数的GPT 架构模型进行训练，实现单GPU吞吐量52%的性能提升。</li>
+</ul>
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/3033fb7419ce0291525a5181e6863fb2.png)
+  <figcaption>Picture curtesy of Hugging Face</figcaption>
+</figure>
+
+<h2 id="专家并行-MoE-Mixture-of-Experts"><a href="#专家并行-MoE-Mixture-of-Experts" class="headerlink" title="专家并行 MoE (Mixture-of-Experts)"></a>专家并行 MoE (Mixture-of-Experts)</h2><ul>
+<li>思想：一种基于稀疏 MoE 层的深度学习模型架构被提出，即将大模型拆分成多个小模型(专家，expert)， 每轮迭代根据样本决定激活一部分专家用于计算，</li>
+<li>优点：只计算一部分，达到了节省计算资源的效果；</li>
+<li>实现：MoE 将模型的<strong>某一层</strong>扩展为多个具有相同结构的专家网络(expert)，并由门(gate)网络决定激活哪些 expert 用于计算，从而实现超大规模稀疏模型的训练。</li>
+</ul>
+<figure markdown>
+  ![](https://pic.shaojiemike.top/shaojiemike/2024/01/442d7efbe07ec8e6d07ee5c92a86d72a.png)
+  <figcaption>将中间层扩展为具有n个expert的MoE结构</figcaption>
+</figure>
+
+
+<h2 id="异构系统的并行"><a href="#异构系统的并行" class="headerlink" title="异构系统的并行"></a>异构系统的并行</h2><p>人们思考为什么 <a target="_blank" rel="noopener" href="https://colossalai.org/zh-Hans/docs/concepts/paradigms_of_parallelism/#%E5%BC%82%E6%9E%84%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%B9%B6%E8%A1%8C">CPU 内存</a>没有被用于分布式训练。</p>
+<!-- ## 🏗施工中🏗
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+觉得有意义写，先占个位子。还没写好呢，建议不要看（逻辑内容都没想清楚），不要急~~
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧 -->
+
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><!-- footnote is for url which the writer do not want reader to click to interupt the reading. -->
+
+<!-- 上面回答部分**来自ChatGPT-3.5**，没有进行正确性的交叉校验。-->
+
+<p>[^1]: <a target="_blank" rel="noopener" href="https://www.mindspore.cn/docs/zh-CN/master/design/distributed_training_design.html#%E6%95%B0%E6%8D%AE%E5%B9%B6%E8%A1%8C">MindSpore (master) 分布式并行原生</a></p>
+<p>[^2]: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1909.08053.pdf">Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism</a></p>
+<p>[^3]: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1811.06965.pdf">GPipe: Easy Scaling with Micro-Batch Pipeline Parallelism</a></p>
+<p>[^4]: <a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/research/uploads/prod/2019/08/pipedream.pdf">PipeDream: Generalized Pipeline Parallelism for DNN Training</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>AI Traning Parallism</p><p><a href="http://icarus.shaojiemike.top/Work/Artificial Intelligence/Training/AITraningParallism.html">http://icarus.shaojiemike.top/Work/Artificial Intelligence/Training/AITraningParallism.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-01-03</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#数据并行-Data-Parallelism"><span class="level-left"><span class="level-item">1</span><span class="level-item">数据并行 Data Parallelism</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#特点-具体操作："><span class="level-left"><span class="level-item">1.1</span><span class="level-item">特点+具体操作：</span></span></a></li></ul></li><li><a class="level is-mobile" href="#模型并行-Model-Parallelism-层内切分的模型并行"><span class="level-left"><span class="level-item">2</span><span class="level-item">模型并行 Model Parallelism (层内切分的模型并行)</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#张量并行-Tensor-Parallelism-特殊的模型并行"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">张量并行 Tensor Parallelism (特殊的模型并行)</span></span></a></li></ul></li><li><a class="level is-mobile" href="#流水线并行-Pipeline-Model-Parallelism-层间切分的模型并行"><span class="level-left"><span class="level-item">3</span><span class="level-item">流水线并行 Pipeline Model Parallelism (层间切分的模型并行)</span></span></a></li><li><a class="level is-mobile" href="#混合并行"><span class="level-left"><span class="level-item">4</span><span class="level-item">混合并行</span></span></a></li><li><a class="level is-mobile" href="#专家并行-MoE-Mixture-of-Experts"><span class="level-left"><span class="level-item">5</span><span class="level-item">专家并行 MoE (Mixture-of-Experts)</span></span></a></li><li><a class="level is-mobile" href="#异构系统的并行"><span class="level-left"><span class="level-item">6</span><span class="level-item">异构系统的并行</span></span></a></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">7</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

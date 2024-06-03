@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>New Generation Shenwei System - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       研究生期间，虽然我是HPC方向的。但是我并没有参与过新一代神威系统的软件优化。在毕业前，特地了解相关设计。[^1][^2]"><meta property="og:type" content="blog"><meta property="og:title" content="New Generation Shenwei System"><meta property="og:url" content="http://icarus.shaojiemike.top/Work/Architecture/companySpecificDesign/NewGenerationShenweiSystem.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       研究生期间，虽然我是HPC方向的。但是我并没有参与过新一代神威系统的软件优化。在毕业前，特地了解相关设计。[^1][^2]"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/3cf760869c4218b52375763ef89f98e7.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/a7b6711feba3fa944112b735f7ab0851.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/d2412be0e2a63e263af796ba0d1e519c.png"><meta property="article:published_time" content="2024-01-03T01:19:28.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:10.067Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="domestic"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2024/01/3cf760869c4218b52375763ef89f98e7.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/Work/Architecture/companySpecificDesign/NewGenerationShenweiSystem.html"},"headline":"New Generation Shenwei System","image":["https://pic.shaojiemike.top/shaojiemike/2024/01/3cf760869c4218b52375763ef89f98e7.png","https://pic.shaojiemike.top/shaojiemike/2024/01/a7b6711feba3fa944112b735f7ab0851.png","https://pic.shaojiemike.top/shaojiemike/2024/01/d2412be0e2a63e263af796ba0d1e519c.png"],"datePublished":"2024-01-03T01:19:28.000Z","dateModified":"2024-06-03T07:54:10.067Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       研究生期间，虽然我是HPC方向的。但是我并没有参与过新一代神威系统的软件优化。在毕业前，特地了解相关设计。[^1][^2]"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/Work/Architecture/companySpecificDesign/NewGenerationShenweiSystem.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">New Generation Shenwei System</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>研究生期间，虽然我是HPC方向的。但是我并没有参与过新一代神威系统的软件优化。在毕业前，特地了解相关设计。[^1][^2]</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="神威超算系统-与-申威众核处理器"><a href="#神威超算系统-与-申威众核处理器" class="headerlink" title="神威超算系统 与 申威众核处理器"></a>神威超算系统 与 申威众核处理器</h2><h3 id="神威超算系统"><a href="#神威超算系统" class="headerlink" title="神威超算系统"></a>神威超算系统</h3><p>神威系列超级计算机作为国家重点支持研发的超算系统，多次获得世界超<br>算排名第一，自研制以来一直与国家科技自强紧密连在一起，不仅成为国家科<br>技水平和创新能力的重要标志，也是支撑国防建设、产业转型升级和推动经济<br>社会发展不可替代的大国重器。</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/3cf760869c4218b52375763ef89f98e7.png"></p>
+<p>高速计算系统有72个计算机柜，每个机柜内<br>有4个超节点，每个超节点包含256个计算节点，计算节点即为新一代申威众<br>核处理器。因此系统共由<code>73728</code>块申威处理器构成，访存总带宽为<code>4473.2TB/s</code>,<br>峰值运算性能<code>1.3 EFLOPS</code>,持续运算性能<code>1.05 EFLOPS</code>。<a href="%E6%96%B0%E4%B8%80%E4%BB%A3%E7%94%B3%E5%A8%81%E4%BC%97%E6%A0%B8%E5%A4%84%E7%90%86%E5%99%A8%E4%B8%8A%E7%9A%84%E4%B8%8D%E8%A7%84%E5%88%99%E6%89%B9%E7%9F%A9%E9%98%B5%E4%B9%98%E7%AE%97%E6%B3%95%E4%BC%98%E5%8C%96(%E8%AE%B8%E4%B9%90)">^1</a></p>
+<h3 id="申威众核处理器"><a href="#申威众核处理器" class="headerlink" title="申威众核处理器"></a>申威众核处理器</h3><p>新一代申威异构众核处理器完全由我国自主研发设计，采用高效可扩展的<br>异构众核架构。</p>
+<p>如图所示，<img src="https://pic.shaojiemike.top/shaojiemike/2024/01/a7b6711feba3fa944112b735f7ab0851.png"></p>
+<ul>
+<li>申威处理器由环形网络(Network On Chip,NoC)连接的6个核组构成，其物理空间统一编址，支持核组间的Cache一致性。</li>
+<li>每个核组包含1个主核（控制核心）和64个从核（运算核心），均采用64位申威指令集，并通过主存控制器(Memory Controller,MC)共享<code>16GB</code> DDR4内存。</li>
+</ul>
+<h4 id="主从核参数"><a href="#主从核参数" class="headerlink" title="主从核参数"></a>主从核参数</h4><p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/d2412be0e2a63e263af796ba0d1e519c.png"></p>
+<ul>
+<li><p>主核负责任务调度，工作频率为<code>2.lGHz</code>,L1指令Cache和L1数据Cache空间均为<code>32KB</code>,L2混合Cache空间为<code>512KB</code>,支持<code>256</code>位向量指令扩展。</p>
+</li>
+<li><p>主核支持完整中断、内存管理和乱序执行，主要用于任务分配和调度、数据通信和I&#x2F;O以及从核不擅长的小规模稀疏问题处理</p>
+</li>
+<li><p>主核通过对从核任务的调度管理可以最大程度实现全核组的协同并行。</p>
+</li>
+<li><p>从核负责稠密计算，工作频率为<code>2.25GHz</code>,指令Cache空间为32KB,采用64个64位的统一结构寄存器，由整数执行部件和浮点执行部件共享，其中32个寄存器支持512位向量指令扩展。</p>
+</li>
+<li><p>处理器从核阵列的设计初衷是尽量简化微架构设计，使有限的芯片面积集成更多的计算核心，因此从核并没有采用通用处理器的多级Cache方案，而是<strong>每个从核</strong>配备了<code>256KB</code>的局部存储器(<code>Local Data Memory,LDM</code>)。</p>
+<ul>
+<li>LDM可配置为软件显式管理(Scratch Pad Memory,SPM)或硬件自动管理(Data Cache,.DCache),其中硬件管理支持0KB、32KB和128KB三档空间配置，Cache行大小为256字节。硬件管理简单方便，但缺乏对程序的针对性优化，性能欠佳。而软件管理保证了从核对LDM的访问总是命中，有利于充分利用存储空间，但同时也给用户编程带来巨大挑战。</li>
+</ul>
+</li>
+</ul>
+<h2 id="片上存储器-层次结构-和-通信互联方式"><a href="#片上存储器-层次结构-和-通信互联方式" class="headerlink" title="片上存储器 层次结构 和 通信互联方式"></a>片上存储器 层次结构 和 通信互联方式</h2><ul>
+<li>与上一代处理器不同的是，新一代申威处理器的从核阵列以簇为单位组织，<code>64</code>个从核以<code>8X8</code>的<code>CMesh(Concentrated Mesh)</code>网络方式构成从核阵列，从核之间和从核与外部之间通过<strong>阵列内网络</strong>互连。</li>
+<li><code>4个邻近从核</code>共享<strong>从核簇</strong>管理部件和路由器，<strong>簇管理部件</strong>主要负责阵列内网络的数据交互和流量控制，同时集成了用于批量访存的DMA引擎和从核间批量通信的RMA引擎(见前图)。</li>
+</ul>
+<h3 id="从核与主存的数据传输-gld-gst"><a href="#从核与主存的数据传输-gld-gst" class="headerlink" title="从核与主存的数据传输: gld&#x2F;gst"></a>从核与主存的数据传输: gld&#x2F;gst</h3><ul>
+<li>从核计算时可以通过全局访问指令(Global Load,gld&#x2F;Global Store,gst)直接访问主存。</li>
+<li>全局访问指从核通过gld&#x2F;gst指令直接将主存中数据读入寄存器或将寄存器中数据写入主存，此方式操作简便，数据无需经过LDM暂存即可直接参与计算。</li>
+<li>但基准测试显示gd&#x2F;gt指令的<strong>延迟很高</strong>，达到上百节拍数，在密集访存时一般不作考虑。</li>
+</ul>
+<h3 id="从核与主存的数据传输-DMA"><a href="#从核与主存的数据传输-DMA" class="headerlink" title="从核与主存的数据传输: DMA"></a>从核与主存的数据传输: DMA</h3><ul>
+<li>从核计算时也可以通过直接存储访问(Direct Memory Access,DMA)批量访问主存.</li>
+<li>DMA指从核LDM和主存之间的批量数据传输，其理论访存带宽可达<code>51.2GB/s</code>。实际使用时，在DMA数据传输量为1024字节倍数时即可达到80%的带宽利用率，此时全核组读取带宽为44.94GB&#x2F;s,写入带宽为41.35GB&#x2F;s。</li>
+</ul>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>DMA支持功能细节</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>DMA只能由从核发起请求，分为单播、行多播和列多播模式，且支持阻塞和非阻塞形式。</li>
+<li>DMA接口主要有读、写、广播、行广播和列广播。单播模式支持读和写操作，但行广播、列广播和广播模式只支持读操作，并提供集合方式接口。</li>
+<li>DMA所有的数据地址和长度都必须为4字节的整数倍，即要求4字节对齐。但DMA引擎会把单条DMA请求拆分成以128字节为单位的多次请求，非128字节对齐的DMA操作会产生更多请求。因此DMA传输在主存地址为128字节对齐，且传输量为128字节倍数的时候能更好地发挥其性能优势。</li>
+<li>此外，DMA还支持<strong>跨步传输</strong>，即按照一定跨步间隔连续访问主存，其中跨步间隔大小固定。跨步DMA提供了编程上的更多可能，借助跨步DMA可以访问不连续的主存数据。</li>
+</ul>
+
+        </div>
+    </article>
+
+<h3 id="从核LDM之间的数据传输-RMA"><a href="#从核LDM之间的数据传输-RMA" class="headerlink" title="从核LDM之间的数据传输: RMA"></a>从核LDM之间的数据传输: RMA</h3><ul>
+<li>RMA指从核阵列内各从核LDM之间的远程数据传输，由单个从核主动发起请求，其他从核通过判断回答字的值确定操作是否完成。</li>
+<li>RMA的最大通信带宽为<code>460GB/S</code>,明显高于DMA带宽，因此从核可以通过RMA与其他从核进行数据交换，以增大片上数据重用，降低对主存数据的需求。</li>
+</ul>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>RMA支持功能细节</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>RMA支持单播、行多播和列多播模式，且支持阻塞和非阻塞形式。</li>
+<li>RMA接口主要有读、写、广播、行广播、行多播、列广播和列多播，其中行广播、列广播和广播可提供集合方式接口。</li>
+<li>RMA所有的数据地址和长度都必须为4字节的整数倍，即要求4字节对齐。</li>
+<li>与DMA不同的是，RMA不支持跨步访问。</li>
+</ul>
+
+        </div>
+    </article>
+
+<h2 id="节点间通讯-短板"><a href="#节点间通讯-短板" class="headerlink" title="节点间通讯(短板)"></a>节点间通讯(短板)</h2><p>没有采用InfiniBand(400Gbps), 而是万兆PCIe+以太网络(10Gbps)</p>
+<h2 id="功耗，电费和成本"><a href="#功耗，电费和成本" class="headerlink" title="功耗，电费和成本"></a>功耗，电费和成本</h2><p>目前机时费是单节点6毛一小时，假如一半是电费0.3元&#x2F;小时。工业用电按照1元每度。单节点功耗是300W. 约等于单卡A100.</p>
+<p>总花费：按照100机柜 10w节点跑1天。150w左右。</p>
+<h2 id="从LLM训练角度看神威设计"><a href="#从LLM训练角度看神威设计" class="headerlink" title="从LLM训练角度看神威设计"></a>从LLM训练角度看神威设计</h2><p>首先神威出于国产化和通用性的考量，硬件肯定是无法与A100比的。加上软件栈（cuda）的差距。这里只是简单的分析。</p>
+<h3 id="LLM应用特点"><a href="#LLM应用特点" class="headerlink" title="LLM应用特点"></a>LLM应用特点</h3><ul>
+<li>从算子层面看， 就是矩阵乘和访存 占比top2</li>
+</ul>
+<h3 id="浮点计算峰值"><a href="#浮点计算峰值" class="headerlink" title="浮点计算峰值"></a>浮点计算峰值</h3><ul>
+<li>A100 FP32 <code>19.5TF</code> FP16 <code>312TF</code></li>
+<li>单节点 FP16 <code>50TF</code></li>
+<li>峰值利用率: <code>8%</code>（fp32）<code>2.8%</code> (fp16) 应该是从核利用率的问题</li>
+<li>单看峰值性能比 神威单节点约等于百分之一a100[^3]</li>
+</ul>
+<h3 id="访存带宽"><a href="#访存带宽" class="headerlink" title="访存带宽"></a>访存带宽</h3><ul>
+<li>A100 HBM2 <code>1.5TB/s</code> </li>
+<li>单节点访存 <code>300GB/s</code>. DMA是64个从核均分50，目前大模型的最小并行粒度是一个节点， 用1主核带6*64从核, 零零散散凑下来也能有个理论300+的带宽.</li>
+</ul>
+<h3 id="计算访存比"><a href="#计算访存比" class="headerlink" title="计算访存比"></a>计算访存比</h3><p>和a100看纸面数据 fp16是人家的六分之一 带宽是五分之一到六分之一， 计算访存比的出入不大。</p>
+<h3 id="神威的优势"><a href="#神威的优势" class="headerlink" title="神威的优势"></a>神威的优势</h3><ul>
+<li>节点数：哪怕五十个节点打一张a100， 10w节点能对标2k张a100 也很满足了。</li>
+<li>通用性设计：单节点6*(1+64)&#x3D;390核心，在设计时是希望能进行类似GPU的并行计算的。</li>
+</ul>
+<h3 id="神威的需要补足的点"><a href="#神威的需要补足的点" class="headerlink" title="神威的需要补足的点"></a>神威的需要补足的点</h3><ul>
+<li>单节点的访存带宽</li>
+<li>浮点的计算峰值和利用率</li>
+</ul>
+<h3 id="后续补足：神威加速卡"><a href="#后续补足：神威加速卡" class="headerlink" title="后续补足：神威加速卡"></a>后续补足：神威加速卡</h3><ul>
+<li>神威的智能计算卡(全面对标A100 PCIe版)</li>
+<li>是无锡那边的太初团队在做， </li>
+<li>单卡有4核组， 共<code>340TF</code>的fp16， <code>1.6TB/s</code>的访存带宽。 </li>
+<li>太初那边还打算搞一套所谓的 护城河（类似cuda） [^3]</li>
+</ul>
+<!-- <figure markdown>
+  ![Image title](https://dummyimage.com/600x400/){ width=80% }
+  ![Image title](https://dummyimage.com/600x400/){ width="300" }
+  <figcaption>Image caption</figcaption>
+</figure> -->
+
+<!-- ## 🏗施工中🏗
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+觉得有意义写，先占个位子。还没写好呢，建议不要看（逻辑内容都没想清楚），不要急~~
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧 -->
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><!-- footnote is for url which the writer do not want reader to click to interupt the reading. -->
+
+<!-- 上面回答部分**来自ChatGPT-3.5**，没有进行正确性的交叉校验。-->
+
+<p>[^2]: GAO J,ZHENG F,QI F,et al.<a target="_blank" rel="noopener" href="http://scis.scichina.com/en/2021/141101.pdf">Sunway supercomputer architecture towards exascale computing:analysis and practice</a>[J].Science China:Information Sciences,2021,64(4):1-21.</p>
+<p>[^3]: ACSA Lab 刘波 “LLM Training on Shenwei” 2024.01.03</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>New Generation Shenwei System</p><p><a href="http://icarus.shaojiemike.top/Work/Architecture/companySpecificDesign/NewGenerationShenweiSystem.html">http://icarus.shaojiemike.top/Work/Architecture/companySpecificDesign/NewGenerationShenweiSystem.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-01-03</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#神威超算系统-与-申威众核处理器"><span class="level-left"><span class="level-item">1</span><span class="level-item">神威超算系统 与 申威众核处理器</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#神威超算系统"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">神威超算系统</span></span></a></li><li><a class="level is-mobile" href="#申威众核处理器"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">申威众核处理器</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#主从核参数"><span class="level-left"><span class="level-item">1.2.1</span><span class="level-item">主从核参数</span></span></a></li></ul></li></ul></li><li><a class="level is-mobile" href="#片上存储器-层次结构-和-通信互联方式"><span class="level-left"><span class="level-item">2</span><span class="level-item">片上存储器 层次结构 和 通信互联方式</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#从核与主存的数据传输-gld-gst"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">从核与主存的数据传输: gld/gst</span></span></a></li><li><a class="level is-mobile" href="#从核与主存的数据传输-DMA"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">从核与主存的数据传输: DMA</span></span></a></li><li><a class="level is-mobile" href="#从核LDM之间的数据传输-RMA"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">从核LDM之间的数据传输: RMA</span></span></a></li></ul></li><li><a class="level is-mobile" href="#节点间通讯-短板"><span class="level-left"><span class="level-item">3</span><span class="level-item">节点间通讯(短板)</span></span></a></li><li><a class="level is-mobile" href="#功耗，电费和成本"><span class="level-left"><span class="level-item">4</span><span class="level-item">功耗，电费和成本</span></span></a></li><li><a class="level is-mobile" href="#从LLM训练角度看神威设计"><span class="level-left"><span class="level-item">5</span><span class="level-item">从LLM训练角度看神威设计</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#LLM应用特点"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">LLM应用特点</span></span></a></li><li><a class="level is-mobile" href="#浮点计算峰值"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">浮点计算峰值</span></span></a></li><li><a class="level is-mobile" href="#访存带宽"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">访存带宽</span></span></a></li><li><a class="level is-mobile" href="#计算访存比"><span class="level-left"><span class="level-item">5.4</span><span class="level-item">计算访存比</span></span></a></li><li><a class="level is-mobile" href="#神威的优势"><span class="level-left"><span class="level-item">5.5</span><span class="level-item">神威的优势</span></span></a></li><li><a class="level is-mobile" href="#神威的需要补足的点"><span class="level-left"><span class="level-item">5.6</span><span class="level-item">神威的需要补足的点</span></span></a></li><li><a class="level is-mobile" href="#后续补足：神威加速卡"><span class="level-left"><span class="level-item">5.7</span><span class="level-item">后续补足：神威加速卡</span></span></a></li></ul></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">6</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

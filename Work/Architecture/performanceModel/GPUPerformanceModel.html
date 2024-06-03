@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>CPU / GPU Performance Model based on Interval Analysis - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       在与袁福焱交流他的GPU Design Space Exploration的工作内容时，发现和我PIM模拟器Zsim, Sniper的原理是异曲同工，师出本源的方法。"><meta property="og:type" content="blog"><meta property="og:title" content="CPU / GPU Performance Model based on Interval Analysis"><meta property="og:url" content="http://icarus.shaojiemike.top/Work/Architecture/performanceModel/GPUPerformanceModel.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       在与袁福焱交流他的GPU Design Space Exploration的工作内容时，发现和我PIM模拟器Zsim, Sniper的原理是异曲同工，师出本源的方法。"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/c4ba81906c9e742aeec58a8f055ea7a5.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/202e8707ec031644f1a499f610a66dcb.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/9384fa01b190ead0c38374f25c0a8d56.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/4b408428ff3aa06caf9870ee68256933.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/667ef6e569cf3397a59c631f6677591e.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/246a0133847b9615a916058a72b769ea.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/1183449fd668f3e012def6d3e32a4aa6.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/5a34224ef31caf87d20c831baf74edbf.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2024/01/92fa4f54549bf207e981b40131043b2d.png"><meta property="article:published_time" content="2024-01-04T02:55:54.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:10.067Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="GPU"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2024/01/c4ba81906c9e742aeec58a8f055ea7a5.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/Work/Architecture/performanceModel/GPUPerformanceModel.html"},"headline":"CPU / GPU Performance Model based on Interval Analysis","image":["https://pic.shaojiemike.top/shaojiemike/2024/01/c4ba81906c9e742aeec58a8f055ea7a5.png","https://pic.shaojiemike.top/shaojiemike/2024/01/202e8707ec031644f1a499f610a66dcb.png","https://pic.shaojiemike.top/shaojiemike/2024/01/9384fa01b190ead0c38374f25c0a8d56.png","https://pic.shaojiemike.top/shaojiemike/2024/01/4b408428ff3aa06caf9870ee68256933.png","https://pic.shaojiemike.top/shaojiemike/2024/01/667ef6e569cf3397a59c631f6677591e.png","https://pic.shaojiemike.top/shaojiemike/2024/01/246a0133847b9615a916058a72b769ea.png","https://pic.shaojiemike.top/shaojiemike/2024/01/1183449fd668f3e012def6d3e32a4aa6.png","https://pic.shaojiemike.top/shaojiemike/2024/01/5a34224ef31caf87d20c831baf74edbf.png","https://pic.shaojiemike.top/shaojiemike/2024/01/92fa4f54549bf207e981b40131043b2d.png"],"datePublished":"2024-01-04T02:55:54.000Z","dateModified":"2024-06-03T07:54:10.067Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       在与袁福焱交流他的GPU Design Space Exploration的工作内容时，发现和我PIM模拟器Zsim, Sniper的原理是异曲同工，师出本源的方法。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/Work/Architecture/performanceModel/GPUPerformanceModel.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">CPU / GPU Performance Model based on Interval Analysis</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>在与袁福焱交流他的GPU Design Space Exploration的工作内容时，发现和我PIM模拟器Zsim, Sniper的原理是异曲同工，师出本源的方法。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>虽然这些模拟器不是cycle-accuracy的，但是最终误差距离cycle-accuracy竟然只有10%[^3]</p>
+<h2 id="Interval-analysis"><a href="#Interval-analysis" class="headerlink" title="Interval analysis"></a>Interval analysis</h2><p>Interval analysis is a relatively accurate performance modeling technique, which traverses the <strong>instruction trace</strong> and uses <strong>functional simulators</strong>, e.g., cache simulator, to <strong>track the stall events that cause performance loss.</strong>[^1]</p>
+<p><strong>high Speed and better accuracy</strong>: It shows hundred times(97x) of speedup compared to <code>detailed timing simulations</code> and better accuracy compared to <code>pure analytical models</code>.[^1]</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/c4ba81906c9e742aeec58a8f055ea7a5.png">[^4]</p>
+<h2 id="Interval-Model-on-CPU"><a href="#Interval-Model-on-CPU" class="headerlink" title="Interval Model on CPU"></a>Interval Model on CPU</h2><h3 id="CPU-Model"><a href="#CPU-Model" class="headerlink" title="CPU Model"></a>CPU Model</h3><p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/202e8707ec031644f1a499f610a66dcb.png">[^5]</p>
+<ul>
+<li>fetch width <code>F</code> , dispatch width <code>D</code>, issue width <code>I</code>, and retire width <code>R</code>. ROB window size <code>W</code> </li>
+<li>It is assumed that the <strong>front-end decode</strong> and <strong>rename pipeline stages</strong> match the dispatch width <code>D</code></li>
+</ul>
+<h4 id="Balanced-Processor"><a href="#Balanced-Processor" class="headerlink" title="Balanced Processor"></a>Balanced Processor</h4><p>Balanced Processor: OOO处理器如果对于给定的dispatch width <code>D</code>, ROB(window size)和其他资源(如the issue buffer(s), load&#x2F;store buffers, rename registers, MSHRs, functional units, write buffers,等)的<strong>大小足以</strong>在<strong>没有miss event</strong>的情况下实现<strong>每个周期D条指令</strong>的持续处理器性能。</p>
+<p>重点在于平衡：</p>
+<ol>
+<li>其他资源(Buffer)变小，就吃不满dispatch width <code>D</code>的带宽。</li>
+<li>其他资源(Buffer)增大，也无法跨越dispatch width <code>D</code>的限制。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>既然dispatch width往往是瓶颈，为什么不做大呢？</p>
+</div>
+        <div class="message-body">
+            <p>能问出这个问题，说明没有理解balanced的概念。dispatch width要增大，前端后端的设计都要变大，电路变复杂。</p>
+<ol>
+<li>复杂性和功耗：需要更多的执行单元、更大的调度队列和更复杂的逻辑来处理这些指令。这不仅增加了处理器的设计复杂性，也会导致更高的功耗和热输出。</li>
+<li>指令级并行度的局限性：程序的指令流中并<strong>不总是存在足够的独立指令来充分利用更宽的带宽</strong>。这意味着即使有更宽的带宽，处理器也可能无法始终填满这个带宽，因为指令之间的依赖关系限制了它们可以并行执行的程度。</li>
+<li>维持处理器频率：随着带宽的增加，处理器的每个周期内的工作量也会增加。这可能导致难以维持高处理器频率，因为更大的带宽可能需要更长的时钟周期来完成工作。</li>
+<li>设计和成本权衡：处理器设计是一种平衡艺术，设计师必须在性能、成本、能耗、热设计功率（TDP）和市场需求之间权衡。更宽的带宽可能会导致成本增加，而这可能不符合市场需求或目标应用场景。</li>
+</ol>
+
+        </div>
+    </article>
+
+<h4 id="Machine-Balance"><a href="#Machine-Balance" class="headerlink" title="Machine Balance"></a>Machine Balance</h4><p>这与 95 年的计算访存的一个概念有些相似：[^7]</p>
+<p>$$balance &#x3D; \frac{peak floating ops&#x2F;cycle}{sustained memory ops&#x2F;cycle}$$</p>
+<p>应用在app kernel 就是 compute indensity.</p>
+<h3 id="formula"><a href="#formula" class="headerlink" title="formula"></a>formula</h3><p>$$Interval &#x3D; N&#x2F;D useful + penalty$$</p>
+<ul>
+<li><strong>N</strong> : instruction number</li>
+<li><strong>D</strong> : Dispatch width - refers to the movement of instructions from the front-end pipeline into the reorder and issue buffers.[^5] <ul>
+<li>发射（dispatch）到执行单元并执行的整个过程</li>
+<li>在大部分CPU里，D都是最小宽度，F&gt;D, I&gt;D 。有时也叫<code>processor width</code></li>
+</ul>
+</li>
+</ul>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Issue Width vs Dispatch Width vs Commit&#x2F;Squash Width</p>
+</div>
+        <div class="message-body">
+            <p>Issue Width: How many instructions can be pushed by decode into execute (EX) stage. Typically limited by size of issue queue (IQ) (in EX, instructions are first pushed into IQ and then “dispatched” to ALUs&#x2F;Functional-Units for “real” execution)[^6]<br>  Issue Width：有多少指令可以被decode推入execute（EX）阶段。通常受发布队列（IQ）的大小限制（在EX中，指令首先被推入IQ，然后“分派”到ALU&#x2F;功能单元以进行“真实的”执行）</p>
+<p>  Dispatch Width: How many instructions can move from IQ to ALUs&#x2F;FUs. Limited by the number of ALUs&#x2F;FUs, or how much of the IQ we read&#x2F;cycle.<br>  调度宽度：有多少指令可以从IQ移动到ALU&#x2F;FU。受限于ALU&#x2F;FU的数量，或者我们读取&#x2F;循环的IQ的多少。</p>
+<p>  Commit&#x2F;Squash Width: How many instructions are committed&#x2F;squashed per cycle. GEM5 seems to be modelling bandwidth requirements that are associated with commit&#x2F;squash per cycle (typically it involves removing entries from ROB and adjusting rename tables)<br>  提交&#x2F;压缩宽度：每个周期提交&#x2F;压缩多少条指令。GEM 5似乎正在建模与每个周期的提交&#x2F;压缩相关的带宽需求（通常涉及从ROB中删除条目并调整重命名表）</p>
+
+        </div>
+    </article>
+
+<h4 id="Dispatch-Inefficiency"><a href="#Dispatch-Inefficiency" class="headerlink" title="Dispatch Inefficiency."></a>Dispatch Inefficiency.</h4><p>ceiling function + “edge effect”:</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/9384fa01b190ead0c38374f25c0a8d56.png"></p>
+<h4 id="Putting-It-Together-The-Overall-Model"><a href="#Putting-It-Together-The-Overall-Model" class="headerlink" title="Putting It Together: The Overall Model."></a>Putting It Together: The Overall Model.</h4><p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/4b408428ff3aa06caf9870ee68256933.png"></p>
+<h3 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h3><h4 id="Short-Back-End-Miss-Events"><a href="#Short-Back-End-Miss-Events" class="headerlink" title="Short Back-End Miss Events"></a>Short Back-End Miss Events</h4><ul>
+<li>L1 D-cache miss</li>
+<li>miss latency can be hidden by out-of-order execution</li>
+</ul>
+<h4 id="Long-Back-End-Miss-Events"><a href="#Long-Back-End-Miss-Events" class="headerlink" title="Long Back-End Miss Events."></a>Long Back-End Miss Events.</h4><ul>
+<li><p>miss from the L2 cache to main memory,</p>
+</li>
+<li><p>长延迟会依次导致：</p>
+<ul>
+<li>ROB fill</li>
+<li>dispatch stalls</li>
+<li>issue and commit cease</li>
+</ul>
+</li>
+<li><p>miss data 读取到之后，依次发生：</p>
+<ul>
+<li>ROB unlocked</li>
+<li>dispatch resumes</li>
+</ul>
+</li>
+<li><p>导致<code>load miss</code>的指令，要依次</p>
+<ul>
+<li>先fetch到<code>decode buffer</code>。</li>
+<li>再dispatch到<code>issue buffer</code></li>
+<li>最后issue到<code>load unit</code>，来访问memory</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/667ef6e569cf3397a59c631f6677591e.png"></p>
+<h2 id="Interval-Model-on-GPU"><a href="#Interval-Model-on-GPU" class="headerlink" title="Interval Model on GPU"></a>Interval Model on GPU</h2><h3 id="Baseline"><a href="#Baseline" class="headerlink" title="Baseline"></a>Baseline</h3><h3 id="Penalty-1-Sub-core-model"><a href="#Penalty-1-Sub-core-model" class="headerlink" title="Penalty 1 : Sub-core model"></a>Penalty 1 : Sub-core model</h3><p>Consider Warp Switch to hide latency[^1] [^2]</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/246a0133847b9615a916058a72b769ea.png"></p>
+<h3 id="Penalty-2-Intra-SM-Contention"><a href="#Penalty-2-Intra-SM-Contention" class="headerlink" title="Penalty 2 : Intra-SM Contention"></a>Penalty 2 : Intra-SM Contention</h3><p>FU, L1 bank limited [^3]</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/1183449fd668f3e012def6d3e32a4aa6.png"></p>
+<h3 id="Penalty-3-Memory-contention"><a href="#Penalty-3-Memory-contention" class="headerlink" title="Penalty 3 : Memory contention"></a>Penalty 3 : Memory contention</h3><p>memory divergence，L1 MSHR Full，NoC, DRAM queue[^2]</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/5a34224ef31caf87d20c831baf74edbf.png"></p>
+<h3 id="Penalty-4-SM-Load-Imbalance"><a href="#Penalty-4-SM-Load-Imbalance" class="headerlink" title="Penalty 4 : SM Load Imbalance"></a>Penalty 4 : SM Load Imbalance</h3><p>Some Warp fast, some slow.[^3]</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2024/01/92fa4f54549bf207e981b40131043b2d.png"></p>
+<h2 id="CPU-vs-GPU-model"><a href="#CPU-vs-GPU-model" class="headerlink" title="CPU vs GPU model"></a>CPU vs GPU model</h2><p>Mechanistic Performance Model 是根据物理设计结构来模拟的。</p>
+<p>由于GPU的sub-core(warp-scheduler)相对于CPU简单，所以能用公式抽象出来：</p>
+<ol>
+<li>base IPC &#x3D; 1，Don’t consider frontend stall</li>
+<li>In-order execute</li>
+</ol>
+<h2 id="读论文时的疑问，需要回答的问题"><a href="#读论文时的疑问，需要回答的问题" class="headerlink" title="读论文时的疑问，需要回答的问题"></a>读论文时的疑问，需要回答的问题</h2><h3 id="GPUMech"><a href="#GPUMech" class="headerlink" title="GPUMech"></a>GPUMech</h3><ol>
+<li>之前的GPU performance model 聚焦于 应用优化，而不是 DSE。这些分析模型的不同</li>
+<li>CPU的Interval Model和GPU的有何不同，两者的区别？<ol>
+<li>CPU侧的几个假设：<ol>
+<li>Under optimal conditions (no miss events), the processor sustains a level of performance more-or-less equal to its pipeline front-end <strong>dispatch width</strong></li>
+<li>front-end pipeline , the reorder buffer and issue queues.</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="研究路径分叉点"><a href="#研究路径分叉点" class="headerlink" title="研究路径分叉点"></a>研究路径分叉点</h3><h4 id="Analytical-Model"><a href="#Analytical-Model" class="headerlink" title="Analytical Model"></a>Analytical Model</h4><ol>
+<li>CPU<ol>
+<li>(JPDC91) An analytical approach to performance&#x2F;cost modeling of parallel computers.</li>
+<li>(MICRO94)Theoretical modeling of superscalar processor performance.</li>
+<li>(HPCA09) A First-Order Fine-Grained Multithreaded Throughput Model</li>
+</ol>
+</li>
+<li>GPU<ol>
+<li>(ISCA ’09.) An analytical model for a GPU architecture with memory-level and thread-level parallelism awareness.</li>
+<li>(PPoPP10) An adaptive performance modeling tool for gpu architectures.</li>
+<li>(HPCA ’11) A quantitative performance analysis model for GPU architectures.</li>
+<li>(PPoPP ’12) A performance analysis framework for identifying potential benefits in GPGPU applications.</li>
+</ol>
+</li>
+</ol>
+<h4 id="CPU侧"><a href="#CPU侧" class="headerlink" title="CPU侧"></a>CPU侧</h4><ol>
+<li>KARKHANIS,T.,AND SMITH的5篇 interval analysis 相关的文章<ol>
+<li><strong>(ISCA04) A first-order superscalar processor model.</strong></li>
+<li>(ASPLOS’06) A performance counter architecture for computing accurate CPI components</li>
+<li>(ISPASS06) Characterizing the branch misprediction penalty.</li>
+<li>(ISCA07) Automated design of application specific superscalar processors: an analytical approach</li>
+<li><strong>(TOCS09) A mechanistic performance model for superscalar out-of-order processors</strong></li>
+</ol>
+</li>
+<li>(HPCA10)Interval Simulation</li>
+</ol>
+<h4 id="GPU侧"><a href="#GPU侧" class="headerlink" title="GPU侧"></a>GPU侧</h4><ol>
+<li>(ISCA04) A first-order superscalar processor model.</li>
+<li>(TOCS09) A mechanistic performance model for superscalar out-of-order processors.</li>
+<li>GPUMech[^1]</li>
+</ol>
+<h4 id="Recent-Model"><a href="#Recent-Model" class="headerlink" title="Recent Model"></a>Recent Model</h4><ol>
+<li>GPU<ol>
+<li>(PPoPP18) POSTER: A Microbenchmark to Study GPU Performance Models</li>
+<li>(PPoPP18) POSTER: Performance Modeling for GPUs using Abstract Kernel Emulation</li>
+<li>(ISCA19) MGPUSim: Enabling Multi-GPU Performance Modeling and Optimization</li>
+<li><a target="_blank" rel="noopener" href="https://dblp.uni-trier.de/search?q=GPU%20model%20streamid:conf/isca:">more</a></li>
+</ol>
+</li>
+<li>Interval 确实没有顶会了除了前面[^2][^3]</li>
+</ol>
+<!-- <figure markdown>
+  ![Image title](https://dummyimage.com/600x400/){ width=80% }
+  ![Image title](https://dummyimage.com/600x400/){ width="300" }
+  <figcaption>Image caption</figcaption>
+</figure> -->
+
+
+<!-- ## 🏗施工中🏗
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+觉得有意义写，先占个位子。还没写好呢，建议不要看（逻辑内容都没想清楚），不要急~~
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧 -->
+
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><!-- footnote is for url which the writer do not want reader to click to interupt the reading. -->
+
+<!-- 上面回答部分**来自ChatGPT-3.5**，没有进行正确性的交叉校验。-->
+
+<p>[^1]: (MICRO14) <a target="_blank" rel="noopener" href="https://hsienhsinlee.github.io/MARS/pub/micro14.pdf">GPUMech: GPU Performance Modeling Technique based on Interval Analysis</a><br>[^2]: (MICRO20) <a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/9251853">MDM: The GPU Memory Divergence Model</a><br>[^3]: (ISCA22) <a target="_blank" rel="noopener" href="https://dl.acm.org/doi/pdf/10.1145/3470496.3527384">GCoM: A Detailed GPU Core Model for Accurate Analytical Modeling of Modern GPUs</a><br>[^4]: (ISCA04) A first-order superscalar processor model.<br>[^5]: (TOCS09) A mechanistic performance model for superscalar out-of-order processors<br>[^6]: <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/58692814/the-difference-between-dispatch-commit-issue-and-squash-width-in-a-cpu-core">cpu width</a><br>[^7]: (1995) Memory bandwidth and machine balance in high performance computers</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>CPU / GPU Performance Model based on Interval Analysis</p><p><a href="http://icarus.shaojiemike.top/Work/Architecture/performanceModel/GPUPerformanceModel.html">http://icarus.shaojiemike.top/Work/Architecture/performanceModel/GPUPerformanceModel.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-01-04</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#简介"><span class="level-left"><span class="level-item">1</span><span class="level-item">简介</span></span></a></li><li><a class="level is-mobile" href="#Interval-analysis"><span class="level-left"><span class="level-item">2</span><span class="level-item">Interval analysis</span></span></a></li><li><a class="level is-mobile" href="#Interval-Model-on-CPU"><span class="level-left"><span class="level-item">3</span><span class="level-item">Interval Model on CPU</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#CPU-Model"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">CPU Model</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Balanced-Processor"><span class="level-left"><span class="level-item">3.1.1</span><span class="level-item">Balanced Processor</span></span></a></li><li><a class="level is-mobile" href="#Machine-Balance"><span class="level-left"><span class="level-item">3.1.2</span><span class="level-item">Machine Balance</span></span></a></li></ul></li><li><a class="level is-mobile" href="#formula"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">formula</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Dispatch-Inefficiency"><span class="level-left"><span class="level-item">3.2.1</span><span class="level-item">Dispatch Inefficiency.</span></span></a></li><li><a class="level is-mobile" href="#Putting-It-Together-The-Overall-Model"><span class="level-left"><span class="level-item">3.2.2</span><span class="level-item">Putting It Together: The Overall Model.</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Example"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">Example</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Short-Back-End-Miss-Events"><span class="level-left"><span class="level-item">3.3.1</span><span class="level-item">Short Back-End Miss Events</span></span></a></li><li><a class="level is-mobile" href="#Long-Back-End-Miss-Events"><span class="level-left"><span class="level-item">3.3.2</span><span class="level-item">Long Back-End Miss Events.</span></span></a></li></ul></li></ul></li><li><a class="level is-mobile" href="#Interval-Model-on-GPU"><span class="level-left"><span class="level-item">4</span><span class="level-item">Interval Model on GPU</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Baseline"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">Baseline</span></span></a></li><li><a class="level is-mobile" href="#Penalty-1-Sub-core-model"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">Penalty 1 : Sub-core model</span></span></a></li><li><a class="level is-mobile" href="#Penalty-2-Intra-SM-Contention"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">Penalty 2 : Intra-SM Contention</span></span></a></li><li><a class="level is-mobile" href="#Penalty-3-Memory-contention"><span class="level-left"><span class="level-item">4.4</span><span class="level-item">Penalty 3 : Memory contention</span></span></a></li><li><a class="level is-mobile" href="#Penalty-4-SM-Load-Imbalance"><span class="level-left"><span class="level-item">4.5</span><span class="level-item">Penalty 4 : SM Load Imbalance</span></span></a></li></ul></li><li><a class="level is-mobile" href="#CPU-vs-GPU-model"><span class="level-left"><span class="level-item">5</span><span class="level-item">CPU vs GPU model</span></span></a></li><li><a class="level is-mobile" href="#读论文时的疑问，需要回答的问题"><span class="level-left"><span class="level-item">6</span><span class="level-item">读论文时的疑问，需要回答的问题</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#GPUMech"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">GPUMech</span></span></a></li><li><a class="level is-mobile" href="#研究路径分叉点"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">研究路径分叉点</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Analytical-Model"><span class="level-left"><span class="level-item">6.2.1</span><span class="level-item">Analytical Model</span></span></a></li><li><a class="level is-mobile" href="#CPU侧"><span class="level-left"><span class="level-item">6.2.2</span><span class="level-item">CPU侧</span></span></a></li><li><a class="level is-mobile" href="#GPU侧"><span class="level-left"><span class="level-item">6.2.3</span><span class="level-item">GPU侧</span></span></a></li><li><a class="level is-mobile" href="#Recent-Model"><span class="level-left"><span class="level-item">6.2.4</span><span class="level-item">Recent Model</span></span></a></li></ul></li></ul></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">7</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

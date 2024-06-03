@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>BitTorrent - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="BT简述BitTorrent (简称 BT) 协议是和点对点（point-to-point）的协议程序不同，它是用户群对用户群（peer-to-peer, 或简写为 P2P) 传输协议, 它被设计用来高效地分发文件 (尤其是对于大文件、多人同时下载时效率非常高)。该协议基于HTTP协议，属于TCP&amp;#x2F;IP应用层。 将文件划分成多块(默认256Kb一块)，每块可以从网络中不同的用户的BT客户"><meta property="og:type" content="blog"><meta property="og:title" content="BitTorrent"><meta property="og:url" content="http://icarus.shaojiemike.top/Work/network/Protocol/BT.html"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="BT简述BitTorrent (简称 BT) 协议是和点对点（point-to-point）的协议程序不同，它是用户群对用户群（peer-to-peer, 或简写为 P2P) 传输协议, 它被设计用来高效地分发文件 (尤其是对于大文件、多人同时下载时效率非常高)。该协议基于HTTP协议，属于TCP&amp;#x2F;IP应用层。 将文件划分成多块(默认256Kb一块)，每块可以从网络中不同的用户的BT客户"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230314193709.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230512090749.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20221117082208.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20221117084350.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/Snipaste_2023-03-06_18-17-07.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20230512091246.png"><meta property="article:published_time" content="2023-05-11T16:00:00.000Z"><meta property="article:modified_time" content="2024-06-03T07:54:10.111Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="h265"><meta property="article:tag" content="BT"><meta property="article:tag" content="PT"><meta property="article:tag" content="docker"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/img/20230314193709.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/Work/network/Protocol/BT.html"},"headline":"BitTorrent","image":["https://pic.shaojiemike.top/img/20230314193709.png","https://pic.shaojiemike.top/img/20230512090749.png","https://pic.shaojiemike.top/img/20221117082208.png","https://pic.shaojiemike.top/img/20221117084350.png","https://pic.shaojiemike.top/img/Snipaste_2023-03-06_18-17-07.png","https://pic.shaojiemike.top/img/20230512091246.png"],"datePublished":"2023-05-11T16:00:00.000Z","dateModified":"2024-06-03T07:54:10.111Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"BT简述BitTorrent (简称 BT) 协议是和点对点（point-to-point）的协议程序不同，它是用户群对用户群（peer-to-peer, 或简写为 P2P) 传输协议, 它被设计用来高效地分发文件 (尤其是对于大文件、多人同时下载时效率非常高)。该协议基于HTTP协议，属于TCP&#x2F;IP应用层。 将文件划分成多块(默认256Kb一块)，每块可以从网络中不同的用户的BT客户"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/Work/network/Protocol/BT.html"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/about">About</a><a class="navbar-item" href="/Work">Work</a><a class="navbar-item" href="/Thinking">Thinking</a><a class="navbar-item" href="/OOW">OOW</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">BitTorrent</h1><div class="content"><h2 id="BT简述"><a href="#BT简述" class="headerlink" title="BT简述"></a>BT简述</h2><p>BitTorrent (简称 BT) 协议是和点对点（point-to-point）的协议程序不同，它是用户群对用户群（peer-to-peer, 或简写为 P2P) 传输协议, 它被设计用来高效地分发文件 (尤其是对于大文件、多人同时下载时效率非常高)。该协议基于HTTP协议，属于TCP&#x2F;IP应用层。</p>
+<p>将文件划分成多块(默认256Kb一块)，每块可以从网络中不同的用户的BT客户端处并行下载。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">BT 下载的文件都是别人上传给你的。</span><br><span class="line">BT 下载速度均来自其他下载同一资源的用户上传速度。</span><br><span class="line">上传的用户越多，你的下载速度越快，相反没用户上传你就没有下载速度。</span><br></pre></td></tr></table></figure>
+
+<p>比特彗星，包括其他 BT 软件（迅雷除外，迅雷不是会员会限速，高速通道下载提高的速度一部分就是接触限速后获得的）都不会限制下载速度。</p>
+<h3 id="BT分享规则"><a href="#BT分享规则" class="headerlink" title="BT分享规则"></a>BT分享规则</h3><p>与迅雷不同，BT旨在“人人为我，我为人人”。用户和用户之间对等交换自己手中已有的资源。如果任何一方试图白嫖另外一方的资源，而自己不愿意上传自己的资源，那么那方就会被人视作吸血者而被踢出这个交换，下场是没有人会愿意和你交换数据，你的下载速度也就归零。</p>
+<p>如果把上传速度限制为了10KB&#x2F;s，10KB&#x2F;s是BitComet上传最低限速，很大时候就这10KB会被包含DHT查询、向Tracker服务器注册，连接用户所产生的上传全部占满。在下载种子的时候，其他用户连上你是只能拿到1～2KB&#x2F;s甚至一点都没有的。</p>
+<p>现在的BT下载客户端都可以做到智能反吸血，所以基本想和交换数据的用户都把你当作Leecher（吸血鬼）Ban（封禁）处理了，故没有下载速度不足为奇。</p>
+<p>一般来说，只要预留50KB&#x2F;s的上传给其他网页浏览、聊天就可以了，在下载时应该尽量把上传留给那些和你交换资源的用户，这样才不会被他们视作你在吸血进而屏蔽你。</p>
+<p>如果上传不足，就应该主动限制自己的下载速度，否则单位时间下载量远超过上传量反而会遭来更多的屏蔽，对下载速度提升更加不利。</p>
+<h3 id="BT基本流程"><a href="#BT基本流程" class="headerlink" title="BT基本流程"></a>BT基本流程</h3><p><code>.torrent</code> 种子文件本质上是文本文件，包含Tracker信息和文件信息两部分。Tracker信息主要是BT下载中需要用到的Tracker服务器的地址和针对Tracker服务器的设置。</p>
+<ol>
+<li>下载时，BT客户端首先解析种子文件得到Tracker地址，然后连接Tracker服务器。</li>
+<li>Tracker服务器回应下载者的请求，提供下载者其他下载者（包括发布者）的IP。</li>
+<li>下载者再连接其他下载者，根据种子文件，两者分别告知对方自己已经有的块，然后交换对方所没有的数据。<ol>
+<li>此时不需要其他服务器参与，分散了单个线路上的数据流量，因此减轻了服务器负担。</li>
+</ol>
+</li>
+<li>下载者每得到一个块，需要算出下载块的Hash验证码与种子文件中的对比，如果一样则说明块正确，不一样则需要重新下载这个块。这种规定是为了解决下载内容准确性的问题。</li>
+</ol>
+<h2 id="常规部署"><a href="#常规部署" class="headerlink" title="常规部署"></a>常规部署</h2><ul>
+<li>安装<a target="_blank" rel="noopener" href="https://manpages.ubuntu.com/manpages/jammy/man1/qbittorrent-nox.1.html">qBittorrent-nox</a>, tmux下运行，在8080端口挂载WebUI</li>
+<li>安装qbittorrent, 用户运行qbittorrent, x11弹出应用窗口<ul>
+<li>问题：<ul>
+<li>怎么维持窗口？<code>sudo XAUTHORITY=/home/qcjiang/.Xauthority qbittorrent</code></li>
+<li>关于写文件权限，如何写网络硬盘</li>
+<li>node5 上传很快, 网络原因？种子原因？(不是，是因为网络硬盘，所以下载多少要占用多少上传)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="docker部署"><a href="#docker部署" class="headerlink" title="docker部署"></a>docker部署</h2><p>以qBit的docker为例，参考<a target="_blank" rel="noopener" href="https://hub.docker.com/r/linuxserver/qbittorrent/#!">linuxsever</a>的docker-compose如下：(qBit相对于Transmission有多线程IO的优势) 也可以使用<a target="_blank" rel="noopener" href="https://github.com/SuperNG6/Docker-qBittorrent">其余docker镜像</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">version: &quot;2.1&quot;</span><br><span class="line">services:</span><br><span class="line">  qbittorrent:</span><br><span class="line">    image: lscr.io/linuxserver/qbittorrent:latest</span><br><span class="line">    container_name: qbittorrent</span><br><span class="line">    environment:</span><br><span class="line">      - PUID=0 # 这里是root 如果想以其他用戶A修改文件，可以改成其他用户的UID。通過id A 查看</span><br><span class="line">      - PGID=0</span><br><span class="line">      - TZ=Etc/UTC</span><br><span class="line">      - WEBUI_PORT=8080</span><br><span class="line">    volumes:</span><br><span class="line">      - /addDisk/DiskNo4/qBit:/config</span><br><span class="line">      - /addDisk/DiskNo4/bt:/downloads</span><br><span class="line"></span><br><span class="line">    network_mode: host</span><br><span class="line">    restart: unless-stopped</span><br></pre></td></tr></table></figure>
+
+<p>默认账号 <code>admin</code> 默认密码 <code>adminadmin</code><br>然后通过webUI <code>http://222.195.72.218:8080/</code>管理。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>忘记密码处理</p>
+</div>
+        <div class="message-body">
+            <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/374538088">修改对应配置文件，</a></p>
+
+        </div>
+    </article>
+
+<p>如果不想网络通过wireguard，而是本地可以如下设置</p>
+<p><img src="https://pic.shaojiemike.top/img/20230314193709.png"></p>
+<h3 id="同一台机器实现两个账号做种"><a href="#同一台机器实现两个账号做种" class="headerlink" title="同一台机器实现两个账号做种"></a>同一台机器实现两个账号做种</h3><ul>
+<li>思路：两个docker，同一个网络出口</li>
+<li>問題：<ul>
+<li>qBit要有权限写文件</li>
+<li>两个docker兼容性：<ul>
+<li>WebUI有bug，不一定会显示。重启刷新即可</li>
+<li>其次有一个docker会没有网络。<ul>
+<li>这是由于端口随机错误导致的，会导致下面连接状态显示火焰。换端口刷新即可解决。</li>
+<li><img src="https://pic.shaojiemike.top/img/20230512090749.png"></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>关于封号<ul>
+<li>由于国内环境下载一般都是大内网。同一个网络出去应该没有问题。</li>
+<li>大多数做种是通过ipv6，会被检测出同一个机器多个账户做种，导致封号</li>
+<li>还有关于盒子刷上传，一方面通过速度，另一方面由于盒子的ip是固定的，所以会被检测出重复导致封号。</li>
+</ul>
+</li>
+</ul>
+<h2 id="测速"><a href="#测速" class="headerlink" title="测速"></a>测速</h2><ol>
+<li>先用 <a target="_blank" rel="noopener" href="https://www.speedtest.net/">https://www.speedtest.net</a> 测速<ol>
+<li><img src="https://pic.shaojiemike.top/img/20221117082208.png"></li>
+</ol>
+</li>
+<li>考虑热门种子测试 <a target="_blank" rel="noopener" href="http://releases.ubuntu.com/19.10/ubuntu-19.10-desktop-amd64.iso.torrent">http://releases.ubuntu.com/19.10/ubuntu-19.10-desktop-amd64.iso.torrent</a><ol>
+<li><img src="https://pic.shaojiemike.top/img/20221117084350.png"></li>
+<li>没通过代理能找到的用户变少，速度也变慢了。</li>
+</ol>
+</li>
+<li>如果跑不到网络上限，可能和<a target="_blank" rel="noopener" href="https://www.cometbbs.com/t/%E8%A2%AB%E9%99%90%E9%80%9F%E5%9C%A8109mbs/34309/13">软件设置有关</a></li>
+</ol>
+<h2 id="上传速度"><a href="#上传速度" class="headerlink" title="上传速度"></a>上传速度</h2><p>m站刷上传的时候，发现基本都是对方基本都是通过ipv6下载<br><img src="https://pic.shaojiemike.top/img/Snipaste_2023-03-06_18-17-07.png"><br>uTP是一种基于UDP的协议，它可以根据网络拥塞情况自动调节传输速度，从而减少对其他网络应用的影响。</p>
+<p>BT连接是一种基于TCP的协议，它可以保证数据的完整性和可靠性，但是可能会占用较多的网络带宽和资源。</p>
+<p>在qBittorrent中，标志U K E P分别表示以下含义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">U：表示你正在上传数据给对方，或者对方正在从你那里下载数据。</span><br><span class="line">K：表示对方支持uTP协议，即基于UDP的传输协议。</span><br><span class="line">E：表示对方使用了加密连接，即通过加密算法保护数据的安全性。</span><br><span class="line">P：表示对方使用了代理服务器或VPN服务，即通过第三方网络隐藏自己的真实IP地址。</span><br></pre></td></tr></table></figure>
+
+<h2 id="PT设置"><a href="#PT设置" class="headerlink" title="PT设置"></a>PT设置</h2><ul>
+<li>虽然说PT下载，客户端要关闭DHT,PeX, LSD。</li>
+<li>但是其实种子是默认关闭的，无序额外设置，北洋和M站一样。</li>
+<li><img src="https://pic.shaojiemike.top/img/20230512091246.png"></li>
+</ul>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="Tracker"><a href="#Tracker" class="headerlink" title="Tracker"></a>Tracker</h3><p>收集下载者信息的服务器，并将此信息提供给其他下载者，使下载者们相互连接起来，传输数据。</p>
+<h3 id="种子"><a href="#种子" class="headerlink" title="种子"></a>种子</h3><p>指一个下载任务中所有文件都被某下载者<strong>完整</strong>的下载，此时下载者成为一个种子。发布者本身发布的文件就是原始种子。</p>
+<h3 id="做种"><a href="#做种" class="headerlink" title="做种"></a>做种</h3><p>发布者提供下载任务的<strong>全部</strong>内容的行为；下载者下载完成后继续提供给他人下载的行为。</p>
+<h3 id="分享率"><a href="#分享率" class="headerlink" title="分享率"></a>分享率</h3><p>上傳資料量 &#x2F; 下傳資料量的比率,是一種BT的良心度,沒實際作用.(一般为了良心，至少大于1)</p>
+<h3 id="长期种子"><a href="#长期种子" class="headerlink" title="长期种子"></a>长期种子</h3><p>BitComet的概念，相对于种子任务的上传能够控制。</p>
+<p>长效种子就是你<strong>不开启</strong>任务做种，只要你启动了比特彗星，软件挂后台，当有其他用户也是用比特彗星下载你列表里的存在的文件时候就会被认为是长效种子 。</p>
+<h3 id="DHT"><a href="#DHT" class="headerlink" title="DHT"></a>DHT</h3><p>.DHT全称叫分布式哈希表(Distributed Hash Table)，是一种分布式存储方法。在不需要服务器的情况下，每个客户端负责一个小范围的路由，并负责存储一小部分数据，从而实现整个DHT网络的寻址和存储。新版BitComet允许同行连接DHT网络和Tracker，也就是说在完全不连上Tracker服务器的情况下，也可以很好的下载，因为它可以在DHT网络中寻找下载同一文件的其他用户。</p>
+<p>类似Tracker的根据种子特征码返回种子信息的网络。</p>
+<p>在BitComet中，无须作任何设置即可自动连接并使用DHT网络，完全不需要用户干预。</p>
+<h3 id="用户交换Pex"><a href="#用户交换Pex" class="headerlink" title="用户交换Pex"></a>用户交换Pex</h3><p>Peer Exchange (PEX)， 每个peer客户端的用户列表，可以互相交换通用。可以将其理解为“节点信息交换”。前面说到了 DHT 网络是没有中心服务器的，那么我们的客户端总不能满世界去喊：“我在下载这个文件，快来连我吧.”（很大声）。所以就通过各个 BT 客户端自带的节点去同步路由表实现 DHT 网络连接。</p>
+<h3 id="本地用户发现"><a href="#本地用户发现" class="headerlink" title="本地用户发现"></a>本地用户发现</h3><p>LSD（LPD）就是本地网络资源，内网下载，没什么几把用的东西，可能学校等私有网络好使</p>
+<h3 id="ISP"><a href="#ISP" class="headerlink" title="ISP"></a>ISP</h3><p>網絡業務提供商(Internet Service Provider，簡稱ISP)，互聯網服務提供商，即向廣大用户綜合提供互聯網接入業務、信息業務、和增值業務的電信運營商。</p>
+<h2 id="反吸血机制"><a href="#反吸血机制" class="headerlink" title="反吸血机制"></a>反吸血机制</h2><h3 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h3><ol>
+<li>根据<strong>流量</strong>： 默认设置为120秒，持续对某个peer产生上传，并且从该peer用户获取的下载流量没有超过1KB文件（1024字节）大小，即拉黑该peer，预警颜色为黄色，合法为绿色，红色为封禁。</li>
+<li>可组合检测<strong>指定客户端</strong>进行反吸血，比如说指定屏蔽qbittorrent、utorrent等吸血客户端选择（可多选客户端，可对下载任务和做种任务生效）</li>
+<li>可组合检测客户端<strong>连接端口号</strong>进行反吸血，比如说指定屏蔽15000迅雷X版本客户端等吸血端口（可多选端口号，可对下载任务和做种任务生效）</li>
+<li>可组合检测客户端<strong>连接peer_id标志符</strong>进行反吸血屏蔽，例如屏蔽XL0018客户端等吸血标志符（可多选标志符，可对下载任务和做种任务生效）</li>
+</ol>
+<h3 id="高级设置"><a href="#高级设置" class="headerlink" title="高级设置"></a>高级设置</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bittorrent.anti_leech_min_byte</span><br><span class="line">设定反吸血保护流量：要求对方在指定时间（秒）内需要上传的最少流量（byte）， 取值范围：1-10000。</span><br><span class="line"></span><br><span class="line">bittorrent.anti_leech_min_stable_sec</span><br><span class="line">设定反吸血保护时间：指定与对方连接多长时间（秒）后开始检查流量（byte），取值范围：1-10000。</span><br></pre></td></tr></table></figure>
+
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="需要软件开着吗？"><a href="#需要软件开着吗？" class="headerlink" title="需要软件开着吗？"></a>需要软件开着吗？</h3><p>需要</p>
+<h3 id="原文件改名或者移动，还会上传吗？"><a href="#原文件改名或者移动，还会上传吗？" class="headerlink" title="原文件改名或者移动，还会上传吗？"></a>原文件改名或者移动，还会上传吗？</h3><p>文件下载后不能移动，不能删除，不能重命名（但可以在软件内改）。 一但BT 软件找不到文件，或删除了任务，就无法做种上传了。</p>
+<h3 id="晚上避免上传"><a href="#晚上避免上传" class="headerlink" title="晚上避免上传"></a>晚上避免上传</h3><p>可以在Bitcomet<strong>高级设置</strong>里设置<strong>时段限速</strong></p>
+<h3 id="对硬盘损害大吗？"><a href="#对硬盘损害大吗？" class="headerlink" title="对硬盘损害大吗？"></a>对硬盘损害大吗？</h3><p>分享上传也需要频繁读取硬盘。</p>
+<p>以Bitcomet为例，该软件就是通过磁盘缓存技术减小频繁随机读写对硬盘的损伤。</p>
+<p>磁盘缓存就是利用物理内存作为缓冲，将下载下的数据先存放于内存中，然后定期的一次性写入硬盘，以减少对硬盘的写入操作，很大的程度上降低了磁盘碎片。</p>
+<p>因为通常我们设置内存（磁盘缓存）为每任务XX兆，意味着，这个缓冲区可以存放数兆甚至几十兆的“块”，基本上可以杜绝碎片了。</p>
+<p>现在BT软件都是自动设置缓存的，它是根据你物理内存的大小分配的。</p>
+<h2 id="注意设置"><a href="#注意设置" class="headerlink" title="注意设置"></a>注意设置</h2><ol>
+<li>设置了“反吸血”，应对迅雷</li>
+<li>校园网设置9，不限制P2P<ol>
+<li>国内各省份不同运营商限速策略（QOS）</li>
+</ol>
+</li>
+</ol>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>路由器下载？</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2></div><div class="article-licensing box"><div class="licensing-title"><p>BitTorrent</p><p><a href="http://icarus.shaojiemike.top/Work/network/Protocol/BT.html">http://icarus.shaojiemike.top/Work/network/Protocol/BT.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2023-05-11</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-06-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><!--!--><!--!--><!--!--></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
