@@ -29,7 +29,7 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">header</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-10-12T16:00:00.000Z" title="10/12/2023, 4:00:00 PM">2023-10-12</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-09-02T14:51:24.710Z" title="9/2/2024, 2:51:24 PM">2024-09-02</time></span><span class="level-item"><a class="link-muted" href="/categories/operating-system/">operating system</a></span><span class="level-item">an hour read (About 10843 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/10/12/Work/Programming/4-compile/Cprogramcompileandrunprocess/">C program compile&amp;run process</a></p><div class="content"><h2 id="编译总流程"><a href="#编译总流程" class="headerlink" title="编译总流程"></a>编译总流程</h2><p>编译是指编译器读取源程序（字符流），对之进行词法和语法的分析，将高级语言指令转换为功能等效的汇编代码。</p>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">header</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-10-12T16:00:00.000Z" title="10/12/2023, 4:00:00 PM">2023-10-12</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-09-03T04:44:25.291Z" title="9/3/2024, 4:44:25 AM">2024-09-03</time></span><span class="level-item"><a class="link-muted" href="/categories/operating-system/">operating system</a></span><span class="level-item">an hour read (About 11271 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/10/12/Work/Programming/4-compile/Cprogramcompileandrunprocess/">C program compile&amp;run process</a></p><div class="content"><h2 id="编译总流程"><a href="#编译总流程" class="headerlink" title="编译总流程"></a>编译总流程</h2><p>编译是指编译器读取源程序（字符流），对之进行词法和语法的分析，将高级语言指令转换为功能等效的汇编代码。</p>
 <ol>
 <li>预处理阶段：<ol>
 <li>把<code>#include</code>语句以及一些宏插入程序文本中，得到<code>main.i</code>和<code>sum.i</code>文件。</li>
@@ -176,10 +176,41 @@
 </ul>
 <p>注意，这时候的目标文件里的使用的函数可能没定义，需要链接其他目标文件<code>.a .so .o .dll</code>(Dynamic Link Library的缩写，Windows动态链接库)</p>
 <h2 id="nm-命令"><a href="#nm-命令" class="headerlink" title="nm 命令"></a>nm 命令</h2><p>List symbol names in object files.</p>
-<ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>no symbols</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>编译时可能会为了空间优化掉许多符号表，例如 -O3 Release模式</li>
+<li>切换成debug模式</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>常用选项 -CD</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><code>-C</code> 选项告诉 nm 将 C++ 符号的 mangled 名称转换为原始的、易于理解的名称。</li>
+<li>-g：仅显示外部符号。</li>
+<li><code>-D</code> &#x2F; –dynamic：显示动态符号，这在查看共享库（如 .so 文件）时非常有用。</li>
+<li>-l：显示本地（static）符号。</li>
+<li>–defined-only：仅显示已定义的符号。</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>输出</p>
+</div>
+        <div class="message-body">
+            <ol>
 <li>符号值。默认显示十六进制，也可以指定；</li>
 <li>符号类型。小写表示是本地符号，大写表示全局符号(external);</li>
-<li>符号名称。</li>
+<li>符号名称， 如下</li>
 </ol>
 <table>
 <thead>
@@ -237,6 +268,15 @@
 <td>未知符号类型，或者目标文件特有的符号类型.</td>
 </tr>
 </tbody></table>
+
+        </div>
+    </article>
+
+<h3 id="ldconfig-查找动态库位置"><a href="#ldconfig-查找动态库位置" class="headerlink" title="ldconfig 查找动态库位置"></a>ldconfig 查找动态库位置</h3><p>ldconfig 命令用于配置动态链接器的运行时绑定。你可以使用它来查询系统上已知的库文件的位置。</p>
+<p>查询 libdw.so 的位置：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldconfig -p | grep libdw</span><br></pre></td></tr></table></figure>
+
+<h3 id="ldd-检查是否链接成功"><a href="#ldd-检查是否链接成功" class="headerlink" title="ldd 检查是否链接成功"></a>ldd 检查是否链接成功</h3><p><code>ldd</code>会显示动态库的链接关系，中间的<code>nm</code>为<code>U</code>没关系，只需要最终<code>.so</code>对应符号是<code>T</code>即可。</p>
 <h2 id="4-链接过程"><a href="#4-链接过程" class="headerlink" title="4 链接过程"></a>4 链接过程</h2><p>通过使用<code>ld</code>命令，将编译好的目标文件连接成一个可执行文件或动态库。</p>
 <ul>
 <li>链接器的核心工作就是符号表解析、重定位和库文件链接三个部分。(具体细节看<a target="_blank" rel="noopener" href="https://hansimov.gitbook.io/csapp/part2/ch07-linking/7.7-relocation">CSAPP7.5-7.7</a>)<ul>
@@ -314,7 +354,28 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">long</span> offset;    <span class="comment">/* Offset of the reference to relocate */</span></span><br><span class="line">    <span class="type">long</span> type:<span class="number">32</span>,   <span class="comment">/* Relocation type */</span></span><br><span class="line">         symbol:<span class="number">32</span>; <span class="comment">/* Symbol table index */</span></span><br><span class="line">    <span class="type">long</span> addend;    <span class="comment">/* Constant part of relocation expression */</span></span><br><span class="line">&#125; Elf64_Rela;</span><br></pre></td></tr></table></figure>
 
 
-<h3 id="目标文件与库的位置"><a href="#目标文件与库的位置" class="headerlink" title="目标文件与库的位置"></a>目标文件与库的位置</h3><p><img src="https://pic.shaojiemike.top/img/20211214150609.png"><br><img src="https://pic.shaojiemike.top/img/20211214150641.png"><br><img src="https://pic.shaojiemike.top/img/20211213234151.png"></p>
+<h3 id="目标文件与库的位置"><a href="#目标文件与库的位置" class="headerlink" title="目标文件与库的位置"></a>目标文件与库的位置</h3><p>链接器通常从左到右解析依赖项，这意味着如果库 A 依赖于库 B，那么库 B 应该在库 A 之前被链接。</p>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>库顺序</p>
+</div>
+        <div class="message-body">
+            <p>假设有三个库 libA, libB, 和 libC，其中 libA 依赖 libB，而 libB 又依赖 libC。在 CMake 中，你应该这样链接它们：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">target_link_libraries</span>(your_target libC libB libA)</span><br></pre></td></tr></table></figure>
+
+<p>这样的顺序确保了当链接器处理 libA 时，libB 和 libC 中的符号已经可用。</p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>书上截图</p>
+</div>
+        <div class="message-body">
+            <p><img src="https://pic.shaojiemike.top/img/20211214150609.png"><br><img src="https://pic.shaojiemike.top/img/20211214150641.png"><br><img src="https://pic.shaojiemike.top/img/20211213234151.png"></p>
+
+        </div>
+    </article>
+
 <h2 id="4-1-静态链接"><a href="#4-1-静态链接" class="headerlink" title="4.1 静态链接"></a>4.1 静态链接</h2><p><strong>静态库static library</strong>就是将相关的目标模块打包形成的单独的文件。使用ar命令。</p>
 <ul>
 <li>在Linux系统中，静态库以一种称为存档(archive)的特殊文件格式存放在磁盘中。</li>
