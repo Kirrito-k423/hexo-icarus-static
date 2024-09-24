@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>[DevLog]24Q3P1 - Optimize PTA With Thread Affinity - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       Situation：   工作感觉进度缓慢， 目标不明确，思路不清楚， 回顾时难点&amp;#x2F;耗时点不记得，不知道如何改进。  Target：细化项目开发日志记录到一个Tomato周期， Action：  明确当前阶段目标&amp;#x2F;剩余目标。 每天细化到半个小时，上午56个，下午78个，晚上3~5个。 每天总结难点、达成目标"><meta property="og:type" content="blog"><meta property="og:title" content="[DevLog]24Q3P1 - Optimize PTA With Thread Affinity"><meta property="og:url" content="http://icarus.shaojiemike.top/2024/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       Situation：   工作感觉进度缓慢， 目标不明确，思路不清楚， 回顾时难点&amp;#x2F;耗时点不记得，不知道如何改进。  Target：细化项目开发日志记录到一个Tomato周期， Action：  明确当前阶段目标&amp;#x2F;剩余目标。 每天细化到半个小时，上午56个，下午78个，晚上3~5个。 每天总结难点、达成目标"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2024-09-23T01:54:23.000Z"><meta property="article:modified_time" content="2024-09-24T02:51:51.992Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="PTA"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2024/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/"},"headline":"[DevLog]24Q3P1 - Optimize PTA With Thread Affinity","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2024-09-23T01:54:23.000Z","dateModified":"2024-09-24T02:51:51.992Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       Situation：   工作感觉进度缓慢， 目标不明确，思路不清楚， 回顾时难点&#x2F;耗时点不记得，不知道如何改进。  Target：细化项目开发日志记录到一个Tomato周期， Action：  明确当前阶段目标&#x2F;剩余目标。 每天细化到半个小时，上午56个，下午78个，晚上3~5个。 每天总结难点、达成目标"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2024/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>[DevLog]24Q3P1 - Optimize PTA With Thread Affinity - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       Situation：   工作感觉进度缓慢， 目标不明确，思路不清楚， 回顾时难点&amp;#x2F;耗时点不记得，不知道如何改进。  Target：细化项目开发日志记录到一个Tomato周期， Action：  明确当前阶段目标&amp;#x2F;剩余目标。 每天细化到半个小时，上午56个，下午78个，晚上3~5个。 每天总结难点、达成目标"><meta property="og:type" content="blog"><meta property="og:title" content="[DevLog]24Q3P1 - Optimize PTA With Thread Affinity"><meta property="og:url" content="http://icarus.shaojiemike.top/2024/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       Situation：   工作感觉进度缓慢， 目标不明确，思路不清楚， 回顾时难点&amp;#x2F;耗时点不记得，不知道如何改进。  Target：细化项目开发日志记录到一个Tomato周期， Action：  明确当前阶段目标&amp;#x2F;剩余目标。 每天细化到半个小时，上午56个，下午78个，晚上3~5个。 每天总结难点、达成目标"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2024-09-23T01:54:23.000Z"><meta property="article:modified_time" content="2024-09-24T08:17:04.984Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="PTA"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2024/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/"},"headline":"[DevLog]24Q3P1 - Optimize PTA With Thread Affinity","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2024-09-23T01:54:23.000Z","dateModified":"2024-09-24T08:17:04.984Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       Situation：   工作感觉进度缓慢， 目标不明确，思路不清楚， 回顾时难点&#x2F;耗时点不记得，不知道如何改进。  Target：细化项目开发日志记录到一个Tomato周期， Action：  明确当前阶段目标&#x2F;剩余目标。 每天细化到半个小时，上午56个，下午78个，晚上3~5个。 每天总结难点、达成目标"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2024/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
   (function () {
       function switchTab() {
           if (!location.hash) {
@@ -29,7 +29,7 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2024-09-23T01:54:23.000Z" title="9/23/2024, 1:54:23 AM">2024-09-23</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-09-24T02:51:51.992Z" title="9/24/2024, 2:51:51 AM">2024-09-24</time></span><span class="level-item"><a class="link-muted" href="/categories/ProjectRecord/">ProjectRecord</a></span><span class="level-item">10 minutes read (About 1432 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">[DevLog]24Q3P1 - Optimize PTA With Thread Affinity</h1><div class="content"><!-- 博客内容主要是实践，测试记录，辅助知识整理。不会只是为了整理知识而写，至少是为了全面了解当前工作涉及知识点而写。 -->
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2024-09-23T01:54:23.000Z" title="9/23/2024, 1:54:23 AM">2024-09-23</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-09-24T08:17:04.984Z" title="9/24/2024, 8:17:04 AM">2024-09-24</time></span><span class="level-item"><a class="link-muted" href="/categories/ProjectRecord/">ProjectRecord</a></span><span class="level-item">11 minutes read (About 1632 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">[DevLog]24Q3P1 - Optimize PTA With Thread Affinity</h1><div class="content"><!-- 博客内容主要是实践，测试记录，辅助知识整理。不会只是为了整理知识而写，至少是为了全面了解当前工作涉及知识点而写。 -->
 
 <article class="message is-info">
         <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
@@ -68,7 +68,7 @@
 <li><input disabled="" type="checkbox"> <del>再次一级：第一个算子(add)执行一次，后续step都可以用。</del></li>
 </ul>
 </li>
-<li><input disabled="" type="checkbox"> 测试效果OpenSora、baichuan和 llama</li>
+<li><input disabled="" type="checkbox"> 测试效果OpenSora、baichuan和 llama, 包括8p</li>
 </ul>
 
         </div>
@@ -105,7 +105,10 @@
 <ol>
 <li>T1&amp;T2: 精简了stack，</li>
 <li>T3：分析线程，发现现象有待研究</li>
-<li>T4：OpenSora无法运行，torch的<code>run_backward</code>报错<code>result.use_count() &lt;= 1</code>。回到硬装前留下的问题了。稍微看了对应的代码，是codegen的部分的。</li>
+<li>T4：[x] OpenSora无法运行，torch的<code>run_backward</code>报错<code>result.use_count() &lt;= 1</code>。回到硬装前留下的问题了。稍微看了对应的代码，是codegen的部分的。<ol>
+<li>是DEBUG选项的问题。</li>
+</ol>
+</li>
 </ol>
 <article class="message is-warning">
         <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>困难：PTA编译过于缓慢，要15到20分钟</p>
@@ -141,7 +144,7 @@
 <li>重编[失败]：添加debug选项和修改，删除tIC和icecream</li>
 <li>重编[失败]：只保留DEBUG选项，代码都不修改。</li>
 <li>重编[成功]：回退到git HEAD~</li>
-<li>总结：应该是debug选项的原因，</li>
+<li><input checked="" disabled="" type="checkbox"> 总结：测试确实debug选项的原因。</li>
 </ol>
 </li>
 <li>在感兴趣的新地方插入cpprinter，来理解代码逻辑，寻找入口。<ol>
@@ -153,10 +156,28 @@
         </div>
     </article>
 
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-bug mr-2"></i>PTA使用<code>export DEBUG=1</code>开启debug模型，在OpenSora样例下会报错<code>result.use_count() &lt;= 1</code></p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
 <h2 id="240924"><a href="#240924" class="headerlink" title="240924"></a>240924</h2><p><strong>上午</strong></p>
 <ol>
 <li>T1&#x2F;2&#x2F;3&#x2F;4: 分析OpenSora失效点，二分法测试多种情况</li>
-<li>T5: 分析清楚当前的数据，测试下一步：在op_api add插入cpprinter, 并跑完一轮，来确定使用了哪些线程</li>
+<li>T5: 分析清楚当前的数据，测试下一步：在op_api add插入cpprinter, 并跑完一轮，来确定使用了哪些线程<ol>
+<li>如猜想一样，就是主线程和反向线程。</li>
+</ol>
+</li>
+<li>T6: 后续修改策略：其实都不用看代码，在设置好数据和模型后，执行模型，会利用torch里注册的PTA的算子来执行。至于训练或者推理的入口，肯定是在pytorch端，PTA只是被动被调用下发算子，<ol>
+<li>显示打印，setAffi的结果。</li>
+<li>策略，一开始赋值对应NPU的全部(除开前向和反向的两个)，后面单独设置前向和反向</li>
+</ol>
+</li>
 </ol>
 <article class="message is-primary">
         <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>当前策略：&#x2F;tmp&#x2F;cpp_595414</p>
@@ -216,6 +237,11 @@
 * 现在看上去 Thread 1 也就是主线程就是前向，Thread 5就是反向线程。还有待全流程测试验证猜想。
 * 如果上面正确，那么反向线程很好设置，`NGuardI setAffi`的位置基本就是反向开始的位置。
 </code></pre>
+<p><strong>下午</strong></p>
+<ol>
+<li>T1&#x2F;2&#x2F;3&#x2F;4: 思考&amp;编码</li>
+<li>T5: 重编</li>
+</ol>
 <!-- ## 参考文献 -->
 
 <!-- footnote is for url which the writer do not want reader to click to interupt the reading. -->
