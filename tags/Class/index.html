@@ -29,7 +29,7 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">Class</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-10-08T16:00:00.000Z" title="10/8/2023, 4:00:00 PM">2023-10-08</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-09-25T09:59:27.731Z" title="9/25/2024, 9:59:27 AM">2024-09-25</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">an hour read (About 7711 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/10/08/Work/Programming/2-languageGrammar/c/C_Cplus/">[C++ Basic] Grammar</a></p><div class="content"><article class="message is-info">
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">Class</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-10-08T16:00:00.000Z" title="10/8/2023, 4:00:00 PM">2023-10-08</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-09-26T07:10:00.118Z" title="9/26/2024, 7:10:00 AM">2024-09-26</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">an hour read (About 8225 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/10/08/Work/Programming/2-languageGrammar/c/C_Cplus/">[C++ Basic] Grammar</a></p><div class="content"><article class="message is-info">
         <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>概要</p>
 </div>
         <div class="message-body">
@@ -187,6 +187,36 @@
 </ul>
 </li>
 </ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>多线程场景，修饰局部变量，会导致多线程共用，建议使用<code>thread_local</code>来避免竞争</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>static 修饰初始化命令，只会执行一次，无论是否多次经过</p>
+</div>
+        <div class="message-body">
+            <p>问题场景：</p>
+<p><code>static auto thread_core_map = GetCpuAffinityMap(device_id);</code> 即使程序多次调用函数经过这行，但是这行命令也只会执行第一次。但是如果我把static关键词去除，就正常执行多次了。</p>
+<p>当在一行代码中使用了 <code>static</code> 关键字时，<strong>变量的初始化只会在它第一次被执行时进行，之后即使多次经过这行代码，初始化的代码块也不会被重复执行</strong>。</p>
+<p>在例子中，<code>thread_core_map</code> 是一个静态局部变量，它在第一次经过时会调用 <code>GetCpuAffinityMap(device_id)</code> 函数并保存结果。在后续的函数调用中，即使再次经过这行代码，<code>GetCpuAffinityMap(device_id)</code> 不会被重新调用，因为 <code>thread_core_map</code> 已经被初始化过了。</p>
+<p>去除 <code>static</code> 后，<code>thread_core_map</code> 会在每次经过这行代码时重新初始化，也就是每次都会调用 <code>GetCpuAffinityMap(device_id)</code>。</p>
+<p>解决方法：</p>
+<p>如果你需要这行代码每次执行时都重新调用 <code>GetCpuAffinityMap(device_id)</code>，那么应该去掉 <code>static</code> 关键字，或根据不同条件进行显式地重新初始化静态变量。 </p>
+<p>比如，可以这样实现惰性初始化或重置的功能：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">auto</span> thread_core_map = <span class="built_in">GetCpuAffinityMap</span>(device_id);</span><br><span class="line"><span class="comment">// 根据条件重新初始化</span></span><br><span class="line"><span class="keyword">if</span> (<span class="comment">/* 条件 */</span>) &#123;</span><br><span class="line">    thread_core_map = <span class="built_in">GetCpuAffinityMap</span>(device_id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样你就可以在特定条件下让 <code>thread_core_map</code> 被重新赋值。</p>
+<p>如果你对静态变量的初始化行为没有问题，但是希望特定场景下重新执行初始化函数，可以根据场景调整条件逻辑。</p>
+
+        </div>
+    </article>
+
 <article class="message is-dark">
         <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>静态成员函数</p>
 </div>
