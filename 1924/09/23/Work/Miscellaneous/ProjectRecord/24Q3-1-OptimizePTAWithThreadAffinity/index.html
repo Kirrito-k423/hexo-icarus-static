@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>[DevLog]24Q3P1 - Optimize PTA With Thread Affinity - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       Situation：   工作感觉进度缓慢， 目标不明确，思路不清楚， 回顾时难点&amp;#x2F;耗时点不记得，不知道如何改进。 测试研究讲究师出有名，有理有据。并不是一味的看结果好就行。如果解释不清楚原因，好结果就无法保持与迁移。  Target：细化项目开发日志记录到一个Tomato周期， Action：  明确当前阶段目标&amp;amp;"><meta property="og:type" content="blog"><meta property="og:title" content="[DevLog]24Q3P1 - Optimize PTA With Thread Affinity"><meta property="og:url" content="http://icarus.shaojiemike.top/1924/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       Situation：   工作感觉进度缓慢， 目标不明确，思路不清楚， 回顾时难点&amp;#x2F;耗时点不记得，不知道如何改进。 测试研究讲究师出有名，有理有据。并不是一味的看结果好就行。如果解释不清楚原因，好结果就无法保持与迁移。  Target：细化项目开发日志记录到一个Tomato周期， Action：  明确当前阶段目标&amp;amp;"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="1924-09-23T01:54:23.000Z"><meta property="article:modified_time" content="2024-10-05T00:39:34.368Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="PTA"><meta property="article:tag" content="DevLog"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/1924/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/"},"headline":"[DevLog]24Q3P1 - Optimize PTA With Thread Affinity","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"1924-09-23T01:54:23.000Z","dateModified":"2024-10-05T00:39:34.368Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       Situation：   工作感觉进度缓慢， 目标不明确，思路不清楚， 回顾时难点&#x2F;耗时点不记得，不知道如何改进。 测试研究讲究师出有名，有理有据。并不是一味的看结果好就行。如果解释不清楚原因，好结果就无法保持与迁移。  Target：细化项目开发日志记录到一个Tomato周期， Action：  明确当前阶段目标&amp;"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/1924/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="1924-09-23T01:54:23.000Z" title="9/23/1924, 1:54:23 AM">1924-09-23</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-10-05T00:39:34.368Z" title="10/5/2024, 12:39:34 AM">2024-10-05</time></span><span class="level-item"><a class="link-muted" href="/categories/ProjectRecord/">ProjectRecord</a></span><span class="level-item">35 minutes read (About 5181 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">[DevLog]24Q3P1 - Optimize PTA With Thread Affinity</h1><div class="content"><!-- 博客内容主要是实践，测试记录，辅助知识整理。不会只是为了整理知识而写，至少是为了全面了解当前工作涉及知识点而写。 -->
+
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>Situation： </p>
+<ol>
+<li>工作感觉进度缓慢，</li>
+<li>目标不明确，思路不清楚，</li>
+<li>回顾时难点&#x2F;耗时点不记得，不知道如何改进。</li>
+<li>测试研究讲究师出有名，有理有据。并不是一味的看结果好就行。如果解释不清楚原因，好结果就无法保持与迁移。</li>
+</ol>
+<p>Target：细化<strong>项目开发日志</strong>记录到一个Tomato周期，</p>
+<p>Action：</p>
+<ol start="5">
+<li>明确当前阶段目标&#x2F;剩余目标。</li>
+<li>每天细化到半个小时，上午5~6个，下午7~8个，晚上3~5个。</li>
+<li>每天总结难点、达成目标、下一阶段目标。</li>
+</ol>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+
+<h2 id="240923"><a href="#240923" class="headerlink" title="240923"></a>240923</h2><p><strong>上午</strong></p>
+<ol>
+<li>T1:  硬装回来，编译与环境复原，代码同步。</li>
+<li>T2:  问题：cpprinter编译错误 - 有额外的构造函数未定义。<ol>
+<li>使用<code>nm</code>查看了声明和调用文件的<code>.o</code>文件的函数，<strong>发现</strong>不匹配，<strong>推测</strong>是使用时的<code>__FUNCTION__</code>参数类型不匹配。</li>
+</ol>
+</li>
+<li>T3： 修复：重新编译。</li>
+<li>T4： <strong>发现</strong>参数虽然都是std::string，但是由于库不匹配，所以还是构造函数还是不match，<strong>尝试</strong>将参数改成更简单的char *,重新编译。</li>
+</ol>
+<p><strong>下午</strong></p>
+<ol>
+<li>T1&amp;2: 问题：Bus error (core dumped)<ol>
+<li>gdb发现是<code>tIC</code>的多线程内存管理的问题，注释掉相关代码，重新编译。</li>
+</ol>
+</li>
+<li>T3: 问题：SegFault<ol>
+<li>gdb发现是类CallTrace（内部有static变量）指针的delete报错，虽然不是特别理解，但是改用unique智能指针。</li>
+</ol>
+</li>
+<li>T4: unique还是segfault，改成shared_ptr</li>
+<li>T5: shared_ptr还是segfault，CallTrack类只是为了包装一下，其实都可以static，所以把指针改成static</li>
+<li>T6: 能运行小例子了，但是functionName是乱码， 并且start时间是1970-01-04。看上去是析构的时候，这两个变量的值丢失了导致的，但是奇怪的是cmake的例子没有这个问题？<ol>
+<li>static变量解决这个问题</li>
+</ol>
+</li>
+</ol>
+<p><strong>晚上</strong></p>
+<ol>
+<li>T1&amp;T2: 精简了stack，</li>
+<li>T3：分析线程，发现现象有待研究</li>
+<li>T4：[x] OpenSora无法运行，torch的<code>run_backward</code>报错<code>result.use_count() &lt;= 1</code>。回到硬装前留下的问题了。稍微看了对应的代码，是codegen的部分的。<ol>
+<li>是DEBUG选项的问题。</li>
+</ol>
+</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>困难：PTA编译过于缓慢，要15到20分钟</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-solid fa-check mr-2"></i>达成阶段目标</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><input checked="" disabled="" type="checkbox"> 跑通PTA+cpprinter的代码，</li>
+<li><input checked="" disabled="" type="checkbox"> 并通过小例子的PTA的各线程调用情况，</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>To do</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>测试其他场景OpenSora会不会失败，逐步回退修改：<ol>
+<li>测试[失败]：怡文原本的选项</li>
+<li>测试：baichuan和llama</li>
+<li>重编[失败]：删除插入的两处cpprinter</li>
+<li>重编[失败]：添加debug选项和修改，删除tIC和icecream</li>
+<li>重编[失败]：只保留DEBUG选项，代码都不修改。</li>
+<li>重编[成功]：回退到git HEAD~</li>
+<li><input checked="" disabled="" type="checkbox"> 总结：测试确实debug选项的原因。</li>
+</ol>
+</li>
+<li>在感兴趣的新地方插入cpprinter，来理解代码逻辑，寻找入口。<ol>
+<li>在op_api add插入cpprinter, 并跑完一轮，来确定使用了哪些线程</li>
+</ol>
+</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-bug mr-2"></i>[x] PTA使用<code>export DEBUG=1</code>开启debug模式，在OpenSora样例下会报错<code>result.use_count() &lt;= 1</code></p>
+</div>
+        <div class="message-body">
+            <p>这是torch会校验DEBUG情况，但是PTA的值为2。 为此需要修改torch包，删除<code>gen_variable_type.py</code>的对应行</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( xxx <span class="keyword">not</span> <span class="keyword">in</span> DONT_ENFORCE_STORAGE_IMPL_xxx):</span><br><span class="line">    stmts_after_call += []</span><br></pre></td></tr></table></figure>
+        </div>
+    </article>
+
+<h2 id="240924"><a href="#240924" class="headerlink" title="240924"></a>240924</h2><p><strong>上午</strong></p>
+<ol>
+<li>T1&#x2F;2&#x2F;3&#x2F;4: 分析OpenSora失效点，二分法测试多种情况</li>
+<li>T5: 分析清楚当前的数据，测试下一步：在op_api add插入cpprinter, 并跑完一轮，来确定使用了哪些线程<ol>
+<li>如猜想一样，就是主线程和反向线程。</li>
+</ol>
+</li>
+<li>T6: 后续修改策略：其实都不用看代码，在设置好数据和模型后，执行模型，会利用torch里注册的PTA的算子来执行。至于训练或者推理的入口，肯定是在pytorch端，PTA只是被动被调用下发算子，<ol>
+<li>显示打印，setAffi的结果。</li>
+<li>策略，一开始赋值对应NPU的全部(除开前向和反向的两个)，后面单独设置前向和反向</li>
+</ol>
+</li>
+</ol>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>当前策略：&#x2F;tmp&#x2F;cpp_595414</p>
+</div>
+        <div class="message-body">
+            <p>使用<code>SetThreadName</code>给已知的几种PTA线程重命名：</p>
+<ol>
+<li>初始PTA NpuSysCtrl::Initialize，也是<strong>先</strong>大量调用opt add的线程</li>
+<li>PTA Consume线程</li>
+<li>PTA Release线程</li>
+<li>PTA hcclCommWatchdog 或者 ProcessGroupHCCL</li>
+<li>PTA NPUGuardImpl 线程， 然后<strong>后</strong>少量调用opt add的线程，然后中断了。</li>
+<li>PTA NpuSysCtrl::ExchangeDevice ????</li>
+</ol>
+<p><code>SetThreadAffinity</code>使用位置：</p>
+<ol start="7">
+<li>在<code>SetDevice</code>函数里，许多线程会执行多次，但是基本一次后会跳过</li>
+<li>opt add开始</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>线程的执行顺序：根据打印的时间，给线程顺序排序, 明晰执行流程</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>51:58[Thread 1] ， NpuSysCtrl::Initialize —— setName &amp; setAffi</li>
+<li>52:49[Thread 4]:  hcclCommWatchdog setName</li>
+<li>52:49[Thread 2]:  Consume setName</li>
+<li>52:50[Thread 3]:  Release setName</li>
+<li>53:03[Thread 2]:  Consume setAffi</li>
+<li>53:03[Thread 3]:  Release setAffi</li>
+<li>54:15[Thread 6]:  NpuSysCtrl::ExchangeDevice setAffi</li>
+<li>54:31[Thread 1]-56:50, op_api::add {重复1075次，前向}</li>
+<li>56:50[Thread 5]:  NPUGuardImpl setAffi</li>
+<li>56:53[Thread 5]-56:59, op_api::add {重复32次，前向}</li>
+<li>56:59[Thread 4]:  hcclCommWatchdog setAffi</li>
+</ul>
+
+        </div>
+    </article>
+
+<pre><code>| time  | Thread 1                    | Thread 2     | Thread 3    | Thread 4      | Thread 5        | Thread 6                         |
+| ----- | --------------------------- | ------------ | ----------- | ------------- | --------------- | -------------------------------- |
+| 51:58 | NSysCtrl::Init setName&amp;Affi |              |             |               |                 |                                  |
+| 52:49 |                             | Cons setName |             | hcclC setName |                 |                                  |
+| 52:50 |                             |              | Rel setName |               |                 |                                  |
+| 53:03 |                             | Cons setAffi | Rel setAffi |               |                 |                                  |
+| 54:15 |                             |              |             |               |                 | NSysCtrl::ExchangeDevice setAffi |
+| 54:31 | **op_api::add**             |              |             |               |                 |                                  |
+| 56:50 |                             |              |             |               | NGuardI setAffi |                                  |
+| 56:53 |                             |              |             |               | **op_api::add** |                                  |
+| 56:59 |                             |              |             | hcclC setAffi |                 |                                  |
+
+* 现在看上去 Thread 1 也就是主线程就是前向，Thread 5就是反向线程。还有待全流程测试验证猜想。
+* 如果上面正确，那么反向线程很好设置，`NGuardI setAffi`的位置基本就是反向开始的位置。
+</code></pre>
+<p><strong>下午</strong></p>
+<ol>
+<li>T1&#x2F;2&#x2F;3&#x2F;4: 思考&amp;编码</li>
+<li>T5: 重编, 任务排队</li>
+<li>T6: 客户需求，编码添加自定义的绑定设置。</li>
+</ol>
+<p><strong>晚上</strong></p>
+<ol>
+<li>T1: 测试获得3%的收益，OpenSora 1p测试 前向 0.385s -&gt; 0.375s<ol>
+<li>发现至少还有两个线程在工作，</li>
+<li>测试llama情况</li>
+</ol>
+</li>
+<li>编码<ol>
+<li><input disabled="" type="checkbox"> 由于其余的线程占用还比较高，将已知的<code>NSysCtrl::ExchangeDevice</code>绑核测试</li>
+<li><input disabled="" type="checkbox"> 编码8p和非<code>device 0</code>的情况，</li>
+</ol>
+</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>困难：测试需要排队，一等就是半个小时</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>整个项目编译耗时在12分钟左右, 修改其中一个文件或者一个文件夹的文件，由于变量名称打错和忘记写；编译了很久才报错，导致需要重新编译，能不能有快速测试当前cpp文件是否有语法错误的命令<ul>
+<li>push之前测试基本语法错误<code>g++ -fsyntax-only your_file.cpp</code></li>
+</ul>
+</li>
+<li>测试耗时长：运行一次OpenSora的1p在10mins，但是至少要运行三次取平均，至少要半小时。</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-solid fa-check mr-2"></i>达成阶段目标</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><input checked="" disabled="" type="checkbox"> 尝试进一步理解线程设计</li>
+<li><input checked="" disabled="" type="checkbox"> 确定设置亲和性的策略<ul>
+<li><input checked="" disabled="" type="checkbox"> 不要过早，避免并行读数据缓慢，在前向计算开始前，将hot线程绑单核</li>
+<li><input disabled="" type="checkbox"> 理想情况：找到入口，初始化函数</li>
+<li><input checked="" disabled="" type="checkbox"> trick，在<code>NGuardI setAffi</code>的位置根据</li>
+<li><input disabled="" type="checkbox"> <del>次一级在，算子的codegen位置都生成执行一次的亲和性设置</del></li>
+<li><input disabled="" type="checkbox"> <del>再次一级：第一个算子(add)执行一次，后续step都可以用。</del></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>To do</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>由于其余的线程占用还比较高，将已知的<code>NSysCtrl::ExchangeDevice</code>绑核<strong>测试</strong>，可以通过SetTAffi(coreIDRange, thread.self())快速测试。</li>
+<li>测试llama情况</li>
+<li>测试8p</li>
+<li>测试非<code>device 0</code>情况</li>
+</ol>
+
+        </div>
+    </article>
+
+<h2 id="240925"><a href="#240925" class="headerlink" title="240925"></a>240925</h2><p><strong>上午</strong></p>
+<ol>
+<li>T1：8:50 机器8p都被占用了; 重新编译昨天修改好的</li>
+<li>T2: 学习bash的函数传参</li>
+<li>T3&amp;4: 编写bash脚本，调试8p例子</li>
+<li>T5: 问题：8p情况下htop感觉绑定到同一个核上了，需要仔细看一看</li>
+</ol>
+<p><strong>下午</strong>:</p>
+<ol>
+<li>T1, env&#x3D;1时程序有bug，会中断；同时需要答应8p的绑核信息。</li>
+<li>T2, 修复环境变量为空时的bug</li>
+<li>T3&amp;T4: 修复逻辑，重新编译，中途别人任务占用，宕机，卡死频繁。</li>
+<li>T5: 重新编译和修复bug</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>困难：编译，测试，排队耗时长</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>整个项目编译耗时在12分钟左右, 修改其中一个文件或者一个文件夹的文件，由于变量名称打错和忘记写；编译了很久才报错，导致需要重新编译，能不能有快速测试当前cpp文件是否有语法错误的命令<ul>
+<li>push之前测试基本语法错误<code>g++ -fsyntax-only your_file.cpp</code></li>
+</ul>
+</li>
+<li>测试耗时长：运行一次OpenSora的1p在10mins，但是至少要运行三次取平均，至少要半小时。<ul>
+<li>可视化了结果后，发现step在20步之后就比较稳定了，将原本脚本里的计算周期从200变成25，平均后15次</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-solid fa-check mr-2"></i>达成阶段目标</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><input checked="" disabled="" type="checkbox"> 修改并编写了支持多NPU设备的代码，并完善了边界条件，正在编译，待测试。</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>To do</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>由于其余的线程占用还比较高，将已知的<code>NSysCtrl::ExchangeDevice</code>绑核<strong>测试</strong>，可以通过SetTAffi(coreIDRange, thread.self())快速测试。</li>
+<li>测试<ol>
+<li><input checked="" disabled="" type="checkbox"> llama情况</li>
+<li>测试8p</li>
+<li>测试非<code>device 0</code>情况</li>
+<li>测试组合，怡文说一个主任务多线程怎么样。</li>
+</ol>
+</li>
+<li>潜在客户场景：<code>device 0</code>不默认插在numa 0的情况。虽然实际生成有这个问题，但是怡文问了没有开发对应的C++接口，可能要自己写。</li>
+<li><input checked="" disabled="" type="checkbox"> 新问题：创建的8个线程好像一开始都是device 0，能不能通过什么环境变量来区别device id。<ol>
+<li>有时：导致hccl初始化失败。</li>
+<li>导致8p的数据都绑定的和1p一样, htop看<code>npu-smi</code>的pid的<code>a</code>选项能看出都绑定的<code>cpu 0</code></li>
+<li>疑问：那怡文的配置应该也有一样的问题，</li>
+</ol>
+</li>
+</ol>
+
+        </div>
+    </article>
+
+<h2 id="240926"><a href="#240926" class="headerlink" title="240926"></a>240926</h2><p><strong>上午</strong></p>
+<ol>
+<li>T1: 问题：多NPU时无法实现分区，<ol>
+<li>首先测试了怡文原本的配置，发现能正常分区，说明之前的<code>SetAffi</code>能有效利用<code>device_id</code>来分区。</li>
+<li>是static修饰变量初始化的原因。</li>
+</ol>
+</li>
+<li>T2: 问题：删除了怡文<code>static const</code>竟然导致了seg fault</li>
+<li>T3&amp;4: OpenSora 8p * 2 测试</li>
+<li>T5&amp;6: 看如何测试llama，和脚本？</li>
+</ol>
+<p><strong>下午</strong></p>
+<ol>
+<li>T1: llama脚本通过修改conda的transform包来计时</li>
+<li>T2：测试发现demo_ll.py在千次循环时，会劣化 48ms-&gt;58ms, 不清楚是我的问题（git 8f3714），还是v2.1.0本身的问题。</li>
+<li>T3: 代码回退到修改前，测试初始基准。是v2.1.0本身的问题，确实会劣化; </li>
+<li>T4&amp;T5: 测试了每日包，也存在劣化的问题。</li>
+<li>T6: 版本转测让路</li>
+</ol>
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>问题现象：llama程序在多step的迭代时，会在400步后性能会劣化20%</p>
+</div>
+        <div class="message-body">
+            <p>后续实验发现：</p>
+<ol>
+<li>如果只是重复实验，劣化的步数是固定的第432步，不会变化。</li>
+<li>问题是早已存在的，不是我的新代码引入的：对于PTA的包无论是官方gitee的包，还是每日包。都存在这个问题现象。</li>
+<li>如果更改TQ的环境变量1-&gt; 2或者3，劣化的step数会延迟到1900步左右，但是劣化现象还是存在。</li>
+</ol>
+
+        </div>
+    </article>
+
+<pre><code>当前的结论：
+
+1. 暂时无法确定是哪里的问题，pytorch，PTA，还是机器硬件、OS调度的问题。
+</code></pre>
+<p><strong>晚上</strong></p>
+<ol>
+<li>T1&amp;2 实验 llama多step劣化的原因</li>
+<li>T3&amp;T4 程序会在432步时，突然变慢 47-&gt;57ms</li>
+</ol>
+<h2 id="240927"><a href="#240927" class="headerlink" title="240927"></a>240927</h2><p><strong>上午</strong>：</p>
+<ol>
+<li>T1&amp;2&amp;3&amp;4&amp;5 继续测试和可视化数据，观察劣化原因<ol>
+<li>发现TASK_QUEUE_ENABLE&#x3D;2&#x2F;3 会延迟劣化到1900步左右</li>
+<li>TODO：400步的时候save，然后重新跑，来区分是运行环境还是数据的原因</li>
+</ol>
+</li>
+<li>T6 OpenSora数据可视化，数据十分稳定，不会像llama那样波动<ol>
+<li>pgo二次编译就是先编译执行一次，获取指令执行信息（分支路径），来指导第二次编译</li>
+</ol>
+</li>
+</ol>
+<p><strong>下午</strong></p>
+<ol>
+<li>T1-5：Ascend质量誓师大会：硬件、HDK、CANN、MindIE(新推理)、文档维护都问题多多，尤其是硬件质量导致很多集群问题，软件问题注意集中在：<ol>
+<li>没有考虑到用户的可能情况：墨菲定律，又译为摩菲定律，原句是：如果有多种方式去做某事，而其中一种方式将导致灾难，则必定有人会这样选择。在科学和算法方面与英文所谓的“worst-case scenario”</li>
+<li>错误码缺失，定位不明。</li>
+<li>软件问题难以定位</li>
+</ol>
+</li>
+<li>T6：llama的<code>demo_ll.py</code>在修改成<code>npu:1</code>时，性能劣化严重, 开启TQ2，代码是默认v2.1.0<ol>
+<li>npu0 <code>34ms</code>, + taskset 0-23 <code>31ms</code></li>
+<li>npu1 <code>45ms</code>, + env 1 严重劣化到 <code>140ms</code>；观察htop发现，主线程在numa0，但是其余PTA辅助线程在numa1；猜测主线程numa不对是主要原因；潜在危险：这个特性应该被我继承了。</li>
+<li><input disabled="" type="checkbox"> 需要测试我的修改</li>
+</ol>
+</li>
+<li>好多人用，今天又是严重排队的一天。</li>
+<li>能不能写成内部文档，外部的能写的太少了。<ol>
+<li>原本以为可以用draft来实现公开和私有的隔离，但是mkdocs不支持，</li>
+<li>docuwiki的方法也不行，服务器的网络限制上传</li>
+<li><input checked="" disabled="" type="checkbox"> 首先需要测试华为的服务器能不能正常搭建内部网页, 我原本以为想2012一样，能轻易实现。绿区服务器是不行的，搭建了本地电脑也访问不了。</li>
+</ol>
+</li>
+</ol>
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>llama的<code>demo_ll.py</code>在修改成&#96;npu</p>
+</div>
+        <div class="message-body">
+            <p>这是llama内部识别卡的问题，可以通过环境变量<code>export ASCEND_RT_VISIBLE_DEVICES=1</code>,来把1卡当作0卡。</p>
+
+        </div>
+    </article>
+
+<h2 id="240929"><a href="#240929" class="headerlink" title="240929"></a>240929</h2><p><strong>上午</strong></p>
+<ol>
+<li>T1&amp;T2: 排队，我真是急死了，测试不了，怎么改啊。<ol>
+<li>服务器上搭建网站也不行。</li>
+</ol>
+</li>
+<li>T3&amp;4&amp;5: 总结思路，统计数据，重新补测。</li>
+</ol>
+<p><strong>下午</strong></p>
+<ol>
+<li>T1-5: 编译安装torch，来支持PTA的DEBUG模式。来熟悉简单add算子的dispatch流程。</li>
+<li>T6-8: <code>undefined symbol</code> 也是之前<code>cpprinter</code>遇到的问题，编译环境竟然不同。导致多了c++11的选项。</li>
+</ol>
+<h2 id="240930"><a href="#240930" class="headerlink" title="240930"></a>240930</h2><p><strong>上午</strong></p>
+<ol>
+<li>T1-3: 确定是ABI不匹配的问题，尝试出编译的顺序逻辑：两个都先编译好才能安装</li>
+<li>T4: 排队</li>
+</ol>
+<h2 id="DEBUG"><a href="#DEBUG" class="headerlink" title="DEBUG"></a>DEBUG</h2><ul>
+<li>感兴趣的地方打断点，观察触发时机，频率，函数栈，</li>
+<li>通过<code>info threads</code>命令查看所有线程的状态，并使用<code>thread &lt;thread_id&gt;</code>切换到特定线程进行调试。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 程序的执行逻辑： 初始化，算子下发，复原</span></span><br><span class="line">第一次<span class="function">setAffinity</span></span><br><span class="line"><span class="function">at::Tensor <span class="title">add</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="comment">// 线程创建的地方, 是哪个线程(主线程)创建的，何时创建的</span></span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Repository::InitRepo</span><span class="params">(c10::DeviceIndex device_id)</span> </span>&#123;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ReleaseQueue::InitReleaseQueue</span><span class="params">(c10::DeviceIndex device_id)</span> </span>&#123;</span><br><span class="line">hcclCommWatchdogThread_ = std::<span class="built_in">thread</span>(&amp;ProcessGroupHCCL::hcclCommWatchdog, <span class="keyword">this</span>); </span><br><span class="line"><span class="comment">// 未知的线程</span></span><br><span class="line"><span class="function">PyObject* <span class="title">THNPModule_setDevice_wrap</span><span class="params">(PyObject* self, PyObject* arg)</span></span></span><br><span class="line"><span class="function"><span class="comment">// 代码里Tensorpipe使用了相当多线程。用于进程间通信的传递。很有可能就是热点线程。</span></span></span><br><span class="line"><span class="function">handelCopyRequests</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="数据"><a href="#数据" class="headerlink" title="数据"></a>数据</h2><ul>
+<li>llama 十组数据平均 <code>49.7816</code> ms -&gt; <code>49.3209</code> ms, 提升 <code>0.9%</code></li>
+<li>OpenSora 1p 三组平均 前向部分算子下发提升 <code>1.84%</code>, E2E提升<code>1.44%</code></li>
+<li>OpenSora 8p 三组平均 前向部分算子下发提升 <code>1.53%</code>, E2E提升<code>3.16%</code></li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>目标与动机：通过细粒度绑核，使得算子下发线程能在最亲和的核上独占调度，一方面避免竞争，一方面避免OS线程切换导致的开销，使得算子下发的速度加快。</li>
+<li>难点与发现：<ul>
+<li><input checked="" disabled="" type="checkbox"> 理清楚pytorch和PTA的线程的工作情况，并找到并对目标线程进行设置。</li>
+<li><input checked="" disabled="" type="checkbox"> 经过实验发现，线程的亲和性设置是会被创建的子线程继承的：<ul>
+<li>如果在不合适的地方(过早)对线程进行细粒度的亲和性设置，会对子线程也同样设置，产生非预期的影响。比如，导致父子线程竞争同一个核，导致性能大幅劣化。</li>
+</ul>
+</li>
+<li><input checked="" disabled="" type="checkbox"> PTA下发前向算子的线程就是pytoch的主线程，如何在不修改torch代码的情况下设置pytoch的主线程的亲和性。</li>
+<li><input disabled="" type="checkbox"> 同时需要对线程实现及时复原，</li>
+</ul>
+</li>
+<li>理解与对策：<ul>
+<li>纳入考量的全部线程，除了PTA的线程，还包括pytorch的灵活调度的线程池。</li>
+<li>目标线程确定为， 主线程为前向算子下发线程，NPUGaurd线程为反向算子下发线程。</li>
+<li>两阶段的线程设置：<ul>
+<li>初始阶段为其余线程分配核：虽然不能修改torch代码，但是可以利用在初始化阶段torch对PTA的调用，将非目标线程绑定在其余核上。</li>
+<li>算子下发阶段再分配：观察到算子下发阶段会初始化NPUGuard，在此时刻重新分配目标线程的独占核。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>负面：细粒度绑核需要额外计算和syscall，单次<code>0.6s</code>, 调用大约6~7次，增加耗时5s左右</li>
+<li>潜在危险 - 难以复原环境：<ul>
+<li>由于结束训练，不再使用算子，在被调用的PTA侧是难以感知的，故难以找到时机复原线程的独占设置。</li>
+<li>这导致在算子执行完之后，如果又进行数据读取之类调用torch线程池的操作，由于PTA在算子开始执行时绑定到一个核，如果主线程新创建子线程会导致无法并行读取数据。</li>
+</ul>
+</li>
+<li>潜在生成情况：<code>device 0</code>不默认插在numa 0的情况。</li>
+</ul>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>剩余目标</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><input disabled="" type="checkbox"> 测试效果baichuan</li>
+<li><input disabled="" type="checkbox"> 进一步研究：由于其余的线程占用还比较高，比如已知的<code>NSysCtrl::ExchangeDevice</code>绑核<strong>测试</strong><ul>
+<li>API可以通过SetTAffi(coreIDRange, thread.self())快速测试。</li>
+<li>但是SetDevice可能被多个线程不同时刻调用很多次了，需要理解线程，并找到这个线程的初始化或者其他特殊的入口。</li>
+</ul>
+</li>
+<li><input disabled="" type="checkbox"> 研究遇到的非目标相关问题。</li>
+<li><input disabled="" type="checkbox"> 对代码的理解还是不够()<ul>
+<li><input disabled="" type="checkbox"> 线程创建的具体行还没寻找</li>
+<li><input disabled="" type="checkbox"> python调用pytorch再调用PTA的代码栈还没打印过，没check过。</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>可视化和理解代码的手段</p>
+</div>
+        <div class="message-body">
+            <p>简单例子<code>add 算子</code></p>
+<ul>
+<li>C++侧使用GDB，</li>
+<li>python侧打印调用栈viztracer</li>
+<li><code>with torch_npu.profiler.profile()</code> 可以看PTA里算子的使用情况。</li>
+</ul>
+
+        </div>
+    </article>
+
+<h2 id="算子下发优化"><a href="#算子下发优化" class="headerlink" title="算子下发优化"></a>算子下发优化</h2><article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-question mr-2"></i>看了现有资料，有待对齐的点</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>有各算子下发的时间，但是总时间是多少，或者说占比有多少，这样才能计算可能收益？<ol>
+<li>已有算子的总时间大约1031ms</li>
+<li>对应的前向总时间是408ms,</li>
+</ol>
+</li>
+<li>相关代码在哪里<ol>
+<li>隶属新仓库 <a target="_blank" rel="noopener" href="https://gitee.com/ascend/op-plugin">op-plugin</a></li>
+<li>命令空间相当多 <code>op_plugin</code>根据情况调用<code>acl_op</code> or <code>op_api</code>, 最终都调用 <code>acl_op</code></li>
+<li>excel里的<code>npu</code>只是怡文随手写的，</li>
+</ol>
+</li>
+</ol>
+
+        </div>
+    </article>
+
+<h2 id="OS优化"><a href="#OS优化" class="headerlink" title="OS优化"></a>OS优化</h2><ul>
+<li>机器在空载的时候，还有260GB的内存占用，是分配了大页内存</li>
+<li><code>free -h</code> 和 <code>cat /proc/meminfo |grep huge</code> 可以看见<code>Hugetlb: 262144000 kB = 250GB</code></li>
+</ul>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li>怡文W3的博客</li>
+<li>w3 &amp; wiki</li>
+</ol>
+<!-- footnote is for url which the writer do not want reader to click to interupt the reading. -->
+
+<!-- 上面回答部分**来自ChatGPT-3.5**，没有进行正确性的交叉校验。-->
+
+</div><div class="article-licensing box"><div class="licensing-title"><p>[DevLog]24Q3P1 - Optimize PTA With Thread Affinity</p><p><a href="http://icarus.shaojiemike.top/1924/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/">http://icarus.shaojiemike.top/1924/09/23/Work/Miscellaneous/ProjectRecord/24Q3-1-OptimizePTAWithThreadAffinity/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>1924-09-23</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-10-05</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/PTA/">PTA</a><a class="link-muted mr-2" rel="tag" href="/tags/DevLog/">DevLog</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2021/07/04/Work/my-first-post/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">My First try. Ar~~Ar kimoji</span></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">423</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">35</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">515</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#240923"><span class="level-left"><span class="level-item">1</span><span class="level-item">240923</span></span></a></li><li><a class="level is-mobile" href="#240924"><span class="level-left"><span class="level-item">2</span><span class="level-item">240924</span></span></a></li><li><a class="level is-mobile" href="#240925"><span class="level-left"><span class="level-item">3</span><span class="level-item">240925</span></span></a></li><li><a class="level is-mobile" href="#240926"><span class="level-left"><span class="level-item">4</span><span class="level-item">240926</span></span></a></li><li><a class="level is-mobile" href="#240927"><span class="level-left"><span class="level-item">5</span><span class="level-item">240927</span></span></a></li><li><a class="level is-mobile" href="#240929"><span class="level-left"><span class="level-item">6</span><span class="level-item">240929</span></span></a></li><li><a class="level is-mobile" href="#240930"><span class="level-left"><span class="level-item">7</span><span class="level-item">240930</span></span></a></li><li><a class="level is-mobile" href="#DEBUG"><span class="level-left"><span class="level-item">8</span><span class="level-item">DEBUG</span></span></a></li><li><a class="level is-mobile" href="#数据"><span class="level-left"><span class="level-item">9</span><span class="level-item">数据</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">10</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#算子下发优化"><span class="level-left"><span class="level-item">11</span><span class="level-item">算子下发优化</span></span></a></li><li><a class="level is-mobile" href="#OS优化"><span class="level-left"><span class="level-item">12</span><span class="level-item">OS优化</span></span></a></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">13</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">27</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">116</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">54</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-09-22T09:19:48.000Z">2024-09-22</time></p><p class="title"><a href="/2024/09/22/Work/software/simulator/PC/VirtualBox/">VirtualBox</a></p><p class="categories"><a href="/categories/software/">software</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-09-13T07:08:55.000Z">2024-09-13</time></p><p class="title"><a href="/2024/09/13/Work/software/PC/macbook/">Macbook Config</a></p><p class="categories"><a href="/categories/software/">software</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-09-13T00:47:35.000Z">2024-09-13</time></p><p class="title"><a href="/2024/09/13/Work/Programming/2-languageGrammar/c/Types/">[C++ Basic] Types</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-09-12T14:41:50.000Z">2024-09-12</time></p><p class="title"><a href="/2024/09/12/Work/Programming/2-languageGrammar/c/Class/">[C++ Basic] User-Defined Types: Class</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-09-12T14:17:34.000Z">2024-09-12</time></p><p class="title"><a href="/2024/09/12/Work/Programming/2-languageGrammar/c/cbuiltInFunctions/">[C++ Basic] Exploring Useful Built-in Functions</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">17</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li><li><a class="level is-mobile" href="/archives/1924/09/"><span class="level-start"><span class="level-item">September 1924</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Endian/"><span class="tag">Big-Endian</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2024 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
