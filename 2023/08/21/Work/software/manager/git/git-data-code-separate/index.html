@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Git Submodule: Data &amp; Code Repository Separate - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="Just follow my mind parent repository ignore the sub directory in .gitignore Normal git usage in child repository, eg. init commit push submodule for what? for auto upload and init multi-subgit to tar"><meta property="og:type" content="blog"><meta property="og:title" content="Git Submodule: Data &amp; Code Repository Separate"><meta property="og:url" content="http://icarus.shaojiemike.top/2023/08/21/Work/software/manager/git/git-data-code-separate/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="Just follow my mind parent repository ignore the sub directory in .gitignore Normal git usage in child repository, eg. init commit push submodule for what? for auto upload and init multi-subgit to tar"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2023-08-21T16:00:00.000Z"><meta property="article:modified_time" content="2024-11-26T01:44:45.189Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="git"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2023/08/21/Work/software/manager/git/git-data-code-separate/"},"headline":"Git Submodule: Data & Code Repository Separate","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2023-08-21T16:00:00.000Z","dateModified":"2024-11-26T01:44:45.189Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"Just follow my mind parent repository ignore the sub directory in .gitignore Normal git usage in child repository, eg. init commit push submodule for what? for auto upload and init multi-subgit to tar"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2023/08/21/Work/software/manager/git/git-data-code-separate/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Git Submodule: Data &amp; Code Repository Separate - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       原本是不期望使用submodule的，但是PTA要用，还是需要学习一下。"><meta property="og:type" content="blog"><meta property="og:title" content="Git Submodule: Data &amp; Code Repository Separate"><meta property="og:url" content="http://icarus.shaojiemike.top/2023/08/21/Work/software/manager/git/git-data-code-separate/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       原本是不期望使用submodule的，但是PTA要用，还是需要学习一下。"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2023-08-21T16:00:00.000Z"><meta property="article:modified_time" content="2024-11-26T02:12:59.154Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="git"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2023/08/21/Work/software/manager/git/git-data-code-separate/"},"headline":"Git Submodule: Data & Code Repository Separate","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2023-08-21T16:00:00.000Z","dateModified":"2024-11-26T02:12:59.154Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       原本是不期望使用submodule的，但是PTA要用，还是需要学习一下。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2023/08/21/Work/software/manager/git/git-data-code-separate/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
   (function () {
       function switchTab() {
           if (!location.hash) {
@@ -29,7 +29,67 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-21T16:00:00.000Z" title="8/21/2023, 4:00:00 PM">2023-08-21</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-11-26T01:44:45.189Z" title="11/26/2024, 1:44:45 AM">2024-11-26</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">3 minutes read (About 488 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Git Submodule: Data &amp; Code Repository Separate</h1><div class="content"><h2 id="Just-follow-my-mind"><a href="#Just-follow-my-mind" class="headerlink" title="Just follow my mind"></a>Just follow my mind</h2><ol>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-21T16:00:00.000Z" title="8/21/2023, 4:00:00 PM">2023-08-21</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-11-26T02:12:59.154Z" title="11/26/2024, 2:12:59 AM">2024-11-26</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">12 minutes read (About 1845 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Git Submodule: Data &amp; Code Repository Separate</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>原本是不期望使用submodule的，但是PTA要用，还是需要学习一下。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h3 id="Git-子模块入门教程"><a href="#Git-子模块入门教程" class="headerlink" title="Git 子模块入门教程"></a>Git 子模块入门教程</h3><p>在 Git 中，<strong>子模块</strong>（submodule）允许将一个 Git 仓库作为另一个 Git 仓库的子目录，从而管理不同的 Git 项目作为一个整体。这在需要将外部项目作为依赖或嵌入到你的项目中时非常有用。子模块的管理有时比较复杂，特别是当项目中有大量子模块时。</p>
+<p>如果你觉得子模块不好用，也可以选择使用 <code>.gitignore</code> 或者 <code>ln -s</code> 来替代。</p>
+<hr>
+<h3 id="1-添加子模块"><a href="#1-添加子模块" class="headerlink" title="1. 添加子模块"></a>1. <strong>添加子模块</strong></h3><p>要将子模块添加到你的 Git 仓库中，首先进入你的主仓库根目录，然后执行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git submodule add &lt;repository_url&gt; &lt;submodule_path&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>&lt;repository_url&gt;</code> 是你想要添加的子模块仓库的 URL。</li>
+<li><code>&lt;submodule_path&gt;</code> 是你希望将子模块放置在主项目中的相对路径。</li>
+</ul>
+<p>这个命令会在主仓库中创建对子模块的引用，允许你将子模块与主项目一起管理。</p>
+<h3 id="2-更新和初始化子模块"><a href="#2-更新和初始化子模块" class="headerlink" title="2. 更新和初始化子模块"></a>2. <strong>更新和初始化子模块</strong></h3><p>添加子模块后，你需要初始化并更新子模块的内容。运行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git submodule update --init --recursive</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>--init</code> 用于初始化子模块。</li>
+<li><code>--recursive</code> 确保子模块中的其他子模块也被初始化。</li>
+</ul>
+<p>这将会下载并初始化子模块的内容，使其成为主仓库的一部分。</p>
+<h3 id="3-配置-gitignore-文件"><a href="#3-配置-gitignore-文件" class="headerlink" title="3. 配置 .gitignore 文件"></a>3. <strong>配置 <code>.gitignore</code> 文件</strong></h3><p>如果你不希望将子模块的内容提交到主仓库中，你可以在主仓库的 <code>.gitignore</code> 文件中忽略子模块的路径。例如，如果你的子模块位于 <code>submodule_folder</code> 目录下，可以在 <code>.gitignore</code> 文件中添加如下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">submodule_folder/</span><br></pre></td></tr></table></figure>
+
+<p>这样，Git 就不会把子模块的内容包含在版本控制中，但子模块的引用信息（即它指向的 commit）仍然会被记录在主仓库中。</p>
+<h3 id="4-使用子模块"><a href="#4-使用子模块" class="headerlink" title="4. 使用子模块"></a>4. <strong>使用子模块</strong></h3><p>当你在其他机器上克隆这个主仓库时，或者将仓库分享给其他开发者时，他们需要运行以下命令来初始化并获取子模块的内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git submodule update --init --recursive</span><br></pre></td></tr></table></figure>
+
+<h4 id="对子模块进行修改"><a href="#对子模块进行修改" class="headerlink" title="对子模块进行修改"></a>对子模块进行修改</h4><p>如果你需要对子模块做修改，可以进入子模块目录并像普通 Git 仓库一样进行工作。修改并提交后，不要忘记将子模块的更新推送到子模块的远程仓库。然后，再回到主仓库，提交更新后的子模块引用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在子模块目录中进行修改和提交</span></span><br><span class="line"><span class="built_in">cd</span> third_party/op-plugin</span><br><span class="line">git commit -m <span class="string">&quot;Update submodule&quot;</span></span><br><span class="line">git push origin master</span><br><span class="line"></span><br><span class="line"><span class="comment"># 回到主仓库并提交子模块引用的更新</span></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">git add third_party/op-plugin</span><br><span class="line">git commit -m <span class="string">&quot;Update submodule reference&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+
+<h4 id="更新子模块"><a href="#更新子模块" class="headerlink" title="更新子模块"></a>更新子模块</h4><p>如果你需要将子模块更新到最新的版本，可以进入子模块目录并运行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> third_party/op-plugin</span><br><span class="line">git pull origin master</span><br></pre></td></tr></table></figure>
+
+<p>然后，回到主仓库提交更新后的子模块引用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">git add third_party/op-plugin</span><br><span class="line">git commit -m <span class="string">&quot;Update submodule reference&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="子模块的独立版本控制"><a href="#子模块的独立版本控制" class="headerlink" title="子模块的独立版本控制"></a>子模块的独立版本控制</h3><p>记住，子模块有自己独立的版本控制系统，因此你需要单独管理子模块的版本。子模块提供了一种将外部项目整合到你的主项目中的方式，同时保持它们独立的开发和版本控制。</p>
+<h3 id="替代方案"><a href="#替代方案" class="headerlink" title="替代方案"></a>替代方案</h3><p>虽然 Git 子模块提供了强大的功能，但在一些场景下，它可能会显得比较复杂或不适用。如果你觉得子模块难以管理，可以考虑以下替代方案：</p>
+<ul>
+<li>**使用 <code>.gitignore</code>**：如果你不想管理子模块的内容，直接将其添加到 <code>.gitignore</code> 文件中。</li>
+<li>**使用符号链接 (<code>ln -s</code>)**：通过在主仓库中使用符号链接，将外部项目作为文件夹包含进来，而不直接嵌套它们为 Git 子模块。</li>
+</ul>
+<p>这两种方法可以简化一些场景，但会失去 Git 对子模块的自动管理和版本控制支持。</p>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Git 子模块是将外部仓库引入到你的主仓库中的强大工具，适用于有外部依赖的项目。尽管它们有独立的版本控制，需要管理多个仓库，但它们提供了更灵活和独立的版本控制方式。子模块的使用需要一些配置和理解，但一旦掌握，就能有效地组织和管理多个 Git 仓库。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>必要性存疑</p>
+</div>
+        <div class="message-body">
+            <ol>
 <li>parent repository ignore the sub directory in <code>.gitignore</code></li>
 <li>Normal git usage in child repository, eg. <code>init commit push</code></li>
 <li>submodule for what?<ol>
@@ -37,37 +97,64 @@
 </ol>
 </li>
 </ol>
-<h2 id="submodule"><a href="#submodule" class="headerlink" title="submodule"></a>submodule</h2><p>submodule is <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/87053283">hard to use</a> when it will be blocked under big sub-srepository.</p>
-<p>I recommend to use <code>.gitignore</code> or just use <code>ln -s xxx yyy</code></p>
-<h2 id="chatgpt-balabala"><a href="#chatgpt-balabala" class="headerlink" title="chatgpt balabala"></a>chatgpt balabala</h2><p>Adding a Git repository inside another Git repository, often referred to as a “submodule,” is a way to manage a separate repository as a part of your main project. This is particularly useful when you want to include another project within your project and keep them separate.</p>
-<p>Here’s how you can add a submodule and set up <code>.gitignore</code> for the outer repository:</p>
+
+        </div>
+    </article>
+
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="合并冲突"><a href="#合并冲突" class="headerlink" title="合并冲突"></a>合并冲突</h3><article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>父项目为空</p>
+</div>
+        <div class="message-body">
+            <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PS C:\Users\94364\github\pytorch_without_subgit&gt; git submodule status</span><br><span class="line">66b781b70b1d095d107786d6b6a1bdfef7aa3e18 third_party/Tensorpipe (66b781b)</span><br><span class="line">58d77fa8070e8cec2dc1ed015d66b454c8d78850 third_party/googletest (release-1.8.0-2986-g58d77fa8)</span><br><span class="line">U0000000000000000000000000000000000000000 third_party/op-plugin</span><br><span class="line">114e06a0b131d4055da3688d915bac4bbd29eb4f third_party/torchair/torchair (114e06a0)</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>git add third_party/op-plugin</code>即可更新</p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>合并submodule commit冲突</p>
+</div>
+        <div class="message-body">
+            <p>这个错误是因为 Git 在处理子模块的冲突时发现 <code>third_party/op-plugin</code> 子模块未被正确初始化或未检出其对应的 commit。以下是解决该问题的步骤：</p>
+<hr>
 <ol>
-<li><p><strong>Add a Submodule</strong>:</p>
-<p> Navigate to the root of your outer Git repository and run the following command:</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git submodule add &lt;repository_url&gt; &lt;submodule_path&gt;</span><br></pre></td></tr></table></figure>
-
-<p> Replace <code>&lt;repository_url&gt;</code> with the URL of the repository you want to add as a submodule, and <code>&lt;submodule_path&gt;</code> with the relative path within your outer repository where you want to place the submodule.</p>
-</li>
-<li><p><strong>Update and Initialize Submodule</strong>:</p>
-<p> After adding the submodule, you need to update and initialize it:</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git submodule update --init --recursive</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p> This command fetches the submodule’s content and initializes it.</p>
-</li>
-<li><p><strong>Set Up <code>.gitignore</code></strong>:</p>
-<p> To ignore the submodule’s content and avoid committing it to the outer repository, you need to add the submodule path to the <code>.gitignore</code> file of the outer repository. For example, if your submodule is located in a directory called “submodule_folder,” add the following line to the <code>.gitignore</code> file:</p>
- <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">submodule_folder/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>Working with Submodules</strong>:</p>
-<p> When you clone the outer repository on another system or share it with others, they will need to run <code>git submodule update --init --recursive</code> to fetch and initialize the submodule’s content.</p>
-<p> To make changes to the submodule, navigate into the submodule directory and work as you would in a regular Git repository. When you commit changes in the submodule, you will need to push them to its remote repository. After that, commit the updated submodule reference in the outer repository.</p>
-<p> To update the submodule to the latest version available, you can navigate into the submodule directory and run <code>git pull origin master</code> (or the appropriate branch) to update its content. Then, commit the updated reference in the outer repository.</p>
-</li>
+<li>初始化和更新子模块<br>确保子模块已被初始化并更新到正确的版本：</li>
 </ol>
-<p>Remember that submodules have their own independent version control, so you need to manage them separately. Submodules provide a way to incorporate external projects into your main project while keeping their development and versioning separate.</p>
-<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git submodule update <span class="literal">--init</span> <span class="literal">--recursive</span></span><br></pre></td></tr></table></figure>
+
+<p>如果子模块没有被初始化，这将下载并检出子模块内容。如果子模块已经存在但未被更新，这个命令会同步它到当前父项目的正确版本。</p>
+<hr>
+<ol start="2">
+<li>手动解决子模块冲突<br>子模块冲突需要手动解决，按照以下步骤操作：</li>
+</ol>
+<p>(1) 进入子模块目录<br>进入冲突的子模块目录 <code>third_party/op-plugin</code>：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> third_party/op<span class="literal">-plugin</span></span><br></pre></td></tr></table></figure>
+
+<p>(2) 检查冲突状态<br>在子模块中运行以下命令查看冲突情况：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git status</span><br></pre></td></tr></table></figure>
+
+<p>(3) 解决冲突<br>解决子模块内的冲突问题，可以选择：</p>
+<ul>
+<li><strong>回退到指定版本</strong>：如果你知道父项目期望的子模块版本，直接检出该版本：<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout &lt;expected_commit&gt;</span><br></pre></td></tr></table></figure></li>
+<li><strong>合并冲突</strong>：如果子模块的冲突是由于不同分支的内容合并导致的，运行：<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git merge &lt;conflicting_commit_or_branch&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>(4) 提交子模块的修改<br>子模块冲突解决后，提交子模块的变更：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit <span class="literal">-m</span> <span class="string">&quot;Resolve conflict in third_party/op-plugin&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后返回到父项目目录。</p>
+<hr>
+<ol start="3">
+<li>更新父项目状态<br>在父项目中，标记子模块冲突已解决：</li>
+</ol>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git add third_party/op<span class="literal">-plugin</span></span><br></pre></td></tr></table></figure>
+
+<p>然后继续变基过程：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rebase <span class="literal">--continue</span></span><br></pre></td></tr></table></figure>
+        </div>
+    </article>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
 <div id='refer-anchor'></div>
 
 <p>无</p>
