@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Pytorch 2 ：more conceptions about training and inference - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                        训练推理相关基本概念"><meta property="og:type" content="blog"><meta property="og:title" content="Pytorch 2 ：more conceptions about training and inference"><meta property="og:url" content="http://icarus.shaojiemike.top/2023/06/13/Work/Artificial%20Intelligence/framework/Pytorch/pytorch2Dataset&amp;Dataloader/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                        训练推理相关基本概念"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220412211523.png"><meta property="og:image" content="https://pic.shaojiemike.top/img/20220413151558.png"><meta property="article:published_time" content="2023-06-13T16:00:00.000Z"><meta property="article:modified_time" content="2025-11-19T08:15:51.575Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="ai"><meta property="article:tag" content="Pytorch"><meta property="article:tag" content="k-fold cross validation"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/img/20220412211523.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2023/06/13/Work/Artificial%20Intelligence/framework/Pytorch/pytorch2Dataset&Dataloader/"},"headline":"Pytorch 2 ：more conceptions about training and inference","image":["https://pic.shaojiemike.top/img/20220412211523.png","https://pic.shaojiemike.top/img/20220413151558.png"],"datePublished":"2023-06-13T16:00:00.000Z","dateModified":"2025-11-19T08:15:51.575Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                        训练推理相关基本概念"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2023/06/13/Work/Artificial%20Intelligence/framework/Pytorch/pytorch2Dataset&amp;Dataloader/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-06-13T16:00:00.000Z" title="6/13/2023, 4:00:00 PM">2023-06-13</time></span><span class="level-item">Updated&nbsp;<time dateTime="2025-11-19T08:15:51.575Z" title="11/19/2025, 8:15:51 AM">2025-11-19</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">29 minutes read (About 4318 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Pytorch 2 ：more conceptions about training and inference</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>训练推理相关基本概念</li>
+</ul>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+
+
+<h2 id="什么是一“次”训练和推理？"><a href="#什么是一“次”训练和推理？" class="headerlink" title="什么是一“次”训练和推理？"></a><strong>什么是一“次”训练和推理？</strong></h2><p>在深度学习中，<strong>一次训练</strong> 或 <strong>一次推理</strong> 的范围取决于你关注的层次，主要有三种常见的粒度：</p>
+<ol>
+<li><strong>Inference（推理）</strong>：使用训练好的模型，在<strong>不计算梯度</strong>的情况下，对输入数据进行前向传播，得到输出结果。</li>
+<li><strong>Iteration（迭代）</strong>：一次前向传播 + 计算损失 + 反向传播 + 更新参数，处理 <strong>一个 batch</strong> 的数据。</li>
+<li><strong>Epoch（轮次）</strong>：遍历整个数据集 <strong>一次</strong>，即所有 batch 都被处理了一遍。</li>
+</ol>
+<h3 id="推理（Inference）"><a href="#推理（Inference）" class="headerlink" title="推理（Inference）"></a><strong>推理（Inference）</strong></h3><p>推理就是<strong>使用训练好的模型进行前向传播</strong>，但 <strong>不需要计算梯度，也不更新参数</strong>，通常用于测试或实际应用中。例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> torch.no_grad():  <span class="comment"># 关闭梯度计算，加速推理</span></span><br><span class="line">    outputs = model(test_data)  <span class="comment"># 只进行前向传播</span></span><br></pre></td></tr></table></figure>
+<p>推理时，batch size 也决定了一次推理处理多少样本。</p>
+<h4 id="Iteration（迭代）"><a href="#Iteration（迭代）" class="headerlink" title="Iteration（迭代）"></a><strong>Iteration（迭代）</strong></h4><p>当我们训练一个神经网络时，一般不会直接在整个数据集上进行计算，而是<strong>将数据集拆分成多个 batch</strong>，然后逐个 batch 送入模型进行训练。</p>
+<p>一次迭代指的是：</p>
+<ul>
+<li><strong>取出一个 batch（批量）数据</strong> 送入神经网络。</li>
+<li><strong>前向传播</strong>（Forward Pass）：计算模型输出。</li>
+<li><strong>计算损失</strong>（Loss）。</li>
+<li><strong>反向传播</strong>（Backward Pass）：计算梯度。</li>
+<li><strong>更新参数</strong>（Optimizer Step）。</li>
+</ul>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>例如</p>
+</div>
+        <div class="message-body">
+            <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> batch_data, batch_labels <span class="keyword">in</span> dataloader:  <span class="comment"># dataloader 按 batch 迭代数据</span></span><br><span class="line">    optimizer.zero_grad()  <span class="comment"># 清空梯度</span></span><br><span class="line">    outputs = model(batch_data)  <span class="comment"># 前向传播</span></span><br><span class="line">    loss = loss_fn(outputs, batch_labels)  <span class="comment"># 计算损失</span></span><br><span class="line">    loss.backward()  <span class="comment"># 反向传播</span></span><br><span class="line">    optimizer.step()  <span class="comment"># 更新参数</span></span><br></pre></td></tr></table></figure>
+
+<p>每次 <code>for</code> 循环的执行就是 <strong>一次迭代</strong>（Iteration），处理的是 <strong>一个 batch</strong> 的数据。</p>
+<p>如果你的数据集有 1000 个样本，batch size&#x3D;32，那么：</p>
+<ul>
+<li>训练完整个数据集 <strong>需要</strong> <code>1000/32 = 32</code> 次 iteration（迭代）。</li>
+<li><strong>每次 iteration</strong> 仅处理 <strong>32 个样本</strong>，而不是整个数据集。</li>
+</ul>
+
+        </div>
+    </article>
+
+<hr>
+<h4 id="Epoch（轮次）"><a href="#Epoch（轮次）" class="headerlink" title="Epoch（轮次）"></a><strong>Epoch（轮次）</strong></h4><p>一次 <strong>epoch</strong> 指的是 <strong>整个数据集都被训练一次</strong>，也就是说 <strong>所有 batch 都被训练过一遍</strong>。</p>
+<ul>
+<li>假设你的数据集有 1000 个样本，batch size &#x3D; 32，</li>
+<li>需要 <code>1000 / 32 = 32</code> 次 iteration <strong>才能遍历完整个数据集</strong>，即完成 <strong>1 个 epoch</strong>。</li>
+<li>如果训练 10 轮（<code>epochs=10</code>），则总共会进行 <code>32 × 10 = 320</code> 次 iteration。</li>
+</ul>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>代码示例：</p>
+</div>
+        <div class="message-body">
+            <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">epochs = <span class="number">10</span>  <span class="comment"># 训练 10 轮</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(epochs):</span><br><span class="line">    <span class="keyword">for</span> batch_data, batch_labels <span class="keyword">in</span> dataloader:  <span class="comment"># 每个 batch 训练一次</span></span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        outputs = model(batch_data)</span><br><span class="line">        loss = loss_fn(outputs, batch_labels)</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br></pre></td></tr></table></figure>
+
+<p>这个代码 <strong>完整遍历数据集 10 次</strong>，即 <strong>10 个 epoch</strong>，总共会执行 <code>iteration = (数据集大小 / batch_size) × epochs</code>。</p>
+
+        </div>
+    </article>
+
+<h2 id="多个-epoch-的必要性"><a href="#多个-epoch-的必要性" class="headerlink" title="多个 epoch 的必要性"></a><strong>多个 epoch 的必要性</strong></h2><p>一次 epoch 确实遍历了整个数据集，但它 <strong>并不意味着模型已经学好了</strong>。在深度学习中，我们通常需要多个 epoch 来<strong>让模型逐步优化</strong>，找到更好的参数。</p>
+<hr>
+<h3 id="1-训练神经网络的本质"><a href="#1-训练神经网络的本质" class="headerlink" title="1. 训练神经网络的本质"></a><strong>1. 训练神经网络的本质</strong></h3><p>神经网络的训练本质上是一个<strong>优化问题</strong>，目标是找到一组最优的参数，使得模型的损失函数最小（即预测尽可能准确）。<br>训练的过程类似于爬山，我们需要<strong>沿着损失函数的梯度下降</strong>，不断调整模型参数，逐渐收敛到最优解。  </p>
+<p>如果只进行 <strong>1 个 epoch</strong>，那么：</p>
+<ul>
+<li><strong>参数更新次数较少</strong>，模型可能还没有足够的训练，误差仍然很大。</li>
+<li><strong>梯度下降未收敛</strong>，即模型还没有达到最优状态。</li>
+<li><strong>模型可能无法充分学习数据特征</strong>，导致性能较差。</li>
+</ul>
+<p>因此，我们需要<strong>多次遍历数据集</strong>（多个 epoch），不断优化参数，使模型的表现更好。</p>
+<hr>
+<h3 id="2-为什么一次-epoch-不够？"><a href="#2-为什么一次-epoch-不够？" class="headerlink" title="2. 为什么一次 epoch 不够？"></a><strong>2. 为什么一次 epoch 不够？</strong></h3><p>假设你的数据集有 10,000 个样本，batch size &#x3D; 32，那么 1 个 epoch 需要 <code>10,000 / 32 ≈ 312</code> 次 iteration。</p>
+<p>但在实际情况中：</p>
+<ul>
+<li><p><strong>神经网络一开始参数是随机的</strong>，它需要多个 epoch 来逐步学习数据中的模式。</p>
+</li>
+<li><p><strong>优化算法（如梯度下降）不会在一次遍历后立即找到最优解</strong>，而是通过不断迭代找到更好的参数。</p>
+</li>
+<li><p><strong>损失函数（Loss）下降的趋势通常是逐步收敛的</strong>，如下图所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Loss</span><br><span class="line">↑</span><br><span class="line">|      __</span><br><span class="line">|    /    </span><br><span class="line">|  /      </span><br><span class="line">|/________  (多次 epoch 后收敛)</span><br><span class="line">----------------&gt;  Epoch</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，<strong>在多个 epoch 之后，损失才会下降并趋于稳定</strong>。</p>
+</li>
+</ul>
+<hr>
+<h3 id="3-训练多个-epoch-会发生什么？"><a href="#3-训练多个-epoch-会发生什么？" class="headerlink" title="3. 训练多个 epoch 会发生什么？"></a><strong>3. 训练多个 epoch 会发生什么？</strong></h3><p>假设你训练 10 个 epoch，每个 epoch 的损失可能如下：</p>
+<table>
+<thead>
+<tr>
+<th>Epoch</th>
+<th>Training Loss</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1.2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0.9</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0.7</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0.5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>0.4</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr>
+<td>10</td>
+<td>0.2</td>
+</tr>
+</tbody></table>
+<p>可以看到，损失在逐渐降低，模型在逐步学习数据模式。如果只训练 1 个 epoch，损失可能仍然较高，模型的预测能力较弱。</p>
+<hr>
+<h3 id="4-什么时候停止训练？"><a href="#4-什么时候停止训练？" class="headerlink" title="4. 什么时候停止训练？"></a><strong>4. 什么时候停止训练？</strong></h3><p>一般来说，你不会一直增加 epoch，因为：</p>
+<ol>
+<li><strong>太少的 epoch</strong> → <strong>欠拟合（Underfitting）</strong>，模型还没学会数据中的模式。</li>
+<li><strong>太多的 epoch</strong> → <strong>过拟合（Overfitting）</strong>，模型在训练集上效果很好，但在测试集上表现变差。</li>
+</ol>
+<h4 id="早停（Early-Stopping）"><a href="#早停（Early-Stopping）" class="headerlink" title="早停（Early Stopping）"></a><strong>早停（Early Stopping）</strong></h4><p>常见的做法是：</p>
+<ul>
+<li>监控验证集（Validation Set）的损失，如果发现连续几轮损失不再下降，就提前停止训练。</li>
+<li>例如：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim</span><br><span class="line"></span><br><span class="line">model = ...  <span class="comment"># 定义模型</span></span><br><span class="line">loss_fn = nn.CrossEntropyLoss()  <span class="comment"># 损失函数</span></span><br><span class="line">optimizer = optim.Adam(model.parameters(), lr=<span class="number">0.001</span>)  <span class="comment"># 优化器</span></span><br><span class="line"></span><br><span class="line">best_val_loss = <span class="built_in">float</span>(<span class="string">&#x27;inf&#x27;</span>)  <span class="comment"># 记录最小的验证损失</span></span><br><span class="line">patience = <span class="number">3</span>  <span class="comment"># 如果验证损失连续 3 次没有下降，则停止训练</span></span><br><span class="line">counter = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">50</span>):  <span class="comment"># 最多训练 50 个 epoch</span></span><br><span class="line">    train_loss = train_one_epoch(model)  <span class="comment"># 训练一个 epoch</span></span><br><span class="line">    val_loss = validate(model)  <span class="comment"># 计算验证集损失</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> val_loss &lt; best_val_loss:</span><br><span class="line">        best_val_loss = val_loss</span><br><span class="line">        counter = <span class="number">0</span>  <span class="comment"># 重新计数</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        counter += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> counter &gt;= patience:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;Early stopping at epoch <span class="subst">&#123;epoch&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="keyword">break</span>  <span class="comment"># 提前停止训练</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Batch-size"><a href="#Batch-size" class="headerlink" title="Batch size"></a>Batch size</h2><p><strong>batch size（批大小）</strong> 指的是 <strong>一次训练或推理时输入到神经网络中的样本数量</strong>。</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Mini-batch</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><strong>Mini-batch</strong>：小批量数据，介于<strong>批量梯度下降</strong>（全数据）和<strong>随机梯度下降</strong>（单样本）之间的折中方案。</li>
+</ul>
+
+        </div>
+    </article>
+
+<h3 id="为什么需要-batch-size？"><a href="#为什么需要-batch-size？" class="headerlink" title="为什么需要 batch size？"></a><strong>为什么需要 batch size？</strong></h3><p>在深度学习中，训练神经网络时，我们通常不会一次性把所有数据都输入，而是<strong>分批（batch）</strong>输入。这样做的原因包括：</p>
+<ol>
+<li><strong>计算资源限制</strong>：一次性处理整个数据集可能会超出 GPU&#x2F;CPU 的内存，而分批次处理可以减少内存占用。</li>
+<li><strong>加速训练</strong>：小批量数据可以在 GPU 上并行计算，提高效率。</li>
+<li><strong>更稳定的梯度下降</strong>：批量梯度下降（mini-batch gradient descent）可以在计算梯度时减少单个样本带来的噪声，使优化过程更加稳定。</li>
+</ol>
+<hr>
+<h3 id="Batch-size-的不同取值影响"><a href="#Batch-size-的不同取值影响" class="headerlink" title="Batch size 的不同取值影响"></a><strong>Batch size 的不同取值影响</strong></h3><ol>
+<li><strong>小 batch size（如 8, 16）</strong><ul>
+<li>内存占用小，适用于小显存设备（如笔记本 GPU）。</li>
+<li>噪声较大，梯度更新不稳定，但可能有助于泛化能力（即模型在未见过的数据上表现更好）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<ol>
+<li><strong>大 batch size（如 128, 256, 1024）</strong><ul>
+<li>计算效率高，但需要较大显存。</li>
+<li>梯度更新更平稳，适用于大规模数据集。</li>
+</ul>
+</li>
+</ol>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i><strong>代码示例</strong></p>
+</div>
+        <div class="message-body">
+            <p>假设我们有一个数据集，并用 PyTorch 的 <code>DataLoader</code> 来加载数据：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader, TensorDataset</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们有 1000 个样本，每个样本有 10 个特征</span></span><br><span class="line">data = torch.randn(<span class="number">1000</span>, <span class="number">10</span>)  <span class="comment"># 1000 个样本，10 维特征</span></span><br><span class="line">labels = torch.randint(<span class="number">0</span>, <span class="number">2</span>, (<span class="number">1000</span>,))  <span class="comment"># 1000 个 0/1 标签</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建数据集</span></span><br><span class="line">dataset = TensorDataset(data, labels)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置 batch size = 32</span></span><br><span class="line">batch_size = <span class="number">32</span></span><br><span class="line">dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 迭代 DataLoader</span></span><br><span class="line"><span class="keyword">for</span> batch_data, batch_labels <span class="keyword">in</span> dataloader:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Batch shape: <span class="subst">&#123;batch_data.shape&#125;</span>&quot;</span>)  <span class="comment"># 输出 batch 大小</span></span><br><span class="line">    <span class="keyword">break</span>  <span class="comment"># 只看第一个 batch</span></span><br></pre></td></tr></table></figure>
+
+<p>如果 <code>batch_size=32</code>，那么 <code>dataloader</code> 每次会返回 <strong>32 个样本</strong>，直到数据集遍历完。</p>
+
+        </div>
+    </article>
+
+<h2 id="BatchNorm"><a href="#BatchNorm" class="headerlink" title="BatchNorm"></a><strong>BatchNorm</strong></h2><p>Batch Normalization（简称 <strong>BatchNorm</strong>）是一种<strong>加速神经网络训练</strong>的方法，它通过对<strong>每个 batch 内的数据进行归一化</strong>，使网络更稳定、更容易训练，并减少对超参数（如学习率、权重初始化等）的敏感性。</p>
+<p><strong>简单来说，BatchNorm 通过在每一层对数据进行归一化，使得数据分布更加平稳，避免梯度消失或梯度爆炸。</strong></p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>BN层只是效果会变好，因为感受到了细节。不是有batch就一定有BN层的意思。</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<hr>
+<h3 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a><strong>核心思想</strong></h3><p>在深度神经网络中，数据流经每一层时，其分布可能会发生剧烈变化，导致训练变得困难（称为<strong>内部协变量偏移 Internal Covariate Shift</strong>）。BatchNorm 通过在每一层对输入数据进行标准化（归一化），<strong>让数据保持稳定的均值和方差</strong>，从而加速训练。</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i><strong>BatchNorm 公式</strong></p>
+</div>
+        <div class="message-body">
+            <p>对于某一层的输入 <code>x</code>，我们计算它在当前 batch 内的均值和方差：</p>
+<p>$$ \mu_B &#x3D; \frac{1}{m} \sum_{i&#x3D;1}^{m} x_i $$<br>$$ \sigma_B^2 &#x3D; \frac{1}{m} \sum_{i&#x3D;1}^{m} (x_i - \mu_B)^2 $$  </p>
+<p>然后对 <code>x</code> 进行归一化：</p>
+<p>$$ \hat{x}_i &#x3D; \frac{x_i - \mu_B}{\sqrt{\sigma_B^2 + \epsilon}} $$  </p>
+<p>其中 <code>ε</code> 是一个很小的数，防止除零错误。</p>
+<p>最后，BatchNorm 引入<strong>可学习参数</strong> <code>γ</code>（缩放）和 <code>β</code>（平移）：</p>
+<p>$$ y_i &#x3D; \gamma \hat{x}_i + \beta $$  </p>
+<p>这使得网络即使在归一化之后，仍然可以恢复原始的特性表示能力。</p>
+
+        </div>
+    </article>
+
+<hr>
+<h3 id="BatchNorm-和-Batch-Size-的关系"><a href="#BatchNorm-和-Batch-Size-的关系" class="headerlink" title="BatchNorm 和 Batch Size 的关系"></a><strong>BatchNorm 和 Batch Size 的关系</strong></h3><p>BatchNorm 的计算基于 <strong>当前 batch 内的均值和方差</strong>，因此<strong>Batch Size 直接影响 BatchNorm 的效果</strong>：</p>
+<ol>
+<li><p><strong>Batch Size 大（如 128，256）</strong></p>
+<ul>
+<li>计算的均值和方差更加稳定，因为 batch 内样本多，统计量准确。</li>
+<li>训练更稳定，BatchNorm 能有效加速训练。</li>
+</ul>
+</li>
+<li><p><strong>Batch Size 小（如 2，4，8）</strong></p>
+<ul>
+<li>Batch 内样本少，均值和方差的计算误差大，导致 BatchNorm 不稳定。</li>
+<li>可能需要使用 <strong>Group Normalization（GN）</strong> 或 <strong>Layer Normalization（LN）</strong> 作为替代方案。</li>
+</ul>
+</li>
+</ol>
+<p><strong>一般来说，BatchNorm 需要 batch size 至少大于 16 或 32 才能较好地工作</strong>。如果 Batch Size 太小（如 2~8），BatchNorm 可能会导致梯度不稳定，此时可以考虑：</p>
+<ul>
+<li><strong>使用 LayerNorm 或 GroupNorm</strong>，它们不依赖 batch 统计量。</li>
+<li><strong>使用 BatchNorm 的 running statistics</strong>（即 <code>track_running_stats=True</code>）。</li>
+<li><strong>使用 SyncBatchNorm</strong>（跨多个 GPU 计算 batch 统计量）。</li>
+</ul>
+<hr>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i><strong>代码示例</strong></p>
+</div>
+        <div class="message-body">
+            <p>在 PyTorch 中，你可以使用 <code>nn.BatchNorm1d</code>（1D 数据，如全连接层）、<code>nn.BatchNorm2d</code>（2D 数据，如 CNN）、<code>nn.BatchNorm3d</code>（3D 数据，如 3D 卷积）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个带有 BatchNorm 的网络</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyModel</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>(MyModel, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.fc = nn.Linear(<span class="number">10</span>, <span class="number">20</span>)</span><br><span class="line">        <span class="variable language_">self</span>.bn = nn.BatchNorm1d(<span class="number">20</span>)  <span class="comment"># 1D 全连接层的 BatchNorm</span></span><br><span class="line">        <span class="variable language_">self</span>.relu = nn.ReLU()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        x = <span class="variable language_">self</span>.fc(x)</span><br><span class="line">        x = <span class="variable language_">self</span>.bn(x)  <span class="comment"># 归一化</span></span><br><span class="line">        x = <span class="variable language_">self</span>.relu(x)</span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试</span></span><br><span class="line">model = MyModel()</span><br><span class="line">x = torch.randn(<span class="number">32</span>, <span class="number">10</span>)  <span class="comment"># Batch Size = 32</span></span><br><span class="line">output = model(x)</span><br><span class="line"><span class="built_in">print</span>(output.shape)  <span class="comment"># 输出: torch.Size([32, 20])</span></span><br></pre></td></tr></table></figure>
+        </div>
+    </article>
+
+<h2 id="多通道"><a href="#多通道" class="headerlink" title="多通道"></a>多通道</h2><p>一般是任务特征很多维度时，拓展描述参数用的。参考<a target="_blank" rel="noopener" href="https://zh.d2l.ai/chapter_convolutional-neural-networks/channels.html">教程</a>。</p>
+<p>比如：图像一般包含三个通道&#x2F;三种原色（红色、绿色和蓝色）。 实际上，图像不是二维张量，而是一个由高度、宽度和颜色组成的三维张量。所以第三维通过通道表示。</p>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>多通道举例说明</p>
+</div>
+        <div class="message-body">
+            <p><img src="https://pic.shaojiemike.top/img/20220412211523.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">self</span>.conv1 = nn.Conv2d(<span class="number">1</span>, <span class="number">6</span>, <span class="number">5</span>) <span class="comment"># 输入通道1，输出通道6，卷积核 5*5</span></span><br></pre></td></tr></table></figure>
+
+<p>如上图Input到C1，初始1通道变6通道，意味着对初始的A数据，有6个初始值不同的5*5卷积核操作，产生6张图。需要参数6*5*5。而长宽变化如下：</p>
+<p>$$<br>28&#x3D;32-5+1<br>$$</p>
+<ul>
+<li>如上图S2到C3, 6通道变16通道，相当于将6通道变1通道，重复16次。</li>
+<li>6通道变1通道，通过6张图与由6个5*5卷积核组成的卷积核组作用，生成6张图，然后简单相加，变成1张。需要总参数16*6*5*5*5。</li>
+<li>原理类似下图某些数据变成6和16：</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/img/20220413151558.png"></p>
+
+        </div>
+    </article>
+
+<h2 id="梯度范数（Gradient-Norm）"><a href="#梯度范数（Gradient-Norm）" class="headerlink" title="梯度范数（Gradient Norm）"></a>梯度范数（Gradient Norm）</h2><p>梯度范数（Gradient Norm）是深度学习中用于衡量模型参数更新方向与幅度的关键指标，其计算方式为所有参数梯度的平方和的平方根。这一指标在模型训练中具有以下核心作用：</p>
+<hr>
+<h3 id="1-数学定义与计算"><a href="#1-数学定义与计算" class="headerlink" title="1. 数学定义与计算"></a>1. <strong>数学定义与计算</strong></h3><p>梯度范数的数学表达式为：<br>[<br>G_{\text{norm}} &#x3D; \sqrt{\sum_i \left( \frac{\partial L}{\partial \theta_i} \right)^2}<br>]<br>其中 (L) 是损失函数，(\theta_i) 表示模型参数。它通过整合所有参数的梯度信息，量化了当前参数更新方向的整体强度。</p>
+<p><strong>物理意义</strong>：梯度范数越大，表示参数更新幅度越大，可能接近陡峭的优化区域；反之则可能处于平坦区域或收敛状态。</p>
+<hr>
+<h3 id="2-训练动态监测"><a href="#2-训练动态监测" class="headerlink" title="2. 训练动态监测"></a>2. <strong>训练动态监测</strong></h3><p>梯度范数是诊断训练问题的核心指标：</p>
+<ul>
+<li><strong>梯度爆炸</strong>：若梯度范数急剧增长（如指数级），表明参数更新幅度过大，可能导致模型震荡或发散。</li>
+<li><strong>梯度消失</strong>：若梯度范数趋近于零，表明反向传播信号微弱，模型可能无法有效更新参数。</li>
+<li><strong>合理范围</strong>：理想情况下，梯度范数应平稳下降，反映模型逐步收敛到稳定解。</li>
+</ul>
+<p><strong>案例</strong>：在Transformer模型中，梯度范数的异常波动常与层归一化（LayerNorm）位置（Pre-Norm vs Post-Norm）相关。Post-Norm结构因梯度累积更易出现爆炸，需结合Warmup策略平衡。</p>
+<hr>
+<h3 id="3-模型检查点选择策略"><a href="#3-模型检查点选择策略" class="headerlink" title="3. 模型检查点选择策略"></a>3. <strong>模型检查点选择策略</strong></h3><p>用户提到的<strong>“梯度范数峰值后选择检查点”</strong>是一种动态筛选方法，其原理如下：</p>
+<ol>
+<li><strong>峰值检测</strong>：梯度范数达到峰值时，通常对应训练初期参数快速调整阶段，此时模型可能处于不稳定状态。</li>
+<li><strong>收敛判断</strong>：峰值后梯度范数与损失函数同步下降，表明模型进入平缓收敛区（Flat Minimum Region），泛化能力更强。</li>
+<li><strong>稳定性验证</strong>：需同时满足：<ul>
+<li>梯度范数连续多步下降（如波动幅度&lt;3%）；</li>
+<li>损失值低于预训练基准线（如预训练损失的95%）。</li>
+</ul>
+</li>
+</ol>
+<p><strong>优势</strong>：相比固定周期保存，该方法可过滤噪声干扰，提升生成结果的稳定性（如减少视频生成中的伪影）。</p>
+<hr>
+<h3 id="4-在多任务学习中的扩展应用"><a href="#4-在多任务学习中的扩展应用" class="headerlink" title="4. 在多任务学习中的扩展应用"></a>4. <strong>在多任务学习中的扩展应用</strong></h3><p>梯度范数还可用于动态平衡多任务训练的权重：</p>
+<ul>
+<li><strong>GradNorm算法</strong>：通过约束不同任务梯度范数的相对大小，使各任务以相近速度收敛。例如，在推荐系统中，点击率（CTR）和转化率（CVR）任务的梯度范数差异过大会导致模型偏向主导任务，而GradNorm可自动调整损失权重。</li>
+<li><strong>实现效果</strong>：实验表明，该方法可使多任务模型的AUC方差降低70%，线上指标提升3-4%。</li>
+</ul>
+<hr>
+<h3 id="5-与其他技术的关联"><a href="#5-与其他技术的关联" class="headerlink" title="5. 与其他技术的关联"></a>5. <strong>与其他技术的关联</strong></h3><ul>
+<li><strong>优化器设计</strong>：Adam等自适应优化器内部隐式依赖梯度范数调整学习率，但显式监控可辅助超参数调优。</li>
+<li><strong>归一化技术</strong>：LayerNorm和RMSNorm通过控制激活值分布间接影响梯度范数，Pre-Norm结构因梯度路径更短，更易维持合理梯度范数范围。</li>
+</ul>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>梯度范数不仅是训练过程的“健康指标”，还可作为主动优化工具。通过动态监测其变化，开发者能更精准地控制模型收敛方向，尤其在生成式模型（如视频生成）和多任务场景中，这一指标对提升稳定性具有关键意义。</p>
+<h2 id="相关知识"><a href="#相关知识" class="headerlink" title="相关知识"></a>相关知识</h2><h3 id="欠拟合和过拟合判断"><a href="#欠拟合和过拟合判断" class="headerlink" title="欠拟合和过拟合判断"></a>欠拟合和过拟合判断</h3><ol>
+<li>训练集和测试集都不好——欠拟合</li>
+<li>训练集好，测试集不好——过拟合</li>
+</ol>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Pytorch 2 ：more conceptions about training and inference</p><p><a href="http://icarus.shaojiemike.top/2023/06/13/Work/Artificial Intelligence/framework/Pytorch/pytorch2Dataset&amp;Dataloader/">http://icarus.shaojiemike.top/2023/06/13/Work/Artificial Intelligence/framework/Pytorch/pytorch2Dataset&amp;Dataloader/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2023-06-13</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2025-11-19</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/ai/">ai</a><a class="link-muted mr-2" rel="tag" href="/tags/Pytorch/">Pytorch</a><a class="link-muted mr-2" rel="tag" href="/tags/k-fold-cross-validation/">k-fold cross validation</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2023/06/14/Work/math/probabilityTheory/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Probability Theory</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2023/06/13/Work/Artificial%20Intelligence/framework/Pytorch/pytorch3Model&amp;Training/"><span class="level-item">Pytorch 3 ：Model &amp; Training</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">461</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">539</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">27</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">117</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">52</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-11-19T02:42:16.000Z">2025-11-19</time></p><p class="title"><a href="/2025/11/19/Work/Artificial%20Intelligence/Training/MultimodelRL/">Multimodel RL</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-10-11T17:08:24.000Z">2025-10-11</time></p><p class="title"><a href="/2025/10/11/OutOfWork/0-QuantitativeFinance/FastWay2wealthfreedom/">Way 2 Wealth Freedom</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-09-19T16:00:00.000Z">2025-09-19</time></p><p class="title"><a href="/2025/09/19/Work/Artificial%20Intelligence/framework/Pytorch/pytorch25Dataset&amp;Dataloader/">Pytorch 2.5 ：Dataset &amp; Dataloader</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-09-15T17:08:24.000Z">2025-09-15</time></p><p class="title"><a href="/2025/09/15/OutOfWork/0-QuantitativeFinance/WhyChooseQuantitativeFinance/">Why Choose Quantitative Finance</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-05-25T08:25:53.000Z">2025-05-25</time></p><p class="title"><a href="/2025/05/25/OutOfWork/0-love/BlindDate1/">Blind Date 1st(2)</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2025 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

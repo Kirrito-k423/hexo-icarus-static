@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Ideas around T2I2V models - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       理解当下最流行的多模态模型（e.g., 生成text2image, text2video，理解image2text，video2text） 排行榜: Vbench  当前主流的多模态生成模型（如图像生成和视频生成）主要采用Latent Stable Diffusion的方案框架。为了减少计算量，图像&amp;#x2F;视频等模态的数据（噪"><meta property="og:type" content="blog"><meta property="og:title" content="Ideas around T2I2V models"><meta property="og:url" content="http://icarus.shaojiemike.top/2023/12/20/Work/Artificial%20Intelligence/Model/T2I2V/Idea2StableDiffusion/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       理解当下最流行的多模态模型（e.g., 生成text2image, text2video，理解image2text，video2text） 排行榜: Vbench  当前主流的多模态生成模型（如图像生成和视频生成）主要采用Latent Stable Diffusion的方案框架。为了减少计算量，图像&amp;#x2F;视频等模态的数据（噪"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/ef23528b9e307e6b927ae803bc899b7c.png"><meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/VAE_Basic.png/425px-VAE_Basic.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/12/17ae81145a7fd076470b75d41085d5e4.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/12/77891c601b7001d13fa4f1bb2f33d28a.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/12/1e2ef8ec6f2134e906f971a399ec1cab.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/12/30c946b03eca9b131c9d4800d7a41e54.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/12/c12f4b6cedcbd1d9b5d8e8cd373b90ce.png"><meta property="og:image" content="https://jalammar.github.io/images/stable-diffusion/clip-training-step-3.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/12/97fb50b3464f58c01efb9a8b2ed6db5e.png"><meta property="og:image" content="https://jalammar.github.io/images/stable-diffusion/stable-diffusion-diffusion-process.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2023/12/f2ba9f470aa652029992bc7fa23a2d23.png"><meta property="og:image" content="https://pic4.zhimg.com/v2-15ce8a69ddaffe5268b86b371ba30bf7_1440w.jpg"><meta property="og:image" content="https://pic4.zhimg.com/80/v2-932c615ba5e1dd0b2be26d40def36c6f_1440w.webp"><meta property="og:image" content="https://img.36krcdn.com/hsossms/20240305/v2_8a6a5d295959467a9269ecd122f0a5ed@000000_oswg225567oswg1080oswg768_img_000?x-oss-process=image/format,jpg/interlace,1/format,jpg/interlace,1"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/bb28366578fd74c8ba2b3b54f45fddd7.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/737e54265541ccedf311e0612bf42344.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/66f20b6a8c90016d2556b743e6ed0913.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/cc8af8acbf98f9fe3e1afe49f2eed734.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/dc7a995dc71cd560fb69a1747343772e.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/9ffbb49a3059f087f5ba58900d06fa64.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/a7d9750586608a333f1ff6a079ad7a5c.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/dde04790b4dce6ba65b63ce870cf2c51.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/f86edd9068e43362a2888283b82ffed3.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/166f05e26a5344457bcf63315c1b5218.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/f6aba98e05b3fa50ee4582b1405a05c9.png"><meta property="og:image" content="https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/overall.png"><meta property="og:image" content="https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/backbone.png"><meta property="og:image" content="https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/text_encoder.png"><meta property="og:image" content="https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/3dvae.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/0890b57fca72bb71c7eedf694ba07386.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/59f24f27d47b3161e0e8259f101f5703.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/c9ce2b524b96795582d61192ba342f7b.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/02/0fe524777f55feeed80591dc6f0ecf4b.png"><meta property="article:published_time" content="2023-12-20T02:19:24.000Z"><meta property="article:modified_time" content="2025-11-19T08:15:51.581Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="t2v"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2025/02/ef23528b9e307e6b927ae803bc899b7c.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2023/12/20/Work/Artificial%20Intelligence/Model/T2I2V/Idea2StableDiffusion/"},"headline":"Ideas around T2I2V models","image":["https://pic.shaojiemike.top/shaojiemike/2025/02/ef23528b9e307e6b927ae803bc899b7c.png","https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/VAE_Basic.png/425px-VAE_Basic.png","https://pic.shaojiemike.top/shaojiemike/2023/12/17ae81145a7fd076470b75d41085d5e4.png","https://pic.shaojiemike.top/shaojiemike/2023/12/77891c601b7001d13fa4f1bb2f33d28a.png","https://pic.shaojiemike.top/shaojiemike/2023/12/1e2ef8ec6f2134e906f971a399ec1cab.png","https://pic.shaojiemike.top/shaojiemike/2023/12/30c946b03eca9b131c9d4800d7a41e54.png","https://pic.shaojiemike.top/shaojiemike/2023/12/c12f4b6cedcbd1d9b5d8e8cd373b90ce.png","https://jalammar.github.io/images/stable-diffusion/clip-training-step-3.png","https://pic.shaojiemike.top/shaojiemike/2023/12/97fb50b3464f58c01efb9a8b2ed6db5e.png","https://jalammar.github.io/images/stable-diffusion/stable-diffusion-diffusion-process.png","https://pic.shaojiemike.top/shaojiemike/2023/12/f2ba9f470aa652029992bc7fa23a2d23.png","https://pic4.zhimg.com/v2-15ce8a69ddaffe5268b86b371ba30bf7_1440w.jpg","https://pic4.zhimg.com/80/v2-932c615ba5e1dd0b2be26d40def36c6f_1440w.webp","https://pic.shaojiemike.top/shaojiemike/2025/02/bb28366578fd74c8ba2b3b54f45fddd7.png","https://pic.shaojiemike.top/shaojiemike/2025/02/737e54265541ccedf311e0612bf42344.png","https://pic.shaojiemike.top/shaojiemike/2025/02/66f20b6a8c90016d2556b743e6ed0913.png","https://pic.shaojiemike.top/shaojiemike/2025/02/cc8af8acbf98f9fe3e1afe49f2eed734.png","https://pic.shaojiemike.top/shaojiemike/2025/02/dc7a995dc71cd560fb69a1747343772e.png","https://pic.shaojiemike.top/shaojiemike/2025/02/9ffbb49a3059f087f5ba58900d06fa64.png","https://pic.shaojiemike.top/shaojiemike/2025/02/a7d9750586608a333f1ff6a079ad7a5c.png","https://pic.shaojiemike.top/shaojiemike/2025/02/dde04790b4dce6ba65b63ce870cf2c51.png","https://pic.shaojiemike.top/shaojiemike/2025/02/f86edd9068e43362a2888283b82ffed3.png","https://pic.shaojiemike.top/shaojiemike/2025/02/166f05e26a5344457bcf63315c1b5218.png","https://pic.shaojiemike.top/shaojiemike/2025/02/f6aba98e05b3fa50ee4582b1405a05c9.png","https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/overall.png","https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/backbone.png","https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/text_encoder.png","https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/3dvae.png","https://pic.shaojiemike.top/shaojiemike/2025/02/0890b57fca72bb71c7eedf694ba07386.png","https://pic.shaojiemike.top/shaojiemike/2025/02/59f24f27d47b3161e0e8259f101f5703.png","https://pic.shaojiemike.top/shaojiemike/2025/02/c9ce2b524b96795582d61192ba342f7b.png","https://pic.shaojiemike.top/shaojiemike/2025/02/0fe524777f55feeed80591dc6f0ecf4b.png"],"datePublished":"2023-12-20T02:19:24.000Z","dateModified":"2025-11-19T08:15:51.581Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       理解当下最流行的多模态模型（e.g., 生成text2image, text2video，理解image2text，video2text） 排行榜: Vbench  当前主流的多模态生成模型（如图像生成和视频生成）主要采用Latent Stable Diffusion的方案框架。为了减少计算量，图像&#x2F;视频等模态的数据（噪"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2023/12/20/Work/Artificial%20Intelligence/Model/T2I2V/Idea2StableDiffusion/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-12-20T02:19:24.000Z" title="12/20/2023, 2:19:24 AM">2023-12-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2025-11-19T08:15:51.581Z" title="11/19/2025, 8:15:51 AM">2025-11-19</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">an hour read (About 10265 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Ideas around T2I2V models</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>理解当下最流行的多模态模型（e.g., 生成text2image, text2video，理解image2text，video2text）</p>
+<p>排行榜: <a target="_blank" rel="noopener" href="https://huggingface.co/spaces/Vchitect/VBench_Leaderboard">Vbench</a></p>
+<ul>
+<li>当前主流的多模态<strong>生成</strong>模型（如图像生成和视频生成）主要采用Latent Stable Diffusion的方案框架。为了减少计算量，图像&#x2F;视频等模态的数据（噪声）先经过VAE压缩得到Latent Vector，然后在文本信息的指导下进行去噪，最后生成符合预期的图像或视频。</li>
+<li>当前主流的多模态<strong>理解</strong>模型一般采用视觉编码器 + 模态对齐 + LLM的算法流程，充分复用已有视觉编码器的理解能力和LLM的基础能力。训练过程一般分为多个阶段，如先进行模态对齐的一阶段预训练，然后进行二阶段的参数微调。</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/ef23528b9e307e6b927ae803bc899b7c.png"></p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="2013-VAE"><a href="#2013-VAE" class="headerlink" title="2013 VAE"></a>2013 VAE</h2><ul>
+<li>VAE（Variational Autoencoder，变分自编码器）是一种生成模型，结合了概率图模型和深度学习，主要用于学习数据的潜在表示并生成新数据。</li>
+<li>VAE属于概率生成模型（Probabilistic Generative Model），神经网络仅是其中的一个组件，依照功能的不同又可分为编码器和解码器。<ul>
+<li>编码器可将输入变量映射到与变分分布的参数相对应的潜空间（Latent Space），这样便可以产生多个遵循同一分布的不同样本。</li>
+<li>解码器的功能基本相反，是从潜空间映射回输入空间，以生成数据点。</li>
+</ul>
+</li>
+<li>影响：变分自编码器（VAE）是一类常见的生成模型。纯VAE的生成效果不见得是最好的，但VAE还是经常会被用作大模型的子模块。</li>
+</ul>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/VAE_Basic.png/425px-VAE_Basic.png" alt="VAE"></p>
+<h2 id="2014-对抗网络-GAN"><a href="#2014-对抗网络-GAN" class="headerlink" title="2014 对抗网络 GAN"></a>2014 对抗网络 GAN</h2><ul>
+<li>generative adversarial network (GAN)是2014年提出的无监督训练方法[^1]</li>
+<li><strong>目的</strong>：给定一个训练集，学习生成与训练集具有相同统计数据的新数据。例如，在照片上训练的GAN可以生成新的照片，这些照片至少在人类观察者看来是真实的，具有许多真实的特征。</li>
+<li><strong>网络结构</strong>：有两个网络，G（Generator）和D（Discriminator）功能分别是：<a href="%5BGAN%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%85%A5%E9%97%A8%E5%88%B0%E5%88%B6%E4%BD%9C%E7%94%9F%E6%88%90Demo%5D(https://zhuanlan.zhihu.com/p/24767059)">^3</a><ul>
+<li>G是一个生成图片的网络，它接收一个随机的噪声z，通过这个噪声生成图片，记做G(z)。</li>
+<li>D是一个判别网络，判别一张图片是不是“真实的”。它的输入参数是x，x代表一张图片，输出D（x）代表x为真实图片的概率，如果为1，就代表100%是真实的图片，而输出为0，就代表不可能是真实的图片。</li>
+</ul>
+</li>
+<li><strong>核心思想</strong>：生成网络G的目标就是尽量生成真实的图片去欺骗判别网络D。而D的目标就是尽量把G生成的图片和真实的图片分别开来。这样，G和D构成了一个动态的“博弈过程”。 这意味着generator 没有被训练来最小化到特定图像的距离，而是欺骗了机器人。最理想的状态下，G可以生成足以“以假乱真”的图片G(z)。对于D来说，它难以判定G生成的图片究竟是不是真实的，因此<code>D(G(z)) = 0.5</code>。<ul>
+<li>换句话来说discriminator保存了generator网络训练出来的复杂loss函数<a href="%5B%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0%E5%BC%84%E6%87%82GAN%E7%BD%91%E7%BB%9C%5D(https://zhuanlan.zhihu.com/p/110707801)">^2</a></li>
+</ul>
+</li>
+<li><strong>数学推导</strong>：基于概率论的两个网络的零和博弈（TODO）</li>
+<li><strong>训练过程</strong>：<ul>
+<li>第一步训练D，D是希望V(G, D)越大越好，所以是加上梯度(ascending)。</li>
+<li>第二步训练G时，V(G, D)越小越好，所以是减去梯度(descending)。</li>
+<li>整个训练过程交替进行。</li>
+</ul>
+</li>
+<li><strong>推理过程</strong>：(猜测的)输入随机噪声，产生图片。</li>
+<li><strong>拓展</strong>：DCGAN将CNN与GAN结合，把上述的G和D换成了两个卷积神经网络（CNN）</li>
+<li><strong>缺点与局限性</strong>：Mode collapse（模式坍塌）：generator 生成的图像都特别像。和训练的数据集太像了，导致几乎没有新亮点。</li>
+<li><strong>原理图例</strong>： <img src="https://pic.shaojiemike.top/shaojiemike/2023/12/17ae81145a7fd076470b75d41085d5e4.png"></li>
+</ul>
+<h2 id="2015-简单图像分割-UNet"><a href="#2015-简单图像分割-UNet" class="headerlink" title="2015 简单图像分割 UNet"></a>2015 简单图像分割 UNet</h2><ul>
+<li>U-Net: Convolutional Networks for Biomedical Image Segmentation是最常用、最简单的一种分割模型了，它简单、高效、易懂、容易构建、可以从小数据集中训练。[^5]</li>
+<li><strong>目的</strong>：医疗影像语义分割任务</li>
+<li><strong>网络结构</strong>：Unet网络非常的简单，前半部分就是特征提取，后半部分是上采样。在一些文献中把这种结构叫做编码器-解码器结构，由于网络的整体结构是一个大些的英文字母U，所以叫做U-net<ul>
+<li>Encoder：左半部分，由两个3x3的卷积层（RELU）再加上一个2x2的maxpooling层组成一个下采样的模块（后面代码可以看出）；</li>
+<li>Decoder：有半部分，由一个上采样的卷积层（去卷积层）+特征拼接concat+两个3x3的卷积层（ReLU）反复构成（代码中可以看出来）；</li>
+</ul>
+</li>
+<li><strong>特点</strong>：对于图像语义较为简单、结构固定，并且数据量小的医疗图像，效果好</li>
+<li><strong>原理图例</strong>：<img src="https://pic.shaojiemike.top/shaojiemike/2023/12/77891c601b7001d13fa4f1bb2f33d28a.png"></li>
+</ul>
+<h2 id="2020-扩散基础-DDPM"><a href="#2020-扩散基础-DDPM" class="headerlink" title="2020 扩散基础 DDPM"></a>2020 扩散基础 DDPM</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2006.11239.pdf">DDPM: Denoising Diffusion Probabilistic Models</a> 提出了扩散模型</li>
+<li><strong>核心思想</strong>：<ul>
+<li>GAN也是生成图，但是两者原理完全不同；</li>
+<li>GAN模型通过使得生成器拟合真实图片；</li>
+<li>DDPM是拟合整个从真实图片到随机高斯噪声的过程，再通过反向过程生成新的图片。<a href="%5BAIGC%E7%88%86%E7%81%AB%E7%9A%84%E8%83%8C%E5%90%8E%E2%80%94%E2%80%94%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8BDDPM%E6%B5%85%E6%9E%90%5D(https://zhuanlan.zhihu.com/p/590840909)">^4</a></li>
+</ul>
+</li>
+<li><strong>特点</strong>：由于是一步步扩散出来的，可以看到演变的中间图过程。</li>
+<li>训练过程：<img src="https://pic.shaojiemike.top/shaojiemike/2023/12/1e2ef8ec6f2134e906f971a399ec1cab.png"></li>
+<li>原理图例：<img src="https://pic.shaojiemike.top/shaojiemike/2023/12/30c946b03eca9b131c9d4800d7a41e54.png"></li>
+<li>拓展：使用ResNet效果差，一般换成U-Net <img src="https://pic.shaojiemike.top/shaojiemike/2023/12/c12f4b6cedcbd1d9b5d8e8cd373b90ce.png"></li>
+</ul>
+<h2 id="2021-CLIP"><a href="#2021-CLIP" class="headerlink" title="2021 CLIP"></a>2021 CLIP</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2103.00020.pdf">Learning Transferable Visual Models From Natural Language Supervision</a> 是OpenAI提出的用于生成文字embedding的方法</li>
+<li>目的：借助带文字标签的图片数据集，来学习文字图片间的联系</li>
+<li>原理图例：<img src="https://jalammar.github.io/images/stable-diffusion/clip-training-step-3.png">[^6]</li>
+</ul>
+<h2 id="2022-Stable-Diffusion"><a href="#2022-Stable-Diffusion" class="headerlink" title="2022 Stable Diffusion"></a>2022 Stable Diffusion</h2><article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>理解原理</p>
+</div>
+        <div class="message-body">
+            <p><a target="_blank" rel="noopener" href="https://github.com/poloclub/diffusion-explainer">diffusion-explainer</a></p>
+
+        </div>
+    </article>
+
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2112.10752.pdf">High-Resolution Image Synthesis with Latent Diffusion Models</a> 是Stable Diffusion开源出来的方法。</li>
+<li>目的：在Diffusion模型的基础上，使用类似CLIP的text encoder来实现 text to image</li>
+<li>改进点：<ul>
+<li>如何引入多头Attention，来使得U-Net中文本与图像结合？</li>
+<li>Diffusion的过程移动到被压缩后的图片上(latent space), 使得速度加快很多<img src="https://pic.shaojiemike.top/shaojiemike/2023/12/97fb50b3464f58c01efb9a8b2ed6db5e.png"></li>
+</ul>
+</li>
+<li>原理图例：<img src="https://jalammar.github.io/images/stable-diffusion/stable-diffusion-diffusion-process.png">[^6]</li>
+<li>详细：<img src="https://pic.shaojiemike.top/shaojiemike/2023/12/f2ba9f470aa652029992bc7fa23a2d23.png"></li>
+</ul>
+<h2 id="2023-DiTs"><a href="#2023-DiTs" class="headerlink" title="2023 DiTs"></a>2023 DiTs</h2><ul>
+<li>使用Transformers替换扩散模型中U-Net主干网络，发现不仅速度更快，在许多任务上效果也更好。</li>
+<li><strong>影响</strong>：扩散模型架构中U-Net并非不可替代，并且很容易使用诸如Transformers的结构替代U-Net</li>
+</ul>
+<p><img src="https://pic4.zhimg.com/v2-15ce8a69ddaffe5268b86b371ba30bf7_1440w.jpg" alt="DiTs"></p>
+<h2 id="2023-SDXL"><a href="#2023-SDXL" class="headerlink" title="2023 SDXL"></a>2023 SDXL</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2307.01952.pdf">SDXL: Improving Latent Diffusion Models for High-Resolution Image Synthesis</a> , 人如其名是SD的改进版</li>
+<li>内容：<ul>
+<li>在原本的扩散模型后加Refiner模型(也是扩散模型)， 参数量达到2.6B(10GB左右) <img src="https://pic4.zhimg.com/80/v2-932c615ba5e1dd0b2be26d40def36c6f_1440w.webp"> 在Latent特征进行小噪声去除和细节质量提升。[^7]</li>
+</ul>
+</li>
+<li><code>SDXL</code> Stable Diffusion XL是Stable Diffusion的最新优化版本, 如果Stable Diffusion是图像生成领域的“YOLO”，那Stable Diffusion XL就是“YOLOv3”。<ul>
+<li>You Only Look Once (YOLO) 最流行的目标检测算法。</li>
+</ul>
+</li>
+<li>Huggingface： <a target="_blank" rel="noopener" href="https://huggingface.co/docs/diffusers/using-diffusers/sdxl">SDXL</a> and <a target="_blank" rel="noopener" href="https://huggingface.co/docs/diffusers/using-diffusers/sdxl_turbo">SD Turbo</a></li>
+</ul>
+<h2 id="2402-SD3"><a href="#2402-SD3" class="headerlink" title="2402 SD3"></a>2402 SD3</h2><ul>
+<li>2024年2月发布了 Stable Diffusion 3，</li>
+</ul>
+<p>技术要点：</p>
+<ol>
+<li>Self-Attention：文本信息注入的方式，DiT模型在最初引入文本时，通常使用Cross Attention的方法结合文本信息，如Pixart-α、hunyuan DiT等。Stable Diffusion 3通过Self-Attention引入文本信息。相比于Cross Attention，使用Self-Attention引入文本信息不仅节省了Cross Attention的参数量，还节省了Cross Attention的计算量。<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44791964/article/details/145310822">^9</a></li>
+<li>引入了RMS-Norm，在每一个attention运算之前，对Q和K进行了RMS-Norm归一化，用于增强模型训练的稳定性。</li>
+<li>同时使用了更大的VQGAN，VQGAN压缩得到的特征维度从原来的4维提升到16维等。</li>
+</ol>
+<h3 id="MMDiT"><a href="#MMDiT" class="headerlink" title="MMDiT"></a>MMDiT</h3><p>关键核心是新的多模态扩散 Transformer（Multimodal Diffusion Transformer，MMDiT）架构。</p>
+<ul>
+<li>MMDiT 架构结合了 DiT 和矩形流（RF）形式。它使用两个独立的变换器来处理文本和图像嵌入，并在注意力操作中结合两种模态的序列。这意味着对于文本和图像两种不同的输入模态，MMDiT 分别使用不同的权重参数来进行编码和处理，以此能够更好地捕捉每种模态的特征和信息。</li>
+</ul>
+<p><img src="https://img.36krcdn.com/hsossms/20240305/v2_8a6a5d295959467a9269ecd122f0a5ed@000000_oswg225567oswg1080oswg768_img_000?x-oss-process=image/format,jpg/interlace,1/format,jpg/interlace,1" alt="MM-DiT"></p>
+<h2 id="2404-EasyAnimate-12B"><a href="#2404-EasyAnimate-12B" class="headerlink" title="2404 EasyAnimate 12B"></a>2404 EasyAnimate 12B</h2><p>EasyAnimate是阿里云人工智能平台PAI自主研发的DiT-based视频生成框架。<a target="_blank" rel="noopener" href="https://www.51cto.com/aigc/1015.html">^13</a></p>
+<ol>
+<li>更新到v5.1版本，应用Qwen2 VL作为文本编码器，支持多语言预测，使用Flow作为采样方式，除去常见控制如Canny、Pose外，还支持轨迹控制，相机控制等。[ 2025.01.21 ]</li>
+<li>使用奖励反向传播来训练Lora并优化视频，使其更好地符合人类偏好，详细信息请参见此处。EasyAnimateV5-7b现已发布。[ 2024.11.27 ]</li>
+<li>更新到v5版本，最大支持1024x1024，49帧, 6s, 8fps视频生成，<strong>拓展模型规模到12B，应用MMDIT结构</strong>，支持不同输入的控制模型，支持中文与英文双语预测。[ 2024.11.08 ]</li>
+<li>更新到v4版本，最大支持1024x1024，144帧, 6s, 24fps视频生成，支持文、图、视频生视频，单个模型可支持512到1280任意分辨率，支持中文与英文双语预测。[ 2024.08.15 ]</li>
+<li>更新到v3版本，最大支持960x960，144帧，6s, 24fps视频生成，支持文与图生视频模型。[ 2024.07.01 ]</li>
+<li>更新到v2版本，最大支持768x768，144帧，6s, 24fps视频生成。[ 2024.05.26 ]</li>
+</ol>
+<p>以下是EasyAnimate各版本更新的Markdown表格整理，综合公开资料与官方技术报告：</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>发布时间</th>
+<th>核心功能升级</th>
+<th>技术特性</th>
+<th>分辨率与帧率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>v2</strong></td>
+<td>2024.05.26</td>
+<td>文生视频</td>
+<td>- 采用DiT基础架构<br>- 初步实现文本到视频生成</td>
+<td>最大768×768@24fps (144帧&#x2F;6秒)</td>
+</tr>
+<tr>
+<td><strong>v3</strong></td>
+<td>2024.07.01</td>
+<td>新增图生视频功能<br>支持双图起止画面控制</td>
+<td>- 引入Hybrid Motion Module<br>- 集成Slice VAE时间轴压缩技术<br>- 支持CLIP图像编码器</td>
+<td>最大960×960@24fps (144帧&#x2F;6秒)</td>
+</tr>
+<tr>
+<td><strong>v4</strong></td>
+<td>2024.08.15</td>
+<td>支持视频生视频<br>动态分辨率适配</td>
+<td>- 跨模态特征融合优化</td>
+<td>最大1024×1024@24fps (144帧&#x2F;6秒)</td>
+</tr>
+<tr>
+<td><strong>v5</strong></td>
+<td>2024.11.08</td>
+<td>中英双语支持<br>多模态控制模型</td>
+<td>- 采用MMDIT架构<br>- 模型参数扩展至12B<br>- 集成7种控制信号(OpenPose&#x2F;Canny等)</td>
+<td>1024×1024@8fps (49帧&#x2F;6秒)</td>
+</tr>
+<tr>
+<td><strong>v5.1</strong></td>
+<td>2025.01.21</td>
+<td>轨迹与相机控制<br>多语言预测优化</td>
+<td>- Qwen2-VL作为文本编码器<br>- Flow采样方式改进<br>- 奖励反向传播训练机制</td>
+<td>动态分辨率支持</td>
+</tr>
+</tbody></table>
+<h3 id="关键技术演进路径"><a href="#关键技术演进路径" class="headerlink" title="关键技术演进路径"></a>关键技术演进路径</h3><ol>
+<li><p><strong>架构升级</strong><br>v2-v3实现从基础DiT到<strong>时空混合运动模块</strong>的跨越，通过奇数层全局注意力与偶数层时序注意力的交替堆叠，解决视频连贯性问题；v5引入MMDIT架构，为不同模态设计独立映射网络，实现多模态特征高效对齐。</p>
+</li>
+<li><p><strong>生成能力突破</strong><br>通过Slice VAE技术实现<strong>时序压缩率1&#x2F;4</strong>，使v4支持动态分辨率；v5的12B参数模型结合7种控制信号，可生成带精确构图引导的工业级视频。</p>
+</li>
+<li><p><strong>交互方式创新</strong><br>v3首创双图起止画面控制，v5.1新增轨迹&#x2F;相机控制，支持通过运动路径曲线和镜头参数调整视频运镜效果[用户提供信息]。</p>
+</li>
+</ol>
+<p>该框架现已在PAI平台实现一键式训练部署，最新版支持通过LoRA微调实现风格迁移。具体技术细节可参考<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2405.18991">官方技术报告</a>与<a target="_blank" rel="noopener" href="https://github.com/aigc-apps/EasyAnimate">GitHub仓库</a>。</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/bb28366578fd74c8ba2b3b54f45fddd7.png"></p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>通过图像引导视频生成的例子，来介绍Text Encoder作用的CrossAttention</p>
+</div>
+        <div class="message-body">
+            <p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/737e54265541ccedf311e0612bf42344.png"></p>
+
+        </div>
+    </article>
+
+<h3 id="V2-V3"><a href="#V2-V3" class="headerlink" title="V2 V3"></a>V2 V3</h3><article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>基于MagViT的Slice VAE</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>已有工作：<ol>
+<li>在Stable Dif fusion使用VAE实现将<strong>每个视频帧</strong>编码为单独的潜在特征，从而将帧的空间维度显著缩小到宽度和高度的八分之一。但这种编码技术忽略了时间信息，将视频降级为静态图像表示。</li>
+<li>MagViT在时间轴上引入了一种前置时间填充方式，从而确保帧利用先前信息增强时间因果关系，同时不受后续帧的影响。但在极长视频序列的训练中面临挑战，</li>
+<li>先前的研究（Blattmann）表明，将图像整合到视频训练流程中可以更有效地优化模型架构，从而改进其文本对齐并提高输出质量。</li>
+</ol>
+</li>
+<li>挑战：<ol>
+<li>基于图像的VAE无法在时间维度上进行压缩；</li>
+<li>传统的视频 VAE（Variational Autoencoder）在将视频帧编码为潜变特征时，需要大量的计算资源，尤其是当视频的时间长度增加时，GPU 内存的需求会迅速增加。这限制了模型处理长视频的能力，因为在有限的内存中无法同时加载和处理所有帧。</li>
+</ol>
+</li>
+<li>改进思路：<ol>
+<li>Slice VAE 采用了一种分批处理的方法，即在时间轴上对视频进行切片（slice）。通过这种方式，长视频被分割成多个较短的段落，每个段落可以独立编码和解码，从而显著减少了单次处理所需的内存。这使得模型能够在有限的内存资源下处理更长时间的视频。</li>
+<li>切片策略不仅减少了内存使用，还允许在解码过程中跨批次共享特征，这有助于保持视频帧之间的一致性，并提高了解码后视频的质量。</li>
+<li>此外，Slice VAE 能够适应不同的帧计数和分辨率，使得模型更加灵活，能够适应各种视频生成需求。</li>
+</ol>
+</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/66f20b6a8c90016d2556b743e6ed0913.png"></p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>DiT</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>Motion Module运动模块：运动模块专门设计用于嵌入时间信息。通过在时间维度上集成注意力机制，该模型获得了时间轴上的先验知识，这对生成视频运动至关重要。</li>
+<li>U-VIT：在 DiT 的训练过程中使用长跳跃连接（long-skip connections）旨在提高模型训练的稳定性。</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/cc8af8acbf98f9fe3e1afe49f2eed734.png"></p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>多阶段训练</p>
+</div>
+        <div class="message-body">
+            <p>首先<strong>训练视频VAE</strong>，然后使用<strong>三阶段粗到细训练策略</strong>将DiT模型适应于新的VAE。(使用大约1200万个图像和视频数据来训练视频VAE模型和DiT模型)</p>
+<ul>
+<li>VAE<ul>
+<li>根据MagViT策略训练出初始权重，然后分两个阶段训练切片VAE：</li>
+<li>首先，我们在200k步内使用Adam优化器，β&#x3D;(0.5，0.9)，批量大小&#x3D;96，学习率为1e-4训练整个VAE。</li>
+<li>接下来，参考Stable Diffusion的程序，在100k步的第二阶段训练解码器，以更好地提高解码视频的保真度。</li>
+</ul>
+</li>
+<li>DiT训练思路：从较低分辨率到较高分辨率逐步训练的。<ul>
+<li>最初，在引入新的视频VAE时，我们开始将DiT参数与该VAE对齐，此时仅使用图像数据。</li>
+<li>随后，我们使用大规模视频数据集和图像数据来预训练运动模块（Motion Module），从而引入DiT的视频生成能力。在此处，我们引入了数据集分桶策略用于以不同的视频分辨率进行训练。</li>
+<li>最后，我们使用高质量的视频数据来完善整个DiT模型，以增强其生成性能。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/dc7a995dc71cd560fb69a1747343772e.png"></p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/9ffbb49a3059f087f5ba58900d06fa64.png"></p>
+
+        </div>
+    </article>
+
+<h3 id="V5"><a href="#V5" class="headerlink" title="V5"></a>V5</h3><p>数据规模：在大约10m SAM图片数据+26m 图片视频混合的预训练数据上进行了从0开始训练。<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44791964/article/details/143660061">^11</a></p>
+<p>对比EasyAnimateV4，EasyAnimateV5还突出了以下特点：</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>应用MMDIT，拓展模型规模到12B</p>
+</div>
+        <div class="message-body">
+            <p>参考Stable Diffusion 3和CogVideoX，在我们的模型中，我们将文本和视频嵌入连接起来以实现Self-Attention，从而更好地对齐视觉和语义信息。然而，这两种模态的特征空间之间存在显著差异，这可能导致它们的数值存在较大差异，这并不利于二者进行对齐。</p>
+<p>为了解决这个问题，还是参考Stable Diffusion 3，我们采用MMDiT架构作为我们的基础模型，我们为每种模态实现了不同的to_k、to_q、to_v和前馈网络（FFN），并在一个Self-Attention中实现信息交互，以增强它们的对齐。</p>
+<p>另外，为了提高模型的理解能力，我们将模型进行了放大，参考Flux，我们模型的总参数量扩展到了12B。</p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>添加控制信号</p>
+</div>
+        <div class="message-body">
+            <p>使用控制信号替代了原本的mask信号，将控制信号使用VAE编码后作为Guidance与latent一起进入patch流程。该方案已经在CogVideoX-FUN的实践中证实有效。</p>
+<p>我们在26m的预训练数据中进行了筛选，选择出大约443k高质量视频，同时使用不同的处理方式包含OpenPose、Scribble、Canny、Anime、MLSD、Hed和Depth进行控制条件的提取，作为condition控制信号进行训练。</p>
+<p>工作原理图如下：</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/a7d9750586608a333f1ff6a079ad7a5c.png"></p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>参考图添加Noise</p>
+</div>
+        <div class="message-body">
+            <p>在CogVideoX-FUN的实践中我们已经发现，在视频生成中，在视频中添加噪声对视频的生成结果有非常大的影响。参考CogVideoX和SVD，在非0的参考图向上添加Noise以破环原图，追求更大的运动幅度。</p>
+<p>Pipeline结构如下：</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/dde04790b4dce6ba65b63ce870cf2c51.png"></p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>提示词</p>
+</div>
+        <div class="message-body">
+            <p>另外，提示词对生成结果影响较大，请尽量描写动作以增加动态性。如果不知道怎么写正向提示词，可以使用smooth motion or in the wind来增加动态性。并且尽量避免在负向提示词中出现motion等表示动态的词汇。</p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>基于Token长度的训练</p>
+</div>
+        <div class="message-body">
+            <p>EasyAnimateV5的训练分为多个阶段，除了图片Adapt VAE的阶段外，其它阶段均为视频训练，分别对应了不同的Token长度。</p>
+<ol>
+<li><p>图片VAE的对齐: 我们使用了10M的SAM进行模型从0开始的文本图片对齐的训练，总共训练约120K步。在训练完成后，模型已经有能力根据提示词去生成对应的图片，并且图片中的目标基本符合提示词描述。</p>
+</li>
+<li><p>视频训练:</p>
+</li>
+</ol>
+<p>视频训练则根据不同Token长度，对视频进行缩放后进行训练。</p>
+<p>视频训练分为多个阶段，每个阶段的Token长度分别是3328（对应256x256x49的视频），13312（对应512x512x49的视频），53248（对应1024x1024x49的视频）。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>Token长度</th>
+<th>对应视频分辨率</th>
+<th>数据量</th>
+<th>用途</th>
+<th>Batch size</th>
+<th>训练步数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3328</td>
+<td>3328</td>
+<td>256x256x49</td>
+<td>26.6M</td>
+<td>文生视频</td>
+<td>1536</td>
+<td>66.5k</td>
+</tr>
+<tr>
+<td>13312</td>
+<td>13312</td>
+<td>512x512x49</td>
+<td>17.9M</td>
+<td>文生视频</td>
+<td>768</td>
+<td>30k</td>
+</tr>
+<tr>
+<td>13312</td>
+<td>13312</td>
+<td>512x512x49</td>
+<td>0.5M</td>
+<td>图生视频</td>
+<td>384</td>
+<td>5k</td>
+</tr>
+<tr>
+<td>53248</td>
+<td>53248</td>
+<td>1024x1024x49</td>
+<td>0.5M</td>
+<td>图生视频</td>
+<td>196</td>
+<td>5k</td>
+</tr>
+</tbody></table>
+<p>不同阶段通过合并训练目标和数据质量实现分辨率升级：</p>
+<ol>
+<li>3328阶段：全量数据基础训练</li>
+<li>13312阶段：高质量数据精调 + 图文对齐训练</li>
+<li>53248阶段：最高质量数据超分训练</li>
+</ol>
+<p>训练时我们采用高低分辨率结合训练，因此模型支持从512到1280任意分辨率的视频生成。</p>
+
+        </div>
+    </article>
+
+<h3 id="V5-1"><a href="#V5-1" class="headerlink" title="V5.1"></a>V5.1</h3><p>对比EasyAnimateV5，EasyAnimateV5.1主要突出了以下特点：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44791964/article/details/145310822">^10</a></p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>应用Qwen2 VL的文本编码器，支持多语言预测；</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<p>在MMDiT结构的基础上，将EasyAnimateV5的双text encoders替换成alibaba近期发布的Qwen2 VL；相比于CLIP与T5这样的传统编码模型，使用LLM作为Text Encoder慢慢在生成领域里流行起来，比如最近大火的HunyuanVideo模型。</p>
+<p>尽管LLM的主力工作是生成，但对文本的编码与理解能力依然优秀，Qwen2 VL是多模态LLM中性能的佼佼者，对语义理解更加精准。而相比于Qwen2本身，Qwen2 VL由于和图像做过对齐，对图像内容的理解更为精确。</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/f86edd9068e43362a2888283b82ffed3.png"></p>
+<p>通过取出Qwen2 VL hidden_states的倒数第二个特征输入到MMDiT中，与视频Embedding一起做Self-Attention。在做Self-Attention前，由于大语言模型深层特征值一般较大（可以达到几万），为其做了一个RMSNorm进行数值的矫正再进行全链接，这样有利于网络的收敛。</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>奖励算法最终优化性能</p>
+</div>
+        <div class="message-body">
+            <p>请看RHLF一文</p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>使用Flow-matching作为采样方式；</p>
+</div>
+        <div class="message-body">
+            <p>除了上述的架构变化之外，EasyAnimateV5.1还应用Flow-matching的方案来训练模型。在这种方法中，前向噪声过程被定义为在直线上连接数据和噪声分布的整流。Flow-matching采样过程更简单，在减少采样步骤数时表现良好。</p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>其他</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>支持轨迹控制，相机控制等新控制方式；[^10]</li>
+<li>使用更多数据训练。</li>
+</ol>
+
+        </div>
+    </article>
+
+<h2 id="2408-CogVideoX-5B"><a href="#2408-CogVideoX-5B" class="headerlink" title="2408 CogVideoX 5B"></a>2408 CogVideoX 5B</h2><p>2024年8月，智谱开源视频生成模型CogVideoX，先是2B模型，而后是5B模型，近期还开源了V1.5的模型:</p>
+<p>技术特点：</p>
+<ol>
+<li>自主研发了一套高效的三维变分自编码器结构（3D VAE）。降低了视频扩散生成模型的训练成本和难度。结合 3D RoPE 位置编码模块，该技术提升了在时间维度上对帧间关系的捕捉能力，从而建立了视频中的长期依赖关系。</li>
+<li>拓展视频模型规模到5B，提升了模型的理解能力，使得模型能够处理超长且复杂的 prompt 指令。</li>
+<li>模型与Stable Diffusion 3一致，将文本、时间、空间融合在一起，通过 Full Attention 机制优化模态间的交互效果。</li>
+</ol>
+<!-- ![](https://i-blog.csdnimg.cn/direct/acf0711e5f3b4eeebe4540494950433d.png#pic_center) -->
+
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/166f05e26a5344457bcf63315c1b5218.png"></p>
+<h3 id="多阶段训练"><a href="#多阶段训练" class="headerlink" title="多阶段训练"></a>多阶段训练</h3><ul>
+<li>低分辨率到高分辨率训练</li>
+<li>高质量数据微调</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/f6aba98e05b3fa50ee4582b1405a05c9.png"></p>
+<h2 id="2412-HunyuanVideo-13B"><a href="#2412-HunyuanVideo-13B" class="headerlink" title="2412 HunyuanVideo 13B"></a>2412 HunyuanVideo 13B</h2><p>HunyuanVideo 是一个隐空间模型，训练时它采用了 3D VAE 压缩时间维度和空间维度的特征。文本提示通过一个大语言模型编码后作为条件输入模型，引导模型通过对高斯噪声的多步去噪，输出一个视频的隐空间表示。最后，推理时通过 3D VAE 解码器将隐空间表示解码为视频。<a target="_blank" rel="noopener" href="https://github.com/Tencent/HunyuanVideo/blob/main/README_zh.md">^12</a></p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/overall.png"  height=300>
+</p>
+
+
+<h3 id="统一的图视频生成架构"><a href="#统一的图视频生成架构" class="headerlink" title="统一的图视频生成架构"></a><strong>统一的图视频生成架构</strong></h3><p>HunyuanVideo 采用了 Transformer 和 Full Attention 的设计用于视频生成。具体来说，我们使用了一个“双流到单流”的混合模型设计用于视频生成。在双流阶段，视频和文本 token 通过并行的 Transformer Block 独立处理，使得每个模态可以学习适合自己的调制机制而不会相互干扰。在单流阶段，我们将视频和文本 token 连接起来并将它们输入到后续的 Transformer Block 中进行有效的多模态信息融合。这种设计捕捉了视觉和语义信息之间的复杂交互，增强了整体模型性能。</p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/backbone.png"  height=350>
+</p>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Flow Matching</p>
+</div>
+        <div class="message-body">
+            <p>Flow Matching框架来训练我们的图像和视频生成模型。Flow Matching通过对概率密度函数进行一系列变量变换，将复杂的概率分布转化为简单的概率分布，并通过逆变换生成新的数据样本。</p>
+
+        </div>
+    </article>
+
+<h3 id="MLLM-文本编码器"><a href="#MLLM-文本编码器" class="headerlink" title="MLLM 文本编码器"></a><strong>MLLM 文本编码器</strong></h3><p>过去的视频生成模型通常使用预训练的 CLIP 和 T5-XXL 作为文本编码器，其中 CLIP 使用 Transformer Encoder，T5 使用 Encoder-Decoder 结构。HunyuanVideo 使用了一个预训练的 Multimodal Large Language Model (MLLM) 作为文本编码器，它具有以下优势：</p>
+<ul>
+<li>与 T5 相比，MLLM 基于图文数据指令微调后在特征空间中具有更好的图像-文本对齐能力，这减轻了扩散模型中的图文对齐的难度；</li>
+<li>与 CLIP 相比，MLLM 在图像的细节描述和复杂推理方面表现出更强的能力；</li>
+<li>MLLM 可以通过遵循系统指令实现零样本生成，帮助文本特征更多地关注关键信息。</li>
+</ul>
+<p>由于 MLLM 是基于 Causal Attention 的，而 T5-XXL 使用了 Bidirectional Attention 为扩散模型提供更好的文本引导。因此，我们引入了一个额外的 token 优化器来增强文本特征。</p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/text_encoder.png"  height=275>
+</p>
+
+<h3 id="3D-VAE"><a href="#3D-VAE" class="headerlink" title="3D VAE"></a><strong>3D VAE</strong></h3><p>我们的 VAE 采用了 CausalConv3D 作为 HunyuanVideo 的编码器和解码器，用于压缩视频的时间维度和空间维度，其中时间维度压缩 4 倍，空间维度压缩 8 倍，压缩为 16 channels。这样可以显著减少后续 Transformer 模型的 token 数量，使我们能够在原始分辨率和帧率下训练视频生成模型。</p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Tencent/HunyuanVideo/refs/heads/main/assets/3dvae.png"  height=150>
+</p>
+
+<h3 id="Prompt-改写"><a href="#Prompt-改写" class="headerlink" title="Prompt 改写"></a><strong>Prompt 改写</strong></h3><p>为了解决用户输入文本提示的多样性和不一致性的困难，我们微调了 <a target="_blank" rel="noopener" href="https://github.com/Tencent/Tencent-Hunyuan-Large">Hunyuan-Large model</a> 模型作为我们的 prompt 改写模型，将用户输入的提示词改写为更适合模型偏好的写法。</p>
+<p>我们提供了两个改写模式：正常模式和导演模式。两种模式的提示词见<a href="hyvideo/prompt_rewrite.py">这里</a>。正常模式旨在增强视频生成模型对用户意图的理解，从而更准确地解释提供的指令。导演模式增强了诸如构图、光照和摄像机移动等方面的描述，倾向于生成视觉质量更高的视频。注意，这种增强有时可能会导致一些语义细节的丢失。</p>
+<p>Prompt 改写模型可以直接使用 <a target="_blank" rel="noopener" href="https://github.com/Tencent/Tencent-Hunyuan-Large">Hunyuan-Large</a> 部署和推理. 我们开源了 prompt 改写模型的权重，见<a target="_blank" rel="noopener" href="https://huggingface.co/Tencent/HunyuanVideo-PromptRewrite">这里</a>.</p>
+<h2 id="2502-Step-Video-T2V-30B"><a href="#2502-Step-Video-T2V-30B" class="headerlink" title="2502 Step-Video-T2V 30B"></a>2502 Step-Video-T2V 30B</h2><p>4大技术特点：</p>
+<ol>
+<li>第一，当前最大参数30 billion开源视频生成模型，可直接生成最长204帧、540P分辨率的视频，确保生成的视频内容具有极高的一致性和信息密度。</li>
+<li>第二，针对视频生成任务设计并训练了高压缩比的Video-VAE，在保证视频重构质量的前提下，能够将视频在空间维度压缩16×16倍，时间维度压缩8倍。<ol>
+<li>当下市面上多数VAE模型压缩比为8x8x4，在相同视频帧数下，Video-VAE能额外压缩8倍，故而训练和生成效率都提升64倍。</li>
+</ol>
+</li>
+<li>第三，针对DiT模型的超参设置、模型结构和训练效率，Step-Video-T2V了进行深入的系统优化，确保训练过程的高效性和稳定性。</li>
+<li>第四，详细介绍了预训练和后训练在内的完整训练策略，包括各阶段的训练任务、学习目标以及数据构建和筛选方式。</li>
+<li>此外，Step-Video-T2V在训练最后阶段引入Video-DPO（视频偏好优化）——这是一种针对视频生成的RL优化算法，能进一步提升视频生成质量，强化生成视频的合理性和稳定性。</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/0890b57fca72bb71c7eedf694ba07386.png"></p>
+<p>训练系统相关细节请看AI Training System 一文。</p>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>计算压缩比</p>
+</div>
+        <div class="message-body">
+            <p>根据论文中提到的<strong>时空下采样因子</strong>和<strong>通道数变化</strong>，压缩比1:96的计算过程如下：</p>
+<hr>
+<p>  假设原始视频分辨率为$T \times H \times W$（时间×高度×宽度），每个像素有3个RGB通道。<br>  总数据量为：<br>  $$ \text{原始数据量} &#x3D; T \times H \times W \times 3 $$</p>
+<hr>
+<p>  VAE通过时空下采样因子（如$8 \times 8 \times 8$）压缩视频：  </p>
+<ul>
+<li><strong>时间维度</strong>：压缩为$T&#x2F;8$  </li>
+<li><strong>空间维度</strong>：压缩为$H&#x2F;8 \times W&#x2F;8$  </li>
+<li><strong>通道数</strong>：从3通道映射到16通道。</li>
+</ul>
+<p>  潜在表示的数据量为：<br>  $$ \text{潜在数据量} &#x3D; \frac{T}{8} \times \frac{H}{8} \times \frac{W}{8} \times 16 $$</p>
+<hr>
+<p>  压缩比为原始数据量与潜在数据量的比值：<br>  $$<br>  \text{压缩比} &#x3D; \frac{T \times H \times W \times 3}{\frac{T}{8} \times \frac{H}{8} \times \frac{W}{8} \times 16} &#x3D; \frac{3}{16} \times 8 \times 8 \times 8 &#x3D; 96<br>  $$</p>
+<p>  即 <strong>1:96</strong>，表示潜在空间数据量是原始数据的$1&#x2F;96$。</p>
+<hr>
+<p>  压缩比公式：<br>  $$<br>  \text{压缩比} &#x3D; \left( \text{时间因子} \times \text{高度因子} \times \text{宽度因子} \right) \times \frac{\text{原始通道数}}{\text{潜在通道数}}<br>  $$<br>  当使用$8 \times 8 \times 8$下采样时，结果为$96:1$。</p>
+
+        </div>
+    </article>
+
+<h3 id="VideoVAE"><a href="#VideoVAE" class="headerlink" title="VideoVAE"></a>VideoVAE</h3><p>基础：文本到视频扩散-Transformer模型的效率依赖于潜在空间压缩能力。由于注意力计算成本与token数量的平方成正比，通过高效压缩减少时空冗余至关重要——既能加速训练&#x2F;推理，又符合扩散过程对紧凑表示的天然偏好。</p>
+<p>Video-VAE在编码器后期和解码器初期引入双路径架构，通过统一时空压缩实现8×16×16下采样：</p>
+<ol>
+<li>​因果3D卷积模块：<ol>
+<li>编码器前期包含3个阶段，每阶段含两个Causal Res3DBlock和下采样层，后接融合卷积与注意力的MidBlock。</li>
+<li>采用时间因果3D卷积（公式1）：当前帧仅依赖历史帧，实现因果性建模，支持图像与视频联合训练。</li>
+</ol>
+</li>
+<li>​双路径潜在融合：<ol>
+<li>​Conv路径：结合因果3D卷积与像素重排（公式2），保留高频细节。</li>
+<li>​Shortcut路径：通过分组通道平均（公式3）保留低频结构。</li>
+<li>输出融合：残差求和（公式4）平衡两类信息，解决传统VAE模糊问题。</li>
+</ol>
+</li>
+</ol>
+<h3 id="多阶段训练-1"><a href="#多阶段训练-1" class="headerlink" title="多阶段训练"></a>多阶段训练</h3><p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/59f24f27d47b3161e0e8259f101f5703.png"></p>
+<ol>
+<li>textto-image (T2I) pre-training, <ol>
+<li>我们有意避免直接进行文本到视频（T2V）预训练，</li>
+<li>因为早期实验表明：当在40亿参数模型上尝试从头开始T2V预训练时，模型对新概念的学习能力显著下降且收敛速度大幅减缓。</li>
+<li>通过先进行T2I预训练，模型可以建立对视觉概念的扎实理解，为后续处理视频时序动态奠定基础。</li>
+</ol>
+</li>
+<li>text-to-video&#x2F;image (T2VI) pre-training,模型进入T2VI联合训练阶段，同步进行文本到图像和文本到视频训练。该步骤进一步分为两个子阶段：<ol>
+<li>低分辨率预训练（192x320，192P）：在此阶段使用低分辨率视频，使模型专注于运动模式的学习而非细节特征。我们观察到模型在此阶段主要获取运动知识。</li>
+<li>高分辨率预训练（544x992，540P）：提升视频分辨率后继续训练，促使模型学习更精细的视觉细节。实验显示此阶段模型学习重点转向细节捕捉。</li>
+<li>基于以上发现，我们在步骤二的第1子阶段分配更多计算资源，以强化运动特征的获取能力。</li>
+</ol>
+</li>
+<li>text-to-video (T2V) fine-tuning, <ol>
+<li>由于预训练视频数据在领域和质量的多样性，直接使用预训练模型生成视频时可能引入伪影和风格不一致的问题。</li>
+<li>为缓解此类问题，通过T2V微调步骤进一步完善训练流程。在此阶段，我们使用少量文本-视频配对数据，并移除文本到图像（T2I）任务，使模型专注于文本到视频生成的适配优化。</li>
+</ol>
+</li>
+<li>direct preference optimization (DPO) training.</li>
+</ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>supervisied fine-tuning</p>
+</div>
+        <div class="message-body">
+            <p>发现：</p>
+<ul>
+<li>对基于<strong>不同监督微调（SFT）数据集微调的模型</strong>进行权重平均（Model Averaging），可显著提升生成视频的质量与稳定性，其效果优于指数移动平均（EMA）方法。</li>
+<li>即使对同一数据源微调的<strong>多个检查点进行平均</strong>，也能增强稳定性并减少生成失真。</li>
+<li>此外，我们选择梯度范数达到峰值后阶段的模型检查点（即梯度范数与损失均下降的阶段），以确保生成结果的稳定性提升。</li>
+</ul>
+
+        </div>
+    </article>
+
+<h4 id="训练数据集构建"><a href="#训练数据集构建" class="headerlink" title="训练数据集构建"></a>训练数据集构建</h4><p>通过一系列逐步提高阈值的过滤器：</p>
+<ul>
+<li>为步骤二的T2VI预训练创建了六个预训练子集。</li>
+<li>并最终通过人工筛选构建监督微调（SFT）数据集。</li>
+</ul>
+<p>图中展示了每个阶段应用的关键过滤器：灰色条表示被过滤的数据，彩色条为保留数据。</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/c9ce2b524b96795582d61192ba342f7b.png"></p>
+<h3 id="蒸馏Turbo"><a href="#蒸馏Turbo" class="headerlink" title="蒸馏Turbo"></a>蒸馏Turbo</h3><ul>
+<li>问题：传统扩散模型通过50-100步迭代求解ODE（Ordinary Differential Equation，常微分方程），逐步将随机噪声转化为视频帧（如Step-Video-T2V需50步生成204帧），导致生成1分钟视频需数十分钟计算。</li>
+<li>关键：减少迭代（函数评估次数Number of Function Evaluations，NFE）对提升推理效率至关重要。</li>
+<li>改进：通过自蒸馏（self-distillation）结合修正流目标（rectified flows）和专用推理策略，大规模训练的Video DiT模型可将NFE降至仅8步且性能几乎无损。具体实现如下：</li>
+</ul>
+<ul>
+<li><p><strong>修正流蒸馏框架</strong>  </p>
+<p>基模型（Base Model）通过修正流（rectified flow）训练，蒸馏目标则是训练<strong>2-修正流模型</strong>（Liu等，2022），以在推理时构造更直接的ODE路径。如Lee等（2024）所述，2-修正流的损失函数为：<br>[<br>L(\theta, t) :&#x3D; \frac{1}{t^2} \mathbb{E}\left[ |v - u_\theta(x_t, t)|_2^2 \right] &#x3D; \frac{1}{t^2} \mathbb{E}\left[ |x - \mathbb{E}[x|x_t]|_2^2 \right] + \tilde{L}(\theta, t) \tag{10}<br>]<br>由于所有训练样本均由1-修正流基模型生成，<strong>不可约损失</strong>（第一项）较小，而<strong>可约误差</strong>（第二项）可通过<strong>加权困难时间步</strong>高效优化。具体而言，2-修正流的训练损失在时间区间(t \in [0,1])两端较大、中间较小。  </p>
+</li>
+<li><p><strong>数据与训练策略</strong>  </p>
+<p>使用SFT数据提示的精选分布生成约95,000个样本（50 NFE），并通过设计的正&#x2F;负提示构建蒸馏数据集。修改时间步采样策略为<strong>U型分布</strong>：<br>[<br>p_t(u) \propto \exp(a u) + \exp(-a u) \quad (u \in [0,1], a&#x3D;5)<br>]<br>较大的(a)值适应视频模型对时间偏移的更高需求。推理时观察到，随着训练推进，模型需要更大的采样时间偏移和更低的分类器无关引导（CFG）规模。通过结合线性衰减的CFG调度（式11），我们的模型能以<strong>10倍更少步骤</strong>达到同等生成质量。图6展示了Turbo模型以10 NFE生成的204帧样本。</p>
+</li>
+</ul>
+<hr>
+<h2 id="2502-Wan-Video"><a href="#2502-Wan-Video" class="headerlink" title="2502 Wan-Video"></a>2502 Wan-Video</h2><ul>
+<li>亮点：闭源版本重新成为<a target="_blank" rel="noopener" href="https://huggingface.co/spaces/Vchitect/VBench_Leaderboard">vbench</a>榜首模型</li>
+<li>当前论文暂时没出来</li>
+<li>来自阿里云</li>
+</ul>
+<h3 id="高效VAE"><a href="#高效VAE" class="headerlink" title="高效VAE"></a>高效VAE</h3><ul>
+<li>wan-vae实现了参数量小情况下的，输出效率最高，图像质量也数一数二。</li>
+<li>PSNR全称为Peak Signal to Noise Ratio，即峰值信噪比，经常用于计算两幅图像的可视化误差，最小值为0，越大代表两张图片差异越小。</li>
+</ul>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/02/0fe524777f55feeed80591dc6f0ecf4b.png"></p>
+<h3 id="DiT"><a href="#DiT" class="headerlink" title="DiT"></a>DiT</h3><ul>
+<li>Flow Matching</li>
+<li>特殊：（待研究）<ul>
+<li>time embeddings： an MLP with a Linear layer and a SiLU layer to process </li>
+<li>单独训练权重？predict six modulation parameters individually. This MLP is shared across all transformer blocks, with each block learning a distinct set of biases</li>
+</ul>
+</li>
+</ul>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><!-- footnote is for url which the writer do not want reader to click to interupt the reading. -->
+
+<!-- 上面回答部分**来自ChatGPT-3.5**，没有进行正确性的交叉校验。-->
+
+<p>[^1]: <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Generative_adversarial_network">GAN wiki</a></p>
+<p>[^5]: <a target="_blank" rel="noopener" href="https://www.cnblogs.com/PythonLearner/p/14041874.html">图像分割必备知识点 | Unet详解 理论+ 代码</a></p>
+<p>[^6]: <a target="_blank" rel="noopener" href="https://jalammar.github.io/illustrated-stable-diffusion/">The Illustrated Stable Diffusion</a></p>
+<p>[^7]: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/643420260">深入浅出完整解析Stable Diffusion XL（SDXL）核心基础知识</a></p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2405.18991">https://arxiv.org/pdf/2405.18991</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_48534929/article/details/139430996">https://blog.csdn.net/weixin_48534929/article/details/139430996</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44791964/article/details/139223972?spm=1001.2014.3001.5502">https://blog.csdn.net/weixin_44791964/article/details/139223972?spm=1001.2014.3001.5502</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44791964/article/details/140025591?spm=1001.2014.3001.5502">https://blog.csdn.net/weixin_44791964/article/details/140025591?spm=1001.2014.3001.5502</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Ideas around T2I2V models</p><p><a href="http://icarus.shaojiemike.top/2023/12/20/Work/Artificial Intelligence/Model/T2I2V/Idea2StableDiffusion/">http://icarus.shaojiemike.top/2023/12/20/Work/Artificial Intelligence/Model/T2I2V/Idea2StableDiffusion/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2023-12-20</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2025-11-19</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/t2v/">t2v</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2023/12/20/Work/Artificial%20Intelligence/AIHardware/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">AI Hardware &amp; Accelerators</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2023/12/19/Work/math/TuringMachinePversusNPproblem/"><span class="level-item">Turing Machine &amp; P versus NP problem</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">461</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">539</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#2013-VAE"><span class="level-left"><span class="level-item">1</span><span class="level-item">2013 VAE</span></span></a></li><li><a class="level is-mobile" href="#2014-对抗网络-GAN"><span class="level-left"><span class="level-item">2</span><span class="level-item">2014 对抗网络 GAN</span></span></a></li><li><a class="level is-mobile" href="#2015-简单图像分割-UNet"><span class="level-left"><span class="level-item">3</span><span class="level-item">2015 简单图像分割 UNet</span></span></a></li><li><a class="level is-mobile" href="#2020-扩散基础-DDPM"><span class="level-left"><span class="level-item">4</span><span class="level-item">2020 扩散基础 DDPM</span></span></a></li><li><a class="level is-mobile" href="#2021-CLIP"><span class="level-left"><span class="level-item">5</span><span class="level-item">2021 CLIP</span></span></a></li><li><a class="level is-mobile" href="#2022-Stable-Diffusion"><span class="level-left"><span class="level-item">6</span><span class="level-item">2022 Stable Diffusion</span></span></a></li><li><a class="level is-mobile" href="#2023-DiTs"><span class="level-left"><span class="level-item">7</span><span class="level-item">2023 DiTs</span></span></a></li><li><a class="level is-mobile" href="#2023-SDXL"><span class="level-left"><span class="level-item">8</span><span class="level-item">2023 SDXL</span></span></a></li><li><a class="level is-mobile" href="#2402-SD3"><span class="level-left"><span class="level-item">9</span><span class="level-item">2402 SD3</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#MMDiT"><span class="level-left"><span class="level-item">9.1</span><span class="level-item">MMDiT</span></span></a></li></ul></li><li><a class="level is-mobile" href="#2404-EasyAnimate-12B"><span class="level-left"><span class="level-item">10</span><span class="level-item">2404 EasyAnimate 12B</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#关键技术演进路径"><span class="level-left"><span class="level-item">10.1</span><span class="level-item">关键技术演进路径</span></span></a></li><li><a class="level is-mobile" href="#V2-V3"><span class="level-left"><span class="level-item">10.2</span><span class="level-item">V2 V3</span></span></a></li><li><a class="level is-mobile" href="#V5"><span class="level-left"><span class="level-item">10.3</span><span class="level-item">V5</span></span></a></li><li><a class="level is-mobile" href="#V5-1"><span class="level-left"><span class="level-item">10.4</span><span class="level-item">V5.1</span></span></a></li></ul></li><li><a class="level is-mobile" href="#2408-CogVideoX-5B"><span class="level-left"><span class="level-item">11</span><span class="level-item">2408 CogVideoX 5B</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#多阶段训练"><span class="level-left"><span class="level-item">11.1</span><span class="level-item">多阶段训练</span></span></a></li></ul></li><li><a class="level is-mobile" href="#2412-HunyuanVideo-13B"><span class="level-left"><span class="level-item">12</span><span class="level-item">2412 HunyuanVideo 13B</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#统一的图视频生成架构"><span class="level-left"><span class="level-item">12.1</span><span class="level-item">统一的图视频生成架构</span></span></a></li><li><a class="level is-mobile" href="#MLLM-文本编码器"><span class="level-left"><span class="level-item">12.2</span><span class="level-item">MLLM 文本编码器</span></span></a></li><li><a class="level is-mobile" href="#3D-VAE"><span class="level-left"><span class="level-item">12.3</span><span class="level-item">3D VAE</span></span></a></li><li><a class="level is-mobile" href="#Prompt-改写"><span class="level-left"><span class="level-item">12.4</span><span class="level-item">Prompt 改写</span></span></a></li></ul></li><li><a class="level is-mobile" href="#2502-Step-Video-T2V-30B"><span class="level-left"><span class="level-item">13</span><span class="level-item">2502 Step-Video-T2V 30B</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#VideoVAE"><span class="level-left"><span class="level-item">13.1</span><span class="level-item">VideoVAE</span></span></a></li><li><a class="level is-mobile" href="#多阶段训练-1"><span class="level-left"><span class="level-item">13.2</span><span class="level-item">多阶段训练</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#训练数据集构建"><span class="level-left"><span class="level-item">13.2.1</span><span class="level-item">训练数据集构建</span></span></a></li></ul></li><li><a class="level is-mobile" href="#蒸馏Turbo"><span class="level-left"><span class="level-item">13.3</span><span class="level-item">蒸馏Turbo</span></span></a></li></ul></li><li><a class="level is-mobile" href="#2502-Wan-Video"><span class="level-left"><span class="level-item">14</span><span class="level-item">2502 Wan-Video</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#高效VAE"><span class="level-left"><span class="level-item">14.1</span><span class="level-item">高效VAE</span></span></a></li><li><a class="level is-mobile" href="#DiT"><span class="level-left"><span class="level-item">14.2</span><span class="level-item">DiT</span></span></a></li></ul></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">15</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">27</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">117</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">52</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-11-19T02:42:16.000Z">2025-11-19</time></p><p class="title"><a href="/2025/11/19/Work/Artificial%20Intelligence/Training/MultimodelRL/">Multimodel RL</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-10-11T17:08:24.000Z">2025-10-11</time></p><p class="title"><a href="/2025/10/11/OutOfWork/0-QuantitativeFinance/FastWay2wealthfreedom/">Way 2 Wealth Freedom</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-09-19T16:00:00.000Z">2025-09-19</time></p><p class="title"><a href="/2025/09/19/Work/Artificial%20Intelligence/framework/Pytorch/pytorch25Dataset&amp;Dataloader/">Pytorch 2.5 ：Dataset &amp; Dataloader</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-09-15T17:08:24.000Z">2025-09-15</time></p><p class="title"><a href="/2025/09/15/OutOfWork/0-QuantitativeFinance/WhyChooseQuantitativeFinance/">Why Choose Quantitative Finance</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-05-25T08:25:53.000Z">2025-05-25</time></p><p class="title"><a href="/2025/05/25/OutOfWork/0-love/BlindDate1/">Blind Date 1st(2)</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2025 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

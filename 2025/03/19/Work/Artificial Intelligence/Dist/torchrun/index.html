@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>torchrun - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       vllm 的ray后端属实奇诡，ray stop有残留，flush打印被吞（虽然输出能标记ip，折叠重复，在master输出），ray集群的环境变量固定不变导致DP无法实现多机。 为此考虑使用torchrun实现多机并行。 看这篇，LLM实践：分布式训练框架的编程基础 写得太好了，由浅入深。 DP"><meta property="og:type" content="blog"><meta property="og:title" content="torchrun"><meta property="og:url" content="http://icarus.shaojiemike.top/2025/03/19/Work/Artificial%20Intelligence/Dist/torchrun/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       vllm 的ray后端属实奇诡，ray stop有残留，flush打印被吞（虽然输出能标记ip，折叠重复，在master输出），ray集群的环境变量固定不变导致DP无法实现多机。 为此考虑使用torchrun实现多机并行。 看这篇，LLM实践：分布式训练框架的编程基础 写得太好了，由浅入深。 DP"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2025-03-19T14:53:22.000Z"><meta property="article:modified_time" content="2025-11-19T08:15:51.577Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="torchrun"><meta property="article:tag" content="torch.dist"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2025/03/19/Work/Artificial%20Intelligence/Dist/torchrun/"},"headline":"torchrun","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2025-03-19T14:53:22.000Z","dateModified":"2025-11-19T08:15:51.577Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       vllm 的ray后端属实奇诡，ray stop有残留，flush打印被吞（虽然输出能标记ip，折叠重复，在master输出），ray集群的环境变量固定不变导致DP无法实现多机。 为此考虑使用torchrun实现多机并行。 看这篇，LLM实践：分布式训练框架的编程基础 写得太好了，由浅入深。 DP"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2025/03/19/Work/Artificial%20Intelligence/Dist/torchrun/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2025-03-19T14:53:22.000Z" title="3/19/2025, 2:53:22 PM">2025-03-19</time></span><span class="level-item">Updated&nbsp;<time dateTime="2025-11-19T08:15:51.577Z" title="11/19/2025, 8:15:51 AM">2025-11-19</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">27 minutes read (About 4054 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">torchrun</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>vllm 的ray后端属实奇诡，ray stop有残留，flush打印被吞（虽然输出能标记ip，折叠重复，在master输出），ray集群的环境变量固定不变导致DP无法实现多机。</p>
+<p>为此考虑使用torchrun实现多机并行。</p>
+<p>看这篇，<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIxNDgzNDg3NQ==&mid=2247554842&idx=3&sn=3773334a7ed26d9e1e0ccc2283512a4c&chksm=96461f375df991efe4b2f25fbfc3eb3669440010e36c3860614b3e89c3ea726b8ada733d73b8#rd">LLM实践：分布式训练框架的编程基础</a></p>
+<p>写得太好了，由浅入深。</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/489011749">DP</a></p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<hr>
+<h3 id="2-多机启动命令"><a href="#2-多机启动命令" class="headerlink" title="2. 多机启动命令"></a>2. <strong>多机启动命令</strong></h3><p>假设有2台机器（IP分别为192.168.1.100和192.168.1.101），每台机器使用2块GPU：</p>
+<h4 id="机器1（主节点）："><a href="#机器1（主节点）：" class="headerlink" title="机器1（主节点）："></a>机器1（主节点）：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">torchrun \</span><br><span class="line">--nnodes=2 \              <span class="comment"># 总节点数</span></span><br><span class="line">--nproc_per_node=2 \      <span class="comment"># 每节点GPU数</span></span><br><span class="line">--node_rank=0 \           <span class="comment"># 当前节点编号（主节点为0）</span></span><br><span class="line">--rdzv_id=12345 \         <span class="comment"># 集群唯一ID</span></span><br><span class="line">--rdzv_backend=c10d \     <span class="comment"># 通信后端</span></span><br><span class="line">--rdzv_endpoint=192.168.1.100:29500 \  <span class="comment"># 主节点IP和端口</span></span><br><span class="line">multinode_train.py</span><br></pre></td></tr></table></figure>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>rdzv是Rendezvous的缩写，意思是“集合”或“会合”</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>–rdzv_backend</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>c10d：PyTorch 自带的基于 TCP 的实现（默认推荐，适合大多数场景）。</li>
+<li>etcd：依赖外部 etcd 服务器（适合需要高可靠性的生产环境）。</li>
+<li>static：静态配置（需手动指定所有节点地址，灵活性差）。</li>
+</ul>
+
+        </div>
+    </article>
+
+<h4 id="机器2（从节点）："><a href="#机器2（从节点）：" class="headerlink" title="机器2（从节点）："></a>机器2（从节点）：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">torchrun \</span><br><span class="line">--nnodes=2 \</span><br><span class="line">--nproc_per_node=2 \</span><br><span class="line">--node_rank=1 \           <span class="comment"># 从节点编号为1</span></span><br><span class="line">--rdzv_id=12345 \         <span class="comment"># 必须与主节点一致</span></span><br><span class="line">--rdzv_backend=c10d \</span><br><span class="line">--rdzv_endpoint=192.168.1.100:29500 \  <span class="comment"># 指向主节点IP</span></span><br><span class="line">multinode_train.py</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="4-单机多卡-vs-多机多卡"><a href="#4-单机多卡-vs-多机多卡" class="headerlink" title="4. 单机多卡 vs 多机多卡"></a>4. 单机多卡 vs 多机多卡</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>单机多卡命令示例</th>
+<th>多机差异点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>启动命令</td>
+<td><code>torchrun --nproc_per_node=4 train.py</code></td>
+<td>需指定<code>--nnodes</code>和<code>--rdzv_endpoint</code></td>
+</tr>
+<tr>
+<td>通信延迟</td>
+<td>低（NVLink&#x2F;NVSwitch）</td>
+<td>高（依赖网络带宽）</td>
+</tr>
+<tr>
+<td>数据分片</td>
+<td>自动分配</td>
+<td>跨节点自动分配</td>
+</tr>
+<tr>
+<td>典型应用场景</td>
+<td>单台服务器多GPU</td>
+<td>大规模模型训练（如LLM）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="单机通信域变多机"><a href="#单机通信域变多机" class="headerlink" title="单机通信域变多机"></a>单机通信域变多机</h2><p>要实现 <strong>8机8卡</strong> 的全局通信，使用 <code>torchrun</code> 可以避免手动管理 <code>hostip</code>、<code>port</code>、<code>rank</code> 等参数，同时确保分布式环境自动配置。以下是迁移现有代码到 <code>torchrun</code> 的完整方案：</p>
+<hr>
+<h3 id="一、代码改造：移除手动初始化，适配-torchrun"><a href="#一、代码改造：移除手动初始化，适配-torchrun" class="headerlink" title="一、代码改造：移除手动初始化，适配 torchrun"></a>一、代码改造：移除手动初始化，适配 <code>torchrun</code></h3><h4 id="原代码（手动初始化）可能类似："><a href="#原代码（手动初始化）可能类似：" class="headerlink" title="原代码（手动初始化）可能类似："></a>原代码（手动初始化）可能类似：</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.distributed <span class="keyword">as</span> dist</span><br><span class="line"></span><br><span class="line"><span class="comment"># 手动传入参数初始化通信域</span></span><br><span class="line">dist.init_process_group(</span><br><span class="line">    backend=<span class="string">&quot;nccl&quot;</span>,</span><br><span class="line">    init_method=<span class="string">f&quot;tcp://<span class="subst">&#123;hostip&#125;</span>:<span class="subst">&#123;port&#125;</span>&quot;</span>,</span><br><span class="line">    rank=rank,</span><br><span class="line">    world_size=world_size</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="改造后的代码（适配-torchrun）："><a href="#改造后的代码（适配-torchrun）：" class="headerlink" title="改造后的代码（适配 torchrun）："></a>改造后的代码（适配 <code>torchrun</code>）：</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.distributed <span class="keyword">as</span> dist</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">setup</span>():</span><br><span class="line">    <span class="comment"># 自动从环境变量读取参数，建立通讯域,并且这里有隐藏同步，必须world_size所有的rank都执行了才会继续。</span></span><br><span class="line">    dist.init_process_group(backend=<span class="string">&quot;nccl&quot;</span>, init_method=<span class="string">&quot;env://&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyModel</span>(torch.nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="variable language_">self</span>.fc = torch.nn.Linear(<span class="number">10</span>, <span class="number">10</span>)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.fc(x)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    setup()</span><br><span class="line">    <span class="comment"># 自动获取全局参数，不需要init_process_group也有下面环境变量</span></span><br><span class="line">    global_rank = <span class="built_in">int</span>(os.environ[<span class="string">&quot;RANK&quot;</span>])          <span class="comment"># 全局进程编号 (0~63)</span></span><br><span class="line">    local_rank = <span class="built_in">int</span>(os.environ[<span class="string">&quot;LOCAL_RANK&quot;</span>])     <span class="comment"># 节点内GPU编号 (0~7)</span></span><br><span class="line">    world_size = <span class="built_in">int</span>(os.environ[<span class="string">&quot;WORLD_SIZE&quot;</span>])     <span class="comment"># 总进程数 (8机×8卡=64)</span></span><br><span class="line">    <span class="comment"># f&quot;Master Addr: &#123;os.environ[&#x27;MASTER_ADDR&#x27;]&#125;, &quot;</span></span><br><span class="line">    <span class="comment"># f&quot;Master Port: &#123;os.environ[&#x27;MASTER_PORT&#x27;]&#125;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 模型部署到当前GPU</span></span><br><span class="line">    device = torch.device(<span class="string">f&quot;cuda:<span class="subst">&#123;local_rank&#125;</span>&quot;</span>)</span><br><span class="line">    model = MyModel().to(device)</span><br><span class="line">    ddp_model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank])</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 后续训练代码（数据加载、优化器等）...</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="二、torchrun-启动命令：8机8卡配置"><a href="#二、torchrun-启动命令：8机8卡配置" class="headerlink" title="二、torchrun 启动命令：8机8卡配置"></a>二、<code>torchrun</code> 启动命令：8机8卡配置</h3><h4 id="1-主节点（第0台机器）命令："><a href="#1-主节点（第0台机器）命令：" class="headerlink" title="1. 主节点（第0台机器）命令："></a>1. <strong>主节点（第0台机器）命令</strong>：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">torchrun \</span><br><span class="line">--nnodes=8 \                <span class="comment"># 总节点数</span></span><br><span class="line">--nproc_per_node=8 \        <span class="comment"># 每节点GPU数</span></span><br><span class="line">--node_rank=0 \             <span class="comment"># 主节点编号为0</span></span><br><span class="line">--rdzv_id=your_job_id \     <span class="comment"># 任务唯一标识（任意字符串）</span></span><br><span class="line">--rdzv_backend=c10d \       <span class="comment"># 通信后端</span></span><br><span class="line">--rdzv_endpoint=主节点IP:29500 \  <span class="comment"># 主节点IP和端口</span></span><br><span class="line">train.py</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-从节点（第1-7台机器）命令："><a href="#2-从节点（第1-7台机器）命令：" class="headerlink" title="2. 从节点（第1~7台机器）命令："></a>2. <strong>从节点（第1~7台机器）命令</strong>：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">torchrun \</span><br><span class="line">--nnodes=8 \</span><br><span class="line">--nproc_per_node=8 \</span><br><span class="line">--node_rank=1 \             <span class="comment"># 第1台机器为1，第2台为2，...，第7台为7</span></span><br><span class="line">--rdzv_id=your_job_id \     <span class="comment"># 必须与主节点一致</span></span><br><span class="line">--rdzv_backend=c10d \</span><br><span class="line">--rdzv_endpoint=主节点IP:29500 \  <span class="comment"># 指向主节点</span></span><br><span class="line">train.py</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、关键配置说明"><a href="#三、关键配置说明" class="headerlink" title="三、关键配置说明"></a>三、关键配置说明</h3><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+<th>示例值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--nnodes</code></td>
+<td>总机器数</td>
+<td><code>8</code></td>
+</tr>
+<tr>
+<td><code>--nproc_per_node</code></td>
+<td>每台机器的GPU数量</td>
+<td><code>8</code></td>
+</tr>
+<tr>
+<td><code>--node_rank</code></td>
+<td>当前机器的编号（0~7）</td>
+<td>主节点为<code>0</code>，其他递增</td>
+</tr>
+<tr>
+<td><code>--rdzv_endpoint</code></td>
+<td>主节点的IP和端口</td>
+<td><code>192.168.1.100:29500</code></td>
+</tr>
+<tr>
+<td><code>--rdzv_id</code></td>
+<td>任务唯一标识符，用于防止集群冲突</td>
+<td>任意字符串如<code>my_job_123</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="四、多机通信原理与验证"><a href="#四、多机通信原理与验证" class="headerlink" title="四、多机通信原理与验证"></a>四、多机通信原理与验证</h3><h4 id="1-通信流程"><a href="#1-通信流程" class="headerlink" title="1. 通信流程"></a>1. <strong>通信流程</strong></h4><ul>
+<li><strong>节点发现</strong>：所有从节点通过 <code>--rdzv_endpoint</code> 连接到主节点，注册自身信息。</li>
+<li><strong>全局编组</strong>：主节点收集所有节点的 <code>IP:Port</code> 信息，构建全局通信组。</li>
+<li><strong>数据同步</strong>：使用 NCCL 后端进行跨机 GPU 通信（如梯度同步）。</li>
+</ul>
+<h4 id="2-环境变量验证"><a href="#2-环境变量验证" class="headerlink" title="2. 环境变量验证"></a>2. <strong>环境变量验证</strong></h4><p>在代码中添加以下调试信息，确认参数正确：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(</span><br><span class="line">    <span class="string">f&quot;Global Rank: <span class="subst">&#123;global_rank&#125;</span>, &quot;</span></span><br><span class="line">    <span class="string">f&quot;Local Rank: <span class="subst">&#123;local_rank&#125;</span>, &quot;</span></span><br><span class="line">    <span class="string">f&quot;World Size: <span class="subst">&#123;world_size&#125;</span>, &quot;</span></span><br><span class="line">    <span class="string">f&quot;Master Addr: <span class="subst">&#123;os.environ[<span class="string">&#x27;MASTER_ADDR&#x27;</span>]&#125;</span>, &quot;</span></span><br><span class="line">    <span class="string">f&quot;Master Port: <span class="subst">&#123;os.environ[<span class="string">&#x27;MASTER_PORT&#x27;</span>]&#125;</span>&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-NCCL-网络调优（可选）"><a href="#3-NCCL-网络调优（可选）" class="headerlink" title="3. NCCL 网络调优（可选）"></a>3. <strong>NCCL 网络调优（可选）</strong></h4><p>在启动命令前设置环境变量，优化跨机通信性能：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> NCCL_IB_DISABLE=1           <span class="comment"># 禁用InfiniBand（若无IB网卡）</span></span><br><span class="line"><span class="built_in">export</span> NCCL_SOCKET_IFNAME=eth0     <span class="comment"># 指定网卡名称</span></span><br><span class="line"><span class="built_in">export</span> NCCL_DEBUG=INFO             <span class="comment"># 打印NCCL日志</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="五、常见问题与解决"><a href="#五、常见问题与解决" class="headerlink" title="五、常见问题与解决"></a>五、常见问题与解决</h3><ol>
+<li><p><strong>节点无法连接主节点</strong></p>
+<ul>
+<li>检查主节点防火墙是否开放 <code>--rdzv_endpoint</code> 指定的端口（如 <code>29500</code>）。</li>
+<li>确保所有机器使用相同版本的 PyTorch 和 NCCL。</li>
+</ul>
+</li>
+<li><p><strong>GPU 未正确绑定</strong></p>
+<ul>
+<li>使用 <code>nvidia-smi</code> 确认每台机器的 GPU 状态。</li>
+<li>在代码中强制指定 GPU 设备：<code>torch.cuda.set_device(local_rank)</code>。</li>
+</ul>
+</li>
+</ol>
+<h2 id="torch-distributed-常见接口"><a href="#torch-distributed-常见接口" class="headerlink" title="torch.distributed 常见接口"></a>torch.distributed 常见接口</h2><p>看这篇，<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIxNDgzNDg3NQ==&mid=2247554842&idx=3&sn=3773334a7ed26d9e1e0ccc2283512a4c&chksm=96461f375df991efe4b2f25fbfc3eb3669440010e36c3860614b3e89c3ea726b8ada733d73b8#rd">LLM实践：分布式训练框架的编程基础</a></p>
+<ul>
+<li>new_group()创建的子进程组是基于已初始化的全局进程组（通过dist.init_process_group）的通信通道的，因此复用全局组的网络配置​（如IP、端口、后端等）</li>
+</ul>
+<h2 id="torchrun和init-process-group"><a href="#torchrun和init-process-group" class="headerlink" title="torchrun和init_process_group"></a><code>torchrun</code>和<code>init_process_group</code></h2><p>在PyTorch的分布式训练中，<code>torchrun</code>和<code>init_process_group</code>的关系需要明确区分，以下是关键点解析：</p>
+<hr>
+<h3 id="1-torchrun的自动初始化"><a href="#1-torchrun的自动初始化" class="headerlink" title="1. torchrun的自动初始化"></a><strong>1. <code>torchrun</code>的自动初始化</strong></h3><p>• <strong>作用</strong>：<br>  <code>torchrun</code>是PyTorch提供的分布式训练启动工具，自动完成以下任务：</p>
+<ol>
+<li><strong>进程管理</strong>：根据参数（如<code>--nproc_per_node</code>）生成子进程。</li>
+<li><strong>环境变量注入</strong>：自动设置<code>RANK</code>、<code>WORLD_SIZE</code>、<code>MASTER_ADDR</code>、<code>MASTER_PORT</code>等关键变量。</li>
+<li><strong>Rendezvous调用</strong>：通过指定的后端（如<code>c10d</code>）执行Rendezvous机制，完成节点发现和同步。</li>
+</ol>
+<p>• <strong>结果</strong>：<br>  所有进程的默认通信组（<code>default_pg</code>）已初始化完成，无需手动调用<code>init_process_group</code>。</p>
+<h3 id="5-调试技巧"><a href="#5-调试技巧" class="headerlink" title="5. 调试技巧"></a><strong>5. 调试技巧</strong></h3><p>• <strong>检查进程组状态</strong>：<br>  在代码中验证默认进程组是否已初始化：<br>  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> dist.is_initialized():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;默认进程组已初始化，无需手动调用！&quot;</span>)</span><br></pre></td></tr></table></figure></p>
+<p>• <strong>捕获重复初始化错误</strong>：<br>  使用异常处理避免程序崩溃：<br>  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    dist.init_process_group(...)</span><br><span class="line"><span class="keyword">except</span> RuntimeError <span class="keyword">as</span> e:</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&quot;already initialized&quot;</span> <span class="keyword">in</span> <span class="built_in">str</span>(e):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;忽略重复初始化&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">raise</span> e</span><br></pre></td></tr></table></figure></p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>torchrun程序入口打印torch.distributed.is_initialize() 结果是false</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<h2 id="rendezvous-与-HCCL"><a href="#rendezvous-与-HCCL" class="headerlink" title="rendezvous 与 HCCL"></a>rendezvous 与 HCCL</h2><p><code>rendezvous</code> 与通信后端（如 TCP、HCCL、Gloo、MPI）在 PyTorch 分布式训练中扮演不同角色，核心区别如下：</p>
+<hr>
+<h3 id="一、功能定位"><a href="#一、功能定位" class="headerlink" title="一、功能定位"></a>一、功能定位</h3><table>
+<thead>
+<tr>
+<th><strong>组件</strong></th>
+<th><strong>核心职责</strong></th>
+<th><strong>阶段</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Rendezvous</strong></td>
+<td>负责节点发现、角色分配（<code>rank</code>&#x2F;<code>world_size</code>）、共享存储（如 <code>TCPStore</code>）的创建</td>
+<td><strong>初始化阶段</strong></td>
+</tr>
+<tr>
+<td><strong>通信后端</strong></td>
+<td>负责节点间数据传输（如梯度同步、参数更新）</td>
+<td><strong>训练阶段</strong></td>
+</tr>
+</tbody></table>
+<p>• <strong>关键区别</strong>：<br>  Rendezvous 是<strong>协调逻辑</strong>，确保所有节点达成一致并建立通信基础；而 TCP&#x2F;HCCL&#x2F;Gloo&#x2F;MPI 是<strong>通信实现</strong>，负责具体数据传输。</p>
+<hr>
+<h3 id="二、技术实现对比"><a href="#二、技术实现对比" class="headerlink" title="二、技术实现对比"></a>二、技术实现对比</h3><h4 id="1-Rendezvous"><a href="#1-Rendezvous" class="headerlink" title="1. Rendezvous"></a>1. <strong>Rendezvous</strong></h4><p>• <strong>实现机制</strong>：<br>  通过分布式同步原语（如 barrier）实现节点间的强一致性，生成共享的键值存储（<code>Store</code>）用于后续通信。<br>• <strong>依赖关系</strong>：<br>  可能基于 TCP 协议（如 <code>TCPStore</code>）实现初始节点发现，但仅用于初始化阶段，不涉及训练数据传输。<br>• <strong>容错性</strong>：<br>  支持弹性训练（节点动态加入&#x2F;退出），通过重新执行 Rendezvous 恢复训练（如 <code>torch.distributed.elastic</code>）。</p>
+<h4 id="2-通信后端"><a href="#2-通信后端" class="headerlink" title="2. 通信后端"></a>2. <strong>通信后端</strong></h4><table>
+<thead>
+<tr>
+<th><strong>后端</strong></th>
+<th><strong>适用场景</strong></th>
+<th><strong>技术特性</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>TCP</strong></td>
+<td>通用场景，依赖 TCP 协议的点对点通信</td>
+<td>稳定性高，但延迟较大；适用于 CPU 训练或网络条件较差的异构环境</td>
+</tr>
+<tr>
+<td><strong>HCCL</strong></td>
+<td>华为昇腾（Ascend）芯片的专用后端</td>
+<td>针对昇腾芯片优化，支持 RDMA 和集合通信操作（类似 NCCL）</td>
+</tr>
+<tr>
+<td><strong>Gloo</strong></td>
+<td>多机 CPU 训练或少量 GPU 场景</td>
+<td>基于 libuv 实现异步通信，支持多线程；适合小规模 AllReduce 操作</td>
+</tr>
+<tr>
+<td><strong>MPI</strong></td>
+<td>依赖已有 MPI 环境（如 HPC 集群）</td>
+<td>需预装 OpenMPI&#x2F;MVAPICH，支持复杂拓扑；适合大规模科学计算</td>
+</tr>
+</tbody></table>
+<p>• <strong>性能差异</strong>：<br>  • <strong>HCCL&#x2F;Gloo&#x2F;NCCL</strong> 针对集合通信优化，适合 GPU&#x2F;昇腾芯片的高吞吐场景。<br>  • <strong>TCP&#x2F;MPI</strong> 更通用，但性能受网络协议栈限制。</p>
+<hr>
+<h3 id="三、协作关系"><a href="#三、协作关系" class="headerlink" title="三、协作关系"></a>三、协作关系</h3><ol>
+<li><strong>初始化流程</strong>：<br>• Rendezvous 使用 TCP 等协议完成节点同步，创建 <code>Store</code>（如 <code>TCPStore</code>）。<br>• 通信后端（如 HCCL&#x2F;Gloo）基于 <code>Store</code> 初始化数据传输通道。</li>
+<li><strong>训练流程</strong>：<br>• 使用通信后端执行 AllReduce、Broadcast 等操作，与 Rendezvous 无关。<br>• 若节点故障，Rendezvous 重新触发以重建通信组，通信后端需支持动态重建（如 Gloo 需重启进程）。</li>
+</ol>
+<hr>
+<h3 id="四、选择建议"><a href="#四、选择建议" class="headerlink" title="四、选择建议"></a>四、选择建议</h3><ol>
+<li><strong>Rendezvous 选择</strong>：<br>• 单机训练：默认 <code>c10d</code> 后端（自动管理）。<br>• 多机弹性训练：需配合 <code>etcd</code> 或 <code>c10d</code> 实现动态节点管理。</li>
+<li><strong>通信后端选择</strong>：<br>• <strong>GPU 集群</strong>：优先 NCCL（NVIDIA）或 HCCL（昇腾）。<br>• <strong>CPU 集群&#x2F;小规模训练</strong>：选择 Gloo 或 TCP。<br>• <strong>HPC 环境</strong>：MPI（需系统支持）。</li>
+</ol>
+<hr>
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><p>• <strong>Rendezvous</strong> 是分布式训练的<strong>“协调者”</strong>，解决“谁参与训练”和“如何初始化”的问题。<br>• <strong>通信后端</strong> 是<strong>“执行者”</strong>，解决“数据如何高效传输”的问题。<br>• 两者协同工作：Rendezvous 为通信后端提供基础环境，通信后端为训练提供性能保障。</p>
+<h2 id="唯一的rendezvous与group"><a href="#唯一的rendezvous与group" class="headerlink" title="唯一的rendezvous与group"></a>唯一的rendezvous与group</h2><p>在 PyTorch 的分布式训练框架中，<code>rendezvous</code> 和 <code>torch.distributed.new_group()</code> 扮演着<strong>完全不同的角色</strong>。它们的差异源自设计目的、作用域和底层实现机制。以下是关键原因分析：</p>
+<hr>
+<h3 id="一、设计目的不同"><a href="#一、设计目的不同" class="headerlink" title="一、设计目的不同"></a>一、设计目的不同</h3><table>
+<thead>
+<tr>
+<th><strong>组件</strong></th>
+<th><strong>用途</strong></th>
+<th><strong>生命周期</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong><code>rendezvous</code></strong></td>
+<td>负责<strong>全局进程的发现和初始化</strong>（建立通信基础架构）</td>
+<td>仅在训练初始化阶段执行一次</td>
+</tr>
+<tr>
+<td><strong><code>new_group()</code></strong></td>
+<td>在已初始化的分布式环境中，创建<strong>子进程组</strong>（用于更细粒度的通信）</td>
+<td>训练中可多次动态创建</td>
+</tr>
+</tbody></table>
+<p>• <strong>类比</strong>：<br>  <code>rendezvous</code> 类似于搭建整个城市的电力系统（全局基础设施），而 <code>new_group()</code> 类似于为某个社区安装独立电路（局部优化）。</p>
+<hr>
+<h3 id="二、rendezvous-只能有一个的原因"><a href="#二、rendezvous-只能有一个的原因" class="headerlink" title="二、rendezvous 只能有一个的原因"></a>二、<code>rendezvous</code> 只能有一个的原因</h3><h4 id="1-全局唯一的基础设施"><a href="#1-全局唯一的基础设施" class="headerlink" title="1. 全局唯一的基础设施"></a>1. <strong>全局唯一的基础设施</strong></h4><p>• <strong>核心功能</strong>：<br>  <code>rendezvous</code> 创建了分布式训练的<strong>全局通信后端</strong>（如 <code>gloo</code>、<code>nccl</code>）和共享存储（如 <code>TCPStore</code>）。这些是跨所有进程的<strong>单例资源</strong>。<br>• <strong>技术实现</strong>：<br>  PyTorch 通过 <code>torch.distributed.init_process_group()</code> 初始化主进程组，其内部调用 <code>rendezvous</code> 完成全局同步。该过程会绑定全局唯一的 <code>rank</code> 和 <code>world_size</code>。</p>
+<h4 id="2-同步机制的不可重复性"><a href="#2-同步机制的不可重复性" class="headerlink" title="2. 同步机制的不可重复性"></a>2. <strong>同步机制的不可重复性</strong></h4><p>• <strong>单次握手</strong>：<br>  所有进程必须通过一次 <code>rendezvous</code> 完成初始同步（确定彼此的存在和角色）。若重复调用，会导致进程角色混乱（如 <code>rank</code> 冲突）。<br>• <strong>资源竞争</strong>：<br>  多组 <code>rendezvous</code> 会创建多个通信后端，占用独立端口或存储，引发资源竞争和死锁。</p>
+<h4 id="3-代码示例验证"><a href="#3-代码示例验证" class="headerlink" title="3. 代码示例验证"></a>3. <strong>代码示例验证</strong></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 初始化全局进程组（隐含调用 rendezvous）</span></span><br><span class="line">torch.distributed.init_process_group(backend=<span class="string">&quot;nccl&quot;</span>, init_method=<span class="string">&quot;env://&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 尝试再次初始化（会抛出错误）</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    torch.distributed.init_process_group(backend=<span class="string">&quot;gloo&quot;</span>)  <span class="comment"># 报错：已有默认进程组</span></span><br><span class="line"><span class="keyword">except</span> RuntimeError <span class="keyword">as</span> e:</span><br><span class="line">    <span class="built_in">print</span>(e)  <span class="comment"># &quot;Default process group has already been initialized&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、new-group-可创建多个的原因"><a href="#三、new-group-可创建多个的原因" class="headerlink" title="三、new_group() 可创建多个的原因"></a>三、<code>new_group()</code> 可创建多个的原因</h3><h4 id="1-基于现有基础设施的局部优化"><a href="#1-基于现有基础设施的局部优化" class="headerlink" title="1. 基于现有基础设施的局部优化"></a>1. <strong>基于现有基础设施的局部优化</strong></h4><p>• <strong>作用域限制</strong>：<br>  <code>new_group()</code> 在<strong>已初始化的全局进程组</strong>基础上，通过逻辑分组实现局部通信。它不创建新的通信后端，而是复用现有基础设施。<br>• <strong>轻量级设计</strong>：<br>  子进程组仅维护进程列表（如 <code>ranks=[0,1]</code>），不涉及底层网络资源（端口、存储）的重复分配。</p>
+<h4 id="2-灵活的子集通信需求"><a href="#2-灵活的子集通信需求" class="headerlink" title="2. 灵活的子集通信需求"></a>2. <strong>灵活的子集通信需求</strong></h4><p>• <strong>典型场景</strong>：<br>  • 在数据并行中，将部分 GPU 分组进行模型同步（如 <code>ranks=[0,1]</code> 和 <code>ranks=[2,3]</code>）。<br>  • 在模型并行中，为不同模型分片分配独立的通信组。<br>• <strong>代码示例</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 全局进程组已初始化（backend=nccl, world_size=4）</span></span><br><span class="line">group1 = torch.distributed.new_group(ranks=[<span class="number">0</span>, <span class="number">1</span>])  <span class="comment"># GPU 0-1 的通信组</span></span><br><span class="line">group2 = torch.distributed.new_group(ranks=[<span class="number">2</span>, <span class="number">3</span>])  <span class="comment"># GPU 2-3 的通信组</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 group1 内执行 AllReduce 操作（仅 GPU 0-1 参与）</span></span><br><span class="line">torch.distributed.all_reduce(tensor, op=torch.distributed.ReduceOp.SUM, group=group1)</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-技术实现对比"><a href="#3-技术实现对比" class="headerlink" title="3. 技术实现对比"></a>3. <strong>技术实现对比</strong></h4><table>
+<thead>
+<tr>
+<th><strong>操作</strong></th>
+<th><strong>底层动作</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>rendezvous</code></td>
+<td>创建全局通信后端（如 TCP 连接）、分配 rank&#x2F;world_size、建立共享键值存储</td>
+</tr>
+<tr>
+<td><code>new_group()</code></td>
+<td>在已有后端中注册子进程列表，生成逻辑分组句柄（不涉及硬件资源分配）</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="四、总结：为何设计如此？"><a href="#四、总结：为何设计如此？" class="headerlink" title="四、总结：为何设计如此？"></a>四、总结：为何设计如此？</h3><h4 id="1-性能与资源效率"><a href="#1-性能与资源效率" class="headerlink" title="1. 性能与资源效率"></a>1. <strong>性能与资源效率</strong></h4><p>• <strong><code>rendezvous</code> 单例化</strong>：<br>  避免重复初始化通信后端（如多次绑定端口、建立连接），减少资源浪费和潜在冲突。<br>• <strong><code>new_group()</code> 动态化</strong>：<br>  允许按需创建轻量级逻辑分组，满足复杂训练场景的需求（如混合并行）。</p>
+<h4 id="2-分布式系统的约束"><a href="#2-分布式系统的约束" class="headerlink" title="2. 分布式系统的约束"></a>2. <strong>分布式系统的约束</strong></h4><p>• <strong>全局一致性要求</strong>：<br>  所有进程必须在同一通信框架下工作，否则无法保证同步性和数据一致性。<br>• <strong>局部灵活性的妥协</strong>：<br>  在全局一致的基础上，通过子进程组实现局部优化，平衡灵活性与系统复杂度。</p>
+<h4 id="3-用户接口的友好性"><a href="#3-用户接口的友好性" class="headerlink" title="3. 用户接口的友好性"></a>3. <strong>用户接口的友好性</strong></h4><p>• <strong>简化初始化流程</strong>：<br>  用户只需调用一次 <code>init_process_group()</code>，无需手动管理多个 <code>rendezvous</code>。<br>• <strong>按需创建子组</strong>：<br>  通过 <code>new_group()</code> 满足特定通信需求，而无需重新设计整个分布式架构。</p>
+<hr>
+<h3 id="五、最佳实践"><a href="#五、最佳实践" class="headerlink" title="五、最佳实践"></a>五、最佳实践</h3><ol>
+<li>**严格单次调用 <code>rendezvous</code>**：<br>使用 <code>torchrun</code> 或 <code>init_process_group()</code> 自动管理全局初始化，避免手动干预。</li>
+<li><strong>合理使用子进程组</strong>：<br>在以下场景使用 <code>new_group()</code>：<br>• 需要<strong>部分进程间的独立通信</strong>（如模型并行）。<br>• 希望<strong>减少 AllReduce 的通信量</strong>（如分组聚合梯度）。</li>
+<li><strong>避免子进程组的滥用</strong>：<br>过多的子组会增加逻辑复杂度，可能影响性能。建议通过 <code>torch.distributed.GroupMember</code> 管理分组生命周期。</li>
+</ol>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2></div><div class="article-licensing box"><div class="licensing-title"><p>torchrun</p><p><a href="http://icarus.shaojiemike.top/2025/03/19/Work/Artificial Intelligence/Dist/torchrun/">http://icarus.shaojiemike.top/2025/03/19/Work/Artificial Intelligence/Dist/torchrun/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2025-03-19</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2025-11-19</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/torchrun/">torchrun</a><a class="link-muted mr-2" rel="tag" href="/tags/torch-dist/">torch.dist</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2025/04/17/Work/Artificial%20Intelligence/Model/T2I2V/VLM/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Ideas around Vision-Language Models (VLMs)</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2025/03/17/Work/Artificial%20Intelligence/framework/vllm/vllm-basic/"><span class="level-item">Vllm Basic</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">461</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">539</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">27</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">117</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">52</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-11-19T02:42:16.000Z">2025-11-19</time></p><p class="title"><a href="/2025/11/19/Work/Artificial%20Intelligence/Training/MultimodelRL/">Multimodel RL</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-10-11T17:08:24.000Z">2025-10-11</time></p><p class="title"><a href="/2025/10/11/OutOfWork/0-QuantitativeFinance/FastWay2wealthfreedom/">Way 2 Wealth Freedom</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-09-19T16:00:00.000Z">2025-09-19</time></p><p class="title"><a href="/2025/09/19/Work/Artificial%20Intelligence/framework/Pytorch/pytorch25Dataset&amp;Dataloader/">Pytorch 2.5 ：Dataset &amp; Dataloader</a></p><p class="categories"><a href="/categories/Programming/">Programming</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-09-15T17:08:24.000Z">2025-09-15</time></p><p class="title"><a href="/2025/09/15/OutOfWork/0-QuantitativeFinance/WhyChooseQuantitativeFinance/">Why Choose Quantitative Finance</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-05-25T08:25:53.000Z">2025-05-25</time></p><p class="title"><a href="/2025/05/25/OutOfWork/0-love/BlindDate1/">Blind Date 1st(2)</a></p><p class="categories"><a href="/categories/OOW/">OOW</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">36</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2025 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
