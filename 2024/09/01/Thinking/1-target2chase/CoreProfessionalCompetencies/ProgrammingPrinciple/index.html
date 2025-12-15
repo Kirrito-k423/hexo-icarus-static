@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Programming Principle &amp; Code Test - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       大型团队项目代码的编写，有些要求和原则需要遵守。"><meta property="og:type" content="blog"><meta property="og:title" content="Programming Principle &amp; Code Test"><meta property="og:url" content="http://icarus.shaojiemike.top/2024/09/01/Thinking/1-target2chase/CoreProfessionalCompetencies/ProgrammingPrinciple/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       大型团队项目代码的编写，有些要求和原则需要遵守。"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2024-09-01T15:10:28.000Z"><meta property="article:modified_time" content="2025-12-15T03:37:27.121Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="c++"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2024/09/01/Thinking/1-target2chase/CoreProfessionalCompetencies/ProgrammingPrinciple/"},"headline":"Programming Principle & Code Test","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2024-09-01T15:10:28.000Z","dateModified":"2025-12-15T03:37:27.121Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       大型团队项目代码的编写，有些要求和原则需要遵守。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2024/09/01/Thinking/1-target2chase/CoreProfessionalCompetencies/ProgrammingPrinciple/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2024-09-01T15:10:28.000Z" title="9/1/2024, 3:10:28 PM">2024-09-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2025-12-15T03:37:27.121Z" title="12/15/2025, 3:37:27 AM">2025-12-15</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">23 minutes read (About 3519 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Programming Principle &amp; Code Test</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>大型团队项目代码的编写，有些要求和原则需要遵守。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="项目闭环"><a href="#项目闭环" class="headerlink" title="项目闭环"></a>项目闭环</h2><h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><ol>
+<li>需求澄清明确：理解背景、功能&#x2F;收益点、基本设计与实现思路。<ol>
+<li>人无我有，人有我优，人优我异。</li>
+<li>竞争力 &#x3D; 质量&#x2F;成本&#x2F;进度 三角；保证质量优先。</li>
+</ol>
+</li>
+<li>开发框架构建：<ol>
+<li>敏捷开发流程(快速编译涉及的小单元、快速测试小例子)</li>
+<li>彻底理解工具(或许耗时，但有方法能彻底理解逻辑，e.g.,pytorch.profile，viztracer,GDB)</li>
+<li>实时看护运行框架(低开销监控修改的影响：修改正确的触发，对前中后的时间影响，e.g.,cpprinter，CI)</li>
+<li>批量实验设计：组内原始数据，组件CSV数据对比，整体可视化感知。</li>
+</ol>
+</li>
+<li>理解已有设计：只有充分理解设计，才不会有疏忽漏洞和BUG<ol>
+<li>项目拆分，确定看护代码规模</li>
+<li>先使用彻底理解工具来Profile理解</li>
+</ol>
+</li>
+<li>向前兼容设计&#x2F;重构：<ol>
+<li>最小化修改原则下，回答5W1H</li>
+<li><blockquote>
+<blockquote>
+<blockquote>
+<p>实时输出《详细设计文档》</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</li>
+<li>4+1视图</li>
+</ol>
+</li>
+<li>小步开发交付：<ol>
+<li>小步敏捷开发。不超过100行代码提交一次PR。</li>
+<li>DEBUG&#x2F;DEV同时开发，DEV虽然支持打印debug信息，但是没有<code>-g</code>的堆栈信息，不能快速GDB。</li>
+<li>及时保存各种情况的编译包。</li>
+</ol>
+</li>
+<li>DEBUG（需要真实的证据，和严谨的推导）<ol>
+<li>在同一套添加了DEBUG信息和开启了DEBUG模式的代码里，用环境变量字串，来控制代码中的元修改，通过排列组合的快速测试，来定位到相对于原代码，哪几处的元修改导致了seg fault.</li>
+<li>（不敏捷）使用<a target="_blank" rel="noopener" href="https://draw.telesoho.com/">无限画布</a>，来推导</li>
+<li>从已知到目标，包括猜想、实验、测试、阶段结论的循环。</li>
+</ol>
+</li>
+<li>测试并可视化：<ol>
+<li>由于共用机器，OS等环境很容易发生变化，测试时一定要成组测试，baseline和修改后要一起测试。</li>
+<li>如果出现BUG，一定是看护规模不够大，影响了外部组件，返回第三步针对debug涉及组件扩大看护规模，重新收集。</li>
+<li><blockquote>
+<blockquote>
+<blockquote>
+<p>实时输出《自验文档》，基于哪个gitid的包，进行了哪些对比实验。</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</li>
+<li><blockquote>
+<blockquote>
+<blockquote>
+<p>wiki(使用说明)</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+</li>
+<li>接口部署</li>
+<li>回顾分析：提取重点和案例</li>
+</ol>
+<h3 id="技巧"><a href="#技巧" class="headerlink" title="技巧"></a>技巧</h3><ol start="2">
+<li>用户需求分类和排序：KANO三层模型</li>
+<li>根因分析：5WHY，通过连续的询问来明确根本原因。</li>
+<li>5W+3H: Why,What,Who,When,Where + How&#x2F;How long&#x2F;How much<ol>
+<li>Why是关注项目的背景：一般是性能瓶颈，不支持流行的功能</li>
+<li>What是具体做什么，实现什么</li>
+<li>How much是这里一般指人力开销(每人天)</li>
+<li>How long是功能的开销</li>
+</ol>
+</li>
+</ol>
+<h2 id="实际情况"><a href="#实际情况" class="headerlink" title="实际情况"></a>实际情况</h2><article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>艰难的开发环境：多人共用Root，可用时间极短</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>任务抢占：在跑高性能任务时，还有其他的人跑</li>
+<li>任务中断：任务一半被kill，机器一天重启三次</li>
+<li>环境变化：OS更换内核，g++消失&#x2F;变版本</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>权限与隔离</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>文件隔离: 更换<code>export HOME=/home/t00906153</code></li>
+<li>shell隔离: zsh shell</li>
+</ol>
+
+        </div>
+    </article>
+
+<p>由于机器(显卡)可用时间极短，所以要保证测试的有效性，功能开发时要提前单元测试，保证子模块的<strong>正确性</strong>和<strong>测试效率</strong>。</p>
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>庞大的复杂项目：编译慢，测试慢，报错多</p>
+</div>
+        <div class="message-body">
+            <p>torch-npu基于meta的PyTorch，还安装了许多三方库。</p>
+
+        </div>
+    </article>
+
+<p>需要功能拆分，拆分出<strong>独立的功能单元</strong>，在<strong>其余仓库</strong>进行开发、编译和单元测试。之后在快速合并。</p>
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>庞大的复杂项目：黑盒部分多</p>
+</div>
+        <div class="message-body">
+            <p>几十万行的代码肯定的不懂的地方比理解的地方多。</p>
+
+        </div>
+    </article>
+
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>米山：各自开发，标准不一，重复冗余</p>
+</div>
+        <div class="message-body">
+            <p>每个人都按照自己的功能需求在某个目录下拓展代码，不关心旁边文件夹的内容的实现，导致有重复代码和，不同的定义区别。</p>
+
+        </div>
+    </article>
+
+<p>需要wiki</p>
+<h3 id="方法论"><a href="#方法论" class="headerlink" title="方法论"></a>方法论</h3><ol>
+<li><strong>从已知推进到未知</strong>：基于事实论据-&gt; 假设实践（设计编码）-&gt; 测试验证 -&gt; 支持&#x2F;修正假设。</li>
+<li><strong>从复杂划分出简单</strong>：将复杂项目和需求拆分，缓慢的编译和测试打散，小步开发递进</li>
+</ol>
+<h3 id="三层类设计"><a href="#三层类设计" class="headerlink" title="三层类设计"></a>三层类设计</h3><ol>
+<li>DAO（数据持久化）层：最底层是聚类数据和基于数据的原子操作，包括保存外部的config或者选项的参数的类config_data。</li>
+<li>Server层：上面一层是根据底层状态数据和外部参数决定的操作组合（工厂类）,利用掌握的所有数据类及其上面的元操作进行复杂功能实现。满足开闭原则，这一层添加新函数。也可以再分成两层：偏原子操作类，偏调度类</li>
+<li>Interface&#x2F;Controller层：在最上一层是外部处理接口, 并且掌握所有的数据类的unique_ptr，和所有的工厂类的使用。作用是建立&#x2F;初始化工厂类和各数据类直接的关联</li>
+</ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>Interface &#x2F; Implementation</p>
+</div>
+        <div class="message-body">
+            <p>上层接口类与下层实现类(面向不同的场景多态)解耦</p>
+
+        </div>
+    </article>
+
+<h2 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h2><ol>
+<li>期望:延续软件的易拓展性</li>
+<li>认知的四层境界：不知道自己不知道；知道自己不知道，知道自己知道，不知道自己知道（化繁为简，融为一体，浑然一体）</li>
+<li>认知的多个阶段：愚昧山峰-&gt;自信低谷-&gt;持续进步。</li>
+<li>多用<a target="_blank" rel="noopener" href="https://zh.cppreference.com/w/%E9%A6%96%E9%A1%B5#:~:text=We%20would%20l">cpp-reference</a></li>
+</ol>
+<h2 id="代码设计"><a href="#代码设计" class="headerlink" title="代码设计"></a>代码设计</h2><h3 id="四层思想"><a href="#四层思想" class="headerlink" title="四层思想"></a>四层思想</h3><ul>
+<li>目标:易读、易维护的Clean Code。</li>
+<li>从抽象到具体有如下四层：</li>
+</ul>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>聚类平衡：高内聚，低耦合</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>正交设计四原则</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>消除重复</li>
+<li>隔离变化</li>
+<li>缩小依赖范围</li>
+<li>向稳定依赖</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>SOLID原则</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>Single Responsibility Principle</li>
+<li>Open-Closed Principle：对拓展开放，(已有类&#x2F;函数)修改关闭</li>
+<li>Liskov Substitution 里氏替换，子类一定可以出现。 LSP是继承复用的基石，只有当衍生类可以替换掉基类，</li>
+<li>Interface Segregation 接口隔离，组合继承（通过继承多个基类</li>
+<li>Dependency Inversion 依赖倒置。实例依赖抽象</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>22种设计模式</p>
+</div>
+        <div class="message-body">
+            <p>具体<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44577346/article/details/117618463">参考</a>和<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45712636/article/details/124328504">2</a>，参考书：大话设计模式</p>
+<p>有些<strong>常用的典型模式</strong>：</p>
+<ol>
+<li>策略模式 Strategy，一个工厂类包全部</li>
+<li>门面模式 Facade，为多子类统一对外接口</li>
+<li>模板模式，抽取多个类的公共部分为基类部分来继承&#x2F;重载</li>
+<li><strong>观察者模式</strong> Observe，重点在于如何设计观察的内容（msg的数据量大小）</li>
+</ol>
+<p>大致分为四类：</p>
+<ol start="5">
+<li>创造型</li>
+<li>行为型</li>
+<li>结构型</li>
+<li>告警-&gt;观察者模式。</li>
+</ol>
+
+        </div>
+    </article>
+
+<h3 id="其余原则"><a href="#其余原则" class="headerlink" title="其余原则"></a>其余原则</h3><ol>
+<li>首位是正确性（通过所有测试） </li>
+<li>DRY (Don’t Repeat Yourself)</li>
+<li>KISS (Keep It Simple, Stupid)</li>
+<li>YAGNI (You Ain’t Gonna Need It)：不必预期编码，而是预留接口</li>
+<li>SMaRT,安全，可维护，可移植，可测试</li>
+<li>最小职责（别和陌生人说话</li>
+</ol>
+<h3 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h3><ol>
+<li>BFS写法+分治法 </li>
+<li>函数设计要求<ol>
+<li>多思考函数的必要性，通用性</li>
+<li>任务、函数解耦; 降低圈复杂度是提升可读性的有效方法。</li>
+<li>命名简洁有特色，<strong>自注释，见字知意</strong>，</li>
+<li>利用参数的信息来简化函数名，比如split(string A, char B)比splitString好。</li>
+</ol>
+</li>
+<li>如没必要，尽量简化传参<ol>
+<li>直接返回值，避免在外面初始化重要变量，然后传地址的方式</li>
+<li>重要的输入，会喜欢写在外面，如果只在函数内使用，这是没必要的</li>
+</ol>
+</li>
+<li>代码就近原则，相关功能的代码写一起</li>
+<li>多用空格</li>
+<li>高效读代码：BFS读代码方式，边读代码边输出UML类图，</li>
+</ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>使用上下文图来分析函数的子功能，UML来画类图</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><a target="_blank" rel="noopener" href="https://draw.telesoho.com/">上下文图工具</a></li>
+<li>PlantUML vscode 插件</li>
+</ul>
+
+        </div>
+    </article>
+
+<h3 id="闭环"><a href="#闭环" class="headerlink" title="闭环"></a>闭环</h3><p>计划、总结反思</p>
+<ul>
+<li>PDCA 戴明环：plan do check act</li>
+<li>ORID ：Objective客观 Reflective反应 Interpretive诠释 Decisional决定</li>
+</ul>
+<h2 id="代码测试设计"><a href="#代码测试设计" class="headerlink" title="代码测试设计"></a>代码测试设计</h2><ul>
+<li>设计的案例需要覆盖所有独立变量&#x2F;状态&#x2F;功能的可能情况，但是不要测量最小独立变量间的排列组合，这不满足正交性。</li>
+<li>反向验证：如果测试case报错，但是不能一眼定位代码问题，说明测试case不满足正交性，需要拆开。</li>
+<li>如果建立的完备正交的独立测试集，但是还有代码没有覆盖，说明代码有冗余。</li>
+<li>好的测试相当于代码文档。</li>
+<li>C++ 可以使用 <a target="_blank" rel="noopener" href="https://github.com/google/googletest">googletest</a>，可参考相关<a target="_blank" rel="noopener" href="https://www.cnblogs.com/coderzh/archive/2009/04/08/1431297.html">学习文档</a>。</li>
+</ul>
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>测试设计虽然一般通过代码覆盖率来评估</p>
+</div>
+        <div class="message-body">
+            <p>如果是先写代码再写测试，很容易跳过简单实现的测试（比如状态的初始化）</p>
+
+        </div>
+    </article>
+
+<h3 id="测试的分类"><a href="#测试的分类" class="headerlink" title="测试的分类"></a>测试的分类</h3><ul>
+<li>UT(Unit Test)<ul>
+<li>多使用<code>Test Double</code>，用测试替身来替代测试环境中依赖的外部组件</li>
+</ul>
+</li>
+<li>IT(Integrated Test)集成测试</li>
+<li>ST(System Test)</li>
+</ul>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>非功能测试（比如性能调优代码）单元测试是没有能力覆盖的，</p>
+</div>
+        <div class="message-body">
+            <p>这时可以使用其余的评估指标，e.g, <a target="_blank" rel="noopener" href="https://github.com/google/benchmark">google-benchmark</a></p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>单元测试设计需要保证正交性，和完备性</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>所有代码覆盖(执行)到，不必须所有case穷尽完。</li>
+<li>零，负数，int越界值</li>
+<li>避免没有注释&#x2F;意义的 魔鬼数字。</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>测试景深，关注正交的单元功能测试</p>
+</div>
+        <div class="message-body">
+            
+        </div>
+    </article>
+
+
+
+<h3 id="测试设计原则"><a href="#测试设计原则" class="headerlink" title="测试设计原则"></a>测试设计原则</h3><article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>FIRST原则</p>
+</div>
+        <div class="message-body">
+            <p>什么是好的测试。</p>
+<ol>
+<li>Fast(&lt;1s),</li>
+<li>Isolated独立，</li>
+<li>Repeatable，</li>
+<li>Self-Validating(确定是pass&#x2F;fail,不要输出log)，</li>
+<li>Timely及时测试（TDD）</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Right-BICEP原则</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>Right、</li>
+<li>Boundary、</li>
+<li>Inverse(反向)、</li>
+<li>Cross-Checking（交叉检查）</li>
+<li>Error、</li>
+<li>Performance</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>测试设计应该时刻铭记墨菲定律</p>
+</div>
+        <div class="message-body">
+            <p>墨菲定律，又译为摩菲定律，原句是：如果有多种方式去做某事，而其中一种方式将导致灾难，则必定有人会这样选择。在科学和算法方面与英文所谓的“worst-case scenario”</p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>CORRECT原则，主要面向集成测试</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>Conformance Consistent 一致性</li>
+<li>Ordering 顺序</li>
+<li>Range 范围</li>
+<li>Existence 存在</li>
+<li>Cardinality 下标，基数越界</li>
+<li>Time</li>
+</ol>
+
+        </div>
+    </article>
+
+<h3 id="TDD思想"><a href="#TDD思想" class="headerlink" title="TDD思想"></a>TDD思想</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.zentao.pm/blog/12-best-practices-of-agile-development-method-XP-827.html">极限编程</a>核心编程循环：TDD(test-driven development) + 重构 + 简单设计</li>
+</ul>
+<h3 id="OOP思想"><a href="#OOP思想" class="headerlink" title="OOP思想"></a>OOP思想</h3><ul>
+<li>面向对象编程：将数据与操作封装在一起，相对于面向过程，虽然略微复杂，但是代码能高内聚，低耦合，提高了程序后续的可拓展性<ul>
+<li>面向对象的软件设计原则: 开闭原则、单一职责、依赖倒置、里氏替换</li>
+</ul>
+</li>
+<li>通过封装（访问控制）、继承（复用父类函数）、多态（重载函数实现）来实习</li>
+</ul>
+<h2 id="代码重构"><a href="#代码重构" class="headerlink" title="代码重构"></a>代码重构</h2><ul>
+<li><strong>定义</strong>：保持外部接口的时候，简化代码</li>
+<li><strong>目的</strong>：提高开发效率，使得代码易于理解与易于拓展</li>
+<li><strong>何时重构</strong>：有时间时、对核心和经常WTF的代码来重构</li>
+<li><strong>如何重构</strong>：小步提交。<ul>
+<li>识别坏味道的<a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/371691">多种方法</a></li>
+<li>抽取、 替换、 组成、 改名、 移动。<!-- ## 🏗施工中🏗</li>
+</ul>
+</li>
+</ul>
+<p>🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧</p>
+<p>觉得有意义写，先占个位子。还没写好呢，建议不要看（逻辑内容都没想清楚），不要急~~</p>
+<p>🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧 –&gt;</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><!-- footnote is for url which the writer do not want reader to click to interupt the reading. -->
+
+<!-- 上面回答部分**来自ChatGPT-3.5**，没有进行正确性的交叉校验。-->
+
+</div><div class="article-licensing box"><div class="licensing-title"><p>Programming Principle &amp; Code Test</p><p><a href="http://icarus.shaojiemike.top/2024/09/01/Thinking/1-target2chase/CoreProfessionalCompetencies/ProgrammingPrinciple/">http://icarus.shaojiemike.top/2024/09/01/Thinking/1-target2chase/CoreProfessionalCompetencies/ProgrammingPrinciple/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-09-01</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2025-12-15</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/c/">c++</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2024/09/01/Work/software/visualization/PlantUML/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">PlantUML</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2024/08/22/Work/Programming/4-compile/CompileError/"><span class="level-item">GCC Compile Error</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">472</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">545</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#项目闭环"><span class="level-left"><span class="level-item">1</span><span class="level-item">项目闭环</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#流程"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">流程</span></span></a></li><li><a class="level is-mobile" href="#技巧"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">技巧</span></span></a></li></ul></li><li><a class="level is-mobile" href="#实际情况"><span class="level-left"><span class="level-item">2</span><span class="level-item">实际情况</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#方法论"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">方法论</span></span></a></li><li><a class="level is-mobile" href="#三层类设计"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">三层类设计</span></span></a></li></ul></li><li><a class="level is-mobile" href="#目标"><span class="level-left"><span class="level-item">3</span><span class="level-item">目标</span></span></a></li><li><a class="level is-mobile" href="#代码设计"><span class="level-left"><span class="level-item">4</span><span class="level-item">代码设计</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#四层思想"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">四层思想</span></span></a></li><li><a class="level is-mobile" href="#其余原则"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">其余原则</span></span></a></li><li><a class="level is-mobile" href="#具体实现"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">具体实现</span></span></a></li><li><a class="level is-mobile" href="#闭环"><span class="level-left"><span class="level-item">4.4</span><span class="level-item">闭环</span></span></a></li></ul></li><li><a class="level is-mobile" href="#代码测试设计"><span class="level-left"><span class="level-item">5</span><span class="level-item">代码测试设计</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#测试的分类"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">测试的分类</span></span></a></li><li><a class="level is-mobile" href="#测试设计原则"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">测试设计原则</span></span></a></li><li><a class="level is-mobile" href="#TDD思想"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">TDD思想</span></span></a></li><li><a class="level is-mobile" href="#OOP思想"><span class="level-left"><span class="level-item">5.4</span><span class="level-item">OOP思想</span></span></a></li></ul></li><li><a class="level is-mobile" href="#代码重构"><span class="level-left"><span class="level-item">6</span><span class="level-item">代码重构</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">30</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">39</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">53</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-12-11T02:19:16.000Z">2025-12-11</time></p><p class="title"><a href="/2025/12/11/Work/Artificial%20Intelligence/framework/SGLang/">SGLang</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-12-10T02:11:10.000Z">2025-12-10</time></p><p class="title"><a href="/2025/12/10/Work/Artificial%20Intelligence/framework/DiffSynth/">DiffSynth &amp; ms-swift</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-12-10T01:45:34.000Z">2025-12-10</time></p><p class="title"><a href="/2025/12/10/Work/Artificial%20Intelligence/framework/VeOmni/">VeOmni</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-12-09T03:03:09.000Z">2025-12-09</time></p><p class="title"><a href="/2025/12/09/Work/software/manager/pip-cache/">Pip Cache</a></p><p class="categories"><a href="/categories/Tutorials/">Tutorials</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-12-06T01:48:37.000Z">2025-12-06</time></p><p class="title"><a href="/2025/12/06/Work/Artificial%20Intelligence/Training/dataUsage/">Training Data Usage</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2025 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
