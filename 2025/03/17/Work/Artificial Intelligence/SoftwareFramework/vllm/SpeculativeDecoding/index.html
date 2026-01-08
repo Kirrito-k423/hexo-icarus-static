@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Speculative Decoding &amp; eagle3 - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       Speculative Decoding &amp;amp; eagle3 是种推理时计算换带宽的方法。"><meta property="og:type" content="blog"><meta property="og:title" content="Speculative Decoding &amp; eagle3"><meta property="og:url" content="http://icarus.shaojiemike.top/2025/03/17/Work/Artificial%20Intelligence/SoftwareFramework/vllm/SpeculativeDecoding/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       Speculative Decoding &amp;amp; eagle3 是种推理时计算换带宽的方法。"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2025-03-17T01:52:48.000Z"><meta property="article:modified_time" content="2026-01-08T03:50:25.087Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="inference"><meta property="article:tag" content="vllm"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2025/03/17/Work/Artificial%20Intelligence/SoftwareFramework/vllm/SpeculativeDecoding/"},"headline":"Speculative Decoding & eagle3","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2025-03-17T01:52:48.000Z","dateModified":"2026-01-08T03:50:25.087Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       Speculative Decoding &amp; eagle3 是种推理时计算换带宽的方法。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2025/03/17/Work/Artificial%20Intelligence/SoftwareFramework/vllm/SpeculativeDecoding/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2025-03-17T01:52:48.000Z" title="3/17/2025, 1:52:48 AM">2025-03-17</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-01-08T03:50:25.087Z" title="1/8/2026, 3:50:25 AM">2026-01-08</time></span><span class="level-item"><a class="link-muted" href="/categories/AI/">AI</a></span><span class="level-item">27 minutes read (About 4084 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Speculative Decoding &amp; eagle3</h1><div class="content"><!-- 博客内容主要是实践，测试记录，辅助知识整理。不会只是为了整理知识而写，至少是为了全面了解当前工作涉及知识点而写。 -->
+
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>Speculative Decoding &amp; eagle3 是种推理时计算换带宽的方法。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+
+
+<h2 id="投机推理"><a href="#投机推理" class="headerlink" title="投机推理"></a>投机推理</h2><p>（Speculative Decoding）</p>
+<p>在 vLLM 和大语言模型（LLM）推理优化领域，<strong>投机推理（Speculative Decoding）</strong> 是一项旨在打破“显存带宽瓶颈”并显著提升推理速度的核心技术。</p>
+<p>以下是关于投机推理、EAGLE-3 的演进区别以及接受率概念的详细解析：</p>
+<hr>
+<p>传统的 LLM 推理是<strong>自回归</strong>的：每生成一个字（Token），都要把几十 GB 的参数从显存搬到计算单元里跑一遍。这导致推理速度受限于显存带宽，而非计算能力。</p>
+<p><strong>投机推理</strong>的思路是“先尝试，后验证”：</p>
+<ol>
+<li><strong>草稿阶段 (Drafting)：</strong> 先用一个<strong>又小又快</strong>的模型（草稿模型，Draft Model）快速预测接下来的  个 Token（例如预测 5 个词）。</li>
+<li><strong>验证阶段 (Verification)：</strong> 把这  个 Token 一次性打包交给<strong>大模型</strong>（目标模型，Target Model）进行并行计算。</li>
+<li><strong>判定：</strong> 如果大模型认为这 5 个词是对的，就直接全收，原本要跑 5 次大模型的时间现在只需 1 次。如果错了一个，则从错的那位开始重新生成。</li>
+</ol>
+<hr>
+<h3 id="EAGLE-3"><a href="#EAGLE-3" class="headerlink" title="EAGLE-3"></a>EAGLE-3</h3><p>EAGLE（Extrapolation Algorithm for Greater Language-model Efficiency）是目前投机推理领域的 SOTA（业界领先）方案。EAGLE-3 则是该系列在 2025 年发布的最新一代。</p>
+<p>它们的演进逻辑如下：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>传统投机推理 (Vanilla)</th>
+<th>EAGLE (v1&#x2F;v2)</th>
+<th><strong>EAGLE-3 (最新)</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>预测对象</strong></td>
+<td>预测 Token ID（离散）</td>
+<td>预测<strong>特征向量</strong> (Feature)</td>
+<td>预测 <strong>Token</strong> + <strong>多层特征融合</strong></td>
+</tr>
+<tr>
+<td><strong>核心机制</strong></td>
+<td>独立的小模型（如 Llama-68M）</td>
+<td>预测目标模型顶层的 Feature</td>
+<td><strong>训练时测试 (Training-time Test)</strong></td>
+</tr>
+<tr>
+<td><strong>特征来源</strong></td>
+<td>无（仅词表输入）</td>
+<td>仅目标模型顶层特征</td>
+<td>目标模型的<strong>底层、中层、顶层</strong>特征融合</td>
+</tr>
+<tr>
+<td><strong>效率</strong></td>
+<td>较低（小模型太弱）</td>
+<td>较高（利用了语义信息）</td>
+<td><strong>极高</strong>（解决了分布偏移问题）</td>
+</tr>
+</tbody></table>
+<p><strong>EAGLE-3 的核心突破点：</strong></p>
+<ul>
+<li><strong>多层特征融合：</strong> 它不只是看大模型的最后一层输出，而是提取了模型不同深度的特征。就像一个人不仅看结论，还参考了思考过程中的中间想法，预测更准。</li>
+<li><strong>训练时测试 (TTT)：</strong> 解决了“训练和推理对不上”的问题。它让草稿头在训练阶段就模拟真实的推理环境，使得在高并发（Batch Size 大）的情况下依然能保持极高的预测准确度。</li>
+<li><strong>加速比：</strong> 在 vLLM 中，EAGLE-3 通常能带来 <strong>2x 到 3x</strong> 的实际吞吐提升。</li>
+</ul>
+<hr>
+<h3 id="接受率"><a href="#接受率" class="headerlink" title="接受率"></a>接受率</h3><p><strong>接受率</strong>(Acceptance Rate) 是衡量投机推理效率最关键的指标。</p>
+<ul>
+<li><strong>定义：</strong> 草稿模型预测的 Token 中，被大模型判定为“正确”并予以保留的比例。</li>
+<li><strong>简单理解：</strong> 如果草稿模型猜了 100 个词，大模型验证后发现有 70 个词可以用，那么接受率就是 **70%**。</li>
+</ul>
+<h4 id="为什么它很重要？"><a href="#为什么它很重要？" class="headerlink" title="为什么它很重要？"></a>为什么它很重要？</h4><ol>
+<li><strong>性能正相关：</strong> 接受率越高，意味着大模型每次“验证”时能通过的 Token 越多，推理速度就越快。</li>
+<li><strong>任务敏感：</strong> * <strong>代码&#x2F;文学续写：</strong> 逻辑性强，接受率通常较高（可能 &gt; 80%）。</li>
+</ol>
+<ul>
+<li><strong>数学&#x2F;复杂逻辑推理：</strong> 容错率低，一步错步步错，接受率往往会下降（可能 &lt; 50%）。</li>
+</ul>
+<ol start="3">
+<li><strong>系统开销：</strong> 如果接受率过低（比如低于 20%），投机推理反而会变慢。因为验证失败后大模型还要重新计算，此时“验证”带来的开销超过了“猜”带来的收益。</li>
+</ol>
+<hr>
+<p>总结与建议</p>
+<ul>
+<li><strong>投机推理</strong>是“以计算换时间”：利用显卡闲置的计算力去验证草稿，减少显存搬运次数。</li>
+<li><strong>EAGLE-3</strong> 是目前 vLLM 支持的最强投机插件，它通过“多层特征融合”大幅拉高了<strong>接受率</strong>。</li>
+<li><strong>接受率</strong>是你的“天气预报”：如果你的业务场景接受率很低，建议调整草稿模型或关闭投机推理。</li>
+</ul>
+<h2 id="训练？投机推理"><a href="#训练？投机推理" class="headerlink" title="训练？投机推理"></a>训练？投机推理</h2><p>投机推理并非“任意两个模型”拿来就能直接跑，它对模型的<strong>匹配性</strong>和<strong>训练状态</strong>有特定要求。</p>
+<p>根据实现方式的不同，可以分为以下三类情况：</p>
+<hr>
+<h3 id="1-训练无关（Training-Free）：任何模型都能用"><a href="#1-训练无关（Training-Free）：任何模型都能用" class="headerlink" title="1. 训练无关（Training-Free）：任何模型都能用"></a>1. 训练无关（Training-Free）：任何模型都能用</h3><p>这种方式最简单，不需要额外的模型，也不需要训练。vLLM 支持以下几种模式：</p>
+<ul>
+<li><strong>Prompt Lookup Decoding（提示词查找）：</strong> 假设答案就在你的输入提示词里（常见于摘要、文档问答任务）。它直接从 Prompt 里找重复的  个词来“猜”。</li>
+<li><strong>N-gram Matching：</strong> 记录已经生成的词序列，如果发现当前生成的词之前出现过，就顺着之前的逻辑往后多猜几个词。</li>
+<li><strong>适用场景：</strong> 显存极其紧张、或者你完全不想折腾模型训练时使用。</li>
+</ul>
+<h3 id="2-经典模式：需要“模型对儿”（Draft-Target-Pair）"><a href="#2-经典模式：需要“模型对儿”（Draft-Target-Pair）" class="headerlink" title="2. 经典模式：需要“模型对儿”（Draft-Target Pair）"></a>2. 经典模式：需要“模型对儿”（Draft-Target Pair）</h3><p>这是 DeepMind 最早提出的方式。</p>
+<ul>
+<li><strong>要求：</strong> 你需要一个<strong>大模型（Target）</strong>和一个<strong>小模型（Draft）</strong>。</li>
+<li><strong>限制：</strong> 这两个模型必须<strong>共享同一个词表（Tokenizer）</strong>。比如你不能拿 Llama 的小模型去给 Qwen 的大模型做投机，因为它们“语言不通”，对同一个编号（ID）的理解不一样。</li>
+<li><strong>是否需要训练：</strong> 通常不需要额外训练，只要在 HuggingFace 上找一个同系列的小模型即可（如 <code>Llama-70B</code> 配 <code>Llama-68M</code>）。</li>
+</ul>
+<h3 id="3-EAGLE-3-Medusa-模式：需要特殊训练"><a href="#3-EAGLE-3-Medusa-模式：需要特殊训练" class="headerlink" title="3. EAGLE-3 &#x2F; Medusa 模式：需要特殊训练"></a>3. EAGLE-3 &#x2F; Medusa 模式：需要特殊训练</h3><p>这就是你关心的 EAGLE-3。它属于<strong>“外挂头”</strong>模式。</p>
+<ul>
+<li><strong>机制：</strong> 它不是一个独立的小模型，而是给大模型装了一个极其轻量的“预测头”（类似插件）。</li>
+<li><strong>是否需要训练？ 是的，必须针对特定的大模型进行训练。</strong></li>
+<li><strong>为什么：</strong> 因为 EAGLE-3 需要读取大模型内部的隐藏层特征（Hidden States）来做预测。每个模型“思考”的方式不同，插件必须针对该模型量身定做。</li>
+<li><strong>好消息：</strong> EAGLE-3 的这个插件非常小（通常只有大模型体积的 2%~5%），训练很快（通常 1-2 天即可完成）。</li>
+<li><strong>现状：</strong> 对于主流模型（如 Llama-3, Qwen-2.5, Mixtral），社区已经有训练好的 EAGLE 权重，你直接下载即用，不需要自己训练。</li>
+</ul>
+<hr>
+<h3 id="总结对比"><a href="#总结对比" class="headerlink" title="总结对比"></a>总结对比</h3><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>是否需要训练</th>
+<th>性能提升</th>
+<th>限制条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Prompt Lookup</strong></td>
+<td>否</td>
+<td>低（仅限特定任务）</td>
+<td>无</td>
+</tr>
+<tr>
+<td><strong>传统投机推理</strong></td>
+<td>否（需找现成小模型）</td>
+<td>中</td>
+<td>必须同词表、同系列</td>
+</tr>
+<tr>
+<td><strong>EAGLE-3</strong></td>
+<td><strong>是（针对具体模型训练）</strong></td>
+<td><strong>极高</strong></td>
+<td>需适配特定版本的插件权重</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="给您的操作建议"><a href="#给您的操作建议" class="headerlink" title="给您的操作建议"></a>给您的操作建议</h3><ol>
+<li><strong>如果你在用主流开源模型（如 Llama-3-8B）：</strong><br>不需要自己训练。去 HuggingFace 搜索 <code>EAGLE-LLaMA3-8B</code> 类似的权重，直接在 vLLM 启动脚本中引用即可。</li>
+<li><strong>如果你在用自己微调过的私有模型：</strong></li>
+</ol>
+<ul>
+<li>如果微调没有改变模型结构，可以直接尝试用原版模型的 EAGLE 插件，接受率可能会略微下降。</li>
+<li>如果模型改动很大，你需要使用 <code>EAGLE-3</code> 提供的工具包，拿你的训练数据跑一下“外挂头”的训练。</li>
+</ul>
+<h2 id="多模态投机"><a href="#多模态投机" class="headerlink" title="多模态投机"></a>多模态投机</h2><p>确实，在日常讨论中，大家提到投机推理（Speculative Decoding）时，大多是在聊 Llama 3、Qwen 等<strong>纯文本模型</strong>，而在 <strong>VLM（多模态大模型，如 LLaVA、Qwen-VL）</strong> 领域，感知的确没那么强烈。</p>
+<p>这主要有三个原因：<strong>瓶颈位置不同</strong>、<strong>草稿模型设计更难</strong>、以及<strong>生态适配较慢</strong>。</p>
+<hr>
+<h3 id="1-多模态投机推理“存在感”低？"><a href="#1-多模态投机推理“存在感”低？" class="headerlink" title="1. 多模态投机推理“存在感”低？"></a>1. 多模态投机推理“存在感”低？</h3><h4 id="A-瓶颈不仅在生成（Decode），还在预处理（Prefill）"><a href="#A-瓶颈不仅在生成（Decode），还在预处理（Prefill）" class="headerlink" title="A. 瓶颈不仅在生成（Decode），还在预处理（Prefill）"></a>A. 瓶颈不仅在生成（Decode），还在预处理（Prefill）</h4><p>纯文本模型的主要瓶颈是逐个词跳出的“生成阶段”。但多模态模型在生成第一个词之前，需要处理大量的<strong>视觉 Token</strong>：</p>
+<ul>
+<li>一张图片可能会被切分成 576 个甚至上千个 Token。</li>
+<li>大模型在处理这些图片 Token 时，计算量（FLOPs）非常大，显存占用也高。</li>
+<li><strong>投机推理只能加速“生成词”的阶段，无法加速“看图”的阶段。</strong> 如果一张图处理要 500ms，生成只花 200ms，那么优化生成部分的感知就不明显。</li>
+</ul>
+<h4 id="B-“视觉一致性”极难对齐"><a href="#B-“视觉一致性”极难对齐" class="headerlink" title="B. “视觉一致性”极难对齐"></a>B. “视觉一致性”极难对齐</h4><p>投机推理要求小模型（Draft Model）能猜准大模型的思路。</p>
+<ul>
+<li>在纯文本中，小模型只要学会语法和常识就能猜得八九不离十。</li>
+<li>在多模态中，小模型必须也具备<strong>理解图片</strong>的能力。如果小模型看不懂图片里的细节（比如看不清验证码里的数字），它猜出来的 Token 接受率会极低，不仅不加速，反而会拖慢速度。</li>
+</ul>
+<hr>
+<h3 id="2-多模态投机推理"><a href="#2-多模态投机推理" class="headerlink" title="2. 多模态投机推理"></a>2. 多模态投机推理</h3><p>虽然感知弱，但学术界和工业界已经有方案了，主要分为两类：</p>
+<h4 id="方案一：图像特征压缩"><a href="#方案一：图像特征压缩" class="headerlink" title="方案一：图像特征压缩"></a>方案一：图像特征压缩</h4><p>（把图变小）</p>
+<p>严格来说这不算投机推理，但目的相同。通过把 1000 个视觉 Token 压缩成 100 个，直接减轻大模型的负担。</p>
+<h4 id="方案二：多模态投机"><a href="#方案二：多模态投机" class="headerlink" title="方案二：多模态投机"></a>方案二：多模态投机</h4><p>（如 LLaVA-Spec, Look-ahead）</p>
+<ol>
+<li><strong>轻量级视觉支路：</strong> 专门训练一个超小型的多模态模型作为草稿模型。</li>
+<li><strong>视觉特征缓存：</strong> 大模型在验证时，不需要重新处理图片，而是复用已经提取好的视觉特征。</li>
+<li><strong>EAGLE 架构移植：</strong> 最近研究者开始尝试把 <strong>EAGLE</strong> 的思想（预测隐层特征）用到 LLaVA 等模型上。因为 EAGLE 不需要独立的小模型，只需要一个外挂头，这避开了“再造一个小型多模态模型”的难题。</li>
+</ol>
+<hr>
+<h3 id="3-多模态投机推理的现状"><a href="#3-多模态投机推理的现状" class="headerlink" title="3. 多模态投机推理的现状"></a>3. 多模态投机推理的现状</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>文本模型 (LLM)</th>
+<th>多模态模型 (VLM)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>成熟度</strong></td>
+<td>工业级（vLLM 直接内置）</td>
+<td>实验阶段 &#x2F; 刚起步</td>
+</tr>
+<tr>
+<td><strong>接受率</strong></td>
+<td>较高且稳定 (60%-80%)</td>
+<td>波动剧烈（受图像复杂度影响）</td>
+</tr>
+<tr>
+<td><strong>开源支持</strong></td>
+<td>非常丰富 (EAGLE-3, Medusa)</td>
+<td>较少，通常需要手动魔改代码</td>
+</tr>
+</tbody></table>
+<h3 id="4-未来的趋势"><a href="#4-未来的趋势" class="headerlink" title="4. 未来的趋势"></a>4. 未来的趋势</h3><p>随着<strong>视频大模型（Video-LLM）</strong>的普及，投机推理会变得极其重要。因为视频的 Token 量是图像的几十倍，不进行投机推理，推理成本将高得无法商业化。</p>
+<p><strong>总结一下：</strong><br>你感知不到是因为目前多模态模型的性能瓶颈还有很大一部分在“图片编码”上，且能精准理解图像的“草稿模型”非常难做。</p>
+<h2 id="VLM加速特性"><a href="#VLM加速特性" class="headerlink" title="VLM加速特性"></a>VLM加速特性</h2><p>除了投机推理，多模态大模型（VLM）的加速方案目前主要集中在<strong>减少视觉 Token 冗余</strong>、<strong>推理框架底层优化</strong>、以及<strong>权重&#x2F;特征压缩</strong>这三个方向。</p>
+<p>由于 VLM 的“图像预处理（Prefill）”阶段压力远大于纯文本模型，以下是目前主流且有效的加速手段：</p>
+<hr>
+<h3 id="1-视觉-Token-压缩（Visual-Token-Reduction）"><a href="#1-视觉-Token-压缩（Visual-Token-Reduction）" class="headerlink" title="1. 视觉 Token 压缩（Visual Token Reduction）"></a>1. 视觉 Token 压缩（Visual Token Reduction）</h3><p>这是 VLM 最核心的加速方式。一张高分辨率图片动辄产生 1000+ 个 Token，但其中大量背景区域（如白墙、蓝天）对理解语义是多余的。</p>
+<ul>
+<li><strong>Token 剪枝（Pruning）：</strong> 代表性方案如 <strong>FastV</strong>。它发现 VLM 在语言模型的前两层之后，对大部分视觉 Token 的注意力极低。通过剔除这些“无用”的视觉 Token，可以将计算量直接砍掉 50% 以上，且几乎不损失精度。</li>
+<li><strong>Token 合并（Merging&#x2F;Pooling）：</strong> 将相似的视觉特征块合并为一个。例如 **ToMe (Token Merging)**，利用聚类算法把图像中相似的像素块合成一个 Token，减少输入序列长度。</li>
+<li><strong>动态分辨率（Dynamic Resolution）：</strong> 如 **LLaVA-v1.6 (AnyRes)**。它不强行把图缩放到固定大小，而是根据图片长宽比切分。加速方案则是针对简单图片使用低分辨率，复杂图片才启动高分辨率分片。</li>
+</ul>
+<hr>
+<h3 id="2-框架层优化（Serving-Frameworks）"><a href="#2-框架层优化（Serving-Frameworks）" class="headerlink" title="2. 框架层优化（Serving Frameworks）"></a>2. 框架层优化（Serving Frameworks）</h3><p>选择合适的推理引擎能直接带来数倍的吞吐提升。</p>
+<ul>
+<li><p><strong>SGLang (RadixAttention)：</strong></p>
+</li>
+<li><p><strong>核心：</strong> SGLang 特有的 <strong>RadixAttention</strong> 机制对多模态极其友好。当你连续问关于同一张图的问题时，它能自动缓存这张图的视觉特征（KV Cache），下次提问直接秒回，跳过重复的图像编码过程。</p>
+</li>
+<li><p><strong>vLLM V1 (Encoder Cache)：</strong></p>
+</li>
+<li><p><strong>核心：</strong> vLLM 专门针对 VLM 引入了 <strong>Vision Encoder Cache</strong>。它将图像编码器的计算与语言模型的生成解耦，并对图像特征进行高效哈希缓存。在多图或长视频理解中，加速效果非常显著。</p>
+</li>
+<li><p><strong>LMDeploy (TurboMind)：</strong></p>
+</li>
+<li><p><strong>核心：</strong> 采用了纯 C++ 开发的后端，优化了多模态的 Tensor 并行（TP）策略，在 NVIDIA 显卡上拥有极高的执行效率。</p>
+</li>
+</ul>
+<hr>
+<h3 id="3-量化与低精度推理（Quantization）"><a href="#3-量化与低精度推理（Quantization）" class="headerlink" title="3. 量化与低精度推理（Quantization）"></a>3. 量化与低精度推理（Quantization）</h3><p>减少显存占用并提升计算速度。</p>
+<ul>
+<li><strong>4-bit 量化 (AWQ&#x2F;GPTQ)：</strong> 针对 VLM 的核心语言模型（如 Qwen2-7B）进行量化。目前主流框架均支持对 VLM 进行 4-bit 量化，能将显存需求降低 50%-70%。</li>
+<li><strong>视觉编码器量化：</strong> 以往只量化 LLM 部分，现在也有方案对 <strong>CLIP &#x2F; SigLIP</strong> 等视觉塔进行 8-bit 量化，加快图像特征提取速度。</li>
+<li><strong>SVD 特征降维 (LoFi)：</strong> 通过奇异值分解压缩视觉投影层（Projector）的特征维度，减少传给大模型的参数量。</li>
+</ul>
+<hr>
+<h3 id="4-架构级改进"><a href="#4-架构级改进" class="headerlink" title="4. 架构级改进"></a>4. 架构级改进</h3><p>直接从模型设计上减负。</p>
+<ul>
+<li><strong>混合专家模型 (MoE)：</strong> 比如 <strong>DeepSeek-VL2</strong>。在生成时，每一位 Token 只激活一小部分神经元，这使得模型可以在保持极高性能的同时，推理开销远低于同参数规模的稠密模型。</li>
+<li><strong>轻量化视觉投影器：</strong> 优化连接图片和文字的“桥梁”（Projector），减少中间层的层数。</li>
+</ul>
+<hr>
+<h3 id="总结与对比"><a href="#总结与对比" class="headerlink" title="总结与对比"></a>总结与对比</h3><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>解决的问题</th>
+<th>适用场景</th>
+<th>提速效果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Token 剪枝 (FastV)</strong></td>
+<td>视觉 Token 太多</td>
+<td>长视频、高分辨率图像</td>
+<td>2x - 4x</td>
+</tr>
+<tr>
+<td><strong>SGLang 缓存</strong></td>
+<td>多轮对话重复传图</td>
+<td>图像对话机器人</td>
+<td>重复提问瞬间响应</td>
+</tr>
+<tr>
+<td><strong>AWQ 量化</strong></td>
+<td>显存不足、计算慢</td>
+<td>单卡运行大模型</td>
+<td>约 1.5x</td>
+</tr>
+<tr>
+<td><strong>Encoder Cache</strong></td>
+<td>图像编码开销</td>
+<td>视频理解、大量图片处理</td>
+<td>减少首字延迟 (TPD)</td>
+</tr>
+</tbody></table>
+<p><strong>建议：</strong><br>如果您追求<strong>单次请求</strong>的极致速度，建议配合 <strong>FastV</strong> 这种 Token 剪枝技术；如果您是做<strong>多轮对话</strong>产品，强烈建议部署 <strong>SGLang</strong> 利用其缓存机制。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Speculative Decoding &amp; eagle3</p><p><a href="http://icarus.shaojiemike.top/2025/03/17/Work/Artificial Intelligence/SoftwareFramework/vllm/SpeculativeDecoding/">http://icarus.shaojiemike.top/2025/03/17/Work/Artificial Intelligence/SoftwareFramework/vllm/SpeculativeDecoding/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2025-03-17</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-01-08</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/inference/">inference</a><a class="link-muted mr-2" rel="tag" href="/tags/vllm/">vllm</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2025/03/19/Work/Artificial%20Intelligence/AIInfra/torchrun/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">torchrun</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2025/03/17/Work/Artificial%20Intelligence/SoftwareFramework/vllm/vllm-basic/"><span class="level-item">Vllm Basic</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">488</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">552</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#投机推理"><span class="level-left"><span class="level-item">1</span><span class="level-item">投机推理</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#EAGLE-3"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">EAGLE-3</span></span></a></li><li><a class="level is-mobile" href="#接受率"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">接受率</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#为什么它很重要？"><span class="level-left"><span class="level-item">1.2.1</span><span class="level-item">为什么它很重要？</span></span></a></li></ul></li></ul></li><li><a class="level is-mobile" href="#训练？投机推理"><span class="level-left"><span class="level-item">2</span><span class="level-item">训练？投机推理</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#1-训练无关（Training-Free）：任何模型都能用"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">1. 训练无关（Training-Free）：任何模型都能用</span></span></a></li><li><a class="level is-mobile" href="#2-经典模式：需要“模型对儿”（Draft-Target-Pair）"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">2. 经典模式：需要“模型对儿”（Draft-Target Pair）</span></span></a></li><li><a class="level is-mobile" href="#3-EAGLE-3-Medusa-模式：需要特殊训练"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">3. EAGLE-3 / Medusa 模式：需要特殊训练</span></span></a></li><li><a class="level is-mobile" href="#总结对比"><span class="level-left"><span class="level-item">2.4</span><span class="level-item">总结对比</span></span></a></li><li><a class="level is-mobile" href="#给您的操作建议"><span class="level-left"><span class="level-item">2.5</span><span class="level-item">给您的操作建议</span></span></a></li></ul></li><li><a class="level is-mobile" href="#多模态投机"><span class="level-left"><span class="level-item">3</span><span class="level-item">多模态投机</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#1-多模态投机推理“存在感”低？"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">1. 多模态投机推理“存在感”低？</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#A-瓶颈不仅在生成（Decode），还在预处理（Prefill）"><span class="level-left"><span class="level-item">3.1.1</span><span class="level-item">A. 瓶颈不仅在生成（Decode），还在预处理（Prefill）</span></span></a></li><li><a class="level is-mobile" href="#B-“视觉一致性”极难对齐"><span class="level-left"><span class="level-item">3.1.2</span><span class="level-item">B. “视觉一致性”极难对齐</span></span></a></li></ul></li><li><a class="level is-mobile" href="#2-多模态投机推理"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">2. 多模态投机推理</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#方案一：图像特征压缩"><span class="level-left"><span class="level-item">3.2.1</span><span class="level-item">方案一：图像特征压缩</span></span></a></li><li><a class="level is-mobile" href="#方案二：多模态投机"><span class="level-left"><span class="level-item">3.2.2</span><span class="level-item">方案二：多模态投机</span></span></a></li></ul></li><li><a class="level is-mobile" href="#3-多模态投机推理的现状"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">3. 多模态投机推理的现状</span></span></a></li><li><a class="level is-mobile" href="#4-未来的趋势"><span class="level-left"><span class="level-item">3.4</span><span class="level-item">4. 未来的趋势</span></span></a></li></ul></li><li><a class="level is-mobile" href="#VLM加速特性"><span class="level-left"><span class="level-item">4</span><span class="level-item">VLM加速特性</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#1-视觉-Token-压缩（Visual-Token-Reduction）"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">1. 视觉 Token 压缩（Visual Token Reduction）</span></span></a></li><li><a class="level is-mobile" href="#2-框架层优化（Serving-Frameworks）"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">2. 框架层优化（Serving Frameworks）</span></span></a></li><li><a class="level is-mobile" href="#3-量化与低精度推理（Quantization）"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">3. 量化与低精度推理（Quantization）</span></span></a></li><li><a class="level is-mobile" href="#4-架构级改进"><span class="level-left"><span class="level-item">4.4</span><span class="level-item">4. 架构级改进</span></span></a></li><li><a class="level is-mobile" href="#总结与对比"><span class="level-left"><span class="level-item">4.5</span><span class="level-item">总结与对比</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">39</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">55</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-01-07T20:59:04.000Z">2026-01-07</time></p><p class="title"><a href="/2026/01/07/Work/Artificial%20Intelligence/Model/0-WhereAIIdeasComeFrom/">Understand deeper ： Where do AI ideas come from?</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-01-03T16:00:00.000Z">2026-01-03</time></p><p class="title"><a href="/2026/01/03/Thinking/1-target2chase/career/MoneyDistribution/">Contribution Allocation</a></p><p class="categories"><a href="/categories/Thinking/">Thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-01-03T16:00:00.000Z">2026-01-03</time></p><p class="title"><a href="/2026/01/03/Thinking/1-target2chase/CoreProfessionalCompetencies/SE/SE/">SE</a></p><p class="categories"><a href="/categories/Thinking/">Thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-12-31T03:46:48.000Z">2025-12-31</time></p><p class="title"><a href="/2025/12/31/Work/Artificial%20Intelligence/Model/Agent/GUIAgents/">GUIAgents</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2025-12-31T02:54:20.000Z">2025-12-31</time></p><p class="title"><a href="/2025/12/31/Work/Artificial%20Intelligence/Training/PostTrain/RL_weekly_news/">RL Weekly News</a></p><p class="categories"><a href="/categories/toLearn/">toLearn</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">20</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
