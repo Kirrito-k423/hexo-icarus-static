@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Train Stages: Pretrain, Mid-Train(CT), SFT, RL - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       模型训练，为什么需要这么多阶段，每个阶段的独特职责和意义是什么。"><meta property="og:type" content="blog"><meta property="og:title" content="Train Stages: Pretrain, Mid-Train(CT), SFT, RL"><meta property="og:url" content="http://icarus.shaojiemike.top/2025/11/25/Work/Artificial%20Intelligence/Training/PostTrain/0-Pretrain-MidTrain-SFT-RL-OPD/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       模型训练，为什么需要这么多阶段，每个阶段的独特职责和意义是什么。"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2025/12/2c2e01e6f62b220478865d835023f56d.png"><meta property="article:published_time" content="2025-11-25T02:24:57.000Z"><meta property="article:modified_time" content="2026-07-03T08:59:59.082Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="RL"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2025/12/2c2e01e6f62b220478865d835023f56d.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2025/11/25/Work/Artificial%20Intelligence/Training/PostTrain/0-Pretrain-MidTrain-SFT-RL-OPD/"},"headline":"Train Stages: Pretrain, Mid-Train(CT), SFT, RL","image":["https://pic.shaojiemike.top/shaojiemike/2025/12/2c2e01e6f62b220478865d835023f56d.png"],"datePublished":"2025-11-25T02:24:57.000Z","dateModified":"2026-07-03T08:59:59.082Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       模型训练，为什么需要这么多阶段，每个阶段的独特职责和意义是什么。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2025/11/25/Work/Artificial%20Intelligence/Training/PostTrain/0-Pretrain-MidTrain-SFT-RL-OPD/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2025-11-25T02:24:57.000Z" title="11/25/2025, 2:24:57 AM">2025-11-25</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.082Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">an hour read (About 6730 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Train Stages: Pretrain, Mid-Train(CT), SFT, RL</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>模型训练，为什么需要这么多阶段，每个阶段的独特职责和意义是什么。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>预训练、中训练、后训练</p>
+</div>
+        <div class="message-body">
+            <p>大语言模型（LLM）的训练通常分为三个主要阶段：预训练（Pre-training）、中训练（Mid-training）和后训练（Post-training）。 </p>
+<ul>
+<li>预训练阶段赋予模型通用的语言能力、世界知识和基础的推理能力。就像让孩子泛读海量的书籍，目标是掌握基本的语言和常识。这个阶段学的知识很广，但不够精深。</li>
+<li>中训练阶段则向模型注入特定领域的知识，例如代码、医学文献或公司内部文档。Continued Training (CT) 这是一个新发现的、很重要的阶段。就像在孩子泛读之后，让他精读一些高质量的科普文章或数学应用题，为后面的专项学习打下更好的基础。</li>
+<li>最后的后训练阶段，旨在引导模型产生符合期望的特定行为，如遵循指令、解决数学问题或进行对话。（SFT、RL、Distillation ）</li>
+</ul>
+
+        </div>
+    </article>
+
+<h2 id="Mid-train的重要性"><a href="#Mid-train的重要性" class="headerlink" title="Mid-train的重要性"></a>Mid-train的重要性</h2><p>Mid-train位于Pre-train和Post-train之间，用于弥合预训练数据分布和后训练目标的差距。通过通过使用更高质量、更具针对性的数据（例如指令格式的数据）+预训练阶段相同的训练目标，来强化模型在特定领域的推理先验知识，稳定优化过程，并为后续的强化学习（RL）做好准备。</p>
+<p>这篇论文发现[^1]，在计算资源有限的前提下，将一部分计算资源从RL分配给中期训练，最终的整体效果会比全部资源用于RL更好。特别是对于难度适中的任务，“大量中期训练 + 少量RL” 的方案是最优的。中期训练奠定了坚实的“能力基石”，RL则负责最后的“冲刺和优化”。</p>
+<h2 id="后训练-微调-RL的必要性"><a href="#后训练-微调-RL的必要性" class="headerlink" title="后训练&#x2F;微调&#x2F;RL的必要性"></a>后训练&#x2F;微调&#x2F;RL的必要性</h2><p>大型语言模型（Large Language Models, LLMs）的出现是人工智能领域的一个重要里程碑。这些模型通过在海量的文本语料库上进行自监督预训练，掌握了强大的语言理解和生成能力。[^2]</p>
+<p>然而，<strong>预训练</strong>的目标（如“下一个词预测”）本质上是模仿数据分布，这并不足以保证模型生成的内容完全符合人类的价值观和期望。未经对齐的LLM可能会产生不准确、有偏见、有害甚至虚构的内容。</p>
+<p>因此，<strong>模型对齐</strong>（Alignment）应运而生。其核心目标是微调预训练模型，使其行为与人类的意图、偏好和价值观（如有帮助性、诚实性、无害性，即“3H”原则）保持一致。这是确保LLM安全、可靠地部署于现实世界的关键步骤。</p>
+<p>为了应对对齐挑战，研究界探索了多种方法，其中<strong>基于人类反馈的强化学习</strong>（Reinforcement Learning from Human Feedback, RLHF）迅速成为主导范式。RLHF的核心思想是将人类的偏好数据转化为一个数值奖励信号，然后利用强化学习算法优化语言模型的策略（即其生成文本的方式），以最大化期望奖励。</p>
+<p>在LLM对齐的早期探索中，研究者们建立了两种影响深远的基础范式。</p>
+<ol>
+<li>一种是基于强化学习的PPO，它将经典的RL框架引入LLM微调，通过复杂的系统协调实现了强大的性能；</li>
+<li>另一种是DPO，它通过深刻的理论洞见，将对齐问题转化为一个更简洁的监督学习问题，显著提升了训练的稳定性和效率。</li>
+</ol>
+<h2 id="为什么需要后训练？"><a href="#为什么需要后训练？" class="headerlink" title="为什么需要后训练？"></a>为什么需要后训练？</h2><p>想象一下，我们辛辛苦苦训练出了一个拥有海量知识的基础大模型。它能记住无数事实、理解复杂的语法结构，甚至具备潜在的推理能力。但这还不够！就像一个学富五车的学者，如果他不了解如何有效地与人沟通、不明白你的具体需求，或者无法根据情境调整自己的表达方式，他的学识就难以充分发挥价值。[^6]</p>
+<p>大语言模型（LLMs）的基础模型（Base Model）在海量数据上预训练后，虽然掌握了基础能力，但它们并不能直接理解和遵循人类的复杂指令，也无法自然地与人互动，更不用说根据用户的偏好或特定任务需求来调整行为。它们可能不知道何时需要一步步推理（思维），何时需要直接给出答案（非思维），也不知道如何生成符合特定格式、长度或风格的文本。</p>
+<p>后训练的目标是将基础模型与人类偏好和下游应用更好地对齐。简单来说，就是教模型“读懂人心”，让它知道我们想要什么，并以我们希望的方式来回应。</p>
+<p>Qwen3的后训练尤其强调两大目标：</p>
+<ol>
+<li>思维控制，让模型能选择是否推理以及控制推理深度；</li>
+<li>以及强到弱蒸馏，利用大模型的知识高效地训练小模型。</li>
+</ol>
+<h2 id="RL定义、流程"><a href="#RL定义、流程" class="headerlink" title="RL定义、流程"></a>RL定义、流程</h2><p>强化学习是智能体（Agent）通过试错与环境（Environment）进行交互，学习如何做出最优决策以最大化<strong>累积奖励（Cumulative Reward）</strong>的过程。</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2025/12/2c2e01e6f62b220478865d835023f56d.png"></p>
+<p>其常规流程是一个迭代的循环：</p>
+<ul>
+<li>感知状态（State, $S$）： 智能体感知环境的当前状态 $S_t$。</li>
+<li>决策动作（Action, $A$）： 智能体根据其策略（Policy, $\pi$），基于当前状态 $S_t$ 选择一个动作 $A_t$。</li>
+<li>环境反馈： 动作 $A_t$ 在环境中执行，环境会产生两个反馈：<ul>
+<li>即时奖励（Reward, $R$）： 智能体获得一个即时奖励 $R_{t+1}$，用于衡量动作的好坏。</li>
+<li>新状态（New State, $S’$）： 环境转移到新的状态 $S_{t+1}$。</li>
+</ul>
+</li>
+<li>策略更新（Update）： 智能体利用获得的奖励 $R_{t+1}$ 和状态序列 $(S_t, A_t, R_{t+1}, S_{t+1})$ 来更新其策略 $\pi$（以及可能的值函数 $V$ 或 $Q$），目的是让策略在未来能获得更高的累积奖励。</li>
+<li>重复： 智能体在新状态 $S_{t+1}$ 继续下一个时间步的交互。</li>
+</ul>
+<p>核心要素：</p>
+<ul>
+<li>策略 ($\pi$)： 定义了智能体在特定状态下选择动作的规则。</li>
+<li>奖励信号 ($R$)： 定义了RL的目标，即最大化累积奖励。</li>
+<li>价值函数 ($V$ 或 $Q$)： 预测一个状态或状态-动作对的长期期望累积奖励，用于指导策略的改进。</li>
+</ul>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>Agent in RL和Agentic RL</p>
+</div>
+        <div class="message-body">
+            <p>Agentic RL 的核心目标是决策（Decision-making）。它旨在优化LLM 在一系列连续的交互步骤中完成复杂任务的能力。</p>
+
+        </div>
+    </article>
+
+<h2 id="RL-如何提效"><a href="#RL-如何提效" class="headerlink" title="RL 如何提效"></a>RL 如何提效</h2><h3 id="难度是数据边缘"><a href="#难度是数据边缘" class="headerlink" title="难度是数据边缘"></a>难度是数据边缘</h3><p>外推泛化（Depth Generalization）指看模型能不能把学到的简单技能组合起来，解决更复杂的问题。</p>
+<ul>
+<li>对于太简单的题目，RL是无效的，只是机械刷题、[^1]</li>
+<li>对于太难的，RL也是无效的，因为模型根本学不会；</li>
+<li>只有正好在模型<strong>能力边界</strong>的题目，通过合理的奖励机制，RL能够引导模型探索正确的解题路径，实现了能力边界的拓展。</li>
+</ul>
+<h3 id="核心魅力：自动化处理-Corner-Case"><a href="#核心魅力：自动化处理-Corner-Case" class="headerlink" title="核心魅力：自动化处理 Corner Case"></a>核心魅力：自动化处理 Corner Case</h3><p>相较于 SFT（监督微调），RL 真正的价值在于其对 <strong>OOD（分布外数据）</strong> 的处理能力：</p>
+<ul>
+<li><strong>无脑梭哈</strong>：只需定义好环境与 Question，利用 GRPO 等算法让模型在探索中自发碰撞出 Corner Cases 并学习。</li>
+<li><strong>正样本质量</strong>：RL 极其依赖正样本的规模与多样性，但获取高质量正样本的路径存在技术陷阱。</li>
+</ul>
+<h3 id="泛化需要有锚点"><a href="#泛化需要有锚点" class="headerlink" title="泛化需要有锚点"></a>泛化需要有锚点</h3><p>上下文泛化（Contextual Generalization）是指模型能否实现举一反三的能力：比如模型在“动物园”的场景下学会了加法，那么它能不能把加法应用到“学校”的场景中？[^1]</p>
+<p>研究发现：如果预训练数据中完全没有“学校”场景的题目，那么后续无论怎么用RL训练，模型都无法把加法技能迁移到“学校”场景。但是，只要在预训练中掺入极少量的“学校”场景基础题（比如只占1%），这就好像在心里埋下了一颗“种子”。</p>
+<p>一旦有了这颗“种子”，后续的RL训练就能像浇水施肥一样，极大地激发模型的迁移能力。模型可以轻松地将从“动物园”中学到的复杂推理技能，应用到“学校”场景中。</p>
+<h2 id="RL阶段的扩展定律"><a href="#RL阶段的扩展定律" class="headerlink" title="RL阶段的扩展定律"></a>RL阶段的扩展定律</h2><p>研究[^2]通过对 Qwen2.5 全系列模型的详尽实证分析，确立了 RL 后训练在数学推理任务上的扩展定律。</p>
+<p>关键启示：</p>
+<ul>
+<li><strong>大模型不仅起步高，学得也快</strong>：在相同数据&#x2F;计算下，大模型效率更高。</li>
+<li>效率有天花板：不能指望通过无限扩大模型来线性获得效率收益，必须考虑饱和效应。</li>
+<li>数据复用是实用的：在数据匮乏时，多跑几个 Epoch 没问题，总步数到位就行。</li>
+<li>专业化的代价：数学能力的增强可能以逻辑推理能力的退化为代价，且难以直接迁移到代码或科学领域。</li>
+</ul>
+<p>Meta提出的一个名为<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/81879665120">ScaleRL</a>的强化学习框架，旨在解决LLM强化学习阶段缺乏可预测性的问题。文章介绍了利用S型曲线预测计算量与性能关系的分析框架，详细阐述了包含PipelineRL异步设置、CISPO损失函数等核心组件的ScaleRL训练配方，并总结了关于性能上限、计算效率及大规模验证的核心洞见：</p>
+<ul>
+<li>RL性能可拟合成：sigmod曲线，有收敛上限；</li>
+<li>性能上限非普适：不同RL配方的性能上限A差异巨大，需通过实验识别。</li>
+<li>RL领域的“苦涩教训”：在低计算量下表现更优的方法，在扩展到高计算量时，其性能可能更差。例如，在对比不同批次大小时，较小的批次在训练初期性能增长更快，但其性能上限却低于较大的批次。这印证了「苦涩的教训」——最终胜出的是那些充分利用计算资源、具有更好伸缩性的方法，而非那些为小规模计算而优化的「捷径」。S 型曲线框架的价值正在于，它能帮助我们透过早期的效率表象，识别出那些拥有更高性能上限 、真正「可伸缩」的方法。</li>
+<li><strong>大道至简</strong>，干预措施的作用：许多被认为能提升性能的常见技巧，如优势归一化、数据课程、长度惩罚等，其主要作用是调节计算效率，而非改变性能上限。</li>
+<li>大规模验证：使用ScaleRL对8B模型进行10万GPU小时训练，前半程数据拟合的S型曲线与后半程真实数据高度吻合，验证了框架的预测能力。</li>
+</ul>
+<h2 id="大道至简RL"><a href="#大道至简RL" class="headerlink" title="大道至简RL"></a>大道至简RL</h2><p>（小模型专属的？）</p>
+<ul>
+<li>传统认为：优势: 迭代快；劣势：效果差（不稳定）<ul>
+<li>但是 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/LCbc5U1MuzHSrfG6AUpevw">JustRL</a> 小模型多步数GRPO也有效果，一文做实验却发现不一定是这样的（结论的泛化性有待怀疑）</li>
+</ul>
+</li>
+<li>Step-3-V-10B：通过力大砖飞的RL(PPO+GAE)，实现10B参数媲美100B模型智能的效果：RLVR：600 次迭代 + RLHF：300 次迭代 + PaCoRe Training：500 次迭代。</li>
+</ul>
+<h2 id="RL-核心原理"><a href="#RL-核心原理" class="headerlink" title="RL 核心原理"></a>RL 核心原理</h2><p>NIPS25唯一满分论文：Does Reinforcement Learning Really Incentivize Reasoning Capacity in LLMs Beyond the Base Model? 揭示传统观点认为RL训练能够赋予LLMs超越基础模型的全新推理能力，但本文通过系统性实验证明：RL训练并未真正扩展模型的根本推理能力边界，而主要是提高了模型在已有能力范围内采样到正确推理路径的效率。（RL将pass@k的能力压缩到了pass@1；但是在k很大时，RL后的模型甚至打不过基模）</p>
+<h2 id="RL的悲观观点"><a href="#RL的悲观观点" class="headerlink" title="RL的悲观观点"></a>RL的悲观观点</h2><article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>强化学习相对于监督学习比我们想象的要更加低效</p>
+</div>
+        <div class="message-body">
+            <p>RL 只在推理的one-step准确率越高时越高效[^46][^47]。</p>
+<p>当然为了更高效，RL领域一方面设计的复杂reward、课程学习、和分段reward；另一方面加速推理，简化流程来产出早期可评估信号。</p>
+
+        </div>
+    </article>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>RL越强，AGI越远</p>
+</div>
+        <div class="message-body">
+            <p>知名科技博主Dwarkesh Patel犀利在<a target="_blank" rel="noopener" href="https://wallstreetcn.com/articles/3761965">视频</a>中指出，各大实验室通过RL（强化学习），耗资数十亿美元让大模型“排练”Excel、网页操作等技能，恰恰暴露其距真正AGI仍远。若AI真接近类人智能，就该像人类一样从经验中自主学习，而非依赖“可验证奖励训练”。而真正突破在于“持续学习”能力，这一过程或需5-10年才能完善。</p>
+
+        </div>
+    </article>
+
+<h2 id="RL稳定性"><a href="#RL稳定性" class="headerlink" title="RL稳定性"></a>RL稳定性</h2><h3 id="多轮训练的不稳定性"><a href="#多轮训练的不稳定性" class="headerlink" title="多轮训练的不稳定性"></a>多轮训练的不稳定性</h3><p>从零强化学习（Zero RL）开始的多轮TIR训练，常出现梯度范数爆炸、熵坍塌、响应长度不规则和代码生成比例不稳定等问题。例如，在训练约35 - 40步时，模型会生成重复或无意义的响应。</p>
+<h3 id="“冷启动”方法的局限性"><a href="#“冷启动”方法的局限性" class="headerlink" title="“冷启动”方法的局限性"></a>“冷启动”方法的局限性</h3><p>为缓解不稳定问题，“冷启动”方法用监督微调（Supervised Fine-Tuning, SFT）确保稳定性，但会限制模型发现新推理策略和处理复杂多轮交互的能力，损害Zero RL训练的核心优势。</p>
+<h2 id="Offline-RL-vs-Online-RL"><a href="#Offline-RL-vs-Online-RL" class="headerlink" title="Offline RL vs Online RL"></a>Offline RL vs Online RL</h2><p>在线强化学习（Online RL）和离线强化学习（Offline RL，也称 Batch RL）的主要区别在于<strong>智能体（Agent）获取数据的方式</strong>以及<strong>是否能在训练过程中与环境进行交互</strong>。</p>
+<p>以下是它们的核心区别对比：</p>
+<h3 id="1-核心定义与交互方式"><a href="#1-核心定义与交互方式" class="headerlink" title="1. 核心定义与交互方式"></a>1. 核心定义与交互方式</h3><ul>
+<li><p><strong>在线强化学习 (Online RL):</strong><br>智能体处于一个“试错”的循环中。它在环境中采取行动，观察结果（奖励和下一个状态），并立即利用这些新数据来改进自己的策略。</p>
+</li>
+<li><p><strong>流程：</strong> 交互  收集数据  更新策略  再次交互。</p>
+</li>
+<li><p><strong>离线强化学习 (Offline RL):</strong><br>智能体不再与环境直接交互，而是从一个<strong>预先收集好的、固定的数据集</strong>中学习。这个数据集通常由其他策略（可能是人类操作员或其他算法）产生的历史记录组成。</p>
+</li>
+<li><p><strong>流程：</strong> 预收集数据  静态学习  部署。</p>
+</li>
+</ul>
+<hr>
+<h3 id="2-关键维度对比"><a href="#2-关键维度对比" class="headerlink" title="2. 关键维度对比"></a>2. 关键维度对比</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>在线强化学习 (Online RL)</th>
+<th>离线强化学习 (Offline RL)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>数据来源</strong></td>
+<td>实时交互产生的数据</td>
+<td>静态的历史数据集（日志）</td>
+</tr>
+<tr>
+<td><strong>探索能力</strong></td>
+<td><strong>主动探索</strong>：可以尝试新动作来发现更好的策略</td>
+<td><strong>被动学习</strong>：无法探索数据集之外的可能</td>
+</tr>
+<tr>
+<td><strong>反馈机制</strong></td>
+<td>封闭环路：策略改变后能立即看到反馈</td>
+<td>开放环路：无法验证新策略在真实环境中的效果</td>
+</tr>
+<tr>
+<td><strong>安全性</strong></td>
+<td>较低：探索过程中可能采取危险动作（如撞车）</td>
+<td>较高：训练过程不涉及实体操作，非常安全</td>
+</tr>
+<tr>
+<td><strong>成本&#x2F;可行性</strong></td>
+<td>高：需要实时运行环境或高精度模拟器</td>
+<td>低：利用现有存储数据，无需昂贵的实时交互</td>
+</tr>
+<tr>
+<td><strong>主要挑战</strong></td>
+<td>样本效率（需要大量交互）</td>
+<td><strong>分布偏移 (Distribution Shift)</strong></td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="3-应用场景示例"><a href="#3-应用场景示例" class="headerlink" title="3. 应用场景示例"></a>3. 应用场景示例</h3><ul>
+<li><p><strong>在线强化学习：</strong></p>
+<ul>
+<li>游戏 AI（如 AlphaZero、星际争霸）：可以在模拟器中进行数亿次低成本尝试。</li>
+<li>机器人实验室环境：在受控条件下进行实机训练。</li>
+</ul>
+</li>
+<li><p><strong>离线强化学习：</strong></p>
+<ul>
+<li><strong>医疗推荐：</strong> 无法在患者身上随机试验不同的药物，只能通过历史病历数据学习最优方案。</li>
+<li><strong>自动驾驶：</strong> 在真实道路上随机“探索”太危险，通常利用数百万英里的行驶日志进行学习。</li>
+<li><strong>推荐系统：</strong> 利用用户的历史点击日志进行策略优化，避免频繁打扰用户。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong>总结：</strong></p>
+<ul>
+<li><strong>Online RL</strong> 像是一个在操场上边跑边学、不断摔跤总结经验的学生。</li>
+<li><strong>Offline RL</strong> 像是一个坐在图书馆里，通过查阅学长们留下的实验记录来学习的学生。</li>
+</ul>
+<hr>
+<h3 id="4-分布偏移问题"><a href="#4-分布偏移问题" class="headerlink" title="4. 分布偏移问题"></a>4. 分布偏移问题</h3><p>为什么离线强化学习更难？</p>
+<p>这是 Offline RL 面临的最致命问题。<br>在训练过程中，智能体可能会预测某个在数据集中从未出现过的动作（Out-of-Distribution, OOD）具有极高的回报。由于无法去真实环境中验证，智能体容易产生“过度自信”的错误估计，导致学出的策略在实际部署时表现极差。</p>
+<p>而在 Online RL 中，如果智能体高估了某个动作，它只需要去尝试一下，发现回报并不高，就会自动修正这个估计。</p>
+<h2 id="DPO解释分布偏移问题"><a href="#DPO解释分布偏移问题" class="headerlink" title="DPO解释分布偏移问题"></a>DPO解释分布偏移问题</h2><p>虽然 DPO 常被看作一种有监督微调（SFT）的变体，但它的核心逻辑依然是<strong>离线策略优化</strong>。为了让你理解为什么它比在线学习（如带奖励模型的 PPO）更难，我们可以通过一个形象的对比来看：</p>
+<hr>
+<h3 id="1-核心矛盾"><a href="#1-核心矛盾" class="headerlink" title="1. 核心矛盾"></a>1. 核心矛盾</h3><p>你没见过的，“脑补”出来的就是对的吗？</p>
+<p>在 DPO 中，我们拥有的数据是固定的：<code>&#123;问题 x, 好的回答 yw, 坏的回答 yl&#125;</code>。</p>
+<h4 id="在线-RL"><a href="#在线-RL" class="headerlink" title="在线 RL"></a>在线 RL</h4><p>(类似 PPO)：有“教练”实时纠错</p>
+<ul>
+<li><strong>过程：</strong> 模型生成了一个它认为“绝妙”但实际上很离谱的回答（例如一串乱码，但正好触发了奖励模型的漏洞）。</li>
+<li><strong>结果：</strong> 奖励模型（或真人）会立即给这串乱码打低分。</li>
+<li><strong>反馈：</strong> 模型立刻知道：“哦，这招不行”，然后<strong>修正</strong>自己的认知。</li>
+</ul>
+<h4 id="离线-RL"><a href="#离线-RL" class="headerlink" title="离线 RL"></a>离线 RL</h4><p>(类似 DPO)：只能“死记硬背”</p>
+<ul>
+<li><strong>过程：</strong> DPO 试图推导出一个概率分布，使得 <code>yw</code> 的概率远大于 <code>yl</code>。</li>
+<li><strong>风险：</strong> 优化过程中，模型可能会发现某些单词组合（在数据集中从未出现过）在数学公式推导下能获得极高的分值。</li>
+<li><strong>致命点：</strong> 因为是<strong>离线</strong>的，没有“教练”告诉你这串新组合是错的。模型会顺着这个“数学漏洞”疯狂漂移，最终生成一堆看似逻辑合理但人类完全无法理解的内容。</li>
+</ul>
+<hr>
+<h3 id="2-DPO-中的“分布偏移”"><a href="#2-DPO-中的“分布偏移”" class="headerlink" title="2. DPO 中的“分布偏移”"></a>2. DPO 中的“分布偏移”</h3><p>在 DPO 中，分布偏移主要体现在<strong>模型策略 ()</strong> 与 <strong>参考策略 ()</strong> 以及 <strong>原始数据分布</strong> 之间的脱节。</p>
+<h4 id="A-过度拟合与“奖励黑客”"><a href="#A-过度拟合与“奖励黑客”" class="headerlink" title="A. 过度拟合与“奖励黑客”"></a>A. 过度拟合与“奖励黑客”</h4><p>(Reward Hacking)</p>
+<p>DPO 的损失函数中包含一个隐含的奖励函数。如果模型发现某种特定的说话风格（比如总是以“好的”开头）在数据集里普遍被选为 <code>yw</code>，它可能会在离线训练中不断强化这种风格，直到它生成的每一句话都变得极其机械化。</p>
+<h4 id="B-缺乏负面反馈的边界"><a href="#B-缺乏负面反馈的边界" class="headerlink" title="B. 缺乏负面反馈的边界"></a>B. 缺乏负面反馈的边界</h4><p>在离线数据里，我们只告诉了模型：<strong>A 比 B 好</strong>。<br>但是，如果模型想尝试 <strong>C</strong>（一个全新的回答方向），离线数据里没有关于 C 的任何信息。</p>
+<ul>
+<li>如果 C 其实很烂，但模型“脑补”出 C 应该比 A 更好。</li>
+<li>在离线状态下，<strong>没有任何力量能拉回这个错误的认知。</strong></li>
+</ul>
+<hr>
+<h3 id="3-如何“勉强”应对"><a href="#3-如何“勉强”应对" class="headerlink" title="3. 如何“勉强”应对"></a>3. 如何“勉强”应对</h3><p>为了防止模型“跑偏”太远（即缓解分布偏移），DPO 在公式里内置了一个约束：<strong>KL 散度</strong>。</p>
+<ul>
+<li>** 的作用：** 它像一根“安全绳”。它告诉模型：“你优化的方向可以偏向 ，但你的整体分布不能离最初的那个模型（SFT 模型）太远。”</li>
+<li><strong>局限性：</strong> 即使有这根绳子，如果 （惩罚系数）设得太小，或者训练步数太多，模型依然会挣脱约束，走向崩溃（即性能突然大幅下降）。这就是为什么离线训练调参极其痛苦。</li>
+</ul>
+<hr>
+<h3 id="4-DPO（离线）更难？"><a href="#4-DPO（离线）更难？" class="headerlink" title="4. DPO（离线）更难？"></a>4. DPO（离线）更难？</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>在线学习 (PPO)</th>
+<th>离线学习 (DPO)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>数据动态性</strong></td>
+<td><strong>活的</strong>。模型自己生成，自己领悟。</td>
+<td><strong>死的</strong>。只能从历史偏好中抠细节。</td>
+</tr>
+<tr>
+<td><strong>错误的代价</strong></td>
+<td>没关系，试错（Explore）是学习的一部分。</td>
+<td><strong>致命</strong>。一旦产生错误认知的偏离，会越跑越远。</td>
+</tr>
+<tr>
+<td><strong>稳定性</strong></td>
+<td>训练复杂，但有奖励模型兜底。</td>
+<td>训练简单，但极易因为数据分布偏移导致模型“变傻”。</td>
+</tr>
+</tbody></table>
+<p><strong>简单来说：</strong><br>离线强化学习（如 DPO）就像是<strong>看着去年的考试卷子和标准答案复习</strong>。如果你自作聪明总结出了一些卷子里没考到的“歪理”，考试时（部署时）没人能提醒你，你就会直接挂科。而在线强化学习是<strong>有老师带着你做模拟题</strong>，你一想歪，老师就敲你教鞭。</p>
+<h2 id="OPD"><a href="#OPD" class="headerlink" title="OPD"></a>OPD</h2><p><strong>在策略蒸馏（On-Policy Distillation, OPD）</strong>是近年来在大模型（特别是推理模型）训练和蒸馏中备受瞩目的一种高级对齐与知识传递策略。</p>
+<p>简单来说，OPD 结合了<strong>强化学习（自我探索）</strong>和<strong>监督微调&#x2F;传统蒸馏（密集反馈）</strong>的优势。</p>
+<ul>
+<li><strong>传统蒸馏（Off-Policy SFT）</strong>：学生模型只看教师模型生成的“标准答案”进行学习。这就像学生只读教科书，但自己做题时一旦出错（偏离了分布），就不知道怎么纠正。</li>
+<li><strong>传统强化学习（RL，如 PPO&#x2F;GRPO）</strong>：学生自己做题（生成 Rollout），然后得到一个最终的对错评分（Reward）。这解决了分布偏移问题，但反馈太“稀疏”，试错成本极高。</li>
+<li><strong>在策略蒸馏（On-Policy Distillation）</strong>：学生模型自己在环境中做题（On-policy Rollout），<strong>而在它做题的每一步，教师模型都在“背后盯着它”</strong>，为学生生成的每一个 Token 提供概率分布作为指导。这相当于“结对编程”或“手把手教学”：即便学生走了一条不同于标准答案的解题路径，教师依然能在当前路径上告诉它下一步的最佳选择概率。</li>
+</ul>
+<p><strong>机制层面的体现</strong>：<br>正如你所描述的，它在实现上与具体的优势估计器（Advantage Estimator，如 PPO、GRPO、REINFORCE++）是<strong>完全正交</strong>的。模型仍然可以通过环境（或判别器）获取标量 Reward 来计算 Advantage，但在计算策略更新的 Loss 时，<strong>会叠加一个与教师模型 Token 级 log-prob 对齐的 KL 散度惩罚项</strong>。这样既能利用 RL 寻找正确答案，又能迫使学生的推理逻辑、语言风格和内部置信度与强大的教师模型保持一致，且有效缓解了 RL 过程中的“灾难性遗忘”和“能力崩塌”。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[^1]: On the Interplay of Pre-Training, Mid-Training, and RL on Reasoning Language Models <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/75DkHbXIJL2VVhrZ9iHQJQ">RL不是“许愿池”：CMU研究揭示大模型推理能力的真正来源</a></p>
+<p>[^2]: <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/URisy2FCNXuz79uyFLaDaA">从 0.5B 到 72B：揭秘 RL Post-Training 中的计算、数据与模型规模权衡</a> Scaling Behaviors of LLM Reinforcement Learning Post-Training: An Empirical Study in Mathematical Reasoning</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Train Stages: Pretrain, Mid-Train(CT), SFT, RL</p><p><a href="http://icarus.shaojiemike.top/2025/11/25/Work/Artificial Intelligence/Training/PostTrain/0-Pretrain-MidTrain-SFT-RL-OPD/">http://icarus.shaojiemike.top/2025/11/25/Work/Artificial Intelligence/Training/PostTrain/0-Pretrain-MidTrain-SFT-RL-OPD/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2025-11-25</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/RL/">RL</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2025/11/26/Work/Artificial%20Intelligence/SoftwareFramework/Pytorch/pytorch7memOpt/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Pytorch 7 ：Memory Optimization(Freeing GPU/NPU Memory Early)</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2025/11/25/Work/Artificial%20Intelligence/Training/PostTrain/algorithms/1-RL_algorithms/"><span class="level-item">RL Algorithms: PPO-RLHF &amp; GRPO-family</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#Mid-train的重要性"><span class="level-left"><span class="level-item">1</span><span class="level-item">Mid-train的重要性</span></span></a></li><li><a class="level is-mobile" href="#后训练-微调-RL的必要性"><span class="level-left"><span class="level-item">2</span><span class="level-item">后训练/微调/RL的必要性</span></span></a></li><li><a class="level is-mobile" href="#为什么需要后训练？"><span class="level-left"><span class="level-item">3</span><span class="level-item">为什么需要后训练？</span></span></a></li><li><a class="level is-mobile" href="#RL定义、流程"><span class="level-left"><span class="level-item">4</span><span class="level-item">RL定义、流程</span></span></a></li><li><a class="level is-mobile" href="#RL-如何提效"><span class="level-left"><span class="level-item">5</span><span class="level-item">RL 如何提效</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#难度是数据边缘"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">难度是数据边缘</span></span></a></li><li><a class="level is-mobile" href="#核心魅力：自动化处理-Corner-Case"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">核心魅力：自动化处理 Corner Case</span></span></a></li><li><a class="level is-mobile" href="#泛化需要有锚点"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">泛化需要有锚点</span></span></a></li></ul></li><li><a class="level is-mobile" href="#RL阶段的扩展定律"><span class="level-left"><span class="level-item">6</span><span class="level-item">RL阶段的扩展定律</span></span></a></li><li><a class="level is-mobile" href="#大道至简RL"><span class="level-left"><span class="level-item">7</span><span class="level-item">大道至简RL</span></span></a></li><li><a class="level is-mobile" href="#RL-核心原理"><span class="level-left"><span class="level-item">8</span><span class="level-item">RL 核心原理</span></span></a></li><li><a class="level is-mobile" href="#RL的悲观观点"><span class="level-left"><span class="level-item">9</span><span class="level-item">RL的悲观观点</span></span></a></li><li><a class="level is-mobile" href="#RL稳定性"><span class="level-left"><span class="level-item">10</span><span class="level-item">RL稳定性</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#多轮训练的不稳定性"><span class="level-left"><span class="level-item">10.1</span><span class="level-item">多轮训练的不稳定性</span></span></a></li><li><a class="level is-mobile" href="#“冷启动”方法的局限性"><span class="level-left"><span class="level-item">10.2</span><span class="level-item">“冷启动”方法的局限性</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Offline-RL-vs-Online-RL"><span class="level-left"><span class="level-item">11</span><span class="level-item">Offline RL vs Online RL</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#1-核心定义与交互方式"><span class="level-left"><span class="level-item">11.1</span><span class="level-item">1. 核心定义与交互方式</span></span></a></li><li><a class="level is-mobile" href="#2-关键维度对比"><span class="level-left"><span class="level-item">11.2</span><span class="level-item">2. 关键维度对比</span></span></a></li><li><a class="level is-mobile" href="#3-应用场景示例"><span class="level-left"><span class="level-item">11.3</span><span class="level-item">3. 应用场景示例</span></span></a></li><li><a class="level is-mobile" href="#4-分布偏移问题"><span class="level-left"><span class="level-item">11.4</span><span class="level-item">4. 分布偏移问题</span></span></a></li></ul></li><li><a class="level is-mobile" href="#DPO解释分布偏移问题"><span class="level-left"><span class="level-item">12</span><span class="level-item">DPO解释分布偏移问题</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#1-核心矛盾"><span class="level-left"><span class="level-item">12.1</span><span class="level-item">1. 核心矛盾</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#在线-RL"><span class="level-left"><span class="level-item">12.1.1</span><span class="level-item">在线 RL</span></span></a></li><li><a class="level is-mobile" href="#离线-RL"><span class="level-left"><span class="level-item">12.1.2</span><span class="level-item">离线 RL</span></span></a></li></ul></li><li><a class="level is-mobile" href="#2-DPO-中的“分布偏移”"><span class="level-left"><span class="level-item">12.2</span><span class="level-item">2. DPO 中的“分布偏移”</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#A-过度拟合与“奖励黑客”"><span class="level-left"><span class="level-item">12.2.1</span><span class="level-item">A. 过度拟合与“奖励黑客”</span></span></a></li><li><a class="level is-mobile" href="#B-缺乏负面反馈的边界"><span class="level-left"><span class="level-item">12.2.2</span><span class="level-item">B. 缺乏负面反馈的边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#3-如何“勉强”应对"><span class="level-left"><span class="level-item">12.3</span><span class="level-item">3. 如何“勉强”应对</span></span></a></li><li><a class="level is-mobile" href="#4-DPO（离线）更难？"><span class="level-left"><span class="level-item">12.4</span><span class="level-item">4. DPO（离线）更难？</span></span></a></li></ul></li><li><a class="level is-mobile" href="#OPD"><span class="level-left"><span class="level-item">13</span><span class="level-item">OPD</span></span></a></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">14</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

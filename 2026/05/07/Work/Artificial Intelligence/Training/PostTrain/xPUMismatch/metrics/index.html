@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>RL: xPU Mismatch - metrics - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       RL 模型迁移后的精度比对，相较于 SFT 模型迁移的精度比对，难了很多。 经常出现一个难解问题，前20步reward等指标两者差异较小，但是之后就偏移很大。 叠加  指标繁琐，但不解决问题：虽然指标多，但都是表象&amp;#x2F;结果指标，难以说明差异来源。 耗时长：RL单步1h+，SFT 20s；慢两个数量级，迭代缓慢。 流程更复杂"><meta property="og:type" content="blog"><meta property="og:title" content="RL: xPU Mismatch - metrics"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/05/07/Work/Artificial%20Intelligence/Training/PostTrain/xPUMismatch/metrics/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       RL 模型迁移后的精度比对，相较于 SFT 模型迁移的精度比对，难了很多。 经常出现一个难解问题，前20步reward等指标两者差异较小，但是之后就偏移很大。 叠加  指标繁琐，但不解决问题：虽然指标多，但都是表象&amp;#x2F;结果指标，难以说明差异来源。 耗时长：RL单步1h+，SFT 20s；慢两个数量级，迭代缓慢。 流程更复杂"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-05-07T06:54:50.000Z"><meta property="article:modified_time" content="2026-07-03T08:59:59.095Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="RL"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/05/07/Work/Artificial%20Intelligence/Training/PostTrain/xPUMismatch/metrics/"},"headline":"RL: xPU Mismatch - metrics","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-05-07T06:54:50.000Z","dateModified":"2026-07-03T08:59:59.095Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       RL 模型迁移后的精度比对，相较于 SFT 模型迁移的精度比对，难了很多。 经常出现一个难解问题，前20步reward等指标两者差异较小，但是之后就偏移很大。 叠加  指标繁琐，但不解决问题：虽然指标多，但都是表象&#x2F;结果指标，难以说明差异来源。 耗时长：RL单步1h+，SFT 20s；慢两个数量级，迭代缓慢。 流程更复杂"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/05/07/Work/Artificial%20Intelligence/Training/PostTrain/xPUMismatch/metrics/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-05-07T06:54:50.000Z" title="5/7/2026, 6:54:50 AM">2026-05-07</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.095Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">29 minutes read (About 4334 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">RL: xPU Mismatch - metrics</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>RL 模型迁移后的精度比对，相较于 SFT 模型迁移的精度比对，难了很多。</p>
+<p>经常出现一个难解问题，前20步reward等指标两者差异较小，但是之后就偏移很大。</p>
+<p>叠加</p>
+<ul>
+<li>指标繁琐，但不解决问题：虽然指标多，但都是表象&#x2F;结果指标，难以说明差异来源。</li>
+<li>耗时长：RL单步1h+，SFT 20s；慢两个数量级，迭代缓慢。</li>
+<li>流程更复杂：涉及到推理和权重转换；</li>
+<li>资源压力大：训推+评测模型权重，RL的显存和机器资源压力更大。</li>
+</ul>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="全量指标逐项解释"><a href="#全量指标逐项解释" class="headerlink" title="全量指标逐项解释"></a>全量指标逐项解释</h2><h3 id="奖励统计（2-项）"><a href="#奖励统计（2-项）" class="headerlink" title="奖励统计（2 项）"></a>奖励统计（2 项）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>解读建议</th>
+<th>本数据范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>reward/avg_raw_reward</code></td>
+<td>原始奖励均值（核心收益指标）</td>
+<td>通常越高越好（同一奖励函数下可直接比较）</td>
+<td>-3.821e-01 ~ 3.269e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>reward/raw_reward_count</code></td>
+<td>参与奖励统计的样本数&#x2F;计数</td>
+<td>反映统计覆盖面，非质量指标</td>
+<td>6,064.00 ~ 9,048.00</td>
+<td>命名推断（中）</td>
+</tr>
+</tbody></table>
+<h3 id="响应统计（14-项）"><a href="#响应统计（14-项）" class="headerlink" title="响应统计（14 项）"></a>响应统计（14 项）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>解读建议</th>
+<th>本数据范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>response/advantages/max</code></td>
+<td>优势值最大值</td>
+<td>过大可能触发激进更新；需与 clip&#x2F;梯度一起看</td>
+<td>2.0000 ~ 2.0000</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/advantages/mean</code></td>
+<td>优势值均值</td>
+<td>一般希望接近 0（若做了标准化）；长期偏移可能有估计偏差</td>
+<td>8.085e-03 ~ 2.454e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/advantages/min</code></td>
+<td>优势值最小值</td>
+<td>绝对值过大可能导致不稳定更新（需结合 max&#x2F;std）</td>
+<td>-2.0000 ~ -2.0000</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/batch_size</code></td>
+<td>当前 step 的响应批大小</td>
+<td>偏大通常吞吐更高，但受显存与稳定性约束</td>
+<td>4,096.00 ~ 4,096.00</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/prompt_len/max</code></td>
+<td>输入提示长度最大值（token）</td>
+<td>数据分布指标；过大可能拖慢吞吐</td>
+<td>1,468.00 ~ 4,089.00</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/prompt_len/mean</code></td>
+<td>输入提示长度均值（token）</td>
+<td>主要描述数据分布，不直接反映策略优劣</td>
+<td>199.9531 ~ 286.9492</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/prompt_len/min</code></td>
+<td>输入提示长度最小值（token）</td>
+<td>数据分布指标</td>
+<td>12.0000 ~ 41.0000</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/response_len/max</code></td>
+<td>输出长度最大值（token）</td>
+<td>持续贴上限可能是截断而非自然结束</td>
+<td>22,001.00 ~ 51,200.00</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/response_len/mean</code></td>
+<td>输出长度均值（token）</td>
+<td>任务相关，无绝对好坏；突变常提示策略变化</td>
+<td>6,501.68 ~ 22,471.23</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/response_len/min</code></td>
+<td>输出长度最小值（token）</td>
+<td>过低且频繁可能是过早终止</td>
+<td>1.0000 ~ 568.0000</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/response_len/std</code></td>
+<td>输出长度标准差</td>
+<td>过高说明长度分布离散，需看任务是否允许</td>
+<td>4,965.77 ~ 14,176.76</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/rewards/max</code></td>
+<td>响应奖励最大值</td>
+<td>可反映上界能力，需防止仅靠少数样本拉高</td>
+<td>1.0000 ~ 1.0000</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/rewards/mean</code></td>
+<td>响应奖励均值</td>
+<td>通常越高越好（前提：奖励函数一致）</td>
+<td>-1.992e-01 ~ 2.244e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>response/rewards/min</code></td>
+<td>响应奖励最小值</td>
+<td>越高通常越好；持续很低说明长尾样本差</td>
+<td>-1.0000 ~ -1.0000</td>
+<td>命名推断（中）</td>
+</tr>
+</tbody></table>
+<h3 id="训练内部（6-项）"><a href="#训练内部（6-项）" class="headerlink" title="训练内部（6 项）"></a>训练内部（6 项）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>解读建议</th>
+<th>本数据范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>train_metrics/worker_0/step_avg_efficient_attn_ratio</code></td>
+<td>worker_0 有效 attention 比例</td>
+<td>通常越高越好（表示有效计算占比更高）</td>
+<td>1.458e-01 ~ 4.809e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>train_metrics/worker_0/step_avg_grad_norm</code></td>
+<td>worker_0 梯度范数</td>
+<td>保持稳定更好；突刺&#x2F;爆炸需警惕</td>
+<td>4.101e-02 ~ 1.896e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>train_metrics/worker_0/step_avg_img_efficient_attn_ratio</code></td>
+<td>worker_0 图像 token 的有效 attention 比例</td>
+<td>通常越高越好</td>
+<td>0 ~ 0</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>train_metrics/worker_0/step_avg_reduced_llm_loss</code></td>
+<td>worker_0 的 step 平均训练 loss（归约后）</td>
+<td>通常越低越好；需同时看 reward 防止“低损失低能力”</td>
+<td>1.083e-02 ~ 2.214e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>train_metrics/worker_0/step_avg_step_consumed_img_tokens</code></td>
+<td>worker_0 每 step 消耗图像 token 数</td>
+<td>多模态负载指标，非单独优劣</td>
+<td>0 ~ 0</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>train_metrics/worker_0/step_avg_step_consumed_tokens</code></td>
+<td>worker_0 每 step 消耗 token 数</td>
+<td>越高通常吞吐越好</td>
+<td>49,766.40 ~ 222,555.28</td>
+<td>命名推断（中）</td>
+</tr>
+</tbody></table>
+<h3 id="策略熵（2-项）"><a href="#策略熵（2-项）" class="headerlink" title="策略熵（2 项）"></a>策略熵（2 项）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>解读建议</th>
+<th>本数据范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>entropy/rollout</code></td>
+<td>rollout 策略熵（生成时不确定性）</td>
+<td>过低易早收敛，过高可能学习慢；通常看“平稳非零”</td>
+<td>5.596e-01 ~ 8.411e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>entropy/train</code></td>
+<td>训练策略熵（训练模型不确定性）</td>
+<td>与 rollout 类似，关注是否快速塌缩到接近 0</td>
+<td>5.603e-01 ~ 8.417e-01</td>
+<td>命名推断（中）</td>
+</tr>
+</tbody></table>
+<h3 id="分布偏移（12-项）"><a href="#分布偏移（12-项）" class="headerlink" title="分布偏移（12 项）"></a>分布偏移（12 项）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>解读建议</th>
+<th>本数据范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>mismatch/mismatch_k3_kl</code></td>
+<td>K3 KL 稳健估计（非负）</td>
+<td>越接近 0 越好；升高表示偏移增强</td>
+<td>1.716e-04 ~ 7.967e-04</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_kl</code></td>
+<td>KL(π_rollout || π_training) 估计</td>
+<td>绝对值越接近 0 越好；偏离大表示分布偏移大</td>
+<td>1.766e-04 ~ 7.948e-04</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_log_ppl_abs_diff</code></td>
+<td>|log_ppl 差值|</td>
+<td>越低越好，表示两策略更接近</td>
+<td>1.781e-04 ~ 7.952e-04</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_log_ppl_diff</code></td>
+<td>log_ppl 差值（rollout - training）</td>
+<td>越接近 0 越好；正负号表示哪一侧更自信</td>
+<td>1.766e-04 ~ 7.948e-04</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_log_ppl_diff_max</code></td>
+<td>序列级 log_ppl 差值最大值</td>
+<td>越低越稳，表示最坏样本偏差较小</td>
+<td>6.614e-04 ~ 6.194e-02</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_log_ppl_diff_min</code></td>
+<td>序列级 log_ppl 差值最小值</td>
+<td>与 max 一起看跨度，异常极值需关注</td>
+<td>-5.031e-04 ~ 5.519e-05</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_logprob_abs_diff</code></td>
+<td>token&#x2F;logprob 绝对差</td>
+<td>越低越好，越低说明训练&#x2F;rollout 概率更一致</td>
+<td>7.992e-03 ~ 1.853e-02</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_ppl_ratio</code></td>
+<td>training_ppl &#x2F; rollout_ppl 比值</td>
+<td>越接近 1 越好；明显偏离 1 表示两策略分布差异变大</td>
+<td>1.0002 ~ 1.0008</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_rollout_log_ppl</code></td>
+<td>rollout 策略 log perplexity</td>
+<td>趋势指标；通常与 training_log_ppl 配对看差值</td>
+<td>5.622e-01 ~ 8.428e-01</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_rollout_ppl</code></td>
+<td>rollout 策略 perplexity</td>
+<td>越低表示 rollout 在样本上更自信；与 training_ppl 对比解读</td>
+<td>1.7638 ~ 2.3433</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_training_log_ppl</code></td>
+<td>训练策略 log perplexity</td>
+<td>趋势指标；通常与 rollout_log_ppl 配对看差值</td>
+<td>5.629e-01 ~ 8.434e-01</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>mismatch/mismatch_training_ppl</code></td>
+<td>训练策略 perplexity（对比策略一侧）</td>
+<td>越低表示该策略在当前样本上更自信；单看无好坏，需与 rollout_ppl 对比</td>
+<td>1.7650 ~ 2.3448</td>
+<td>官方文档映射（高）</td>
+</tr>
+</tbody></table>
+<h3 id="IS-校正（18-项）"><a href="#IS-校正（18-项）" class="headerlink" title="IS&#x2F;校正（18 项）"></a>IS&#x2F;校正（18 项）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>解读建议</th>
+<th>本数据范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>rollout_is/mismatch/rollout_is_catastrophic_token_fraction</code></td>
+<td>灾难性 token 占比（低于 veto 阈值）</td>
+<td>越低越好；升高说明存在严重异常 token</td>
+<td>6.925e-08 ~ 2.049e-06</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_eff_sample_size</code></td>
+<td>有效样本占比 ESS（理论常在 0~1）</td>
+<td>越高越好；越低说明权重集中、有效样本少</td>
+<td>9.986e-01 ~ inf</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_masked_fraction</code></td>
+<td>被 rejection&#x2F;mask 掉的 token 占比</td>
+<td>越低越好；高值表示可用样本下降</td>
+<td>1.093e-05 ~ 1.096e-04</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_max</code></td>
+<td>IS 权重最大值</td>
+<td>极端大值提示重权重长尾，需配合 std&#x2F;ESS 判断</td>
+<td>6.4193 ~ 9,903.95</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_mean</code></td>
+<td>重要性权重均值</td>
+<td>理想接近 1；远离 1 说明分布偏移变大</td>
+<td>9.119e-01 ~ 1.0000</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_min</code></td>
+<td>IS 权重最小值</td>
+<td>极端小值提示重权重长尾，需配合 std&#x2F;ESS 判断</td>
+<td>2.061e-09 ~ 2.746e-02</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_ratio_fraction_high</code></td>
+<td>超过上阈值的权重占比</td>
+<td>越低越好；高值表示大量样本被截断&#x2F;掩码</td>
+<td>6.925e-08 ~ 2.049e-06</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_ratio_fraction_low</code></td>
+<td>低于下阈值（通常 1&#x2F;upper）的权重占比</td>
+<td>越低越好；高值表示另一侧严重偏移</td>
+<td>0 ~ 0</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_seq_fraction_high</code></td>
+<td>序列级超过上阈值占比</td>
+<td>越低越好</td>
+<td>0 ~ 1.359e-04</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_seq_fraction_low</code></td>
+<td>序列级低于下阈值占比</td>
+<td>越低越好</td>
+<td>0 ~ 0</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_seq_masked_fraction</code></td>
+<td>包含被 mask token 的序列占比</td>
+<td>越低越好；高值表示序列层拒绝多</td>
+<td>3.176e-02 ~ 1.056e-01</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_seq_max</code></td>
+<td>序列级 IS 权重最大值</td>
+<td>越极端越需关注长尾</td>
+<td>1.0036 ~ 6.1864</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_seq_max_deviation</code></td>
+<td>序列级相对 1.0 的最大偏移</td>
+<td>越低越好</td>
+<td>1.0000 ~ 5.1864</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_seq_mean</code></td>
+<td>序列级 IS 权重均值</td>
+<td>理想接近 1</td>
+<td>1.787e-01 ~ 5.780e-01</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_seq_min</code></td>
+<td>序列级 IS 权重最小值</td>
+<td>越极端越需关注长尾</td>
+<td>0 ~ 0</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_seq_std</code></td>
+<td>序列级 IS 权重标准差</td>
+<td>越低越稳</td>
+<td>3.405e-01 ~ 4.710e-01</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_std</code></td>
+<td>IS 权重标准差</td>
+<td>越低越稳；高值表示方差大、训练噪声大</td>
+<td>1.723e-02 ~ 3.750e-02</td>
+<td>官方文档映射（高）</td>
+</tr>
+<tr>
+<td><code>rollout_is/mismatch/rollout_is_veto_fraction</code></td>
+<td>被 veto 机制拒绝的序列占比</td>
+<td>越低越好；高值表示训练&#x2F;rollout 分布差异或数值问题</td>
+<td>2.356e-04 ~ 7.521e-03</td>
+<td>官方文档映射（高）</td>
+</tr>
+</tbody></table>
+<h3 id="阶段耗时（13-项）"><a href="#阶段耗时（13-项）" class="headerlink" title="阶段耗时（13 项）"></a>阶段耗时（13 项）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>解读建议</th>
+<th>本数据范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>time/evaluation</code></td>
+<td>评测阶段耗时</td>
+<td>越低越好（注意与评测规模相关）</td>
+<td>1,030.03 ~ 7,969.46</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/generation</code></td>
+<td>每 step 的生成阶段总耗时</td>
+<td>越低越好（同等质量前提下）</td>
+<td>381.1245 ~ 4,559.83</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/generation_time</code></td>
+<td>生成子阶段纯生成耗时</td>
+<td>越低越好</td>
+<td>314.6267 ~ 4,121.38</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/get_samples_time</code></td>
+<td>获取样本耗时</td>
+<td>越低越好</td>
+<td>6.9912 ~ 44.9369</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/onload</code></td>
+<td>数据&#x2F;状态回载 onload 耗时</td>
+<td>越低越好</td>
+<td>3.561e-01 ~ 4.5106</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/pause_time</code></td>
+<td>流水线等待&#x2F;暂停耗时</td>
+<td>越低越好，越低代表资源利用更充分</td>
+<td>16.9955 ~ 367.1087</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/prepare_data</code></td>
+<td>训练前数据准备耗时</td>
+<td>越低越好</td>
+<td>15.5695 ~ 69.6108</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/rollout_offload</code></td>
+<td>rollout 结果转移&#x2F;offload 耗时</td>
+<td>越低越好</td>
+<td>9.542e-01 ~ 4,889.57</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/save_ckpt</code></td>
+<td>保存 checkpoint 耗时</td>
+<td>越低越好</td>
+<td>3.7009 ~ 5,231.15</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/save_trajectory</code></td>
+<td>保存轨迹耗时</td>
+<td>越低越好</td>
+<td>1.0454 ~ 10.5315</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/step</code></td>
+<td>单 step 端到端耗时</td>
+<td>越低越好（最综合的效率指标）</td>
+<td>565.6326 ~ 14,875.01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/sync_weight</code></td>
+<td>参数同步耗时</td>
+<td>越低越好</td>
+<td>13.4772 ~ 3,577.58</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>time/training</code></td>
+<td>训练计算耗时</td>
+<td>越低越好或以吞吐折中看</td>
+<td>111.4526 ~ 813.6702</td>
+<td>命名推断（中）</td>
+</tr>
+</tbody></table>
+<h3 id="任务时延（8-项）"><a href="#任务时延（8-项）" class="headerlink" title="任务时延（8 项）"></a>任务时延（8 项）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>解读建议</th>
+<th>本数据范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>task_time/avg</code></td>
+<td>单任务时延均值</td>
+<td>越低越好</td>
+<td>141.9604 ~ 2,086.86</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>task_time/max</code></td>
+<td>单任务时延最大值</td>
+<td>越低越好；异常尖峰需排查</td>
+<td>306.1794 ~ 4,109.13</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>task_time/p50</code></td>
+<td>单任务时延 p50</td>
+<td>越低越好</td>
+<td>130.3265 ~ 1,855.03</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>task_time/p90</code></td>
+<td>单任务时延 p90</td>
+<td>越低越好（关注长尾）</td>
+<td>253.3633 ~ 3,846.53</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>task_time/p95</code></td>
+<td>单任务时延 p95</td>
+<td>越低越好（核心长尾指标）</td>
+<td>273.4188 ~ 3,960.44</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>task_time/p99</code></td>
+<td>单任务时延 p99</td>
+<td>越低越好（极端长尾）</td>
+<td>295.7161 ~ 4,067.51</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>task_time/p99_p50_ratio</code></td>
+<td>尾部放大比值 p99&#x2F;p50</td>
+<td>越接近 1 越好；越高表示尾部问题严重</td>
+<td>1.2225 ~ 3.6427</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>task_time/std</code></td>
+<td>单任务时延标准差</td>
+<td>越低越稳</td>
+<td>75.6919 ~ 1,309.19</td>
+<td>命名推断（中）</td>
+</tr>
+</tbody></table>
+<h3 id="异步队列（6-项）"><a href="#异步队列（6-项）" class="headerlink" title="异步队列（6 项）"></a>异步队列（6 项）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>解读建议</th>
+<th>本数据范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>async/remain_aborted_samples_count</code></td>
+<td>当前待处理的 aborted 样本积压量</td>
+<td>越低越好，持续上升说明异常样本回收压力变大</td>
+<td>365.0000 ~ 512.0000</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>async/remain_completed_samples_count</code></td>
+<td>当前待消费的 completed 样本积压量</td>
+<td>过高通常表示 rollout 生产快于训练消费，需要结合吞吐看</td>
+<td>0 ~ 17.0000</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>async/remain_expired_samples_count</code></td>
+<td>当前待处理的 expired 样本积压量</td>
+<td>越低越好，持续升高说明样本过期较多</td>
+<td>0 ~ 501.0000</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>async/sample_from_aborted_count</code></td>
+<td>累计从 aborted 池重新取样的次数</td>
+<td>仅表示样本来源结构，长期占比过高需排查稳定性</td>
+<td>0 ~ 95,986.00</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>async/sample_from_dataset_count</code></td>
+<td>累计直接从数据集取样的次数</td>
+<td>主要反映训练推进，不直接代表质量</td>
+<td>1,482.00 ~ 170,469.00</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>async/sample_from_expired_count</code></td>
+<td>累计从 expired 池重新取样的次数</td>
+<td>通常应较低；若升高，说明新鲜样本不足或调度有瓶颈</td>
+<td>0 ~ 0</td>
+<td>命名推断（中）</td>
+</tr>
+</tbody></table>
+<h3 id="评测指标（22-项）"><a href="#评测指标（22-项）" class="headerlink" title="评测指标（22 项）"></a>评测指标（22 项）</h3><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>解读建议</th>
+<th>本数据范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>eval/AIME2024_Acc_Mean@16</code></td>
+<td>AIME2024 数据集的 Acc_Mean@16（多次采样&#x2F;聚合下的平均准确率）</td>
+<td>越高越好</td>
+<td>7.521e-01 ~ 9.312e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/AIME2024_Pass@16</code></td>
+<td>AIME2024 数据集的 Pass@16（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>9.000e-01 ~ 9.667e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/AIME2024_Pass@2</code></td>
+<td>AIME2024 数据集的 Pass@2（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>8.333e-01 ~ 9.333e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/AIME2024_Pass@4</code></td>
+<td>AIME2024 数据集的 Pass@4（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>9.000e-01 ~ 9.667e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/AIME2024_Pass@8</code></td>
+<td>AIME2024 数据集的 Pass@8（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>9.000e-01 ~ 9.667e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/AIME2025_Acc_Mean@16</code></td>
+<td>AIME2025 数据集的 Acc_Mean@16（多次采样&#x2F;聚合下的平均准确率）</td>
+<td>越高越好</td>
+<td>6.958e-01 ~ 9.167e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/AIME2025_Pass@16</code></td>
+<td>AIME2025 数据集的 Pass@16（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>9.000e-01 ~ 9.667e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/AIME2025_Pass@2</code></td>
+<td>AIME2025 数据集的 Pass@2（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>8.333e-01 ~ 9.667e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/AIME2025_Pass@4</code></td>
+<td>AIME2025 数据集的 Pass@4（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>8.667e-01 ~ 9.667e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/AIME2025_Pass@8</code></td>
+<td>AIME2025 数据集的 Pass@8（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>9.000e-01 ~ 9.667e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/GPQA_diamond_Acc_Mean@4</code></td>
+<td>GPQA_diamond 数据集的 Acc_Mean@4（多次采样&#x2F;聚合下的平均准确率）</td>
+<td>越高越好</td>
+<td>5.164e-01 ~ 7.222e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/GPQA_diamond_Pass@2</code></td>
+<td>GPQA_diamond 数据集的 Pass@2（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>6.212e-01 ~ 8.232e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/GPQA_diamond_Pass@4</code></td>
+<td>GPQA_diamond 数据集的 Pass@4（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>6.667e-01 ~ 8.939e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/IMO_Answer_Bench_Acc_Mean@4</code></td>
+<td>IMO_Answer_Bench 数据集的 Acc_Mean@4（多次采样&#x2F;聚合下的平均准确率）</td>
+<td>越高越好</td>
+<td>3.063e-01 ~ 6.394e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/IMO_Answer_Bench_Pass@2</code></td>
+<td>IMO_Answer_Bench 数据集的 Pass@2（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>4.500e-01 ~ 7.475e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/IMO_Answer_Bench_Pass@4</code></td>
+<td>IMO_Answer_Bench 数据集的 Pass@4（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>4.975e-01 ~ 7.900e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/MMMU_Pro_Acc_Mean@1</code></td>
+<td>MMMU_Pro 数据集的 Acc_Mean@1（多次采样&#x2F;聚合下的平均准确率）</td>
+<td>越高越好</td>
+<td>5.593e-01 ~ 7.103e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/MMMU_Pro_Pass@1</code></td>
+<td>MMMU_Pro 数据集的 Pass@1（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>5.593e-01 ~ 7.103e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/MathVision_Acc_Mean@1</code></td>
+<td>MathVision 数据集的 Acc_Mean@1（多次采样&#x2F;聚合下的平均准确率）</td>
+<td>越高越好</td>
+<td>5.253e-01 ~ 7.090e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/MathVision_Pass@1</code></td>
+<td>MathVision 数据集的 Pass@1（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>5.253e-01 ~ 7.090e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/MathVista_MINI_Acc_Mean@1</code></td>
+<td>MathVista_MINI 数据集的 Acc_Mean@1（多次采样&#x2F;聚合下的平均准确率）</td>
+<td>越高越好</td>
+<td>7.099e-01 ~ 8.114e-01</td>
+<td>命名推断（中）</td>
+</tr>
+<tr>
+<td><code>eval/MathVista_MINI_Pass@1</code></td>
+<td>MathVista_MINI 数据集的 Pass@1（k 次尝试至少一次正确的概率）</td>
+<td>越高越好</td>
+<td>7.099e-01 ~ 8.114e-01</td>
+<td>命名推断（中）</td>
+</tr>
+</tbody></table>
+<h2 id="重点关注建议（先看这-8-个）"><a href="#重点关注建议（先看这-8-个）" class="headerlink" title="重点关注建议（先看这 8 个）"></a>重点关注建议（先看这 8 个）</h2><ul>
+<li><code>reward/avg_raw_reward</code>：收益是否持续提升。</li>
+<li><code>train_metrics/worker_0/step_avg_reduced_llm_loss</code>：训练是否稳定下降。</li>
+<li><code>mismatch/mismatch_kl</code> 与 <code>mismatch/mismatch_k3_kl</code>：训练&#x2F;rollout 分布偏移是否恶化。</li>
+<li><code>rollout_is/mismatch/rollout_is_mean</code>：是否围绕 1.0。</li>
+<li><code>rollout_is/mismatch/rollout_is_eff_sample_size</code>：是否明显下滑（你这批日志里出现 <code>inf</code>，建议结合训练代码确认实现细节）。</li>
+<li><code>task_time/p95</code> 与 <code>task_time/p99_p50_ratio</code>：长尾时延是否在变差。</li>
+<li><code>time/step</code>：端到端每 step 耗时是否下降。</li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>RL: xPU Mismatch - metrics</p><p><a href="http://icarus.shaojiemike.top/2026/05/07/Work/Artificial Intelligence/Training/PostTrain/xPUMismatch/metrics/">http://icarus.shaojiemike.top/2026/05/07/Work/Artificial Intelligence/Training/PostTrain/xPUMismatch/metrics/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-05-07</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/RL/">RL</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/05/07/Work/Artificial%20Intelligence/Training/optimizer/muon/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Muon Optimizer</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/04/26/Work/0-Digital%20Worker/BuildAICodingEnv/"><span class="level-item">My Digital Worker : New Coding Way Part0 —— Building AI-Coding Env</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#全量指标逐项解释"><span class="level-left"><span class="level-item">1</span><span class="level-item">全量指标逐项解释</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#奖励统计（2-项）"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">奖励统计（2 项）</span></span></a></li><li><a class="level is-mobile" href="#响应统计（14-项）"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">响应统计（14 项）</span></span></a></li><li><a class="level is-mobile" href="#训练内部（6-项）"><span class="level-left"><span class="level-item">1.3</span><span class="level-item">训练内部（6 项）</span></span></a></li><li><a class="level is-mobile" href="#策略熵（2-项）"><span class="level-left"><span class="level-item">1.4</span><span class="level-item">策略熵（2 项）</span></span></a></li><li><a class="level is-mobile" href="#分布偏移（12-项）"><span class="level-left"><span class="level-item">1.5</span><span class="level-item">分布偏移（12 项）</span></span></a></li><li><a class="level is-mobile" href="#IS-校正（18-项）"><span class="level-left"><span class="level-item">1.6</span><span class="level-item">IS/校正（18 项）</span></span></a></li><li><a class="level is-mobile" href="#阶段耗时（13-项）"><span class="level-left"><span class="level-item">1.7</span><span class="level-item">阶段耗时（13 项）</span></span></a></li><li><a class="level is-mobile" href="#任务时延（8-项）"><span class="level-left"><span class="level-item">1.8</span><span class="level-item">任务时延（8 项）</span></span></a></li><li><a class="level is-mobile" href="#异步队列（6-项）"><span class="level-left"><span class="level-item">1.9</span><span class="level-item">异步队列（6 项）</span></span></a></li><li><a class="level is-mobile" href="#评测指标（22-项）"><span class="level-left"><span class="level-item">1.10</span><span class="level-item">评测指标（22 项）</span></span></a></li></ul></li><li><a class="level is-mobile" href="#重点关注建议（先看这-8-个）"><span class="level-left"><span class="level-item">2</span><span class="level-item">重点关注建议（先看这 8 个）</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Scaling Law - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       Scaling Law 不只是“模型越大越好”的经验总结，而是一套算力预算分配语言：在固定训练预算下，参数量、训练数据、序列长度和训练时长互相竞争；在固定推理预算下，模型大小、生成 token、采样策略、工具调用和 agent rollout 也互相竞争。本文只记录论文中可追溯的公开披露；没有披露的数据明确标为“未披露”，不从参数"><meta property="og:type" content="blog"><meta property="og:title" content="Scaling Law"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       Scaling Law 不只是“模型越大越好”的经验总结，而是一套算力预算分配语言：在固定训练预算下，参数量、训练数据、序列长度和训练时长互相竞争；在固定推理预算下，模型大小、生成 token、采样策略、工具调用和 agent rollout 也互相竞争。本文只记录论文中可追溯的公开披露；没有披露的数据明确标为“未披露”，不从参数"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-07-03T08:40:00.000Z"><meta property="article:modified_time" content="2026-07-03T08:59:59.103Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Scaling Law"><meta property="article:tag" content="LLM"><meta property="article:tag" content="Multimodal Model"><meta property="article:tag" content="Post Training"><meta property="article:tag" content="Reinforcement Learning"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/"},"headline":"Scaling Law","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-07-03T08:40:00.000Z","dateModified":"2026-07-03T08:59:59.103Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       Scaling Law 不只是“模型越大越好”的经验总结，而是一套算力预算分配语言：在固定训练预算下，参数量、训练数据、序列长度和训练时长互相竞争；在固定推理预算下，模型大小、生成 token、采样策略、工具调用和 agent rollout 也互相竞争。本文只记录论文中可追溯的公开披露；没有披露的数据明确标为“未披露”，不从参数"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-07-03T08:40:00.000Z" title="7/3/2026, 8:40:00 AM">2026-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.103Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">28 minutes read (About 4172 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Scaling Law</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>Scaling Law 不只是“模型越大越好”的经验总结，而是一套<strong>算力预算分配语言</strong>：在固定训练预算下，参数量、训练数据、序列长度和训练时长互相竞争；在固定推理预算下，模型大小、生成 token、采样策略、工具调用和 agent rollout 也互相竞争。本文只记录论文中可追溯的公开披露；没有披露的数据明确标为“未披露”，不从参数规模反推训练成本。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="问题定义"><a href="#问题定义" class="headerlink" title="问题定义"></a>问题定义</h2><p>讨论 Scaling Law 时，最容易混在一起的量至少有六类：</p>
+<ol>
+<li><strong>模型大小</strong>：Dense 模型通常看参数量 <code>N</code>；MoE 模型必须同时看 <strong>总参数量</strong> 和 <strong>每 token 激活参数量</strong>。总参数影响存储、通信和专家管理，激活参数更接近每 token 前向计算量。</li>
+<li><strong>训练数据量</strong>：语言模型常用 token 数 <code>D</code>；多模态模型还要看图片&#x2F;视频 pair、帧数、分辨率、caption 质量和数据过滤强度。</li>
+<li><strong>序列长度</strong>：预训练阶段常从 4K 或 8K 开始，长上下文通常在 mid-training 或 context extension 阶段扩到 32K、64K、128K。</li>
+<li><strong>训练时长</strong>：可以写成 GPU&#x2F;NPU hours，也可以写成在某个集群上的 wall-clock days。只有论文同时披露设备数和 GPU hours 时，才适合换算天数。</li>
+<li><strong>推理时长</strong>：不只是 prefill&#x2F;decode 的延迟，还包括生成 token 数、采样次数、搜索策略、verifier 调用和缓存策略。</li>
+<li><strong>Agent 预算</strong>：agent 的 test-time compute 还包含工具调用、环境交互、反思、并行 rollout、候选答案选择和 reward&#x2F;verifier 计算。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>不要只看参数</p>
+</div>
+        <div class="message-body">
+            <p>参数量只是规模的一种投影。DeepSeek-V3 是 671B 总参数、37B 激活参数；Qwen3-235B-A22B 是 235B 总参数、22B 激活参数；LongCat-Flash 是 560B 总参数、平均约 27B 激活参数。把 MoE 总参数直接当作每 token 计算量，会系统性误读训练和推理成本。</p>
+
+        </div>
+    </article>
+
+<figure markdown>
+  ![Scaling Law 算力预算](https://pic.shaojiemike.top/shaojiemike/2026/07/79a20d625549029e629c48cbde5dfee0.png){ width=92% }
+  <figcaption>Scaling Law 的核心不是单轴放大，而是在参数、数据、上下文、推理 token 和 agent rollout 之间分配预算。</figcaption>
+</figure>
+
+<h2 id="训练侧的-Law"><a href="#训练侧的-Law" class="headerlink" title="训练侧的 Law"></a>训练侧的 Law</h2><p>早期语言模型 Scaling Law 的主问题是：给定训练 compute，应该把预算投给更大的模型，还是更多的数据？</p>
+<p>Kaplan 等人的结论是，语言模型 loss 会随模型大小、数据集大小和训练 compute 呈近似 power-law 改善。后续 Chinchilla 论文指出，如果使用近似训练 FLOPs：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FLOPs(N, D) ~= 6 N D</span><br></pre></td></tr></table></figure>
+
+<p>那么在 compute 增大时，<strong>参数量 <code>N</code> 和训练 token 数 <code>D</code> 应接近等比例增长</strong>。Chinchilla 的 70B 模型使用约 1.4T tokens，论文认为当时许多大模型是 under-trained：参数做大了，但训练 token 没有同步增加。</p>
+<p>这个结论的实践含义很直接：</p>
+<ul>
+<li><strong>模型变大不是免费收益</strong>：参数增长会消耗训练 compute，也会抬高推理成本。</li>
+<li><strong>数据变多也不是免费收益</strong>：低质量重复数据会污染 loss 曲线，长尾高质量数据更稀缺。</li>
+<li><strong>长上下文通常不是预训练第一阶段完成</strong>：许多公开模型先用短序列学通用能力，再用 32K&#x2F;128K 数据做 context extension。</li>
+</ul>
+<h2 id="推理侧的-Law"><a href="#推理侧的-Law" class="headerlink" title="推理侧的 Law"></a>推理侧的 Law</h2><p>2024 年之后，Scaling Law 的讨论从训练预算延伸到推理预算。推理时也有一个 compute-optimal 问题：给定推理 FLOPs，是使用更大的模型一次回答，还是使用较小模型多次采样、搜索、验证和反思？</p>
+<figure markdown>
+  ![Compute-optimal inference](https://pic.shaojiemike.top/shaojiemike/2026/07/7a8770e17ac478fb5f9c33598a66fd70.png){ width=92% }
+  <figcaption>来自 Inference Scaling 论文 Figure 2：训练侧分配模型大小与训练 tokens，推理侧还要分配生成 tokens、采样数量和 inference strategy。</figcaption>
+</figure>
+
+<p>Inference Scaling 论文把推理侧变量写成模型大小 <code>N</code>、生成 token 数 <code>T</code> 和策略 <code>S</code>。这使 Scaling Law 从“训练一个模型”变成“<strong>训练与推理共同组成的系统优化</strong>”。</p>
+<p>Agent 场景进一步放大了这个问题。Test-time compute 可以花在：</p>
+<ul>
+<li><strong>Parallel sampling &#x2F; Best-of-N</strong>：同一问题生成多个候选，再用 verifier 或 reward 选择。</li>
+<li><strong>Reflection &#x2F; self-refinement</strong>：让模型检查、修正和重写自己的轨迹。</li>
+<li><strong>Diversified rollout</strong>：让候选轨迹在工具、计划或解题路径上有差异，而不是重复采样近似答案。</li>
+<li><strong>List-wise verification</strong>：一次比较多个候选，而不是逐个打分。</li>
+<li><strong>Tool and environment calls</strong>：真实 agent 的成本还包含外部工具延迟、API 费用和环境状态转移。</li>
+</ul>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Agent Scaling Law</p>
+</div>
+        <div class="message-body">
+            <p>在 agent 系统里，推理时长不再只是 decode latency。一个回答可能包含规划、搜索、工具调用、环境执行、反思、验证和重试。Scaling Law 因此从模型内部的 <code>N, D, C</code> 扩展到系统层的 rollout budget。</p>
+
+        </div>
+    </article>
+
+<h2 id="规模如何逐年增加"><a href="#规模如何逐年增加" class="headerlink" title="规模如何逐年增加"></a>规模如何逐年增加</h2><p>下面的表只放论文可追溯披露。GPT-3 和 Chinchilla 不是开源模型，但它们是理解后续开源模型规模增长的历史基准。</p>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>模型&#x2F;论文</th>
+<th align="right">形态</th>
+<th align="right">参数规模</th>
+<th align="right">训练数据或规模</th>
+<th align="right">上下文&#x2F;序列长度</th>
+<th align="right">训练机器与时长</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2020</td>
+<td>GPT-3</td>
+<td align="right">Dense LLM</td>
+<td align="right">175B</td>
+<td align="right">约 300B tokens</td>
+<td align="right">2K</td>
+<td align="right">未披露完整训练 wall-clock</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>Chinchilla</td>
+<td align="right">Dense LLM</td>
+<td align="right">70B</td>
+<td align="right">1.4T tokens</td>
+<td align="right">2K 级别实验设置</td>
+<td align="right">与 Gopher 同量级 compute，具体集群天数未披露</td>
+</tr>
+<tr>
+<td>2024</td>
+<td>DeepSeek-V3</td>
+<td align="right">MoE LLM</td>
+<td align="right">671B total &#x2F; 37B active</td>
+<td align="right">14.8T tokens</td>
+<td align="right">4K pre-train，扩到 32K&#x2F;128K</td>
+<td align="right">2048 H800；总 2.788M H800 GPU hours，约 56.7 个集群日</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>DeepSeek-R1</td>
+<td align="right">Reasoning LLM</td>
+<td align="right">基于 DeepSeek-V3-Base</td>
+<td align="right">804,745 条 SFT reasoning data，平均 5,355 tokens</td>
+<td align="right">SFT&#x2F;RL max 32K，R1-Zero 后期 65,536</td>
+<td align="right">R1-Zero 约 101K H800 GPU hours，R1 约 41K H800 GPU hours</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>Qwen3</td>
+<td align="right">Dense + MoE LLM</td>
+<td align="right">最大 235B total &#x2F; 22B active</td>
+<td align="right">36T tokens</td>
+<td align="right">4K 阶段训练，32K 长上下文训练，128K 推理上下文</td>
+<td align="right">未披露完整集群天数；Qwen3-8B 直接 RL 17,920 GPU hours，对比 on-policy distillation 1,800 GPU hours</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>GLM-4.5</td>
+<td align="right">MoE LLM</td>
+<td align="right">355B total &#x2F; 32B active</td>
+<td align="right">23T tokens</td>
+<td align="right">4K -&gt; 32K -&gt; 128K</td>
+<td align="right">未披露完整 GPU days</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>Wan</td>
+<td align="right">Video diffusion</td>
+<td align="right">1.3B &#x2F; 14B</td>
+<td align="right">billions of videos and images；post-training 使用 millions 级 curated images&#x2F;videos</td>
+<td align="right">视频时长、分辨率和 latent 序列共同决定</td>
+<td align="right">未披露完整 GPU days</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>LongCat-Flash</td>
+<td align="right">MoE LLM</td>
+<td align="right">560B total &#x2F; avg 27B active</td>
+<td align="right">超过 20T tokens</td>
+<td align="right">8K -&gt; 32K -&gt; 128K</td>
+<td align="right">论文称 30 天内完成 &gt;20T 预训练；具体设备数未完整披露</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>Pangu Pro MoE</td>
+<td align="right">MoE LLM</td>
+<td align="right">约 72B total &#x2F; 16B active</td>
+<td align="right">13T tokens</td>
+<td align="right">4K -&gt; 32K</td>
+<td align="right">4K 张 Ascend NPU；wall-clock days 未披露</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>Qwen-Image</td>
+<td align="right">Text-to-image</td>
+<td align="right">20B MMDiT + 7B Qwen2.5-VL encoder</td>
+<td align="right">billions of image-text pairs</td>
+<td align="right">最高到 1328p 图像分辨率</td>
+<td align="right">未披露完整 GPU days</td>
+</tr>
+<tr>
+<td>2026</td>
+<td>Qwen-Image-2.0 &#x2F; RL</td>
+<td align="right">Omni image model</td>
+<td align="right">条件编码器基于 Qwen3-VL；核心生成模型规模未在摘要级披露</td>
+<td align="right">pretraining 700K steps，continual pretraining 250K steps；后续 SFT&#x2F;RLHF&#x2F;OPD</td>
+<td align="right">prompt up to 1K tokens，native 2K resolution</td>
+<td align="right">未披露完整 GPU days</td>
+</tr>
+</tbody></table>
+<p>这张表背后的趋势不是“每年参数都单调变大”，而是规模的定义变多了：</p>
+<ul>
+<li><strong>语言模型</strong>从 dense 参数扩展到 MoE 的 total&#x2F;active 双尺度。</li>
+<li><strong>数据规模</strong>从百亿、千亿 tokens 进入十万亿、数十万亿 tokens。</li>
+<li><strong>上下文长度</strong>从 2K&#x2F;4K 变成 32K&#x2F;128K 的训练和推理能力。</li>
+<li><strong>多模态模型</strong>把“数据量”改写成图片&#x2F;视频数量、分辨率、帧数、caption 质量和任务混合。</li>
+<li><strong>后训练</strong>从小规模 SFT 变成冷启动、拒绝采样、RL、distillation、verifier 和 agent 任务的组合工程。</li>
+</ul>
+<h2 id="后训练披露矩阵"><a href="#后训练披露矩阵" class="headerlink" title="后训练披露矩阵"></a>后训练披露矩阵</h2><p>SFT 和 RL 是最容易被营销材料简化的部分。很多论文会披露“使用 SFT + RL”，但不披露样本数、平均长度、GPU hours 或设备数。下表把<strong>已披露</strong>与<strong>未披露</strong>分开。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th align="right">SFT 数据量</th>
+<th align="right">RL 数据量&#x2F;步骤</th>
+<th align="right">长度设置</th>
+<th align="right">机器与时长</th>
+<th>未披露项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DeepSeek-V3</td>
+<td align="right">使用专家模型和 R1 生成数据，SFT 2 epochs；精确样本数未披露</td>
+<td align="right">使用 GRPO；精确样本数未披露</td>
+<td align="right">pre-training 4K；context extension 32K 与 128K 各 1000 steps</td>
+<td align="right">post-training 5K H800 GPU hours；全训练 2.788M H800 GPU hours</td>
+<td>SFT&#x2F;RL 样本数、平均长度、单独 RL GPU days</td>
+</tr>
+<tr>
+<td>DeepSeek-R1</td>
+<td align="right">804,745 条 supervised data；平均 5,355 tokens；SFT 2-3 epochs</td>
+<td align="right">R1-Zero 10,400 steps；每问题 16 outputs；第二阶段 RL 1,700 steps</td>
+<td align="right">SFT max 32K；R1-Zero 早期 32,768，后期 65,536</td>
+<td align="right">64x8 H800；R1-Zero 约 198 小时；R1 约 80 小时；总 147K H800 GPU hours</td>
+<td>冷启动“数千条”数据的精确构成</td>
+</tr>
+<tr>
+<td>Qwen3</td>
+<td align="right">Thinking&#x2F;non-thinking fusion SFT；精确总样本数未披露</td>
+<td align="right">reasoning RL 使用 3,995 query-verifier pairs；Qwen3-235B-A22B 约 170 RL steps</td>
+<td align="right">4K 主训练；长上下文阶段 32K，推理 128K</td>
+<td align="right">Qwen3-8B 直接 RL 17,920 GPU hours；on-policy distillation 1,800 GPU hours</td>
+<td>最大模型完整 post-training GPU days</td>
+</tr>
+<tr>
+<td>GLM-4.5</td>
+<td align="right">两阶段 expert&#x2F;unified training 都包含 SFT；overall SFT millions of samples</td>
+<td align="right">reasoning RL 使用 GRPO；agent&#x2F;general chat 也进入统一训练</td>
+<td align="right">SFT max context 128K；pretrain&#x2F;midtrain 4K -&gt; 32K -&gt; 128K</td>
+<td align="right">未披露完整 GPU days</td>
+<td>各阶段样本数、RL steps、设备数</td>
+</tr>
+<tr>
+<td>LongCat-Flash-Thinking</td>
+<td align="right">reasoning-oriented SFT，2 epochs</td>
+<td align="right">large-scale RL + general RL；DORA 异步 RL，比同步快 3x 以上</td>
+<td align="right">SFT 48K；STEM RL 64K；Code RL 48K-&gt;56K-&gt;64K；Agentic 48K</td>
+<td align="right">论文称 RL 在 tens of thousands accelerators 上稳定运行，RL compute 接近 pretraining compute 的 20%</td>
+<td>样本数、GPU hours、精确设备数</td>
+</tr>
+<tr>
+<td>Pangu Pro MoE</td>
+<td align="right">SFT reasoning:non-reasoning &#x3D; 3:1；六轮 progressive optimization</td>
+<td align="right">GRPO + Zero-Advantage-Mask</td>
+<td align="right">general 4K；reasoning&#x2F;annealing 32K</td>
+<td align="right">4K 张 Ascend NPU 训练预训练；post-training days 未披露</td>
+<td>SFT 样本数、RL steps、post-training GPU&#x2F;NPU hours</td>
+</tr>
+<tr>
+<td>Pangu Embedded</td>
+<td align="right">model-aware iterative distillation；数据池来自开源指令、工业查询、合成语料</td>
+<td align="right">math RL 验证约 30,000 ORZ Math；code RL 验证 16,384 prompts，code RL 300 steps</td>
+<td align="right">论文主要披露验证集与训练框架，长度不完整</td>
+<td align="right">Ascend 集群 + MARS；完整天数未披露</td>
+<td>完整 SFT&#x2F;RL 数据规模与硬件天数</td>
+</tr>
+<tr>
+<td>Wan</td>
+<td align="right">post-training 使用 millions 级 top-quality images、simple-motion videos、complex-motion videos</td>
+<td align="right">论文主要披露视频生成 post-training 数据构成，不以 LLM RL 表述为主</td>
+<td align="right">由视频帧数、时长和 latent token 决定</td>
+<td align="right">未披露完整 GPU days</td>
+<td>每阶段 step、GPU hours、精确样本数</td>
+</tr>
+<tr>
+<td>Qwen-Image &#x2F; 2.0</td>
+<td align="right">Qwen-Image 使用 SFT；Qwen-Image-2.0 有 prompt enhancement SFT</td>
+<td align="right">DPO、GRPO、RLHF、OPD；2.0-RL 使用 task-specialized policies</td>
+<td align="right">最高 1328p&#x2F;2K resolution；prompt up to 1K tokens</td>
+<td align="right">2.0 披露 pretraining 700K steps、continual pretraining 250K steps；GPU days 未披露</td>
+<td>数据精确数量、RL steps、完整设备数</td>
+</tr>
+</tbody></table>
+<figure markdown>
+  ![DeepSeek-R1 training cost](https://pic.shaojiemike.top/shaojiemike/2026/07/b69e8c35a87b02ce355d7d203675adf1.png){ width=92% }
+  <figcaption>来自 DeepSeek-R1 Technical Report Table 7：少数公开披露 RL 训练 GPU hours 的例子。R1-Zero 101K H800 GPU hours，SFT 数据创建 5K，R1 41K，总计 147K。</figcaption>
+</figure>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>GPU hours 如何换成天数</p>
+</div>
+        <div class="message-body">
+            <p>如果论文披露 <code>GPU hours</code> 和设备数，可以用 <code>GPU hours / GPU count / 24</code> 估算 wall-clock days。例如 DeepSeek-V3 总 2.788M H800 GPU hours，若按 2048 H800 计算，约为 56.7 个集群日。没有设备数时，不应强行把 GPU hours 改写成训练天数。</p>
+
+        </div>
+    </article>
+
+<h2 id="多模态的尺度"><a href="#多模态的尺度" class="headerlink" title="多模态的尺度"></a>多模态的尺度</h2><p>多模态模型的 Scaling Law 更难直接对齐 LLM，因为 token 数只是其中一个维度。</p>
+<p>以 Qwen-Image 和 Wan 为例，真正影响规模的变量包括：</p>
+<ul>
+<li><strong>样本形态</strong>：image-text pair、video-text pair、OCR 文本图像、合成 caption、偏好 pair。</li>
+<li><strong>视觉分辨率</strong>：256p、512p、1024p、1328p、2K 会显著改变 latent token 数和 attention&#x2F;DiT 计算。</li>
+<li><strong>视频时间维</strong>：视频时长、帧率、运动复杂度会改变训练样本的信息量。</li>
+<li><strong>数据过滤</strong>：Wan 报告强调去除低质量、低运动和 synthetic contamination；Qwen-Image 报告按 Nature、Design、People、Synthetic 等域组织数据。</li>
+<li><strong>后训练目标</strong>：文本渲染、图像编辑、风格一致性、偏好对齐和 prompt enhancement 不是同一个训练目标。</li>
+</ul>
+<p>因此，多模态论文里看到 “billions of image-text pairs” 或 “millions of curated videos” 时，不能把它简单等价成 LLM 的 token 数。更稳妥的做法是同时记录样本数量、分辨率、时长、任务类型和训练 step。</p>
+<h2 id="Agent-场景的尺度"><a href="#Agent-场景的尺度" class="headerlink" title="Agent 场景的尺度"></a>Agent 场景的尺度</h2><p>Agent 的 Scaling Law 不是只问“模型多大”，而是问“在一个任务上愿意花多少次尝试”。一个 agent 任务的总预算可以粗略写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">total_cost ~= model_cost_per_token</span><br><span class="line">           * generated_tokens_per_rollout</span><br><span class="line">           * rollout_count</span><br><span class="line">           + verifier_cost</span><br><span class="line">           + tool_cost</span><br><span class="line">           + environment_latency</span><br></pre></td></tr></table></figure>
+
+<p>这解释了为什么较小模型在某些任务上可以通过更多 rollout 追上大模型，也解释了为什么真实 agent 评测必须报告：</p>
+<ol>
+<li><strong>每题采样次数</strong>：Best-of-N 的 N 直接改变 test-time compute。</li>
+<li><strong>最大输出长度</strong>：长 CoT、代码生成和工具轨迹会拉高 decode tokens。</li>
+<li><strong>verifier&#x2F;reward 成本</strong>：如果 verifier 本身很大，总成本不能只算 policy model。</li>
+<li><strong>工具调用次数</strong>：搜索、代码执行、浏览器操作和数据库查询都属于系统成本。</li>
+<li><strong>失败重试策略</strong>：反思和重试能提高成功率，但也可能让延迟和成本失控。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>评测口径</p>
+</div>
+        <div class="message-body">
+            <p>只报告 benchmark 分数而不报告 test-time budget，会让 agent 模型比较失真。未来读 agent 论文时，应把 rollout 数、工具调用、verifier、最大 token 长度和 wall-clock latency 当作核心实验条件。</p>
+
+        </div>
+    </article>
+
+<h2 id="可复用记录规则"><a href="#可复用记录规则" class="headerlink" title="可复用记录规则"></a>可复用记录规则</h2><p>这次调研沉淀为 wiki 规则：<code>obsidian-vault/wiki/meta/Scaling Law Evidence Rule.md</code>。后续更新模型规模文章时，优先维护同一张证据矩阵：</p>
+<ul>
+<li>模型名称、发布日期、论文链接。</li>
+<li>Dense&#x2F;MoE，总参数与激活参数分开。</li>
+<li>pre-training、mid-training、context extension、SFT、RL、distillation 分阶段记录。</li>
+<li>每阶段记录数据量、平均长度、最大上下文、设备数、GPU&#x2F;NPU hours、wall-clock days。</li>
+<li>对未披露项写“未披露”，不从 marketing claim 反推。</li>
+<li>对多模态模型额外记录分辨率、帧数、时长、caption&#x2F;OCR、偏好数据和 diffusion step。</li>
+</ul>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Scaling Law 的现代含义可以压缩成三句话：</p>
+<ol>
+<li><strong>训练侧</strong>：参数、数据和 compute 要配平；Chinchilla 之后，“更多 token”成为和“更多参数”同等重要的尺度。</li>
+<li><strong>推理侧</strong>：模型大小、生成长度、采样策略和 verifier 共同决定 test-time compute；agent 任务尤其需要报告 rollout budget。</li>
+<li><strong>披露侧</strong>：开源模型论文越来越愿意披露参数、tokens、context 和部分 GPU hours，但 SFT&#x2F;RL 数据量、平均长度和完整设备天数仍经常缺失。</li>
+</ol>
+<p>真正有用的 Scaling Law 阅读方式，不是把每个模型排成参数榜，而是把它们还原成一张预算表：<strong>钱花在参数、数据、上下文、推理、RL 和 agent rollout 的哪里</strong>。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li>Jared Kaplan et al., <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2001.08361">Scaling Laws for Neural Language Models</a>.</li>
+<li>Jordan Hoffmann et al., <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2203.15556">Training Compute-Optimal Large Language Models</a>.</li>
+<li>Tom B. Brown et al., <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2005.14165">Language Models are Few-Shot Learners</a>.</li>
+<li>Charlie Snell et al., <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2408.00724">Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters</a>.</li>
+<li>OPPO AI Agent Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2506.12928">Scaling Test-time Compute for LLM Agents</a>.</li>
+<li>DeepSeek-AI, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2412.19437">DeepSeek-V3 Technical Report</a>.</li>
+<li>DeepSeek-AI, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2501.12948">DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning</a>.</li>
+<li>Qwen Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2505.09388">Qwen3 Technical Report</a>.</li>
+<li>Zhipu AI, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2508.06471">GLM-4.5: Agentic, Reasoning, and Coding</a>.</li>
+<li>Qwen Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2508.02324">Qwen-Image Technical Report</a>.</li>
+<li>Qwen Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2605.10730">Qwen-Image-2.0 Technical Report</a>.</li>
+<li>Qwen Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2606.27608">Qwen-Image-2.0-RL Technical Report</a>.</li>
+<li>Wan Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2503.20314">Wan: Open and Advanced Large-Scale Video Generative Models</a>.</li>
+<li>LongCat Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2509.01322">LongCat-Flash Technical Report</a>.</li>
+<li>LongCat Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2509.18883">LongCat-Flash-Thinking Technical Report</a>.</li>
+<li>Pangu Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2505.22375">Pangu Embedded Technical Report</a>.</li>
+<li>Pangu Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2505.21411">Pangu Pro MoE Technical Report</a>.</li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Scaling Law</p><p><a href="http://icarus.shaojiemike.top/2026/07/03/Work/Artificial Intelligence/Model/LLM/Scaling-Law/">http://icarus.shaojiemike.top/2026/07/03/Work/Artificial Intelligence/Model/LLM/Scaling-Law/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Scaling-Law/">Scaling Law</a><a class="link-muted mr-2" rel="tag" href="/tags/LLM/">LLM</a><a class="link-muted mr-2" rel="tag" href="/tags/Multimodal-Model/">Multimodal Model</a><a class="link-muted mr-2" rel="tag" href="/tags/Post-Training/">Post Training</a><a class="link-muted mr-2" rel="tag" href="/tags/Reinforcement-Learning/">Reinforcement Learning</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/"><span class="level-item">BSND TND Operator Layout</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#问题定义"><span class="level-left"><span class="level-item">1</span><span class="level-item">问题定义</span></span></a></li><li><a class="level is-mobile" href="#训练侧的-Law"><span class="level-left"><span class="level-item">2</span><span class="level-item">训练侧的 Law</span></span></a></li><li><a class="level is-mobile" href="#推理侧的-Law"><span class="level-left"><span class="level-item">3</span><span class="level-item">推理侧的 Law</span></span></a></li><li><a class="level is-mobile" href="#规模如何逐年增加"><span class="level-left"><span class="level-item">4</span><span class="level-item">规模如何逐年增加</span></span></a></li><li><a class="level is-mobile" href="#后训练披露矩阵"><span class="level-left"><span class="level-item">5</span><span class="level-item">后训练披露矩阵</span></span></a></li><li><a class="level is-mobile" href="#多模态的尺度"><span class="level-left"><span class="level-item">6</span><span class="level-item">多模态的尺度</span></span></a></li><li><a class="level is-mobile" href="#Agent-场景的尺度"><span class="level-left"><span class="level-item">7</span><span class="level-item">Agent 场景的尺度</span></span></a></li><li><a class="level is-mobile" href="#可复用记录规则"><span class="level-left"><span class="level-item">8</span><span class="level-item">可复用记录规则</span></span></a></li><li><a class="level is-mobile" href="#小结"><span class="level-left"><span class="level-item">9</span><span class="level-item">小结</span></span></a></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">10</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

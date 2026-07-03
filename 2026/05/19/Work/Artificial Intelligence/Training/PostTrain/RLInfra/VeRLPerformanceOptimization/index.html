@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>VeRL Performance Optimization - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       MFU &amp;#x2F; SMA 低不一定说明 kernel 慢，也可能是 rollout、reward、checkpoint、通信、异步队列或 token 分布造成的等待。性能优化的第一步不是开特性，而是建立 E2E 性能模型。"><meta property="og:type" content="blog"><meta property="og:title" content="VeRL Performance Optimization"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/05/19/Work/Artificial%20Intelligence/Training/PostTrain/RLInfra/VeRLPerformanceOptimization/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       MFU &amp;#x2F; SMA 低不一定说明 kernel 慢，也可能是 rollout、reward、checkpoint、通信、异步队列或 token 分布造成的等待。性能优化的第一步不是开特性，而是建立 E2E 性能模型。"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-05-19T12:51:00.000Z"><meta property="article:modified_time" content="2026-07-03T08:59:59.094Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="VeRL"><meta property="article:tag" content="NPU"><meta property="article:tag" content="Performance"><meta property="article:tag" content="RL"><meta property="article:tag" content="MFU"><meta property="article:tag" content="SMA"><meta property="article:tag" content="Megatron"><meta property="article:tag" content="BSHD"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/05/19/Work/Artificial%20Intelligence/Training/PostTrain/RLInfra/VeRLPerformanceOptimization/"},"headline":"VeRL Performance Optimization","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-05-19T12:51:00.000Z","dateModified":"2026-07-03T08:59:59.094Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       MFU &#x2F; SMA 低不一定说明 kernel 慢，也可能是 rollout、reward、checkpoint、通信、异步队列或 token 分布造成的等待。性能优化的第一步不是开特性，而是建立 E2E 性能模型。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/05/19/Work/Artificial%20Intelligence/Training/PostTrain/RLInfra/VeRLPerformanceOptimization/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-05-19T12:51:00.000Z" title="5/19/2026, 12:51:00 PM">2026-05-19</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.094Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">15 minutes read (About 2269 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">VeRL Performance Optimization</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>MFU &#x2F; SMA 低不一定说明 kernel 慢，也可能是 rollout、reward、checkpoint、通信、异步队列或 token 分布造成的等待。性能优化的第一步不是开特性，而是建立 E2E 性能模型。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="1-性能模型"><a href="#1-性能模型" class="headerlink" title="1. 性能模型"></a>1. 性能模型</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">step_time = rollout + reward + old_logprob + ref_logprob + update_actor + checkpoint + sync + idle</span><br></pre></td></tr></table></figure>
+
+<p>需要把每个阶段进一步拆成：</p>
+<ul>
+<li>compute time</li>
+<li>memory time</li>
+<li>communication time</li>
+<li>scheduling time</li>
+<li>queue wait time</li>
+<li>data preprocess time</li>
+</ul>
+<h2 id="2-瓶颈分类"><a href="#2-瓶颈分类" class="headerlink" title="2. 瓶颈分类"></a>2. 瓶颈分类</h2><ul>
+<li><strong>compute-bound</strong>：算力成为主要限制。</li>
+<li><strong>memory-bound</strong>：访存、激活、KV cache 或通信 buffer 成为主要限制。</li>
+<li><strong>communication-bound</strong>：all-gather、reduce-scatter、ring attention 等通信占主导。</li>
+<li><strong>scheduling-bound</strong>：动态 batch、队列、Ray 调度或 worker 切换开销明显。</li>
+<li><strong>data-bound</strong>：数据加载、reward 函数、后处理成为瓶颈。</li>
+</ul>
+<h2 id="3-特性到瓶颈的映射"><a href="#3-特性到瓶颈的映射" class="headerlink" title="3. 特性到瓶颈的映射"></a>3. 特性到瓶颈的映射</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>可能改善的瓶颈</th>
+<th>对 MFU &#x2F; SMA 的作用</th>
+<th>主要风险</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dynamic batch</td>
+<td>padding waste &#x2F; token packing</td>
+<td>提高有效 token 计算密度</td>
+<td>峰值显存不稳定</td>
+</tr>
+<tr>
+<td>SP &#x2F; CP</td>
+<td>activation &#x2F; long context</td>
+<td>支持更大 seq 或 batch</td>
+<td>通信复杂度增加</td>
+</tr>
+<tr>
+<td>TQ</td>
+<td>待验证</td>
+<td>可能改善调度或队列等待</td>
+<td>含义和适用场景待确认</td>
+</tr>
+<tr>
+<td>FullAsync</td>
+<td>stage idle &#x2F; bubble</td>
+<td>提高 E2E 设备忙碌度</td>
+<td>staleness 和复现风险</td>
+</tr>
+<tr>
+<td>one-step offset</td>
+<td>同步边界等待</td>
+<td>进一步减少等待</td>
+<td>policy lag 风险</td>
+</tr>
+<tr>
+<td>mooncake checkpoint</td>
+<td>checkpoint blocked time</td>
+<td>提高长跑有效训练时间</td>
+<td>环境依赖与恢复语义</td>
+</tr>
+<tr>
+<td>inference serving</td>
+<td>推理资源隔离</td>
+<td>提高推理资源弹性</td>
+<td>网络和权重同步风险</td>
+</tr>
+</tbody></table>
+<h2 id="4-BSHD-micro-batch-padding"><a href="#4-BSHD-micro-batch-padding" class="headerlink" title="4. BSHD micro-batch padding"></a>4. BSHD micro-batch padding</h2><article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>PR 状态</p>
+</div>
+        <div class="message-body">
+            <p><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6901">verl-project&#x2F;verl#6901</a> 已在 2026-07-02 合入，merge commit 是 <code>561a4b03a11b34446e44267c2e84c4bbf63585f5</code>。标题为 <code>[megatron, perf] feat: pad BSHD micro-batches to mini-batch max seq_len</code>。它新增 <code>actor_rollout_ref.actor.megatron.pad_bshd_to_minibatch_max</code>，最终合入版本把默认值改成 <code>True</code>，但只在 <code>use_remove_padding=False</code> 的 Megatron BSHD path 生效；默认 THD &#x2F; sequence packing path 仍是 no-op。</p>
+
+        </div>
+    </article>
+
+<figure markdown>
+  ![BSHD micro-batch padding](https://pic.shaojiemike.top/shaojiemike/2026/07/9f6b9af7561001d6b7aac5aad74f50ee.png){ width=90% }
+  <figcaption>BSHD path 中把同一 mini-batch 内不同 micro-batch 的 padded `s_q` 统一到 mini-batch max，减少新 shape 触发的 attention plan build；图为自绘机制图。</figcaption>
+</figure>
+
+<p>这个 PR 的关键点不是“少 padding”，而是 <strong>用更统一的 shape 换 cuDNN &#x2F; TransformerEngine fused-attention plan cache 复用</strong>。旧路径里，每个 micro-batch 按自己的 <code>seqlens_in_batch.max()</code> padding；作者报告一个 mini-batch 的 32 个 micro-batch 可能产生 20+ 种 padded <code>s_q</code>。每遇到一个新 shape，cuDNN fused attention 可能在 CPU 侧做一次 Graph Build &#x2F; plan build，这部分同步开销可能不容易在 Python profiler 里看到。</p>
+<p>新增逻辑的路径是：</p>
+<ol>
+<li><code>verl/workers/config/engine.py</code> 增加 <code>McoreEngineConfig.pad_bshd_to_minibatch_max: bool = True</code>；<code>verl/trainer/config/engine/megatron.yaml</code> 和 <code>_generated_ppo_megatron_trainer.yaml</code> 也同步把默认值改为 <code>True</code>。</li>
+<li><code>verl/workers/engine/megatron/transformer_impl.py</code> 在 <code>forward_backward_batch</code> 里从 mini-batch nested <code>input_ids.offsets().diff().max()</code> 计算 raw global max seq_len。</li>
+<li>该值通过 NonTensorData 写入每个 micro-batch 的 <code>forced_max_seqlen</code>，避免 actor &#x2F; critic &#x2F; logprob 多路径共享一个易污染的实例属性。</li>
+<li><code>verl/models/mcore/model_forward.py</code> 把 <code>forced_max_seqlen</code> 传给 BSHD 的 <code>preprocess_bshd_engine</code>、MTP label &#x2F; loss_mask、logits processor args，以及 VLM 的 <code>build_vlm_attn_mask_bshd</code>。</li>
+<li><code>verl/models/mcore/util.py</code> 在 <code>preprocess_bshd_engine</code> 和 <code>build_vlm_attn_mask_bshd</code> 里使用 forced raw max 覆盖 micro-batch 局部 max；TP &#x2F; CP &#x2F; FP8 alignment 仍保留在 util 内部。</li>
+</ol>
+<p>关键代码路径可以简化为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> pad_bshd_to_minibatch_max <span class="keyword">and</span> <span class="keyword">not</span> <span class="variable language_">self</span>.engine_config.use_remove_padding <span class="keyword">and</span> <span class="string">&quot;input_ids&quot;</span> <span class="keyword">in</span> data.keys():</span><br><span class="line">    input_ids_for_max = data[<span class="string">&quot;input_ids&quot;</span>]</span><br><span class="line">    <span class="keyword">if</span> input_ids_for_max.is_nested:</span><br><span class="line">        global_max_seqlen = <span class="built_in">int</span>(input_ids_for_max.offsets().diff().<span class="built_in">max</span>().item())</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> micro_batch <span class="keyword">in</span> micro_batches:</span><br><span class="line">    <span class="keyword">if</span> global_max_seqlen <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        tu.assign_non_tensor(micro_batch, forced_max_seqlen=global_max_seqlen)</span><br></pre></td></tr></table></figure>
+
+<p>读这段代码时要注意两点：第一，<code>forced_max_seqlen</code> 来自 mini-batch，而不是 micro-batch；第二，传下去的是 raw max，后续 TP &#x2F; CP &#x2F; FP8 alignment 仍在 <code>preprocess_bshd_engine</code> 内部完成。</p>
+<h3 id="性能证据"><a href="#性能证据" class="headerlink" title="性能证据"></a>性能证据</h3><p>PR 作者给出的 benchmark 是 Qwen3.5-35B-A3B，BSHD path，15 step 均值；<code>Verl Fix</code> 表示开启 <code>pad_bshd_to_minibatch_max</code>。</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th align="right">Verl</th>
+<th align="right">Verl Fix</th>
+<th align="right">变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Total Step Time</td>
+<td align="right">534.13s</td>
+<td align="right">397.71s</td>
+<td align="right">1.34x</td>
+</tr>
+<tr>
+<td>Gen &#x2F; Rollout</td>
+<td align="right">171.06s</td>
+<td align="right">170.86s</td>
+<td align="right">基本不变</td>
+</tr>
+<tr>
+<td>Old Log Prob</td>
+<td align="right">78.38s</td>
+<td align="right">35.45s</td>
+<td align="right">2.21x</td>
+</tr>
+<tr>
+<td>Actor Update</td>
+<td align="right">247.58s</td>
+<td align="right">154.50s</td>
+<td align="right">1.60x</td>
+</tr>
+<tr>
+<td>Weight Sync</td>
+<td align="right">11.04s</td>
+<td align="right">10.73s</td>
+<td align="right">小幅变化</td>
+</tr>
+<tr>
+<td>Ref Model</td>
+<td align="right">24.73s</td>
+<td align="right">24.84s</td>
+<td align="right">基本不变</td>
+</tr>
+</tbody></table>
+<p>Old Log Prob + Actor Update 从 325.96s 降到 189.95s，几乎解释了总 step time 的主要改善。这个分布也支持 PR 的根因判断：收益集中在训练侧 attention forward &#x2F; backward，而不是 rollout 或权重同步。</p>
+<h3 id="正确性边界"><a href="#正确性边界" class="headerlink" title="正确性边界"></a>正确性边界</h3><article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>空 batch 风险</p>
+</div>
+        <div class="message-body">
+            <p>PR 的代码 review 已经指出三处 <code>.max()</code> 风险：mini-batch global max 计算、<code>preprocess_bshd_engine</code>、<code>build_vlm_attn_mask_bshd</code>。动态 batching 或 sequence parallel split 下，如果某些 rank 拿到 <code>batch_size == 0</code>，<code>offsets().diff().max()</code> 可能直接触发 PyTorch RuntimeError。</p>
+
+        </div>
+    </article>
+
+<p>虽然 PR 已合入，继续接入实验矩阵前至少需要补以下验证：</p>
+<ul>
+<li><strong>forced override 单测</strong>：<code>preprocess_bshd_engine(..., forced_max_seqlen=...)</code> 对 1D input、top-k trailing dense dim、<code>need_roll=True</code> label、loss_mask 都保持 shape 和语义一致。</li>
+<li><strong>空 batch &#x2F; 空 rank</strong>：覆盖 <code>batch_size == 0</code>、nested tensor 空 offsets、forced max 为 <code>None</code> 和非 <code>None</code> 两类路径。</li>
+<li><strong>VLM path</strong>：<code>input_ids_bshd</code>、attention mask、label、loss_mask 的 <code>shape[:2]</code> 必须一致，否则 logits processor 会在形状断言处失败。</li>
+<li><strong>TP &#x2F; CP &#x2F; FP8 alignment</strong>：调用方只传 raw max，alignment 仍由 util 内部处理；需要验证 CP zigzag、TP padding、FP8 padding 后的 padded shape 仍可复用。</li>
+<li><strong>THD 对比</strong>：如果目标模型当前已经支持 THD &#x2F; remove padding，优先比较 THD baseline；这个开关只适合无法稳定走 THD 的 BSHD 过渡场景。</li>
+<li><strong>默认值回归</strong>：合入版本已经默认 <code>True</code>，需要在 BSHD 短样本、长短混合样本和 VLM 样本上确认额外 padding 不会带来显存峰值或吞吐回退。</li>
+</ul>
+<h3 id="NPU-适配判断"><a href="#NPU-适配判断" class="headerlink" title="NPU 适配判断"></a>NPU 适配判断</h3><p>这个 PR 对 Ascend &#x2F; NPU 的代码迁移看起来不重：<code>forced_max_seqlen</code> 传递、nested tensor length 计算、<code>to_padded_tensor</code>、label &#x2F; loss_mask 同步 padding 都是 PyTorch &#x2F; Megatron 侧逻辑，不需要写 Ascend 自定义算子。但它的 <strong>收益来源强依赖 CUDA &#x2F; cuDNN &#x2F; TransformerEngine 对新 shape 的 Graph Build 成本</strong>，NPU 上不能默认成立。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>判断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>代码适配量</td>
+<td>S：主要是 shape &#x2F; padding &#x2F; config 逻辑，设备相关代码少；若只是复用上游逻辑，不需要写 Ascend 自定义算子</td>
+</tr>
+<tr>
+<td>性能验证量</td>
+<td>M：NPU 可能没有同类 cuDNN &#x2F; TransformerEngine plan build 成本，也可能因更多 padding 增加 HBM 和 attention mask 成本</td>
+</tr>
+<tr>
+<td>风险点</td>
+<td><code>[B,1,S,S]</code> attention mask 随 <code>Smax</code> 二次增长；短样本 padding 后可能吞掉收益</td>
+</tr>
+<tr>
+<td>自动化动作</td>
+<td>不自动开 NPU 代码 PR；已合入上游，先放入 AutoResearch 的 NPU 实验矩阵</td>
+</tr>
+</tbody></table>
+<p>建议在远程 NPU 上只做显式开关对照：固定 seed、同一批长度分布，采集 Total Step、Old Log Prob、Actor Update、tokens&#x2F;s&#x2F;per-NPU、HBM peak、AI Core 利用率和 host CPU。只有在 old_log_prob &#x2F; actor_update 稳定改善，且没有 HBM &#x2F; OOM &#x2F; 正确性问题时，再考虑把这个 flag 纳入默认实验配置或提交适配 PR。</p>
+<p>相关背景可以继续跟踪 <a target="_blank" rel="noopener" href="https://github.com/NVIDIA/TransformerEngine/issues/2033">NVIDIA&#x2F;TransformerEngine#2033</a>：该 issue 中也出现了 fused attention 在新 shape 下 CPU 侧 build &#x2F; compile 停顿的讨论。</p>
+<h2 id="5-MFU-SMA-对外解释模板"><a href="#5-MFU-SMA-对外解释模板" class="headerlink" title="5. MFU &#x2F; SMA 对外解释模板"></a>5. MFU &#x2F; SMA 对外解释模板</h2><article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>解释模板</p>
+</div>
+        <div class="message-body">
+            <p>对领导或客户解释利用率时，不要只报一个数字。建议拆成：<strong>实际计算时间、通信等待、数据等待、队列等待、checkpoint 阻塞、异常重试</strong>。</p>
+
+        </div>
+    </article>
+
+<p>可以按以下结构说明：</p>
+<ol>
+<li>当前 E2E step time 是多少。</li>
+<li>actor update 计算占比是多少。</li>
+<li>rollout &#x2F; reward &#x2F; ref &#x2F; checkpoint 等非训练阶段占比是多少。</li>
+<li>rank 间 token 和 active time 是否均衡。</li>
+<li>开启某特性后，减少的是哪一类等待。</li>
+</ol>
+<h2 id="6-实验设计"><a href="#6-实验设计" class="headerlink" title="6. 实验设计"></a>6. 实验设计</h2><h3 id="6-1-Baseline"><a href="#6-1-Baseline" class="headerlink" title="6.1 Baseline"></a>6.1 Baseline</h3><ul>
+<li>关闭待验证特性。</li>
+<li>固定模型、数据、长度分布、卡数和并行策略。</li>
+<li>记录完整 DFX 指标。</li>
+</ul>
+<h3 id="6-2-单特性消融"><a href="#6-2-单特性消融" class="headerlink" title="6.2 单特性消融"></a>6.2 单特性消融</h3><ul>
+<li>只开 dynamic batch。</li>
+<li>只开 TQ。</li>
+<li>只开 FullAsync。</li>
+<li>只开 one-step offset。</li>
+<li>只开 mooncake checkpoint。</li>
+</ul>
+<h3 id="6-3-组合特性"><a href="#6-3-组合特性" class="headerlink" title="6.3 组合特性"></a>6.3 组合特性</h3><ul>
+<li>FullAsync + TQ。</li>
+<li>dynamic batch + SP &#x2F; CP。</li>
+<li>inference serving + FullAsync。</li>
+<li>checkpoint 优化 + 长跑稳定性验证。</li>
+</ul>
+<h2 id="7-交付图表"><a href="#7-交付图表" class="headerlink" title="7. 交付图表"></a>7. 交付图表</h2><ul>
+<li>E2E timeline。</li>
+<li>per-stage time breakdown。</li>
+<li>per-rank utilization heatmap。</li>
+<li>memory timeline。</li>
+<li>feature ablation table。</li>
+<li>MFU &#x2F; SMA 与 stage idle time 的相关性图。</li>
+</ul>
+<h2 id="8-待验证项"><a href="#8-待验证项" class="headerlink" title="8. 待验证项"></a>8. 待验证项</h2><ul>
+<li>Ascend 平台 MFU &#x2F; SMA 的准确采集方式。</li>
+<li>GSPO 优化实践文档中的默认配置、适用硬件和实验口径。</li>
+<li>内部 vLLM 特性的开关、依赖和真实收益。</li>
+<li>不同长度分布下各特性收益是否稳定。</li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>VeRL Performance Optimization</p><p><a href="http://icarus.shaojiemike.top/2026/05/19/Work/Artificial Intelligence/Training/PostTrain/RLInfra/VeRLPerformanceOptimization/">http://icarus.shaojiemike.top/2026/05/19/Work/Artificial Intelligence/Training/PostTrain/RLInfra/VeRLPerformanceOptimization/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-05-19</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/VeRL/">VeRL</a><a class="link-muted mr-2" rel="tag" href="/tags/NPU/">NPU</a><a class="link-muted mr-2" rel="tag" href="/tags/Performance/">Performance</a><a class="link-muted mr-2" rel="tag" href="/tags/RL/">RL</a><a class="link-muted mr-2" rel="tag" href="/tags/MFU/">MFU</a><a class="link-muted mr-2" rel="tag" href="/tags/SMA/">SMA</a><a class="link-muted mr-2" rel="tag" href="/tags/Megatron/">Megatron</a><a class="link-muted mr-2" rel="tag" href="/tags/BSHD/">BSHD</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/05/19/Work/Artificial%20Intelligence/Training/PostTrain/RLInfra/VeRLFeatureMatrix/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">VeRL Feature Matrix</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/05/19/Work/Artificial%20Intelligence/Training/PostTrain/RLInfra/VeRLRolloutInference/"><span class="level-item">VeRL Rollout Inference</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#1-性能模型"><span class="level-left"><span class="level-item">1</span><span class="level-item">1. 性能模型</span></span></a></li><li><a class="level is-mobile" href="#2-瓶颈分类"><span class="level-left"><span class="level-item">2</span><span class="level-item">2. 瓶颈分类</span></span></a></li><li><a class="level is-mobile" href="#3-特性到瓶颈的映射"><span class="level-left"><span class="level-item">3</span><span class="level-item">3. 特性到瓶颈的映射</span></span></a></li><li><a class="level is-mobile" href="#4-BSHD-micro-batch-padding"><span class="level-left"><span class="level-item">4</span><span class="level-item">4. BSHD micro-batch padding</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#性能证据"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">性能证据</span></span></a></li><li><a class="level is-mobile" href="#正确性边界"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">正确性边界</span></span></a></li><li><a class="level is-mobile" href="#NPU-适配判断"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">NPU 适配判断</span></span></a></li></ul></li><li><a class="level is-mobile" href="#5-MFU-SMA-对外解释模板"><span class="level-left"><span class="level-item">5</span><span class="level-item">5. MFU / SMA 对外解释模板</span></span></a></li><li><a class="level is-mobile" href="#6-实验设计"><span class="level-left"><span class="level-item">6</span><span class="level-item">6. 实验设计</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#6-1-Baseline"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">6.1 Baseline</span></span></a></li><li><a class="level is-mobile" href="#6-2-单特性消融"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">6.2 单特性消融</span></span></a></li><li><a class="level is-mobile" href="#6-3-组合特性"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">6.3 组合特性</span></span></a></li></ul></li><li><a class="level is-mobile" href="#7-交付图表"><span class="level-left"><span class="level-item">7</span><span class="level-item">7. 交付图表</span></span></a></li><li><a class="level is-mobile" href="#8-待验证项"><span class="level-left"><span class="level-item">8</span><span class="level-item">8. 待验证项</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

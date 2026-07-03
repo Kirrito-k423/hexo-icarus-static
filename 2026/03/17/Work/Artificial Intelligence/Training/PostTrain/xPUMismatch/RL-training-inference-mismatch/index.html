@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>RL: Training Inference Mismatch - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                        25年，RL训练崩溃归因于训推不一致； 为此提出了很多方法，TIS，Router Replay，FP16训推，batch一致性… 如何判断 模型当前训推不一致，并找到不一致实现处，是实践的要点。"><meta property="og:type" content="blog"><meta property="og:title" content="RL: Training Inference Mismatch"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/03/17/Work/Artificial%20Intelligence/Training/PostTrain/xPUMismatch/RL-training-inference-mismatch/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                        25年，RL训练崩溃归因于训推不一致； 为此提出了很多方法，TIS，Router Replay，FP16训推，batch一致性… 如何判断 模型当前训推不一致，并找到不一致实现处，是实践的要点。"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-03-17T02:24:57.000Z"><meta property="article:modified_time" content="2026-07-03T08:59:59.096Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="RL"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/03/17/Work/Artificial%20Intelligence/Training/PostTrain/xPUMismatch/RL-training-inference-mismatch/"},"headline":"RL: Training Inference Mismatch","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-03-17T02:24:57.000Z","dateModified":"2026-07-03T08:59:59.096Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                        25年，RL训练崩溃归因于训推不一致； 为此提出了很多方法，TIS，Router Replay，FP16训推，batch一致性… 如何判断 模型当前训推不一致，并找到不一致实现处，是实践的要点。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/03/17/Work/Artificial%20Intelligence/Training/PostTrain/xPUMismatch/RL-training-inference-mismatch/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-03-17T02:24:57.000Z" title="3/17/2026, 2:24:57 AM">2026-03-17</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.096Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">18 minutes read (About 2744 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">RL: Training Inference Mismatch</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>25年，RL训练崩溃归因于训推不一致；</li>
+<li>为此提出了很多方法，TIS，Router Replay，FP16训推，batch一致性…</li>
+<li>如何判断 模型当前训推不一致，并找到不一致实现处，是实践的要点。</li>
+</ul>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="KL-散度"><a href="#KL-散度" class="headerlink" title="KL 散度"></a>KL 散度</h3><h4 id="Reverse-KL-Divergence"><a href="#Reverse-KL-Divergence" class="headerlink" title="Reverse KL Divergence"></a>Reverse KL Divergence</h4><p>GRPO 使用的是 <strong>Reverse KL</strong>（采样自当前策略 π_θ，参考策略为 π_ref）：</p>
+<p>$$D_{KL}(\pi_\theta | \pi_{ref}) &#x3D; \mathbb{E}<em>{x \sim \pi_\theta}\left[\log\frac{\pi_\theta(x)}{\pi</em>{ref}(x)}\right]$$</p>
+<p>在 LLM 场景下，按 token 级别计算：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">KL = Σ_t π_θ(o_t | q, o_&lt;t) · log[π_θ(o_t | q, o_&lt;t) / π_ref(o_t | q, o_&lt;t)]</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="三种-KL-估计方法"><a href="#三种-KL-估计方法" class="headerlink" title="三种 KL 估计方法"></a>三种 KL 估计方法</h4><p>由于直接计算 KL 的期望成本高，实践中采用蒙特卡洛近似。常见有三种估计器 [[49]][[50]]：</p>
+<table>
+<thead>
+<tr>
+<th>估计器</th>
+<th>公式</th>
+<th>特性</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>k1</strong></td>
+<td><code>-log(r)</code>，其中 <code>r = π_ref/π_θ</code></td>
+<td>无偏但<strong>方差极大</strong>，梯度不含 π_ref</td>
+<td>PPO 中作为 reward shaping，<strong>不适合作为独立 KL loss</strong></td>
+</tr>
+<tr>
+<td><strong>k2</strong></td>
+<td><code>0.5 * (log(r))²</code></td>
+<td><strong>有偏但方差低</strong>，梯度等价于 Reverse KL</td>
+<td>✅ GRPO 推荐（VeRL&#x2F;TRL 默认）</td>
+</tr>
+<tr>
+<td><strong>k3</strong></td>
+<td><code>(r - 1) - log(r)</code></td>
+<td>无偏、方差低，但梯度等价于 <strong>Forward KL</strong></td>
+<td>需注意：采样分布不匹配时可能不稳定</td>
+</tr>
+</tbody></table>
+<p>关键代码逻辑（VeRL&#x2F;TRL 实现）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 假设已获取 per-token logps</span></span><br><span class="line">log_ratio = ref_logps - actor_logps  <span class="comment"># log(π_ref/π_θ)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># k1: 原始 KL (高方差)</span></span><br><span class="line">kl_k1 = -log_ratio</span><br><span class="line"></span><br><span class="line"><span class="comment"># k2: 平方近似 (低方差，推荐)</span></span><br><span class="line">kl_k2 = <span class="number">0.5</span> * (log_ratio ** <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># k3: Bregman 形式 (无偏，但梯度对应 Forward KL)</span></span><br><span class="line">kl_k3 = (log_ratio.exp() - <span class="number">1</span>) - log_ratio</span><br><span class="line"></span><br><span class="line"><span class="comment"># 最终 loss 加入</span></span><br><span class="line">loss = policy_loss + beta * kl_loss_type(actor_logps, ref_logps)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>🔍 <strong>为什么 k2 更推荐？</strong>  </p>
+<ul>
+<li>k2 的梯度：<code>∇_θ [0.5*(log r)²] = (log r) · ∇_θ log π_θ</code>，恰好匹配 Reverse KL 的实用梯度形式 [[49]]  </li>
+<li>k3 虽然无偏，但其梯度对应 Forward KL，在 π_θ 与 π_ref 差距较大时，重要性采样权重 <code>π_ref/π_θ</code> 可能爆炸，导致训练不稳定</li>
+</ul>
+</blockquote>
+<p>监控指标的计算流程（每步 RL）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">1️⃣ 采样阶段：</span><br><span class="line">   - 对每个 query，用当前策略 π_θ 生成 G 个 completions</span><br><span class="line">   - 同时用参考策略 π_ref 计算相同 tokens 的 log-probs</span><br><span class="line"></span><br><span class="line">2️⃣ 计算 per-token KL：</span><br><span class="line">   log_ratio = log(π_ref) - log(π_θ)</span><br><span class="line">   kl_token = kl_loss_type(log_ratio)  # k1/k2/k3 选一</span><br><span class="line"></span><br><span class="line">3️⃣ 聚合为标量指标：</span><br><span class="line">   - 按 completion 平均：kl_per_seq = mean(kl_token over tokens)</span><br><span class="line">   - 按 batch 平均：kl_monitor = mean(kl_per_seq over all completions)</span><br><span class="line"></span><br><span class="line">4️⃣ 用于：</span><br><span class="line">   - 📊 监控：TensorBoard/W&amp;B 记录 kl 曲线，判断策略漂移</span><br><span class="line">   - ⚖️ 正则：loss += β * kl_monitor（β=0.001~0.04，依任务调整）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>四、实践建议</p>
+<ol>
+<li><p><strong>配置选择</strong>（以 VeRL 为例）[[13]][[41]]：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">actor_rollout_ref:</span></span><br><span class="line">  <span class="attr">actor:</span></span><br><span class="line">    <span class="attr">use_kl_loss:</span> <span class="literal">true</span>          <span class="comment"># 启用 KL 正则（GRPO 必须）</span></span><br><span class="line">    <span class="attr">kl_loss_coef:</span> <span class="number">0.001</span>        <span class="comment"># β 系数，数学任务可增至 0.04</span></span><br><span class="line">    <span class="attr">kl_loss_type:</span> <span class="string">&quot;k2&quot;</span>         <span class="comment"># 推荐 k2；若用 k3+ 可开启 straight-through 梯度修正</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>监控阈值参考</strong>：</p>
+<ul>
+<li>KL &lt; 0.01：策略变化过小，可能学习缓慢</li>
+<li>KL ∈ [0.01, 0.1]：健康更新区间</li>
+<li>KL &gt; 0.2：策略漂移过大，需检查 β 或奖励设计</li>
+</ul>
+</li>
+<li><p><strong>调试技巧</strong>：</p>
+<ul>
+<li>同时记录 <code>kl_k2</code> 和 <code>kl_k3</code>，若二者差异显著，说明 π_θ 与 π_ref 已偏离较大</li>
+<li>若 KL 持续上升且 reward 不增，考虑定期重置 reference model（DeepSeek-R1 实践）[[50]]</li>
+</ul>
+</li>
+</ol>
+<h3 id="log-p"><a href="#log-p" class="headerlink" title="log p"></a>log p</h3><p><code>log_p</code> 是模型对<strong>每个位置实际生成的 token</strong> 计算出的<strong>对数概率（Log Probability）</strong>，属于标量值，而 hidden_state 是 Transformer 层输出的高维稠密向量。两者在计算链路、数据形态和用途上完全不同。</p>
+<hr>
+<p>🔍 <code>log_p</code> 的完整计算链路</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Input Tokens </span><br><span class="line">   ↓ [Embedding]</span><br><span class="line">Hidden States (layer 0) </span><br><span class="line">   ↓ [Transformer Blocks × N]</span><br><span class="line">Final Hidden States: h ∈ ℝ^&#123;B×L×D&#125;  ← 这才是你问的 hidden_state</span><br><span class="line">   ↓ [LM Head: Linear + Bias]</span><br><span class="line">Logits: z ∈ ℝ^&#123;B×L×V&#125;            ← 词表大小 V 的未归一化得分</span><br><span class="line">   ↓ [Log Softmax]</span><br><span class="line">Log Probabilities: log_p_all ∈ ℝ^&#123;B×L×V&#125;</span><br><span class="line">   ↓ [Gather 实际 token ID]</span><br><span class="line">log_p ∈ ℝ^&#123;B×L&#125;                  ← 你问的 log_p（每个位置一个标量）</span><br></pre></td></tr></table></figure>
+
+<p>📐 维度与形态对比</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>形状</th>
+<th>数据类型</th>
+<th>物理含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>hidden_state</code></td>
+<td><code>[B, L, D]</code></td>
+<td>float32&#x2F;16</td>
+<td>Transformer 输出的上下文表征向量</td>
+</tr>
+<tr>
+<td><code>logits</code></td>
+<td><code>[B, L, V]</code></td>
+<td>float32&#x2F;16</td>
+<td>词表每个 token 的原始得分</td>
+</tr>
+<tr>
+<td><code>log_p</code></td>
+<td><code>[B, L]</code></td>
+<td>float32&#x2F;16</td>
+<td><strong>当前策略下，每个位置真实 token 的对数概率</strong></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>💡 <code>D</code> 通常为 4096&#x2F;7680 等，<code>V</code> 为词表大小（如 32k&#x2F;128k），而 <code>log_p</code> 已坍缩到 <code>[B, L]</code>，<strong>只保留实际生成 token 的概率信息</strong>。</p>
+</blockquote>
+<hr>
+<p>💻 代码级直观实现（PyTorch）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 model 已加载，input_ids 为 [B, L]</span></span><br><span class="line">outputs = model(input_ids=input_ids, return_dict=<span class="literal">True</span>)</span><br><span class="line">logits = outputs.logits  <span class="comment"># [B, L, V]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 计算全词表 log softmax</span></span><br><span class="line">log_probs_all = F.log_softmax(logits, dim=-<span class="number">1</span>)  <span class="comment"># [B, L, V]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 提取实际 token 对应的 log_p</span></span><br><span class="line"><span class="comment"># input_ids.unsqueeze(-1) -&gt; [B, L, 1]</span></span><br><span class="line">token_log_p = log_probs_all.gather(dim=-<span class="number">1</span>, index=input_ids.unsqueeze(-<span class="number">1</span>)).squeeze(-<span class="number">1</span>)  <span class="comment"># [B, L]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 通常只保留 response 部分（prompt 和 padding 用 mask 过滤）</span></span><br><span class="line">response_mask = (input_ids &gt;= tokenizer.vocab_size)  <span class="comment"># 示例：假设 response token ID 较大</span></span><br><span class="line">valid_log_p = token_log_p * response_mask  <span class="comment"># 后续计算 KL/Loss 时会 mask 掉无效位置</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>⚠️ 常见误区澄清</p>
+<table>
+<thead>
+<tr>
+<th>误区</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“<code>log_p</code> 就是 hidden_state”</td>
+<td>hidden_state 是向量表征；<code>log_p</code> 是经过 LM Head + LogSoftmax + Gather 后的标量概率</td>
+</tr>
+<tr>
+<td>“推理时不需要 <code>log_p</code>”</td>
+<td>推理（生成）时模型会隐式计算它用于采样；RL 训练时需<strong>显式保存</strong>用于 loss</td>
+</tr>
+<tr>
+<td>“<code>log_p</code> 越大越好”</td>
+<td>仅表示模型对该 token 更自信；RL 中需与 reward&#x2F;advantage 结合，盲目最大化会导致 mode collapse</td>
+</tr>
+<tr>
+<td>“KL 直接用 hidden_state 算”</td>
+<td>KL 是<strong>概率分布距离</strong>，必须基于 <code>log_p</code>；hidden_state 是特征空间，无法直接算分布散度</td>
+</tr>
+</tbody></table>
+<hr>
+<p>📌 总结</p>
+<ul>
+<li><code>log_p</code> &#x3D; <strong>每个位置真实 token 的对数概率</strong>，形状 <code>[B, L]</code></li>
+<li>由 <code>hidden_state → logits → log_softmax → gather</code> 得到，<strong>不是 hidden_state 本身</strong></li>
+<li>在 GRPO 中用于：KL 正则、importance ratio、策略梯度、loss mask</li>
+<li>训练时需同时保存 <code>actor_logp</code> 和 <code>ref_logp</code>，推理时通常不显式输出但底层会计算</li>
+</ul>
+<h2 id="训推一致性"><a href="#训推一致性" class="headerlink" title="训推一致性"></a>训推一致性</h2><p> LogP Diff vs KL 散度：本质区别与阈值含义</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>🔹 LogP Diff (训推一致性)</th>
+<th>🔹 KL 散度 (RL 正则&#x2F;监控)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>比较对象</strong></td>
+<td><strong>同一模型</strong>，train mode vs infer mode</td>
+<td><strong>两个策略</strong>，actor π_θ vs reference π_ref</td>
+</tr>
+<tr>
+<td><strong>核心目标</strong></td>
+<td>验证数值计算一致性（精度对齐）</td>
+<td>控制策略更新幅度（防止分布崩溃）</td>
+</tr>
+<tr>
+<td><strong>数学形式</strong></td>
+<td><code>δ = |log_p^train - log_p^infer|</code></td>
+<td><code>KL = 𝔼[log(π_θ/π_ref)]</code> 或其近似</td>
+</tr>
+<tr>
+<td><strong>是否取绝对值</strong></td>
+<td>✅ 是，关注<strong>偏差大小</strong></td>
+<td>❌ 否，保留<strong>方向信息</strong>（谁更自信）</td>
+</tr>
+<tr>
+<td><strong>是否加权</strong></td>
+<td>❌ 所有 token 平等对待</td>
+<td>✅ 高概率 token 贡献更大（p·log(p&#x2F;q)）</td>
+</tr>
+<tr>
+<td><strong>量纲&#x2F;单位</strong></td>
+<td>log 空间的相对误差（无单位比值）</td>
+<td>信息论距离（nat，无单位但数值意义不同）</td>
+</tr>
+<tr>
+<td><strong>典型阈值</strong></td>
+<td>rel_diff &lt; <strong>0.01 (1%)</strong></td>
+<td>KL &lt; <strong>0.01~0.1</strong> (依任务&#x2F;β系数调整)</td>
+</tr>
+</tbody></table>
+<hr>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 trainer 的 logging 阶段</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">compute_consistency_and_kl_metrics</span>(<span class="params">batch</span>):</span><br><span class="line">    metrics = &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 🔹 训推一致性（仅调试阶段启用）</span></span><br><span class="line">    <span class="keyword">if</span> config.debug_consistency:</span><br><span class="line">        <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">            logp_train = model_train(input_ids).logps      <span class="comment"># train mode</span></span><br><span class="line">            logp_infer = model_infer(input_ids).logps      <span class="comment"># eval mode</span></span><br><span class="line">        rel_diff = (logp_train - logp_infer).<span class="built_in">abs</span>() / (logp_train.<span class="built_in">abs</span>() + <span class="number">1e-8</span>)</span><br><span class="line">        metrics[<span class="string">&quot;debug/consistency_rel_diff&quot;</span>] = verl_F.masked_mean(</span><br><span class="line">            rel_diff, batch[<span class="string">&quot;response_mask&quot;</span>]</span><br><span class="line">        ).item()</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 🔹 KL 散度（训练必选）</span></span><br><span class="line">    log_ratio = batch[<span class="string">&quot;ref_logps&quot;</span>] - batch[<span class="string">&quot;actor_logps&quot;</span>]</span><br><span class="line">    kl_token = <span class="number">0.5</span> * (log_ratio ** <span class="number">2</span>)  <span class="comment"># k2</span></span><br><span class="line">    metrics[<span class="string">&quot;actor/kl_loss&quot;</span>] = agg_loss(</span><br><span class="line">        kl_token, batch[<span class="string">&quot;response_mask&quot;</span>], config.loss_agg_mode</span><br><span class="line">    ).item()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> metrics</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="训推一致性指标"><a href="#训推一致性指标" class="headerlink" title="训推一致性指标"></a>训推一致性指标</h2><p>你的理解里有一个关键偏差：**RL 训练里计算 log p 时，训练端不是只输入 response，而是输入 <code>prompt + rollout 生成的 response</code>**。response 在这里有双重身份：</p>
+<ul>
+<li>作为 <strong>label&#x2F;action</strong>：要计算每个生成 token 的 log probability；</li>
+<li>作为 <strong>teacher forcing 的上下文</strong>：第 (t) 个 response token 之后的 token，需要以前面已经生成的 response token 为条件。</li>
+</ul>
+<p>所以训练和推理对齐的不是“API 传入的张量长得一样”，而是对齐同一个条件概率：</p>
+<p>[<br>\log \pi_\theta(y_t \mid x, y_{&lt;t})<br>]</p>
+<p>其中：</p>
+<ul>
+<li>(x)：prompt；</li>
+<li>(y_t)：第 (t) 个生成出来的 response token；</li>
+<li>(y_{&lt;t})：它之前已经生成的 response tokens。</li>
+</ul>
+<p>推理时逐步得到这些概率；训练时用一次 causal forward 并行算出这些概率。<strong>数学上是等价的</strong>，只要 token、mask、position id、模型权重、logits 处理方式一致。</p>
+<hr>
+<h3 id="log-p-到底对齐什么"><a href="#log-p-到底对齐什么" class="headerlink" title="log p 到底对齐什么"></a>log p 到底对齐什么</h3><p>设 prompt 为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = [x1, x2]</span><br></pre></td></tr></table></figure>
+
+<p>rollout 生成的 response 为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">y = [y1, y2, y3]</span><br></pre></td></tr></table></figure>
+
+<p>推理阶段并不是永远只输入 prompt。实际过程是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">prefill([x1, x2])      -&gt; log p(y1 | x1, x2)</span><br><span class="line">decode(y1)             -&gt; log p(y2 | x1, x2, y1)</span><br><span class="line">decode(y2)             -&gt; log p(y3 | x1, x2, y1, y2)</span><br></pre></td></tr></table></figure>
+
+<p>训练阶段会把同一条轨迹拼起来：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input = [x1, x2, y1, y2, y3]</span><br></pre></td></tr></table></figure>
+
+<p>然后 causal LM 的 logits 对齐关系是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">logits at x2 -&gt; predict y1</span><br><span class="line">logits at y1 -&gt; predict y2</span><br><span class="line">logits at y2 -&gt; predict y3</span><br></pre></td></tr></table></figure>
+
+<p>因此训练端算的是：</p>
+<p>[<br>\log \pi_\theta(y_1 \mid x_1,x_2)<br>]</p>
+<p>[<br>\log \pi_\theta(y_2 \mid x_1,x_2,y_1)<br>]</p>
+<p>[<br>\log \pi_\theta(y_3 \mid x_1,x_2,y_1,y_2)<br>]</p>
+<p>这和推理阶段逐步 decode 得到的 log p 是同一个东西。</p>
+<p>需要注意的是，<strong>prompt token 通常不参与 RL loss</strong>，但它们必须作为上下文参与 attention。也就是说：</p>
+<ul>
+<li>attention mask 不能把 prompt 屏蔽掉；</li>
+<li>loss mask &#x2F; response mask 只是在计算 loss 时忽略 prompt 部分。</li>
+</ul>
+<p>如果训练端真的只输入 response，那么算出来的是：</p>
+<p>[<br>\log \pi_\theta(y_t \mid y_{&lt;t})<br>]</p>
+<p>这当然无法和推理阶段的：</p>
+<p>[<br>\log \pi_\theta(y_t \mid x, y_{&lt;t})<br>]</p>
+<p>对齐。这种流程就是错的。</p>
+<hr>
+<h3 id="为什么一次训练前向可以等价"><a href="#为什么一次训练前向可以等价" class="headerlink" title="为什么一次训练前向可以等价"></a>为什么一次训练前向可以等价</h3><p>decoder-only causal LM 的序列概率分解为：</p>
+<h1 id="pi-theta-y-mid-x"><a href="#pi-theta-y-mid-x" class="headerlink" title="[\pi_\theta(y \mid x)"></a>[<br>\pi_\theta(y \mid x)</h1><p>\prod_{t&#x3D;1}^{T}<br>\pi_\theta(y_t \mid x, y_{&lt;t})<br>]</p>
+<p>推理阶段是一个因子一个因子地采样：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">p(y1 | x)</span><br><span class="line">p(y2 | x, y1)</span><br><span class="line">p(y3 | x, y1, y2)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>训练阶段用 teacher forcing，把完整序列：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[prompt, response]</span><br></pre></td></tr></table></figure>
+
+<p>一次送入模型。由于 causal mask 的存在，每个位置只能看见自己左边的 token，不能看见未来 token，所以它可以并行计算所有条件概率。</p>
+<p>以 token 序列：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s = [x1, x2, y1, y2, y3]</span><br></pre></td></tr></table></figure>
+
+<p>为例，模型输出 logits：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z0, z1, z2, z3, z4</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">z1 -&gt; predict y1</span><br><span class="line">z2 -&gt; predict y2</span><br><span class="line">z3 -&gt; predict y3</span><br></pre></td></tr></table></figure>
+
+<p>最后一个 logits <code>z4</code> 是用来预测 <code>y3</code> 后面的下一个 token 的，通常不参与当前 response 的 log p 计算。</p>
+<p>一个简化的 PyTorch 对齐逻辑如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># prompt_ids: [m]</span></span><br><span class="line"><span class="comment"># response_ids: [n]</span></span><br><span class="line"><span class="comment"># ids: [1, m+n]</span></span><br><span class="line">ids = torch.cat([prompt_ids, response_ids], dim=<span class="number">0</span>).unsqueeze(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">logits = model(ids).logits          <span class="comment"># [1, m+n, vocab]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># logits[:, i] predicts ids[:, i+1]</span></span><br><span class="line">logp_next = logits[:, :-<span class="number">1</span>].log_softmax(dim=-<span class="number">1</span>)</span><br><span class="line">targets = ids[:, <span class="number">1</span>:]</span><br><span class="line"></span><br><span class="line">token_logp = logp_next.gather(</span><br><span class="line">    dim=-<span class="number">1</span>,</span><br><span class="line">    index=targets.unsqueeze(-<span class="number">1</span>)</span><br><span class="line">).squeeze(-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># response 的第一个 token 在 full sequence 中的位置是 m</span></span><br><span class="line"><span class="comment"># 它由 logits 的位置 m-1 预测</span></span><br><span class="line">resp_logp = token_logp[:, m - <span class="number">1</span> : m - <span class="number">1</span> + <span class="built_in">len</span>(response_ids)]</span><br></pre></td></tr></table></figure>
+
+<p>这个 <code>resp_logp</code> 就应该和推理引擎在 rollout 时记录的 output token logprobs 对齐。</p>
+<p>如果你使用 HuggingFace CausalLM 的 <code>labels</code>，常见做法是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">labels = ids.clone()</span><br><span class="line">labels[:, :prompt_len] = -<span class="number">100</span></span><br></pre></td></tr></table></figure>
+
+<p>因为 HF CausalLM 内部通常会做 shift：用 <code>logits[:, :-1]</code> 预测 <code>labels[:, 1:]</code>。所以把原始 labels 中 prompt 部分置为 <code>-100</code> 后，第一个 response token 仍然会由最后一个 prompt token 的 logits 来预测。</p>
+<hr>
+<h3 id="prefill-decode-和-full-forward-的关系"><a href="#prefill-decode-和-full-forward-的关系" class="headerlink" title="prefill + decode 和 full forward 的关系"></a>prefill + decode 和 full forward 的关系</h3><p>prefill + decode 不是另一种概率模型，它只是带 KV cache 的增量计算。</p>
+<p>推理：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">prefill(prompt) 生成 prompt 的 KV cache</span><br><span class="line">使用最后一个 prompt 位置的 logits 采样 y1</span><br><span class="line">decode(y1) 更新 KV cache，得到 y2 的 logits</span><br><span class="line">decode(y2) 更新 KV cache，得到 y3 的 logits</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>训练 full forward：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">一次性输入 [prompt, y1, y2, y3, ...]</span><br><span class="line">用 causal mask 同时算出所有位置的 logits</span><br></pre></td></tr></table></figure>
+
+<p>KV cache 的作用只是避免重复计算历史 token 的 key&#x2F;value。理论上：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">full forward 的 prefix hidden states</span><br></pre></td></tr></table></figure>
+
+<p>和：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">prefill + decode 逐步得到的 hidden states</span><br></pre></td></tr></table></figure>
+
+<p>应该一致。</p>
+<p>因此，只要以下条件一致，二者的 per-token log p 应该接近相等：</p>
+<ul>
+<li>模型权重一致；</li>
+<li>tokenizer 和 token ids 一致；</li>
+<li>attention mask 一致；</li>
+<li>position ids 一致；</li>
+<li>RoPE scaling、YaRN、NTK 等位置编码配置一致；</li>
+<li>logits 处理方式一致；</li>
+<li>dtype 和 kernel 数值误差在可接受范围内。</li>
+</ul>
+<p>实际工程中不一定 bitwise 相等，尤其是 bf16、FlashAttention、PagedAttention、tensor parallel、FP8 KV cache 等场景，但差异应该很小。若出现系统性大偏差，就说明存在训推不一致。</p>
+<hr>
+<h3 id="RL-崩溃为什么和-log-p-不一致有关"><a href="#RL-崩溃为什么和-log-p-不一致有关" class="headerlink" title="RL 崩溃为什么和 log p 不一致有关"></a>RL 崩溃为什么和 log p 不一致有关</h3><p>以 PPO &#x2F; GRPO 类算法为例，训练时通常需要 old logprob 和 new logprob：</p>
+<h2 id="r-t-exp-log-pi-theta-text-new-y-t-mid-x-y"><a href="#r-t-exp-log-pi-theta-text-new-y-t-mid-x-y" class="headerlink" title="[r_t &#x3D;\exp(\log \pi_{\theta_{\text{new}}}(y_t \mid x,y_{&lt;t})"></a>[<br>r_t &#x3D;<br>\exp(<br>\log \pi_{\theta_{\text{new}}}(y_t \mid x,y_{&lt;t})</h2><p>\log \pi_{\theta_{\text{old}}}(y_t \mid x,y_{&lt;t})<br>)<br>]</p>
+<p>其中：</p>
+<ul>
+<li><code>old_logprob</code>：rollout 时生成该 token 的策略概率；</li>
+<li><code>new_logprob</code>：训练时当前 actor 对同一个 token 的概率；</li>
+<li>(r_t)：importance ratio。</li>
+</ul>
+<p>如果刚同步完 actor，且还没有做 optimizer step，那么理论上：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">new_logprob ≈ old_logprob</span><br><span class="line">r_t ≈ 1</span><br></pre></td></tr></table></figure>
+
+<p>如果此时就出现较大偏差，比如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">new_logprob - old_logprob</span><br></pre></td></tr></table></figure>
+
+<p>大面积偏离 0，那么 PPO ratio 会被错误放大或缩小，clip、KL、advantage 加权都会失真，训练就可能崩溃。</p>
+<p>所以这里说的“训推不一致”，通常不是指“训练输入 response，推理输入 prompt”这种概念差异，而是指：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rollout/inference engine 记录的 log p</span><br></pre></td></tr></table></figure>
+
+<p>和：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">training engine 对同一批 prompt+response 重算的 log p</span><br></pre></td></tr></table></figure>
+
+<p>不一致。</p>
+<hr>
+<h3 id="常见的不一致来源"><a href="#常见的不一致来源" class="headerlink" title="常见的不一致来源"></a>常见的不一致来源</h3><p><strong>1. token 序列不一致</strong></p>
+<p>这是最常见的问题。</p>
+<p>需要确保训练端使用的不是重新 detokenize 再 retokenize 的文本，而是 rollout 时真实生成的 token ids：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">prompt_token_ids + generated_response_token_ids</span><br></pre></td></tr></table></figure>
+
+<p>常见坑包括：</p>
+<ul>
+<li>BOS 是否自动添加；</li>
+<li>chat template 是否一致；</li>
+<li>是否使用 <code>add_generation_prompt=True</code>；</li>
+<li>assistant header 是否被当成 prompt 还是 response；</li>
+<li>EOS token 是否包含在 response 中；</li>
+<li>stop string 和 stop token 的处理是否一致；</li>
+<li>训练端是否重新拼文本后再 tokenize，导致边界 token 变化。</li>
+</ul>
+<p><strong>2. shift 和 mask 错位</strong></p>
+<p>response 第一个 token 的 logprob 来自最后一个 prompt token 的 logits。</p>
+<p>如果 prompt 长度为 (m)，response 长度为 (n)，那么 response logprob 对应：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logits[m-1 : m-1+n]</span><br></pre></td></tr></table></figure>
+
+<p>而不是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logits[m : m+n]</span><br></pre></td></tr></table></figure>
+
+<p>常见错误是 off-by-one。</p>
+<p><strong>3. logits processor 不一致</strong></p>
+<p>推理时可能使用：</p>
+<ul>
+<li>temperature；</li>
+<li>top-p；</li>
+<li>top-k；</li>
+<li>repetition penalty；</li>
+<li>min length；</li>
+<li>bad words；</li>
+<li>forced EOS；</li>
+<li>stop token suppression。</li>
+</ul>
+<p>如果推理记录的是处理后的 logprob，而训练端用的是原始 logits 的 logprob，就会不一致。</p>
+<p>例如 temperature 为 (\tau) 时，采样分布是：</p>
+<p>[<br>\text{softmax}(z &#x2F; \tau)<br>]</p>
+<p>而不是：</p>
+<p>[<br>\text{softmax}(z)<br>]</p>
+<p>所以要么两边都用 raw logits，要么两边都应用相同的 temperature。调试时建议先关闭所有 processor：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">temperature = 1</span><br><span class="line">top_p = 1</span><br><span class="line">top_k disabled</span><br><span class="line">repetition_penalty = 1</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. padding、position id、packing 不一致</strong></p>
+<p>训练端常用 padding &#x2F; sequence packing，推理端常用动态 batching &#x2F; paged attention。需要确保：</p>
+<ul>
+<li>pad token 不参与 attention；</li>
+<li>prompt 不被 loss mask 误当成 attention mask 屏蔽；</li>
+<li>position ids 计算一致；</li>
+<li>packed sequence 之间不能互相 attention；</li>
+<li>RoPE scaling 配置一致；</li>
+<li>left padding &#x2F; right padding 不导致 position id 差异。</li>
+</ul>
+<p><strong>5. 模型权重版本不一致</strong></p>
+<p>RL 系统通常有两个模型副本：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rollout engine actor</span><br><span class="line">training engine actor</span><br></pre></td></tr></table></figure>
+
+<p>需要确认：</p>
+<ul>
+<li>权重是否已经同步；</li>
+<li>LoRA adapter 是否一致；</li>
+<li>rollout engine 是否加载了 merge 后权重；</li>
+<li>tensor parallel 切分是否一致；</li>
+<li>是否存在异步 rollout 的 stale policy；</li>
+<li>量化权重、FP8 KV cache 是否引入较大误差。</li>
+</ul>
+<p><strong>6. 数值 kernel 差异</strong></p>
+<p>full forward 和 decode 可能使用不同 kernel：</p>
+<ul>
+<li>FlashAttention；</li>
+<li>PagedAttention；</li>
+<li>fused RMSNorm；</li>
+<li>fused softmax；</li>
+<li>bf16&#x2F;fp16&#x2F;fp32；</li>
+<li>tensor parallel all-reduce；</li>
+<li>vocab parallel softmax。</li>
+</ul>
+<p>小误差正常，但大面积系统性误差不正常。</p>
+<p>经验上，fp32&#x2F;eager 模式可以非常接近；bf16、不同 attention kernel 下可能有 (10^{-3}) 到 (10^{-2}) 量级差异。这个不是硬标准，但如果偏差明显更大，或者 ratio 明显偏离 1，就要排查。</p>
+<hr>
+<h3 id="建议的排查流程"><a href="#建议的排查流程" class="headerlink" title="建议的排查流程"></a>建议的排查流程</h3><p>可以按下面顺序做最小化一致性测试：</p>
+<ol>
+<li>固定一批 prompt。</li>
+<li>rollout engine 生成 response，并保存：<ul>
+<li><code>prompt_token_ids</code></li>
+<li><code>response_token_ids</code></li>
+<li><code>old_logprobs</code></li>
+<li><code>attention_mask</code></li>
+<li><code>position_ids</code></li>
+</ul>
+</li>
+<li>关闭 temperature、top-p、top-k、repetition penalty 等 logits processor。</li>
+<li>确认训练端和推理端使用同一份权重。</li>
+<li>训练端用：</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input_ids = prompt_token_ids + response_token_ids</span><br></pre></td></tr></table></figure>
+
+<p>重算 per-token logprob。</p>
+<ol start="6">
+<li>对齐 response 部分：</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_logprob[i] 对齐 infer_logprob[i]</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">train_logprob[i]</span><br><span class="line">=</span><br><span class="line">log p(response_ids[i] | prompt_ids, response_ids[:i])</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>比较：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">delta = train_logprob - infer_logprob</span><br><span class="line">ratio = torch.exp(delta)</span><br></pre></td></tr></table></figure>
+
+<p>期望：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">delta ≈ 0</span><br><span class="line">ratio ≈ 1</span><br></pre></td></tr></table></figure>
+
+<p>如果不满足，优先检查：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">token ids -&gt; chat template -&gt; shift -&gt; mask -&gt; logits processor -&gt; position ids -&gt; 权重同步 -&gt; dtype/kernel</span><br></pre></td></tr></table></figure>
+
+<p>一句话总结：</p>
+<p><strong>推理是逐步生成同一条 response，训练是对这条固定 response 做 teacher-forcing 评分；二者对齐的是每个 token 的条件 log probability，而不是表面上的输入 API。prefill+decode 与一次 full forward 在 causal mask 下理论等价，工程上的不一致才是需要排查的核心。</strong></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>RL: Training Inference Mismatch</p><p><a href="http://icarus.shaojiemike.top/2026/03/17/Work/Artificial Intelligence/Training/PostTrain/xPUMismatch/RL-training-inference-mismatch/">http://icarus.shaojiemike.top/2026/03/17/Work/Artificial Intelligence/Training/PostTrain/xPUMismatch/RL-training-inference-mismatch/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-03-17</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/RL/">RL</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/03/17/Work/Artificial%20Intelligence/Training/PostTrain/Agentic_RL/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Agent &amp; Agentic RL</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/02/27/Work/1-BusinessTrip/2601-VeRLDanceGRPO/"><span class="level-item">Business Trip: 2601-2602 verl + DanceGRPO</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><ul class="menu-list"><li><a class="level is-mobile" href="#基本概念"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">基本概念</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#KL-散度"><span class="level-left"><span class="level-item">1.1.1</span><span class="level-item">KL 散度</span></span></a></li><li><a class="level is-mobile" href="#log-p"><span class="level-left"><span class="level-item">1.1.2</span><span class="level-item">log p</span></span></a></li></ul></li><li><a class="level is-mobile" href="#训推一致性"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">训推一致性</span></span></a></li><li><a class="level is-mobile" href="#训推一致性指标"><span class="level-left"><span class="level-item">1.3</span><span class="level-item">训推一致性指标</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#log-p-到底对齐什么"><span class="level-left"><span class="level-item">1.3.1</span><span class="level-item">log p 到底对齐什么</span></span></a></li><li><a class="level is-mobile" href="#为什么一次训练前向可以等价"><span class="level-left"><span class="level-item">1.3.2</span><span class="level-item">为什么一次训练前向可以等价</span></span></a></li></ul></li></ul><li><a class="level is-mobile" href="#pi-theta-y-mid-x"><span class="level-left"><span class="level-item">2</span><span class="level-item">[\pi_\theta(y \mid x)</span></span></a><ul class="menu-list"><ul class="menu-list"><li><a class="level is-mobile" href="#prefill-decode-和-full-forward-的关系"><span class="level-left"><span class="level-item">2.1.1</span><span class="level-item">prefill + decode 和 full forward 的关系</span></span></a></li><li><a class="level is-mobile" href="#RL-崩溃为什么和-log-p-不一致有关"><span class="level-left"><span class="level-item">2.1.2</span><span class="level-item">RL 崩溃为什么和 log p 不一致有关</span></span></a></li></ul><li><a class="level is-mobile" href="#r-t-exp-log-pi-theta-text-new-y-t-mid-x-y"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">[r_t =\exp(\log \pi_{\theta_{\text{new}}}(y_t \mid x,y_{&lt;t})</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#常见的不一致来源"><span class="level-left"><span class="level-item">2.2.1</span><span class="level-item">常见的不一致来源</span></span></a></li><li><a class="level is-mobile" href="#建议的排查流程"><span class="level-left"><span class="level-item">2.2.2</span><span class="level-item">建议的排查流程</span></span></a></li></ul></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

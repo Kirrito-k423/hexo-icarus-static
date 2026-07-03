@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Multimodal Generation Evaluation - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       多模态生成 RL 的评测不能沿用 VLM 问答评测的一套逻辑。理解任务可以用正确答案、选项或短文本验证；生成任务还要评价 视觉质量、语义一致、运动时序、编辑边界、音频质量、音画同步和人类偏好。 因此，评测方案要先回答一个问题：训练时 reward 优化的是哪一种生成能力，最终 benchmark 是否真的测了同一种能力。本文把"><meta property="og:type" content="blog"><meta property="og:title" content="Multimodal Generation Evaluation"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/06/26/Work/Artificial%20Intelligence/Training/PostTrain/RLInfra/Multimodal-Generation-Evaluation/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       多模态生成 RL 的评测不能沿用 VLM 问答评测的一套逻辑。理解任务可以用正确答案、选项或短文本验证；生成任务还要评价 视觉质量、语义一致、运动时序、编辑边界、音频质量、音画同步和人类偏好。 因此，评测方案要先回答一个问题：训练时 reward 优化的是哪一种生成能力，最终 benchmark 是否真的测了同一种能力。本文把"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-06-26T03:40:00.000Z"><meta property="article:modified_time" content="2026-07-03T08:59:59.090Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="VLM"><meta property="article:tag" content="RL"><meta property="article:tag" content="AISBench"><meta property="article:tag" content="VBench"><meta property="article:tag" content="VEFX-Bench"><meta property="article:tag" content="Flow-Factory"><meta property="article:tag" content="VeRL-Omni"><meta property="article:tag" content="Evaluation"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/06/26/Work/Artificial%20Intelligence/Training/PostTrain/RLInfra/Multimodal-Generation-Evaluation/"},"headline":"Multimodal Generation Evaluation","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-06-26T03:40:00.000Z","dateModified":"2026-07-03T08:59:59.090Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       多模态生成 RL 的评测不能沿用 VLM 问答评测的一套逻辑。理解任务可以用正确答案、选项或短文本验证；生成任务还要评价 视觉质量、语义一致、运动时序、编辑边界、音频质量、音画同步和人类偏好。 因此，评测方案要先回答一个问题：训练时 reward 优化的是哪一种生成能力，最终 benchmark 是否真的测了同一种能力。本文把"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/06/26/Work/Artificial%20Intelligence/Training/PostTrain/RLInfra/Multimodal-Generation-Evaluation/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-06-26T03:40:00.000Z" title="6/26/2026, 3:40:00 AM">2026-06-26</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.090Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">25 minutes read (About 3754 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Multimodal Generation Evaluation</h1><div class="content"><!-- 博客内容主要是实践，测试记录，辅助知识整理。不会只是为了整理知识而写，至少是为了全面了解当前工作涉及知识点而写。 -->
+
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>多模态生成 RL 的评测不能沿用 VLM 问答评测的一套逻辑。理解任务可以用正确答案、选项或短文本验证；生成任务还要评价 <strong>视觉质量、语义一致、运动时序、编辑边界、音频质量、音画同步和人类偏好</strong>。</p>
+<p>因此，评测方案要先回答一个问题：训练时 reward 优化的是哪一种生成能力，最终 benchmark 是否真的测了同一种能力。本文把 AISBench、VBench、VEFX-Bench、Flow-Factory 和 VeRL-Omni 放在一起，整理一个后续实验可执行的评测地图。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<figure markdown>
+  ![Multimodal generation evaluation map](https://pic.shaojiemike.top/shaojiemike/2026/06/a955e22c0c565ee615703cd4e5e47a8a.png){ width=90% }
+  <figcaption>多模态生成评测需要把训练 reward、生成样本和最终 benchmark 分开对齐。</figcaption>
+</figure>
+
+<h2 id="核心判断"><a href="#核心判断" class="headerlink" title="核心判断"></a>核心判断</h2><p>结论先说：</p>
+<ol>
+<li><strong>理解型评测和生成型评测要分开</strong>。Geo3K、VideoBench、Video-MME 这类问答评测主要验证模型是否理解输入；VBench、GEdit-Bench、VEFX-Bench 则验证模型生成出来的图像或视频是否好。</li>
+<li><strong>AISBench 已经有多模态生成评测入口</strong>。截至 2026-06-26，AISBench README 和文档已经接入 GEdit-Bench 与 VBench 1.0；但 VBench 页面明确说明，AISBench 当前不负责生成视频，需要先完成视频生成，再把生成结果交给 AISBench 评测。[^aisbench-readme][^aisbench-vbench][^aisbench-gedit]</li>
+<li><strong>VEFX-Bench 更适合视频编辑和视觉特效，不是通用 T2V 榜单</strong>。它评估的是原视频、编辑指令、编辑后视频之间的匹配，核心维度是 Instruction Following、Render Quality 和 Edit Exclusivity。[^vefx]</li>
+<li><strong>Flow-Factory 与 VeRL-Omni 更像训练框架，不是最终评测基准</strong>。它们提供 reward 接入、生成模型 rollout 和 RL 算法；最终论文或客户报告仍要接 VBench、GEdit-Bench、VEFX-Bench、人评或音频类指标。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>不要只看 reward 上涨</p>
+</div>
+        <div class="message-body">
+            <p>生成 RL 中的 reward 上涨只能说明训练时的 scorer 被优化了。它不自动等价于 VBench、VEFX-Bench 或人工偏好变好。最终报告应把 <strong>training reward</strong> 和 <strong>external evaluation</strong> 分成两张表。</p>
+
+        </div>
+    </article>
+
+<h2 id="评测地图"><a href="#评测地图" class="headerlink" title="评测地图"></a>评测地图</h2><p>多模态生成至少要按输出形态拆成四类：图像生成、图像编辑、视频生成、音视频生成。每一类的样本格式、自动指标和人工检查点都不同。</p>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>典型输入输出</th>
+<th>训练 reward</th>
+<th>最终评测</th>
+<th>适用结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>T2I 图像生成</td>
+<td>prompt -&gt; image</td>
+<td>PickScore、HPSv2&#x2F;HPSv3、CLIP、OCR、Qwen-Image-Bench、RationalRewards</td>
+<td>GenEval、Qwen-Image-Bench、人工偏好</td>
+<td>证明图像质量、语义对齐、文字渲染或组合泛化。</td>
+</tr>
+<tr>
+<td>图像编辑</td>
+<td>source image + instruction -&gt; edited image</td>
+<td>RationalRewards-Edit、Qwen-Image-Bench、VLM-as-Judge</td>
+<td>GEdit-Bench、编辑前后人评</td>
+<td>证明真实编辑请求、保真和指令遵循。</td>
+</tr>
+<tr>
+<td>T2V 视频生成</td>
+<td>prompt -&gt; video</td>
+<td>HPSv3、ImageBind、VLM-as-Judge、任务定制 reward</td>
+<td>VBench Standard &#x2F; Custom、人工偏好</td>
+<td>证明视频质量、运动、时序和 prompt 对齐。</td>
+</tr>
+<tr>
+<td>视频编辑 &#x2F; VFX</td>
+<td>source video + instruction -&gt; edited video</td>
+<td>VLM video reward、VEFX-Reward、局部一致性 reward</td>
+<td>VEFX-Bench</td>
+<td>证明编辑是否只改该改的地方，且画面稳定。</td>
+</tr>
+<tr>
+<td>T2AV 音视频生成</td>
+<td>prompt -&gt; video + audio</td>
+<td>CLAP、ImageBind、音画同步 reward、VLM&#x2F;AVLM judge</td>
+<td>VBench 视觉维度 + 音频质量指标 + 音画同步人评</td>
+<td>证明声音内容、视觉内容和同步关系一起成立。</td>
+</tr>
+</tbody></table>
+<p>这里有一个容易混淆的点：<strong>VBench 和 VEFX-Bench 都是视频相关，但不是同一个问题</strong>。</p>
+<ul>
+<li><strong>VBench</strong> 主要面向视频生成模型，对生成视频做 16 个维度的质量和语义评测，包括主体一致、背景一致、时序闪烁、运动平滑、动态程度、美学质量、图像质量、物体类别、空间关系、动作、场景、整体一致等。[^vbench]</li>
+<li><strong>VEFX-Bench</strong> 主要面向文本驱动视频编辑和视觉特效，数据有 5,049 个标注样例、1,419 个源视频、9 个类别和 32 个子类，并用 VEFX-Reward 在 1-4 分上评分。[^vefx]</li>
+</ul>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>现场选择规则</p>
+</div>
+        <div class="message-body">
+            <p>如果客户现场说的是 <code>vefx bench</code>，需要先确认任务是不是 <strong>video editing &#x2F; VFX</strong>。如果任务是纯文本到视频生成，用 VBench 更自然；如果任务是给定原视频再做局部编辑、替换、移除、风格或镜头变化，用 VEFX-Bench 才对。</p>
+
+        </div>
+    </article>
+
+<h2 id="AISBench-入口"><a href="#AISBench-入口" class="headerlink" title="AISBench 入口"></a>AISBench 入口</h2><p>AISBench 现在可以覆盖两类生成评测：</p>
+<ol>
+<li><strong>GEdit-Bench</strong>：面向真实世界图像编辑请求。AISBench 文档说明该数据集来自真实用户编辑请求，最终有英文和中文两套，单语言 606 个测试样本，总计 1,212 个样本，覆盖 11 类高频编辑场景。[^aisbench-gedit]</li>
+<li><strong>VBench 1.0</strong>：面向视频生成质量评测。AISBench 提供 Standard 和 Custom 两种配置，Standard 模式按官方 prompt suite 组织 16 个维度，最终聚合 Quality、Semantic 和 Total。[^aisbench-vbench]</li>
+</ol>
+<p>这两类和 AISBench 数据集准备页里的 <code>textvqa</code>、<code>videobench</code>、<code>Video-MME</code>、<code>MathVision</code> 等理解型评测不同。后者通常评估模型回答是否正确，前者评估模型生成结果是否符合质量和语义要求。[^aisbench-datasets]</p>
+<p>AISBench VBench 页面对使用方式有一个关键约束：它评的是 <strong>已经生成好的视频目录</strong>。这意味着实验流程不能写成“AISBench 直接评模型”，而应拆成：</p>
+<ol>
+<li><strong>生成阶段</strong>：用待评模型按 VBench prompt suite 或自定义 prompt 生成视频。</li>
+<li><strong>落盘阶段</strong>：按维度或文件名规则保存视频，尤其注意 <code>temporal_flickering</code> 需要更多采样。</li>
+<li><strong>评测阶段</strong>：用 AISBench 的 VBench 配置读取视频目录，输出各维度结果。</li>
+<li><strong>汇总阶段</strong>：Standard 模式聚合 Quality、Semantic 和 Total，Custom 模式按维度输出。</li>
+</ol>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>生成类任务打破原有接口</p>
+</div>
+        <div class="message-body">
+            <p>VLM 问答评测通常是 dataset 给 prompt，model 返回 answer，metric 直接算分。生成类评测多了一步“先生成样本并落盘”，因此数据目录、prompt 名称、采样数、随机种子和视频编码都会影响可复现性。</p>
+
+        </div>
+    </article>
+
+<h2 id="Flow-Factory-位置"><a href="#Flow-Factory-位置" class="headerlink" title="Flow-Factory 位置"></a>Flow-Factory 位置</h2><p>Flow-Factory 的定位是 <strong>面向 diffusion 和 flow-matching 模型的 RL 训练框架</strong>，不是一个固定的视频生成 benchmark。它支持的任务已经覆盖 T2I、I2I、T2V、I2V、T2AV、I2AV 等模型族，并支持 Wan2.1&#x2F;Wan2.2、Qwen-Image、FLUX、BAGEL、LTX-2&#x2F;LTX-2.3 等模型入口。[^flowfactory]</p>
+<h3 id="数据格式"><a href="#数据格式" class="headerlink" title="数据格式"></a>数据格式</h3><p>Flow-Factory 的数据格式很轻：</p>
+<ul>
+<li><strong>T2I &#x2F; T2V</strong>：<code>train.txt</code> 或 <code>train.jsonl</code>，核心字段是 <code>prompt</code>。</li>
+<li><strong>I2I &#x2F; I2V</strong>：<code>train.jsonl</code> 里带 <code>prompt</code> 和 <code>image</code> 或 <code>images</code>。</li>
+<li><strong>V2V</strong>：<code>train.jsonl</code> 里带 <code>prompt</code> 和 <code>video</code> 或 <code>videos</code>。</li>
+<li><strong>T2AV &#x2F; I2AV</strong>：仍然围绕 prompt 和条件图像组织，但 reward 需要同时处理 audio、video 和文本对齐。</li>
+</ul>
+<p>这说明 Flow-Factory 的“数据集”更像训练 prompt 池，而不是评测闭环本身。它可以把 Open-Sora-Plan、PickScore、T2IS、自定义 prompt 或客户 prompt 接进来，但最终要证明模型变好，还需要外部评测。</p>
+<h3 id="奖励模型"><a href="#奖励模型" class="headerlink" title="奖励模型"></a>奖励模型</h3><p>Flow-Factory 内置 reward 大致分三类：[^flowfactory-reward]</p>
+<ul>
+<li><strong>图像质量和偏好</strong>：PickScore、HPSv2、CLIP、Qwen-Image-Bench。</li>
+<li><strong>组合与文字能力</strong>：GenEval、OCR、GenEval2 Soft-TIFA。</li>
+<li><strong>音视频对齐</strong>：CLAP、ImageBind，以及可通过 VLM-as-Judge 接入的远程裁判。</li>
+</ul>
+<p>这对后续方案的启发是：<strong>训练 reward 可以多样化，但最终评测要按能力域切开</strong>。例如 T2AV 训练中可以用 CLAP 和 ImageBind，但最终报告仍要分别看视频质量、音频质量和音画同步。</p>
+<h2 id="VeRL-Omni-方案"><a href="#VeRL-Omni-方案" class="headerlink" title="VeRL-Omni 方案"></a>VeRL-Omni 方案</h2><p>VeRL-Omni 是从 verl 多模态生成 RL 需求中拆出来的专门仓库，目标是服务 diffusion generator、统一理解生成模型和 omni-modality 模型。README 中列出的范围包括 Qwen-Image、Wan2.2、BAGEL、Qwen3-Omni 等。[^verlomni]</p>
+<h3 id="当前做法"><a href="#当前做法" class="headerlink" title="当前做法"></a>当前做法</h3><p>从公开示例看，VeRL-Omni 当前的“评测”更偏训练闭环和验证信号：</p>
+<ul>
+<li><strong>Wan2.2 T2V &#x2F; DanceGRPO</strong>：示例使用来自 Open-Sora-Plan 的 1,233 条预切分 prompt，训练 reward 是 HPSv3。该示例验证的是 T2V RL 流程和 reward 上涨，不等同于完整 VBench 结论。[^verlomni-dance]</li>
+<li><strong>Qwen-Image &#x2F; FlowGRPO 系列</strong>：支持 HPSv3、GenRM-OCR、UnifiedReward、HTTP scorer、JPEG compressibility 等 scorer，适合验证图像生成 reward 链路。[^verlomni-reward]</li>
+<li><strong>Qwen3-Omni Thinker &#x2F; GSPO</strong>：公开示例使用 MATH-lighteval 这类数学推理数据，reward 来自 <code>dapo</code> 数学答案解析，验证指标是 <code>val-core/.../acc/mean@1</code>。这更像 omni 模型的理解&#x2F;推理训练，不是生成质量评测。[^verlomni-gspo]</li>
+</ul>
+<p>因此，如果目标是证明“生成模型 RL 后变好”，只汇报 VeRL-Omni 内部 reward 不够。需要补上外部评测矩阵。</p>
+<h3 id="推荐闭环"><a href="#推荐闭环" class="headerlink" title="推荐闭环"></a>推荐闭环</h3><p>建议把 VeRL-Omni 的后续评测拆成三层：</p>
+<ol>
+<li><strong>训练层</strong>：记录 reward mean、reward std、clip ratio、prompt length、response length、rollout time、reward latency、OOM &#x2F; timeout 等，证明训练稳定。</li>
+<li><strong>任务层</strong>：按模型类型选择 benchmark。<ul>
+<li>Qwen-Image &#x2F; SD3.5：GEdit-Bench、Qwen-Image-Bench、GenEval。</li>
+<li>Wan2.2 T2V：AISBench VBench Standard + Custom。</li>
+<li>Wan2.2 &#x2F; VACE 类视频编辑：VEFX-Bench。</li>
+<li>LTX-2 &#x2F; LTX-2.3 音视频：VBench 视觉维度 + CLAP&#x2F;ImageBind + 人工音画同步打分。</li>
+</ul>
+</li>
+<li><strong>报告层</strong>：训练 reward、外部 benchmark、人评三张表分开展示，避免把 reward 当成最终效果。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>Geo3K 不是生成评测</p>
+</div>
+        <div class="message-body">
+            <p>如果讨论的是 verl 多模态理解 RL，Geo3K、NextQA 和 <code>multimodal-open-r1-8k-verified</code> 的匹配关系可以参考已有笔记《VLM RL Evaluation Datasets》。如果讨论的是 VeRL-Omni 的生成 RL，Geo3K 只能作为理解能力的旁路检查，不能替代 VBench、GEdit-Bench 或 VEFX-Bench。</p>
+
+        </div>
+    </article>
+
+<h2 id="后续问题"><a href="#后续问题" class="headerlink" title="后续问题"></a>后续问题</h2><p>把这些 benchmark 真正接进实验，还需要逐项确认：</p>
+<ol>
+<li><strong>客户任务是不是编辑</strong>：如果现场任务输入包含原视频和编辑指令，就按 VEFX-Bench 设计；如果只有 prompt 生成视频，就按 VBench 设计。</li>
+<li><strong>视频样本如何生成</strong>：VBench Standard 要按官方 prompt 和目录结构生成，不能随意混用客户 prompt 后再和榜单分数比较。</li>
+<li><strong>采样预算是否一致</strong>：每个 prompt 的视频数、seed、分辨率、帧率、时长和编码参数要固定，否则指标会混入采样差异。</li>
+<li><strong>音视频指标是否缺口</strong>：AISBench 当前已有图像编辑和视频生成评测，但没有形成 T2AV 的完整官方套件。音频质量、音画同步和音频语义仍需自定义指标或人评补足。</li>
+<li><strong>reward 是否会被过拟合</strong>：如果训练 reward 和最终评测使用同一个裁判模型，报告里最好加入不同裁判或人评，观察泛化。</li>
+<li><strong>NPU 环境是否缓存齐全</strong>：AISBench VBench 依赖多种小模型和第三方包，最好提前缓存权重并固定 <code>VBENCH_CACHE_DIR</code>。</li>
+</ol>
+<h2 id="实验建议"><a href="#实验建议" class="headerlink" title="实验建议"></a>实验建议</h2><p>最小可行方案可以按下面走：</p>
+<table>
+<thead>
+<tr>
+<th>实验线</th>
+<th>训练框架</th>
+<th>训练 reward</th>
+<th>外部评测</th>
+<th>主要回答</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>T2V baseline</td>
+<td>VeRL-Omni &#x2F; Flow-Factory</td>
+<td>无 RL</td>
+<td>AISBench VBench Standard</td>
+<td>原模型在视频质量和语义维度的起点。</td>
+</tr>
+<tr>
+<td>T2V RL</td>
+<td>VeRL-Omni DanceGRPO</td>
+<td>HPSv3 或自定义 VLM reward</td>
+<td>AISBench VBench Standard + Custom</td>
+<td>reward 上涨是否转化为 VBench 维度提升。</td>
+</tr>
+<tr>
+<td>Video edit RL</td>
+<td>Flow-Factory 或自研链路</td>
+<td>VEFX-Reward &#x2F; VLM judge</td>
+<td>VEFX-Bench</td>
+<td>编辑指令遵循、画质和编辑排他性是否提升。</td>
+</tr>
+<tr>
+<td>T2AV RL</td>
+<td>Flow-Factory LTX-2 &#x2F; LTX-2.3</td>
+<td>CLAP + ImageBind + 人工抽检</td>
+<td>VBench 视觉维度 + 音频&#x2F;同步人评</td>
+<td>音频、视觉和同步是否同时改善。</td>
+</tr>
+<tr>
+<td>负向迁移</td>
+<td>任意 RL checkpoint</td>
+<td>同训练</td>
+<td>跨域 benchmark</td>
+<td>检查只优化 reward 是否伤害其他能力。</td>
+</tr>
+</tbody></table>
+<p>最终对外结论建议写成能力域，而不是笼统写“多模态生成变强”：</p>
+<ul>
+<li><strong>视频生成质量提升</strong>：用 VBench Quality &#x2F; Semantic &#x2F; Total 说明。</li>
+<li><strong>视频编辑能力提升</strong>：用 VEFX-Bench IF &#x2F; RQ &#x2F; EE 说明。</li>
+<li><strong>图像编辑能力提升</strong>：用 GEdit-Bench SC &#x2F; PQ &#x2F; O 说明。</li>
+<li><strong>音视频生成能力提升</strong>：需要同时报告视觉、音频语义、音画同步和人工偏好。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>多模态生成 RL 的评测主线可以压缩成一句话：<strong>训练 reward 负责优化，外部 benchmark 负责证明，人评负责兜底</strong>。</p>
+<p>对当前工作来说：</p>
+<ul>
+<li>AISBench 已有 GEdit-Bench 和 VBench 入口，可以作为图像编辑和视频生成的标准化评测框架。</li>
+<li>客户现场的 <code>vefx bench</code> 应按 VEFX-Bench 理解，适合视频编辑 &#x2F; VFX，而不是纯 T2V。</li>
+<li>Flow-Factory 和 VeRL-Omni 提供训练链路，但最终效果要接 VBench、VEFX-Bench、GEdit-Bench 或 T2AV 自定义评测。</li>
+<li>对 T2AV，行业还没有像 VBench 一样统一的单一入口，短期要用 CLAP、ImageBind、视频质量评测和人工同步偏好组合起来。</li>
+</ul>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[^aisbench-readme]: <a target="_blank" rel="noopener" href="https://github.com/AISBench/benchmark">AISBench Benchmark README</a></p>
+<p>[^aisbench-vbench]: <a target="_blank" rel="noopener" href="https://ais-bench-benchmark.readthedocs.io/zh-cn/latest/extended_benchmark/lmm_generate/vbench.html">AISBench VBench 1.0 文档</a></p>
+<p>[^aisbench-gedit]: <a target="_blank" rel="noopener" href="https://ais-bench-benchmark.readthedocs.io/zh-cn/latest/extended_benchmark/lmm_generate/gedit_bench.html">AISBench GEdit-Bench 文档</a></p>
+<p>[^aisbench-datasets]: <a target="_blank" rel="noopener" href="https://ais-bench-benchmark.readthedocs.io/zh-cn/latest/get_started/datasets.html">AISBench Benchmark 数据集准备指南</a></p>
+<p>[^vbench]: <a target="_blank" rel="noopener" href="https://github.com/Vchitect/VBench">VBench GitHub repository</a></p>
+<p>[^vefx]: <a target="_blank" rel="noopener" href="https://github.com/Visko-Platform/VEFX-Bench">VEFX-Bench GitHub repository</a></p>
+<p>[^flowfactory]: <a target="_blank" rel="noopener" href="https://github.com/X-GenGroup/Flow-Factory">Flow-Factory GitHub repository</a></p>
+<p>[^flowfactory-reward]: <a target="_blank" rel="noopener" href="https://github.com/X-GenGroup/Flow-Factory/blob/main/guidance/rewards.md">Flow-Factory reward guidance</a></p>
+<p>[^verlomni]: <a target="_blank" rel="noopener" href="https://github.com/verl-project/verl-omni">VeRL-Omni GitHub repository</a></p>
+<p>[^verlomni-dance]: <a target="_blank" rel="noopener" href="https://github.com/verl-project/verl-omni/blob/main/examples/dancegrpo_trainer/README.md">VeRL-Omni DanceGRPO trainer README</a></p>
+<p>[^verlomni-reward]: <a target="_blank" rel="noopener" href="https://verl-omni.readthedocs.io/en/latest/api/reward.html">VeRL-Omni reward interface</a></p>
+<p>[^verlomni-gspo]: <a target="_blank" rel="noopener" href="https://github.com/verl-project/verl-omni/blob/main/examples/gspo_trainer/README.md">VeRL-Omni Qwen3-Omni GSPO trainer README</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Multimodal Generation Evaluation</p><p><a href="http://icarus.shaojiemike.top/2026/06/26/Work/Artificial Intelligence/Training/PostTrain/RLInfra/Multimodal-Generation-Evaluation/">http://icarus.shaojiemike.top/2026/06/26/Work/Artificial Intelligence/Training/PostTrain/RLInfra/Multimodal-Generation-Evaluation/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-06-26</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/VLM/">VLM</a><a class="link-muted mr-2" rel="tag" href="/tags/RL/">RL</a><a class="link-muted mr-2" rel="tag" href="/tags/AISBench/">AISBench</a><a class="link-muted mr-2" rel="tag" href="/tags/VBench/">VBench</a><a class="link-muted mr-2" rel="tag" href="/tags/VEFX-Bench/">VEFX-Bench</a><a class="link-muted mr-2" rel="tag" href="/tags/Flow-Factory/">Flow-Factory</a><a class="link-muted mr-2" rel="tag" href="/tags/VeRL-Omni/">VeRL-Omni</a><a class="link-muted mr-2" rel="tag" href="/tags/Evaluation/">Evaluation</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/06/30/Work/Artificial%20Intelligence/Training/PostTrain/RLInfra/VeRLFeatureSurvey/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">VeRL Feature Survey</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/06/25/Work/Artificial%20Intelligence/Training/PostTrain/DiffusionLLMPostTraining/"><span class="level-item">Diffusion LLM Post-Training</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#核心判断"><span class="level-left"><span class="level-item">1</span><span class="level-item">核心判断</span></span></a></li><li><a class="level is-mobile" href="#评测地图"><span class="level-left"><span class="level-item">2</span><span class="level-item">评测地图</span></span></a></li><li><a class="level is-mobile" href="#AISBench-入口"><span class="level-left"><span class="level-item">3</span><span class="level-item">AISBench 入口</span></span></a></li><li><a class="level is-mobile" href="#Flow-Factory-位置"><span class="level-left"><span class="level-item">4</span><span class="level-item">Flow-Factory 位置</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#数据格式"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">数据格式</span></span></a></li><li><a class="level is-mobile" href="#奖励模型"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">奖励模型</span></span></a></li></ul></li><li><a class="level is-mobile" href="#VeRL-Omni-方案"><span class="level-left"><span class="level-item">5</span><span class="level-item">VeRL-Omni 方案</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#当前做法"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">当前做法</span></span></a></li><li><a class="level is-mobile" href="#推荐闭环"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">推荐闭环</span></span></a></li></ul></li><li><a class="level is-mobile" href="#后续问题"><span class="level-left"><span class="level-item">6</span><span class="level-item">后续问题</span></span></a></li><li><a class="level is-mobile" href="#实验建议"><span class="level-left"><span class="level-item">7</span><span class="level-item">实验建议</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">8</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">9</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

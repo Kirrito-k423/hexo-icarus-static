@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>TileLang &amp; Mega-kernel - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                        triton 虽然主流，大部分硬件都支持，虽然能快速拿到一部分收益，但是却较难极致性能。 但是Ascend C &amp;#x2F; PyPTO 又过于Ascend定制化，(学了怎么跳槽啊) 寻找一种更底层，支持极致性能的通用算子编程语言，是极致性能优化里不可或缺的一环。"><meta property="og:type" content="blog"><meta property="og:title" content="TileLang &amp; Mega-kernel"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/04/25/Work/Programming/2-languageGrammar/AI-DSL/TileLang_megakernel/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                        triton 虽然主流，大部分硬件都支持，虽然能快速拿到一部分收益，但是却较难极致性能。 但是Ascend C &amp;#x2F; PyPTO 又过于Ascend定制化，(学了怎么跳槽啊) 寻找一种更底层，支持极致性能的通用算子编程语言，是极致性能优化里不可或缺的一环。"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-04-25T16:00:00.000Z"><meta property="article:modified_time" content="2026-07-03T08:59:59.158Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Triton"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/04/25/Work/Programming/2-languageGrammar/AI-DSL/TileLang_megakernel/"},"headline":"TileLang & Mega-kernel","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-04-25T16:00:00.000Z","dateModified":"2026-07-03T08:59:59.158Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                        triton 虽然主流，大部分硬件都支持，虽然能快速拿到一部分收益，但是却较难极致性能。 但是Ascend C &#x2F; PyPTO 又过于Ascend定制化，(学了怎么跳槽啊) 寻找一种更底层，支持极致性能的通用算子编程语言，是极致性能优化里不可或缺的一环。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/04/25/Work/Programming/2-languageGrammar/AI-DSL/TileLang_megakernel/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-04-25T16:00:00.000Z" title="4/25/2026, 4:00:00 PM">2026-04-25</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.158Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">19 minutes read (About 2821 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">TileLang &amp; Mega-kernel</h1><div class="content"><!-- 博客内容主要是实践，测试记录，辅助知识整理。不会只是为了整理知识而写，至少是为了全面了解当前工作涉及知识点而写。 -->
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li>triton 虽然主流，大部分硬件都支持，虽然能快速拿到一部分收益，但是却较难极致性能。</li>
+<li>但是Ascend C &#x2F; PyPTO 又过于Ascend定制化，(<del>学了怎么跳槽啊</del>)</li>
+<li>寻找一种更底层，支持极致性能的通用算子编程语言，是极致性能优化里不可或缺的一环。</li>
+</ul>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+
+<h3 id="TileLang、Mega-kernel-与-Triton-的核心差异"><a href="#TileLang、Mega-kernel-与-Triton-的核心差异" class="headerlink" title="TileLang、Mega-kernel 与 Triton 的核心差异"></a>TileLang、Mega-kernel 与 Triton 的核心差异</h3><p>这里的 Triton 指 <code>triton-lang</code> 这个 GPU kernel DSL，不是 NVIDIA Triton Inference Server。三者最好不要放在同一抽象层比较：</p>
+<ul>
+<li><strong>Triton</strong>：面向单个 GPU kernel 的 Python-like DSL，主抽象是 block-level program。</li>
+<li><strong>TileLang</strong>：同样面向自定义 kernel，但主抽象是 tile-level dataflow，并更显式暴露共享内存、寄存器 fragment、layout、pipeline。</li>
+<li><strong>Mega-kernel</strong>：不是一种语言，而是一种执行范式。目标是把多个算子，甚至整个 LLM 推理迭代，融合进一个长期运行的 persistent kernel 中。</li>
+</ul>
+<p>一句话概括：</p>
+<blockquote>
+<p>Triton 让你更容易写高性能单 kernel；TileLang 让你更可控地写 tile 级高性能 kernel；Mega-kernel 则试图消除多个 kernel 之间的边界，把跨算子调度搬到 GPU 内部。</p>
+</blockquote>
+<h3 id="Triton-基线"><a href="#Triton-基线" class="headerlink" title="Triton 基线"></a>Triton 基线</h3><p>Triton 的核心思想是 <strong>blocked program, scalar threads</strong>。开发者写的是一个 program instance 处理一个 block&#x2F;tile，典型代码里会使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pid = tl.program_id(<span class="number">0</span>)</span><br><span class="line">offs = tl.arange(<span class="number">0</span>, BLOCK_SIZE)</span><br><span class="line">x = tl.load(ptr + offs, mask=...)</span><br><span class="line">y = ...</span><br><span class="line">tl.store(out + offs, y, mask=...)</span><br></pre></td></tr></table></figure>
+
+<p>对于 GEMM、attention 等场景，则通过 <code>tl.dot</code>、<code>tl.load</code>、<code>tl.store</code>、<code>num_warps</code>、<code>num_stages</code>、autotune 等手段表达块级计算。Triton 编译器负责把 block 内部的并行性映射到线程、warp、向量化、shared memory、tensor core 等底层机制。</p>
+<p>Triton 的优势是：</p>
+<ul>
+<li>生态成熟，PyTorch&#x2F;TorchInductor 集成好。</li>
+<li>写 fused elementwise、reduction、custom attention、small GEMM 很方便。</li>
+<li>编译器自动处理较多底层细节，如 coalescing、vectorization、shared memory allocation、tensor core instruction selection。</li>
+<li>当前官方仓库已标注支持 Linux、NVIDIA GPU Compute Capability 8.0+、AMD GPU ROCm 6.2+，CPU backend 仍在开发中。</li>
+</ul>
+<p>但 Triton 的限制也来自其抽象：</p>
+<ul>
+<li>大多数时候不直接暴露 thread-level mapping。</li>
+<li>shared memory layout、bank conflict、fragment layout、custom pipeline 控制相对间接。</li>
+<li>对极端定制场景，例如量化 GEMM、特殊 dequant layout、Hopper TMA&#x2F;WGMMA 复杂流水，有时需要等待编译器支持、写 inline asm，或绕过抽象。</li>
+</ul>
+<h3 id="TileLang"><a href="#TileLang" class="headerlink" title="TileLang"></a>TileLang</h3><p>TileLang 是一个 tile-level DSL，底层基于 TVM&#x2F;TIR。它的目标不是替代 PyTorch 图编译，而是让用户更容易写出接近手写 CUDA&#x2F;CUTLASS 水平的 AI kernel。</p>
+<p>TileLang 的典型写法如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> T.Kernel(grid_x, grid_y, threads=<span class="number">128</span>) <span class="keyword">as</span> (bx, by):</span><br><span class="line">    A_shared = T.alloc_shared((BM, BK), dtype)</span><br><span class="line">    B_shared = T.alloc_shared((BK, BN), dtype)</span><br><span class="line">    C_local  = T.alloc_fragment((BM, BN), accum_dtype)</span><br><span class="line"></span><br><span class="line">    T.clear(C_local)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> ko <span class="keyword">in</span> T.Pipelined(T.ceildiv(K, BK), num_stages=<span class="number">3</span>):</span><br><span class="line">        T.copy(A[by * BM, ko * BK], A_shared)</span><br><span class="line">        T.copy(B[ko * BK, bx * BN], B_shared)</span><br><span class="line">        T.gemm(A_shared, B_shared, C_local)</span><br><span class="line"></span><br><span class="line">    T.copy(C_local, C[by * BM, bx * BN])</span><br></pre></td></tr></table></figure>
+
+<p>它的关键抽象有：</p>
+<ul>
+<li><code>T.alloc_shared</code>：显式申请 shared memory。</li>
+<li><code>T.alloc_fragment</code>：显式表达寄存器&#x2F;fragment 层级的累加器。</li>
+<li><code>T.copy</code>：表达 global&#x2F;shared&#x2F;fragment 之间的数据搬运。</li>
+<li><code>T.gemm</code>、<code>T.reduce</code>、<code>T.atomic</code>：tile-level operator。</li>
+<li><code>T.Pipelined</code>：表达软件流水。</li>
+<li><code>T.annotate_layout</code>、<code>T.use_swizzle</code>：控制或引导 layout。</li>
+<li>Layout Inference：自动推导 thread binding、vectorized access、shared memory swizzle 等。</li>
+</ul>
+<p>TileLang 和 Triton 的本质区别在于：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Triton</th>
+<th>TileLang</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主抽象</td>
+<td>block-level program</td>
+<td>tile-level dataflow</td>
+</tr>
+<tr>
+<td>编程入口</td>
+<td><code>@triton.jit</code></td>
+<td><code>@tilelang.jit</code> &#x2F; <code>@T.prim_func</code></td>
+</tr>
+<tr>
+<td>内存层级</td>
+<td>相对隐式，编译器推导较多</td>
+<td>显式声明 shared、fragment、global</td>
+</tr>
+<tr>
+<td>数据搬运</td>
+<td><code>tl.load</code> &#x2F; <code>tl.store</code></td>
+<td><code>T.copy</code> &#x2F; <code>T.async_copy</code></td>
+</tr>
+<tr>
+<td>矩阵计算</td>
+<td><code>tl.dot</code></td>
+<td><code>T.gemm</code></td>
+</tr>
+<tr>
+<td>layout 控制</td>
+<td>主要靠编译器与 hints</td>
+<td>layout annotation + layout inference</td>
+</tr>
+<tr>
+<td>pipeline</td>
+<td><code>num_stages</code> 等参数</td>
+<td><code>T.Pipelined</code>，并可进一步显式控制</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>常规 fused op、attention、reduction、GEMM</td>
+<td>极致 GEMM、dequant GEMM、FlashAttention、MLA、复杂 layout kernel</td>
+</tr>
+<tr>
+<td>学习成本</td>
+<td>较低</td>
+<td>略高，但比手写 CUDA&#x2F;CUTLASS 低</td>
+</tr>
+</tbody></table>
+<p>TileLang 论文中强调，它把 <strong>dataflow</strong> 与 <strong>scheduling space</strong> 分离：用户主要描述 tile 之间如何移动和计算，编译器再推导 thread binding、layout、tensorization、pipeline 等细节。相比 Triton，它更接近 “Python 语法下的 CUTLASS&#x2F;CuTe&#x2F;TVM 风格 tile 编程”。</p>
+<p>需要注意的是，TileLang 生态仍比 Triton 年轻。Triton 胜在成熟度、PyTorch 集成、社区代码量；TileLang 胜在对 memory hierarchy、layout、pipeline 的显式表达能力。</p>
+<h3 id="Mega-kernel"><a href="#Mega-kernel" class="headerlink" title="Mega-kernel"></a>Mega-kernel</h3><p>Mega-kernel，也常被称为 persistent kernel，在 MPK&#x2F;Mirage 这类系统里指：</p>
+<blockquote>
+<p>用一个长期运行的 GPU kernel 执行多个算子，甚至整个模型推理迭代，把原本 CPU 端发起的 kernel launch、算子间 barrier、部分调度逻辑移动到 GPU 内部。</p>
+</blockquote>
+<p>传统 LLM 推理通常是 kernel-per-operator：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">RMSNorm kernel</span><br><span class="line">-&gt; QKV GEMM kernel</span><br><span class="line">-&gt; RoPE kernel</span><br><span class="line">-&gt; Attention kernel</span><br><span class="line">-&gt; O GEMM kernel</span><br><span class="line">-&gt; AllReduce kernel</span><br><span class="line">-&gt; MLP kernel</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>每个 kernel launch 之间天然存在边界。即使用 CUDA Graph 降低 launch overhead，kernel 边界仍然存在，跨算子的 fine-grained overlap 仍受限。</p>
+<p>Mega-kernel 的思路是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">launch mega_kernel once</span><br><span class="line"></span><br><span class="line">inside GPU:</span><br><span class="line">    scheduler warps poll events</span><br><span class="line">    worker SMs execute tasks:</span><br><span class="line">        matmul tile</span><br><span class="line">        attention tile</span><br><span class="line">        allreduce chunk</span><br><span class="line">        rmsnorm tile</span><br><span class="line">        mlp tile</span><br><span class="line">    tasks signal events</span><br><span class="line">    dependent tasks become ready</span><br></pre></td></tr></table></figure>
+
+<p>以 Mirage Persistent Kernel 为例，它的设计包括：</p>
+<ul>
+<li><strong>SM-level task graph</strong>：把模型图拆成以 SM 为粒度的 task，而不是以 operator 为粒度。</li>
+<li><strong>event dependency</strong>：task 完成后触发 event，依赖满足后下游 task 可以执行。</li>
+<li><strong>in-kernel runtime</strong>：在 mega-kernel 内部划分 worker SM 和 scheduler warp。</li>
+<li><strong>JIT&#x2F;AOT hybrid task launch</strong>：对动态耗时任务用 JIT 调度，对稳定任务提前放入队列。</li>
+<li><strong>paged shared memory</strong>：把 shared memory 分页，使跨 task pipeline 成为可能。</li>
+<li><strong>compute-communication overlap</strong>：在多 GPU 场景下，把 AllReduce&#x2F;AllGather 这类通信拆成 GPU 内部 task，与计算 task 细粒度重叠。</li>
+<li><strong>PyTorch backend</strong>：论文中描述可通过 <code>torch.compile(backend=MPK)</code> 形式接入。</li>
+</ul>
+<p>它和 Triton 的关系是正交的：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Triton</th>
+<th>Mega-kernel &#x2F; MPK</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>抽象层</td>
+<td>单 kernel DSL</td>
+<td>模型图&#x2F;运行时执行范式</td>
+</tr>
+<tr>
+<td>优化单位</td>
+<td>一个 kernel 或少量 fused op</td>
+<td>多个算子，甚至整个推理迭代</td>
+</tr>
+<tr>
+<td>调度位置</td>
+<td>CPU launch kernel，GPU 执行 kernel</td>
+<td>GPU 内部 scheduler&#x2F;worker 执行 task</td>
+</tr>
+<tr>
+<td>kernel 边界</td>
+<td>通常一个 <code>@triton.jit</code> 对应一个 kernel</td>
+<td>尽量消除多个 kernel 边界</td>
+</tr>
+<tr>
+<td>跨算子 pipeline</td>
+<td>受 kernel barrier 限制</td>
+<td>设计目标就是跨 task pipeline</td>
+</tr>
+<tr>
+<td>通信重叠</td>
+<td>通常依赖外部 runtime&#x2F;NCCL&#x2F;NVSHMEM 调度</td>
+<td>可把通信作为 task 融进同一个 mega-kernel</td>
+</tr>
+<tr>
+<td>典型收益</td>
+<td>单算子&#x2F;单 kernel 性能</td>
+<td>端到端 latency、CPU overhead、kernel barrier、通信重叠</td>
+</tr>
+<tr>
+<td>主要代价</td>
+<td>需要写 kernel</td>
+<td>编译&#x2F;运行时复杂度、调试难度、硬件绑定更强</td>
+</tr>
+</tbody></table>
+<p>要特别强调：<strong>Triton 可以手写某些 persistent kernel，但 Triton 本身不是端到端 mega-kernel 编译器</strong>。MPK 论文明确指出，PyTorch、Triton、TVM 等系统通常不支持自动生成端到端 mega-kernel。Mega-kernel 的关键不是 “一个 kernel 写得很长”，而是有一套图级依赖分析、SM 级任务分解、GPU 内调度 runtime 和共享内存管理机制。</p>
+<h3 id="差异表"><a href="#差异表" class="headerlink" title="差异表"></a>差异表</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Triton</th>
+<th>TileLang</th>
+<th>Mega-kernel</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>类型</td>
+<td>Kernel DSL&#x2F;compiler</td>
+<td>Tile-level kernel DSL&#x2F;compiler</td>
+<td>执行范式&#x2F;编译运行时</td>
+</tr>
+<tr>
+<td>优化粒度</td>
+<td>单 kernel</td>
+<td>单 kernel，但 tile&#x2F;memory 更显式</td>
+<td>多算子&#x2F;整模型迭代</td>
+</tr>
+<tr>
+<td>主要目标</td>
+<td>降低 CUDA 编程门槛</td>
+<td>在高生产力下暴露更多底层控制</td>
+<td>消除 kernel 边界与 CPU 调度开销</td>
+</tr>
+<tr>
+<td>用户写什么</td>
+<td>block program、pointer arithmetic、<code>tl.dot</code></td>
+<td>tile dataflow、memory scope、pipeline、layout</td>
+<td>模型图、task 配置、runtime 参数</td>
+</tr>
+<tr>
+<td>内存控制</td>
+<td>较隐式</td>
+<td>显式 shared&#x2F;fragment&#x2F;global</td>
+<td>GPU 内部任务共享与分页 shared memory</td>
+</tr>
+<tr>
+<td>线程控制</td>
+<td>多由编译器推导</td>
+<td>Layout inference + 可手动干预</td>
+<td>SM 级 worker&#x2F;scheduler</td>
+</tr>
+<tr>
+<td>跨算子融合</td>
+<td>有限，通常局部 fusion</td>
+<td>主要仍是 kernel 内 fusion</td>
+<td>核心能力，追求端到端 fusion</td>
+</tr>
+<tr>
+<td>多 GPU 通信</td>
+<td>通常交给外部 runtime</td>
+<td>可写相关 kernel，但不是系统级调度</td>
+<td>可把通信 task 融进 persistent runtime</td>
+</tr>
+<tr>
+<td>成熟度</td>
+<td>最高</td>
+<td>快速发展中</td>
+<td>研究&#x2F;早期系统为主</td>
+</tr>
+<tr>
+<td>最适合</td>
+<td>快速写自定义 op</td>
+<td>极致单算子、复杂 layout kernel</td>
+<td>低延迟 LLM serving、small batch、多 GPU overlap</td>
+</tr>
+</tbody></table>
+<h3 id="选型建议"><a href="#选型建议" class="headerlink" title="选型建议"></a>选型建议</h3><p>如果目标是 <strong>快速替换 PyTorch 中的某个热点算子</strong>，优先选 Triton。它开发快，社区样例多，和 PyTorch 工具链结合最好。</p>
+<p>如果目标是 <strong>把 GEMM、FlashAttention、MLA、dequant GEMM 写到接近手写 CUDA&#x2F;CUTLASS 的水平</strong>，并且需要控制 shared memory layout、fragment、pipeline、bank conflict、TMA&#x2F;WGMMA 等细节，可以考虑 TileLang。</p>
+<p>如果目标是 <strong>端到端 LLM decode latency</strong>，尤其是 batch size 小、kernel launch 多、CPU 调度开销明显、或者多 GPU 通信需要和计算细粒度重叠，那么 mega-kernel&#x2F;MPK 这类方案更有吸引力。</p>
+<p>但 mega-kernel 不一定适合所有场景：</p>
+<ul>
+<li>大 batch、单个 GEMM 已经占主导时，收益可能有限。</li>
+<li>动态 shape&#x2F;control flow 复杂时，图特化与调度复杂度会上升。</li>
+<li>调试、profiling、维护比 Triton&#x2F;TileLang 单 kernel 更难。</li>
+<li>当前公开 MPK 评测主要集中在 NVIDIA A100&#x2F;H100&#x2F;B200 这类 GPU 上，跨硬件通用性仍需验证。</li>
+</ul>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>可以用三句话总结：</p>
+<ul>
+<li><strong>Triton</strong>：面向单 kernel 的高生产力 GPU DSL，适合大多数自定义算子开发。</li>
+<li><strong>TileLang</strong>：更 tile-centric、更显式控制 memory&#x2F;layout&#x2F;pipeline，适合追求极致性能的复杂 AI kernel。</li>
+<li><strong>Mega-kernel</strong>：不是 Triton 的替代语言，而是图级执行范式，试图把多个算子放进一个 persistent kernel 里，优化端到端延迟和跨算子重叠。</li>
+</ul>
+<p>实践中它们并不完全互斥。一个合理的系统可能是：用 Triton 或 TileLang 生成高性能 task&#x2F;kernel，再用 mega-kernel runtime 进行端到端编排。区别在于，Triton&#x2F;TileLang 主要解决 “单个 kernel 怎么写快”，mega-kernel 主要解决 “一整个模型执行过程怎么少停顿、少 launch、少 barrier”。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li>TileLang 论文：TileLang: A Composable Tiled Programming Model for AI Systems <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2504.17577"><sup>1</sup></a></li>
+<li>TileLang 文档：Language Basics <a target="_blank" rel="noopener" href="https://tilelang.com/programming_guides/language_basics.html"><sup>2</sup></a></li>
+<li>TileLang GitHub：tile-ai&#x2F;tilelang <a target="_blank" rel="noopener" href="https://github.com/tile-ai/tilelang"><sup>3</sup></a></li>
+<li>Triton 文档：Programming Guide Introduction <a target="_blank" rel="noopener" href="https://triton-lang.org/main/programming-guide/chapter-1/introduction.html"><sup>4</sup></a></li>
+<li>Triton GitHub：triton-lang&#x2F;triton <a target="_blank" rel="noopener" href="https://github.com/triton-lang/triton"><sup>5</sup></a></li>
+<li>Mirage Persistent Kernel 论文：Mirage Persistent Kernel: A Compiler and Runtime for Mega-Kernelizing Tensor Programs <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2512.22219"><sup>6</sup></a></li>
+<li>Mirage GitHub：mirage-project&#x2F;mirage <a target="_blank" rel="noopener" href="https://github.com/mirage-project/mirage"><sup>7</sup></a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>TileLang &amp; Mega-kernel</p><p><a href="http://icarus.shaojiemike.top/2026/04/25/Work/Programming/2-languageGrammar/AI-DSL/TileLang_megakernel/">http://icarus.shaojiemike.top/2026/04/25/Work/Programming/2-languageGrammar/AI-DSL/TileLang_megakernel/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-04-25</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Triton/">Triton</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/04/25/Work/Programming/2-languageGrammar/AI-DSL/AutoFuse/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">AutoFuse</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/04/23/Work/Artificial%20Intelligence/BasicConcepts/tensor-measures/"><span class="level-item">Tensor Metrics</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

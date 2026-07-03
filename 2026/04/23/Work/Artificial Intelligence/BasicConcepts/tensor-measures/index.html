@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Tensor Metrics - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       在AI训练流程中，明明一个tensor就是一个shape下的数值，但是竟然有一堆指标来处理和解释其含义：  l1 norm entropy log_prob logistics  这些指标代表什么，用途为何？如何计算（标量？什么shape），计算前后值域&amp;#x2F;shape变化如何，在比较精度的场景下是否为合适的典型指标（有代表"><meta property="og:type" content="blog"><meta property="og:title" content="Tensor Metrics"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/04/23/Work/Artificial%20Intelligence/BasicConcepts/tensor-measures/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       在AI训练流程中，明明一个tensor就是一个shape下的数值，但是竟然有一堆指标来处理和解释其含义：  l1 norm entropy log_prob logistics  这些指标代表什么，用途为何？如何计算（标量？什么shape），计算前后值域&amp;#x2F;shape变化如何，在比较精度的场景下是否为合适的典型指标（有代表"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-04-23T16:00:00.000Z"><meta property="article:modified_time" content="2026-07-03T08:59:59.065Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Machine Learning"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/04/23/Work/Artificial%20Intelligence/BasicConcepts/tensor-measures/"},"headline":"Tensor Metrics","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-04-23T16:00:00.000Z","dateModified":"2026-07-03T08:59:59.065Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       在AI训练流程中，明明一个tensor就是一个shape下的数值，但是竟然有一堆指标来处理和解释其含义：  l1 norm entropy log_prob logistics  这些指标代表什么，用途为何？如何计算（标量？什么shape），计算前后值域&#x2F;shape变化如何，在比较精度的场景下是否为合适的典型指标（有代表"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/04/23/Work/Artificial%20Intelligence/BasicConcepts/tensor-measures/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-04-23T16:00:00.000Z" title="4/23/2026, 4:00:00 PM">2026-04-23</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.065Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">33 minutes read (About 4881 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Tensor Metrics</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>在AI训练流程中，明明一个tensor就是一个shape下的数值，但是竟然有一堆指标来处理和解释其含义：</p>
+<ul>
+<li>l1 norm</li>
+<li>entropy</li>
+<li>log_prob</li>
+<li>logistics</li>
+</ul>
+<p>这些指标代表什么，用途为何？如何计算（标量？什么shape），计算前后值域&#x2F;shape变化如何，在比较精度的场景下是否为合适的典型指标（有代表性，且能比较）</p>
+<ul>
+<li>KL divergence</li>
+<li>JS divergence</li>
+<li>argmax agreement</li>
+<li>top-k agreement</li>
+</ul>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+
+<h2 id="Tensor-指标说明"><a href="#Tensor-指标说明" class="headerlink" title="Tensor 指标说明"></a>Tensor 指标说明</h2><p>Tensor 本身只是一个带 shape 的数值数组。<br><code>L1 norm</code>、<code>entropy</code>、<code>log_prob</code>、<code>logits/logistic</code> 的含义取决于这个 tensor 表示什么，以及在哪个维度上计算。</p>
+<p>常见分类模型输出：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th align="right">Shape</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>logits</code></td>
+<td align="right"><code>[B, K]</code></td>
+<td>模型原始输出分数</td>
+</tr>
+<tr>
+<td><code>probs</code></td>
+<td align="right"><code>[B, K]</code></td>
+<td>softmax 后的概率分布</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td align="right"><code>[B]</code></td>
+<td>每个样本的真实类别</td>
+</tr>
+<tr>
+<td><code>loss</code></td>
+<td align="right"><code>scalar</code></td>
+<td>batch 归约后的训练目标</td>
+</tr>
+</tbody></table>
+<p>其中：</p>
+<ul>
+<li><code>B</code>：batch size</li>
+<li><code>K</code>：类别数、词表大小或动作数</li>
+<li>最后一维通常是概率分布维度</li>
+</ul>
+<hr>
+<h2 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h2><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>本质</th>
+<th>常见输入</th>
+<th>常见输出</th>
+<th>值域</th>
+<th>是否适合比较精度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>L1 norm</code></td>
+<td>数值大小或差异</td>
+<td>任意 tensor</td>
+<td>scalar &#x2F; 按维度归约</td>
+<td><code>[0, +∞)</code></td>
+<td>适合数值误差、回归</td>
+</tr>
+<tr>
+<td><code>entropy</code></td>
+<td>分布不确定性</td>
+<td>概率分布</td>
+<td>去掉分布维度</td>
+<td><code>[0, log K]</code></td>
+<td>不适合单独代表准确率</td>
+</tr>
+<tr>
+<td><code>log_prob</code></td>
+<td>样本的对数概率</td>
+<td>概率模型输出</td>
+<td><code>[B]</code> 或 scalar</td>
+<td>离散时 <code>(-∞, 0]</code></td>
+<td>适合概率模型评价</td>
+</tr>
+<tr>
+<td><code>logits</code></td>
+<td>未归一化分数</td>
+<td>模型原始输出</td>
+<td>shape 通常不变</td>
+<td><code>(-∞, +∞)</code></td>
+<td>不适合作为最终精度指标</td>
+</tr>
+<tr>
+<td><code>logistic/sigmoid</code></td>
+<td>logit 到概率的映射</td>
+<td>二分类或多标签 logits</td>
+<td>shape 不变</td>
+<td><code>(0, 1)</code></td>
+<td>本身不是指标</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="L1-norm"><a href="#L1-norm" class="headerlink" title="L1 norm"></a>L1 norm</h2><p><code>L1 norm</code> 衡量 tensor 的绝对大小：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">L1(x) = sum(|x_i|)</span><br></pre></td></tr></table></figure>
+
+<p>比较两个 tensor 时，通常用 L1 distance：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">L1(a, b) = sum(|a_i - b_i|)</span><br></pre></td></tr></table></figure>
+
+<p>如果取平均，就是 MAE：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MAE(a, b) = mean(|a_i - b_i|)</span><br></pre></td></tr></table></figure>
+
+<h3 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h3><ul>
+<li>比较两个 tensor 的数值差异</li>
+<li>回归任务 loss</li>
+<li>模型量化、推理框架转换、不同精度计算的误差检查</li>
+<li>L1 正则化，鼓励参数稀疏</li>
+</ul>
+<h3 id="Shape-变化"><a href="#Shape-变化" class="headerlink" title="Shape 变化"></a>Shape 变化</h3><p>假设：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x: [B, C, H, W]</span><br></pre></td></tr></table></figure>
+
+<p>整体 L1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x.<span class="built_in">abs</span>().<span class="built_in">sum</span>()</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scalar</span><br></pre></td></tr></table></figure>
+
+<p>按样本计算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x.<span class="built_in">abs</span>().<span class="built_in">sum</span>(dim=(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>))</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[B]</span><br></pre></td></tr></table></figure>
+
+<p>计算平均绝对误差：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x.<span class="built_in">abs</span>().mean(dim=(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>))</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[B]</span><br></pre></td></tr></table></figure>
+
+<h3 id="精度比较"><a href="#精度比较" class="headerlink" title="精度比较"></a>精度比较</h3><p>如果比较数值误差，<code>L1/MAE</code> 是合适指标。<br>但原始 <code>L1=sum(abs(diff))</code> 会受 tensor 大小影响，shape 越大，L1 往往越大。</p>
+<p>更推荐：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MAE = mean(abs(a - b))</span><br><span class="line">relative_error = abs(a - b) / (abs(b) + eps)</span><br><span class="line">max_abs_error = max(abs(a - b))</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Entropy"><a href="#Entropy" class="headerlink" title="Entropy"></a>Entropy</h2><p><code>entropy</code> 衡量概率分布的不确定性。</p>
+<p>对于概率分布：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p = [p1, p2, ..., pK]</span><br></pre></td></tr></table></figure>
+
+<p>要求：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pi &gt;= 0</span><br><span class="line">sum(pi) = 1</span><br></pre></td></tr></table></figure>
+
+<p>熵定义为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">H(p) = -sum(pi * log(pi))</span><br></pre></td></tr></table></figure>
+
+<p>如果分布很集中，熵低。<br>如果分布很平均，熵高。</p>
+<h3 id="用途-1"><a href="#用途-1" class="headerlink" title="用途"></a>用途</h3><ul>
+<li>判断分类模型是否自信</li>
+<li>强化学习中鼓励探索</li>
+<li>半监督学习中筛选高置信度样本</li>
+<li>分析 attention 分布是否集中</li>
+</ul>
+<h3 id="Shape-变化-1"><a href="#Shape-变化-1" class="headerlink" title="Shape 变化"></a>Shape 变化</h3><p>分类任务：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">probs: [B, K]</span><br></pre></td></tr></table></figure>
+
+<p>计算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">entropy = -(probs * probs.log()).<span class="built_in">sum</span>(dim=-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[B]</span><br></pre></td></tr></table></figure>
+
+<p>语言模型：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">probs: [B, T, V]</span><br></pre></td></tr></table></figure>
+
+<p>对词表维度计算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">entropy = -(probs * probs.log()).<span class="built_in">sum</span>(dim=-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[B, T]</span><br></pre></td></tr></table></figure>
+
+<h3 id="值域"><a href="#值域" class="headerlink" title="值域"></a>值域</h3><p>如果有 <code>K</code> 个类别：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0 &lt;= H(p) &lt;= log(K)</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li><code>H(p) = 0</code>：完全确定</li>
+<li><code>H(p) = log(K)</code>：完全均匀</li>
+</ul>
+<p>也可以归一化：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">H_norm = H(p) / log(K)</span><br></pre></td></tr></table></figure>
+
+<p>值域变为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[0, 1]</span><br></pre></td></tr></table></figure>
+
+<h3 id="精度比较-1"><a href="#精度比较-1" class="headerlink" title="精度比较"></a>精度比较</h3><p><code>entropy</code> 不适合单独作为准确率指标。</p>
+<p>原因是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">低熵只说明模型很自信，不说明模型一定正确。</span><br><span class="line">高熵只说明模型不确定，不说明模型一定错误。</span><br></pre></td></tr></table></figure>
+
+<p>例如模型对错误类别给出 <code>0.99</code> 概率，它的熵很低，但预测是错的。</p>
+<p>因此，熵适合分析不确定性，不适合单独比较预测精度。</p>
+<hr>
+<h2 id="log-prob"><a href="#log-prob" class="headerlink" title="log_prob"></a>log_prob</h2><p><code>log_prob</code> 表示模型给某个样本或标签分配的对数概率：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">log_prob(x) = log p_model(x)</span><br></pre></td></tr></table></figure>
+
+<p>分类任务中，如果：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">probs = [0.1, 0.7, 0.2]</span><br><span class="line">target = 1</span><br></pre></td></tr></table></figure>
+
+<p>则：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">log_prob = log(0.7)</span><br></pre></td></tr></table></figure>
+
+<p>概率越大，<code>log_prob</code> 越接近 <code>0</code>。<br>概率越小，<code>log_prob</code> 越负。</p>
+<h3 id="与-loss-的关系"><a href="#与-loss-的关系" class="headerlink" title="与 loss 的关系"></a>与 loss 的关系</h3><p>负对数概率就是 NLL：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NLL = -log_prob(target)</span><br></pre></td></tr></table></figure>
+
+<p>对于 one-hot 分类任务，NLL 等价于 cross entropy loss：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">loss = -log p_model(y_true)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Shape-变化-2"><a href="#Shape-变化-2" class="headerlink" title="Shape 变化"></a>Shape 变化</h3><p>分类任务：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">logits: [B, K]</span><br><span class="line">target: [B]</span><br></pre></td></tr></table></figure>
+
+<p>计算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">log_probs = torch.log_softmax(logits, dim=-<span class="number">1</span>)</span><br><span class="line">target_log_probs = log_probs.gather(</span><br><span class="line">    dim=-<span class="number">1</span>,</span><br><span class="line">    index=target[:, <span class="literal">None</span>]</span><br><span class="line">).squeeze(-<span class="number">1</span>)</span><br><span class="line">nll = -target_log_probs</span><br><span class="line">loss = nll.mean()</span><br></pre></td></tr></table></figure>
+
+<p>Shape：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">log_probs:        [B, K]</span><br><span class="line">target_log_probs: [B]</span><br><span class="line">nll:              [B]</span><br><span class="line">loss:             scalar</span><br></pre></td></tr></table></figure>
+
+<p>语言模型：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">logits: [B, T, V]</span><br><span class="line">target: [B, T]</span><br></pre></td></tr></table></figure>
+
+<p>Shape：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">log_probs:        [B, T, V]</span><br><span class="line">target_log_probs: [B, T]</span><br><span class="line">token_nll:        [B, T]</span><br><span class="line">mean_token_nll:   scalar</span><br></pre></td></tr></table></figure>
+
+<h3 id="值域-1"><a href="#值域-1" class="headerlink" title="值域"></a>值域</h3><p>离散分类中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">p in [0, 1]</span><br><span class="line">log_prob in (-∞, 0]</span><br><span class="line">NLL in [0, +∞)</span><br></pre></td></tr></table></figure>
+
+<p>注意：连续分布中的 <code>log_prob</code> 是 log density，不一定小于 <code>0</code>。</p>
+<h3 id="精度比较-2"><a href="#精度比较-2" class="headerlink" title="精度比较"></a>精度比较</h3><p><code>log_prob/NLL/cross entropy</code> 是概率模型中非常典型的评价指标。</p>
+<p>优点是它不仅关心是否预测正确，还关心模型给正确答案的概率有多高。</p>
+<p>例如两个模型都预测正确：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">模型 A: 正确类概率 0.51</span><br><span class="line">模型 B: 正确类概率 0.99</span><br></pre></td></tr></table></figure>
+
+<p>accuracy 一样，但 NLL 会认为模型 B 更好。</p>
+<p>比较时需要保证：</p>
+<ul>
+<li>同一数据集</li>
+<li>同一标签空间</li>
+<li>同一 tokenization</li>
+<li>同一长度归一化方式</li>
+<li>同一概率建模方式</li>
+</ul>
+<p>语言模型中不宜直接比较整句 <code>log_prob</code>，因为句子越长，总 log_prob 越低。<br>更常用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mean token NLL</span><br><span class="line">perplexity = exp(mean token NLL)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Logits-与-logistic"><a href="#Logits-与-logistic" class="headerlink" title="Logits 与 logistic"></a>Logits 与 logistic</h2><p><code>logits</code> 是模型输出的未归一化分数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logits = [2.1, -0.3, 0.7]</span><br></pre></td></tr></table></figure>
+
+<p>它不是概率，因为：</p>
+<ul>
+<li>可以为负数</li>
+<li>不要求和为 <code>1</code></li>
+<li>没有固定范围</li>
+</ul>
+<p>分类任务中通过 softmax 转成概率：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p_i = exp(logit_i) / sum(exp(logit_j))</span><br></pre></td></tr></table></figure>
+
+<p>Shape 通常不变：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">logits: [B, K]</span><br><span class="line">probs:  [B, K]</span><br></pre></td></tr></table></figure>
+
+<p>值域变化：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">logits: (-∞, +∞)</span><br><span class="line">probs:  [0, 1]，且 sum(probs)=1</span><br></pre></td></tr></table></figure>
+
+<h3 id="logistic-sigmoid"><a href="#logistic-sigmoid" class="headerlink" title="logistic&#x2F;sigmoid"></a>logistic&#x2F;sigmoid</h3><p><code>logistic</code> 通常指 sigmoid 函数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sigmoid(z) = 1 / (1 + exp(-z))</span><br></pre></td></tr></table></figure>
+
+<p>用于二分类或多标签分类：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">logits:  [B, K]</span><br><span class="line">probs:   [B, K]</span><br></pre></td></tr></table></figure>
+
+<p>值域：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">logits: (-∞, +∞)</span><br><span class="line">probs:  (0, 1)</span><br></pre></td></tr></table></figure>
+
+<p>二分类中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">logit(p) = log(p / (1 - p))</span><br><span class="line">p = sigmoid(logit)</span><br></pre></td></tr></table></figure>
+
+<p>训练时常用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.BCEWithLogitsLoss()</span><br></pre></td></tr></table></figure>
+
+<p>它将 sigmoid 和 binary cross entropy 合并，数值更稳定。</p>
+<h3 id="精度比较-3"><a href="#精度比较-3" class="headerlink" title="精度比较"></a>精度比较</h3><p>raw logits 不适合作为最终精度指标。</p>
+<p>原因：</p>
+<ul>
+<li>logits 没有固定值域</li>
+<li>softmax 对整体平移不敏感</li>
+<li>不同模型的 logit scale 可能不同</li>
+<li>logit 大不一定代表预测更准确，只可能代表更自信</li>
+</ul>
+<p>更推荐从 logits 派生指标：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">accuracy</span><br><span class="line">top-k accuracy</span><br><span class="line">cross entropy / NLL</span><br><span class="line">AUROC</span><br><span class="line">F1</span><br><span class="line">Brier score</span><br><span class="line">ECE</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="比较数值一致性"><a href="#比较数值一致性" class="headerlink" title="比较数值一致性"></a>比较数值一致性</h2><p>适用于：</p>
+<ul>
+<li>FP32 vs FP16</li>
+<li>PyTorch vs ONNX</li>
+<li>原模型 vs 量化模型</li>
+<li>不同推理后端输出对齐</li>
+</ul>
+<p>推荐指标：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">MAE</span><br><span class="line">max_abs_error</span><br><span class="line">relative_error</span><br><span class="line">RMSE</span><br><span class="line">cosine_similarity</span><br></pre></td></tr></table></figure>
+
+<p>如果比较的是概率分布，可以补充：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">KL divergence</span><br><span class="line">JS divergence</span><br><span class="line">argmax agreement</span><br><span class="line">top-k agreement</span><br></pre></td></tr></table></figure>
+
+<h3 id="Tensor-差异比较指标：KL、JS、Argmax、Top-k"><a href="#Tensor-差异比较指标：KL、JS、Argmax、Top-k" class="headerlink" title="Tensor 差异比较指标：KL、JS、Argmax、Top-k"></a>Tensor 差异比较指标：KL、JS、Argmax、Top-k</h3><p>在模型训练、蒸馏、推理对齐、量化评估中，经常需要比较两个 tensor 的差异。例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A.shape = [B, ..., C]</span><br><span class="line">B.shape = [B, ..., C]</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li><code>B</code>：batch 维度</li>
+<li><code>...</code>：可选的空间维、序列维，例如 <code>[T]</code>、<code>[H, W]</code></li>
+<li><code>C</code>：类别数、词表大小或特征分布维度</li>
+<li>通常沿最后一维 <code>C</code> 比较两个 tensor 的分布或预测结果</li>
+</ul>
+<p>下面讨论四类常用指标：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">KL divergence</span><br><span class="line">JS divergence</span><br><span class="line">argmax agreement</span><br><span class="line">top-k agreement</span><br></pre></td></tr></table></figure>
+
+<p>它们关注的差异不同：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>比较对象</th>
+<th align="right">是否需要概率分布</th>
+<th align="right">越大越好</th>
+<th>典型值域</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>KL divergence</td>
+<td>完整分布差异</td>
+<td align="right">是</td>
+<td align="right">否</td>
+<td><code>[0, +∞)</code></td>
+</tr>
+<tr>
+<td>JS divergence</td>
+<td>对称分布差异</td>
+<td align="right">是</td>
+<td align="right">否</td>
+<td><code>[0, ln 2]</code> 或 <code>[0, 1]</code></td>
+</tr>
+<tr>
+<td>argmax agreement</td>
+<td>第一预测是否一致</td>
+<td align="right">否</td>
+<td align="right">是</td>
+<td><code>[0, 1]</code></td>
+</tr>
+<tr>
+<td>top-k agreement</td>
+<td>前 k 个候选是否一致</td>
+<td align="right">否</td>
+<td align="right">是</td>
+<td><code>[0, 1]</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="基本设定"><a href="#基本设定" class="headerlink" title="基本设定"></a>基本设定</h3><p>假设有两个 tensor：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x.shape = [B, ..., C]</span><br><span class="line">y.shape = [B, ..., C]</span><br></pre></td></tr></table></figure>
+
+<p>如果 <code>x</code> 和 <code>y</code> 是 logits，需要先转成概率分布：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p = softmax(x, dim=-<span class="number">1</span>)</span><br><span class="line">q = softmax(y, dim=-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p>此时：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x, y: [B, ..., C]      # logits</span><br><span class="line">p, q: [B, ..., C]      # probability distribution</span><br></pre></td></tr></table></figure>
+
+<p>其中每个位置上的最后一维满足：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sum(p[..., :]) = 1</span><br><span class="line">sum(q[..., :]) = 1</span><br></pre></td></tr></table></figure>
+
+<p>KL divergence 和 JS divergence 比较的是完整概率分布，因此要求输入是概率分布。</p>
+<p>argmax agreement 和 top-k agreement 比较的是排序或预测类别，不要求归一化，所以可以直接用于 logits。</p>
+<hr>
+<h3 id="KL-divergence"><a href="#KL-divergence" class="headerlink" title="KL divergence"></a>KL divergence</h3><p>KL divergence，全称 Kullback-Leibler divergence，用来衡量一个概率分布 <code>Q</code> 相对于参考分布 <code>P</code> 的差异。</p>
+<p>公式为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D_KL(P || Q) = sum_i P_i * log(P_i / Q_i)</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>目标 KL</th>
+<th>样本来自</th>
+<th><code>log_ratio</code> 应该写成</th>
+<th>k3 期望</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>(\mathrm{KL}(P|Q))</td>
+<td>(P)</td>
+<td><code>log_q - log_p</code></td>
+<td>(\mathrm{KL}(P|Q))</td>
+</tr>
+<tr>
+<td>(\mathrm{KL}(Q|P))</td>
+<td>(Q)</td>
+<td><code>log_p - log_q</code></td>
+<td>(\mathrm{KL}(Q|P))</td>
+</tr>
+</tbody></table>
+<p>如果比较的是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p.shape = [B, ..., C]</span><br><span class="line">q.shape = [B, ..., C]</span><br></pre></td></tr></table></figure>
+
+<p>则沿类别维 <code>C</code> 求和：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kl.shape = [B, ...]</span><br></pre></td></tr></table></figure>
+
+<p>如果再做平均：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kl_mean.shape = []</span><br></pre></td></tr></table></figure>
+
+<p>即得到一个标量。</p>
+<p>KL divergence 的值域是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[0, +∞)</span><br></pre></td></tr></table></figure>
+
+<p>含义：</p>
+<ul>
+<li><code>0</code> 表示两个分布完全相同</li>
+<li>值越大，说明两个分布差异越大</li>
+<li>KL 不对称：</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D_KL(P || Q) != D_KL(Q || P)</span><br></pre></td></tr></table></figure>
+
+<p>这点非常重要。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D_KL(P || Q)</span><br></pre></td></tr></table></figure>
+
+<p>表示以 <code>P</code> 为参考，衡量 <code>Q</code> 对 <code>P</code> 的拟合程度。</p>
+<p>在知识蒸馏中，如果 <code>P</code> 是 teacher 分布，<code>Q</code> 是 student 分布，那么常用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D_KL(P_teacher || Q_student)</span><br></pre></td></tr></table></figure>
+
+<p>它会惩罚 student 在 teacher 高概率类别上给出过低概率的情况。</p>
+<p>KL divergence 的计算示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"></span><br><span class="line">log_p = F.log_softmax(x, dim=-<span class="number">1</span>)</span><br><span class="line">log_q = F.log_softmax(y, dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">p = log_p.exp()</span><br><span class="line">q = log_q.exp()</span><br><span class="line"></span><br><span class="line">kl_pq = (p * (log_p - log_q)).<span class="built_in">sum</span>(dim=-<span class="number">1</span>)</span><br><span class="line">kl_mean = kl_pq.mean()</span><br></pre></td></tr></table></figure>
+
+<p>shape 变化：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x, y       : [B, ..., C]</span><br><span class="line">p, q       : [B, ..., C]</span><br><span class="line">kl_pq      : [B, ...]</span><br><span class="line">kl_mean    : scalar</span><br></pre></td></tr></table></figure>
+
+<p>需要注意：</p>
+<ul>
+<li>KL 对小概率位置较敏感</li>
+<li>如果 <code>P_i &gt; 0</code> 但 <code>Q_i = 0</code>，KL 会趋向无穷</li>
+<li>实际计算时通常使用 <code>log_softmax</code> 或加 <code>eps</code> 保持数值稳定</li>
+</ul>
+<hr>
+<h3 id="JS-divergence"><a href="#JS-divergence" class="headerlink" title="JS divergence"></a>JS divergence</h3><p>JS divergence，全称 Jensen-Shannon divergence，可以看作 KL divergence 的对称、平滑版本。</p>
+<p>定义中先构造中间分布：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">M = 0.5 * (P + Q)</span><br></pre></td></tr></table></figure>
+
+<p>然后：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D_JS(P || Q) = 0.5 * D_KL(P || M) + 0.5 * D_KL(Q || M)</span><br></pre></td></tr></table></figure>
+
+<p>它的特点是：</p>
+<ul>
+<li>对称：</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D_JS(P || Q) = D_JS(Q || P)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>有界</li>
+<li>比 KL 更稳定</li>
+<li>可以衡量两个分布整体上的差异</li>
+</ul>
+<p>如果使用自然对数 <code>ln</code>，值域为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[0, ln 2]</span><br></pre></td></tr></table></figure>
+
+<p>即：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[0, 0.693...]</span><br></pre></td></tr></table></figure>
+
+<p>如果使用以 2 为底的对数，值域为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[0, 1]</span><br></pre></td></tr></table></figure>
+
+<p>JS divergence 的计算示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">log_p = F.log_softmax(x, dim=-<span class="number">1</span>)</span><br><span class="line">log_q = F.log_softmax(y, dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">p = log_p.exp()</span><br><span class="line">q = log_q.exp()</span><br><span class="line"></span><br><span class="line">m = <span class="number">0.5</span> * (p + q)</span><br><span class="line">log_m = torch.log(m.clamp_min(<span class="number">1e-8</span>))</span><br><span class="line"></span><br><span class="line">js = <span class="number">0.5</span> * (p * (log_p - log_m)).<span class="built_in">sum</span>(dim=-<span class="number">1</span>) \</span><br><span class="line">   + <span class="number">0.5</span> * (q * (log_q - log_m)).<span class="built_in">sum</span>(dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">js_mean = js.mean()</span><br></pre></td></tr></table></figure>
+
+<p>shape 变化：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">x, y       : [B, ..., C]</span><br><span class="line">p, q       : [B, ..., C]</span><br><span class="line">m          : [B, ..., C]</span><br><span class="line">js         : [B, ...]</span><br><span class="line">js_mean    : scalar</span><br></pre></td></tr></table></figure>
+
+<p>如果希望将 JS divergence 归一化到 <code>[0, 1]</code>，可以除以 <code>ln 2</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">js_normalized = js / torch.log(torch.tensor(<span class="number">2.0</span>))</span><br></pre></td></tr></table></figure>
+
+<p>含义：</p>
+<ul>
+<li><code>0</code> 表示两个分布完全相同</li>
+<li>越接近上界，表示两个分布差异越大</li>
+<li>相比 KL，JS 更适合做两个模型输出分布的对称比较</li>
+</ul>
+<hr>
+<h3 id="Argmax-agreement"><a href="#Argmax-agreement" class="headerlink" title="Argmax agreement"></a>Argmax agreement</h3><p>Argmax agreement 比较两个 tensor 在每个位置上预测的最大类别是否一致。</p>
+<p>它不关心完整概率分布，只关心：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">argmax(x) 是否等于 argmax(y)</span><br></pre></td></tr></table></figure>
+
+<p>计算方式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">idx_x = torch.argmax(x, dim=-<span class="number">1</span>)</span><br><span class="line">idx_y = torch.argmax(y, dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">argmax_agree = (idx_x == idx_y).<span class="built_in">float</span>()</span><br><span class="line">argmax_agree_mean = argmax_agree.mean()</span><br></pre></td></tr></table></figure>
+
+<p>shape 变化：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x, y                    : [B, ..., C]</span><br><span class="line">idx_x, idx_y            : [B, ...]</span><br><span class="line">argmax_agree            : [B, ...]</span><br><span class="line">argmax_agree_mean       : scalar</span><br></pre></td></tr></table></figure>
+
+<p>值域：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[0, 1]</span><br></pre></td></tr></table></figure>
+
+<p>含义：</p>
+<ul>
+<li><code>1</code> 表示所有位置的 top-1 预测完全一致</li>
+<li><code>0</code> 表示所有位置的 top-1 预测完全不一致</li>
+<li><code>0.9</code> 表示 90% 的位置 top-1 预测一致</li>
+</ul>
+<p>Argmax agreement 的特点：</p>
+<ul>
+<li>只看最终预测类别</li>
+<li>不看置信度</li>
+<li>不看非最大类别的分布</li>
+<li>对 logits 和 softmax 后的概率结果相同，因为 softmax 不改变排序</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = [10.0, 1.0, 0.0]</span><br><span class="line">y = [2.0, 1.9, 1.8]</span><br></pre></td></tr></table></figure>
+
+<p>二者 argmax 都是第 0 类，因此 argmax agreement 为 <code>1</code>。</p>
+<p>但两个分布的置信度差异很大，KL&#x2F;JS 可能不小。</p>
+<hr>
+<h3 id="Top-k-agreement"><a href="#Top-k-agreement" class="headerlink" title="Top-k agreement"></a>Top-k agreement</h3><p>Top-k agreement 比较两个 tensor 的前 <code>k</code> 个预测类别是否一致。</p>
+<p>常见定义有几种，最常用的是 top-k overlap ratio：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top-k agreement = |TopK(x) ∩ TopK(y)| / k</span><br></pre></td></tr></table></figure>
+
+<p>即两个 top-k 集合的交集占比。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">TopK(x) = &#123;1, 3, 5&#125;</span><br><span class="line">TopK(y) = &#123;3, 5, 8&#125;</span><br></pre></td></tr></table></figure>
+
+<p>则：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">overlap = &#123;3, 5&#125;</span><br><span class="line">top-k agreement = 2 / 3</span><br></pre></td></tr></table></figure>
+
+<p>计算示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">k = <span class="number">5</span></span><br><span class="line"></span><br><span class="line">topk_x = torch.topk(x, k=k, dim=-<span class="number">1</span>).indices</span><br><span class="line">topk_y = torch.topk(y, k=k, dim=-<span class="number">1</span>).indices</span><br><span class="line"></span><br><span class="line">overlap = (</span><br><span class="line">    topk_x.unsqueeze(-<span class="number">1</span>) == topk_y.unsqueeze(-<span class="number">2</span>)</span><br><span class="line">).<span class="built_in">any</span>(dim=-<span class="number">1</span>).<span class="built_in">float</span>().mean(dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">topk_agree_mean = overlap.mean()</span><br></pre></td></tr></table></figure>
+
+<p>shape 变化：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x, y                 : [B, ..., C]</span><br><span class="line">topk_x, topk_y       : [B, ..., k]</span><br><span class="line">overlap              : [B, ...]</span><br><span class="line">topk_agree_mean      : scalar</span><br></pre></td></tr></table></figure>
+
+<p>值域：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[0, 1]</span><br></pre></td></tr></table></figure>
+
+<p>含义：</p>
+<ul>
+<li><code>1</code> 表示两个 tensor 的 top-k 集合完全一致</li>
+<li><code>0</code> 表示两个 tensor 的 top-k 集合完全没有交集</li>
+<li><code>0.6</code> 表示平均有 60% 的 top-k 候选相同</li>
+</ul>
+<p>Top-k agreement 比 argmax agreement 更宽松。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Top1(x) != Top1(y)</span><br></pre></td></tr></table></figure>
+
+<p>但如果两个模型的高分候选集合接近，那么：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top-k agreement 仍然可能较高</span><br></pre></td></tr></table></figure>
+
+<p>这在大词表语言模型、检索系统、推荐系统中很常见。</p>
+<p>还可以定义更严格的 top-k 指标。</p>
+<p>第一种是 top-k exact set agreement：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TopK(x) 集合是否完全等于 TopK(y) 集合</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">topk_exact = (overlap == <span class="number">1.0</span>).<span class="built_in">float</span>()</span><br><span class="line">topk_exact_mean = topk_exact.mean()</span><br></pre></td></tr></table></figure>
+
+<p>第二种是 ordered top-k agreement：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TopK(x) 的顺序是否完全等于 TopK(y)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ordered_topk_agree = (topk_x == topk_y).<span class="built_in">all</span>(dim=-<span class="number">1</span>).<span class="built_in">float</span>()</span><br><span class="line">ordered_topk_agree_mean = ordered_topk_agree.mean()</span><br></pre></td></tr></table></figure>
+
+<p>严格程度如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ordered top-k agreement</span><br><span class="line">    &gt; top-k exact set agreement</span><br><span class="line">        &gt; top-k overlap ratio</span><br></pre></td></tr></table></figure>
+
+<p>其中 ordered top-k agreement 最严格，top-k overlap ratio 最平滑。</p>
+<hr>
+<h3 id="四类指标的对比"><a href="#四类指标的对比" class="headerlink" title="四类指标的对比"></a>四类指标的对比</h3><p>假设：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x, y shape = [B, ..., C]</span><br></pre></td></tr></table></figure>
+
+<p>整体 shape 变化如下：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>输入 shape</th>
+<th>中间 shape</th>
+<th>输出 shape</th>
+<th>标量汇总</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>KL divergence</td>
+<td><code>[B, ..., C]</code></td>
+<td><code>[B, ..., C]</code></td>
+<td><code>[B, ...]</code></td>
+<td>mean&#x2F;sum</td>
+</tr>
+<tr>
+<td>JS divergence</td>
+<td><code>[B, ..., C]</code></td>
+<td><code>[B, ..., C]</code></td>
+<td><code>[B, ...]</code></td>
+<td>mean&#x2F;sum</td>
+</tr>
+<tr>
+<td>argmax agreement</td>
+<td><code>[B, ..., C]</code></td>
+<td><code>[B, ...]</code></td>
+<td><code>[B, ...]</code></td>
+<td>mean</td>
+</tr>
+<tr>
+<td>top-k agreement</td>
+<td><code>[B, ..., C]</code></td>
+<td><code>[B, ..., k]</code></td>
+<td><code>[B, ...]</code></td>
+<td>mean</td>
+</tr>
+</tbody></table>
+<p>值域对比：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th align="right">值域</th>
+<th align="right">最优值</th>
+<th>方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>KL divergence</td>
+<td align="right"><code>[0, +∞)</code></td>
+<td align="right"><code>0</code></td>
+<td>越小越相似</td>
+</tr>
+<tr>
+<td>JS divergence</td>
+<td align="right"><code>[0, ln 2]</code></td>
+<td align="right"><code>0</code></td>
+<td>越小越相似</td>
+</tr>
+<tr>
+<td>JS normalized</td>
+<td align="right"><code>[0, 1]</code></td>
+<td align="right"><code>0</code></td>
+<td>越小越相似</td>
+</tr>
+<tr>
+<td>argmax agreement</td>
+<td align="right"><code>[0, 1]</code></td>
+<td align="right"><code>1</code></td>
+<td>越大越相似</td>
+</tr>
+<tr>
+<td>top-k agreement</td>
+<td align="right"><code>[0, 1]</code></td>
+<td align="right"><code>1</code></td>
+<td>越大越相似</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="该如何解读"><a href="#该如何解读" class="headerlink" title="该如何解读"></a>该如何解读</h3><p>KL divergence 适合回答：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">两个完整概率分布是否接近？</span><br></pre></td></tr></table></figure>
+
+<p>它关注概率质量的偏移，尤其关注参考分布中高概率位置是否被另一个分布正确覆盖。</p>
+<p>适用于：</p>
+<ul>
+<li>知识蒸馏</li>
+<li>teacher&#x2F;student 分布对齐</li>
+<li>语言模型 logits 分布比较</li>
+<li>量化前后概率分布偏移分析</li>
+</ul>
+<p>JS divergence 适合回答：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">两个分布整体差异有多大？</span><br></pre></td></tr></table></figure>
+
+<p>它比 KL 更稳定、更对称，适合做模型间输出分布差异的通用度量。</p>
+<p>适用于：</p>
+<ul>
+<li>两个模型输出分布比较</li>
+<li>量化前后分布漂移</li>
+<li>不希望区分参考方和被比较方的场景</li>
+</ul>
+<p>Argmax agreement 适合回答：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">最终 top-1 决策是否一致？</span><br></pre></td></tr></table></figure>
+
+<p>它不关心置信度，只关心最终预测类别。</p>
+<p>适用于：</p>
+<ul>
+<li>分类结果一致性</li>
+<li>量化模型和原模型 top-1 是否一致</li>
+<li>推理优化前后预测类别是否改变</li>
+</ul>
+<p>Top-k agreement 适合回答：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">高概率候选集合是否一致？</span><br></pre></td></tr></table></figure>
+
+<p>它比 argmax 更宽松，能够反映候选排序的稳定性。</p>
+<p>适用于：</p>
+<ul>
+<li>语言模型 top-k token 对齐</li>
+<li>检索候选集一致性</li>
+<li>推荐系统候选集稳定性</li>
+<li>大类别分类中 top-k 预测对齐</li>
+</ul>
+<hr>
+<h3 id="参考实现"><a href="#参考实现" class="headerlink" title="参考实现"></a>参考实现</h3><p>下面给出一个统一实现，假设类别维在最后一维：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">compare_tensors</span>(<span class="params">x, y, k=<span class="number">5</span>, from_logits=<span class="literal">True</span>, eps=<span class="number">1e-8</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    x, y: [B, ..., C]</span></span><br><span class="line"><span class="string">    return:</span></span><br><span class="line"><span class="string">        kl:              [B, ...]</span></span><br><span class="line"><span class="string">        js:              [B, ...]</span></span><br><span class="line"><span class="string">        argmax_agree:    [B, ...]</span></span><br><span class="line"><span class="string">        topk_overlap:    [B, ...]</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">assert</span> x.shape == y.shape</span><br><span class="line">    C = x.shape[-<span class="number">1</span>]</span><br><span class="line">    k = <span class="built_in">min</span>(k, C)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> from_logits:</span><br><span class="line">        log_p = F.log_softmax(x, dim=-<span class="number">1</span>)</span><br><span class="line">        log_q = F.log_softmax(y, dim=-<span class="number">1</span>)</span><br><span class="line">        p = log_p.exp()</span><br><span class="line">        q = log_q.exp()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        p = x.clamp_min(eps)</span><br><span class="line">        q = y.clamp_min(eps)</span><br><span class="line"></span><br><span class="line">        p = p / p.<span class="built_in">sum</span>(dim=-<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br><span class="line">        q = q / q.<span class="built_in">sum</span>(dim=-<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">        log_p = torch.log(p)</span><br><span class="line">        log_q = torch.log(q)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># KL(P || Q)</span></span><br><span class="line">    kl = (p * (log_p - log_q)).<span class="built_in">sum</span>(dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># JS(P || Q)</span></span><br><span class="line">    m = <span class="number">0.5</span> * (p + q)</span><br><span class="line">    log_m = torch.log(m.clamp_min(eps))</span><br><span class="line"></span><br><span class="line">    js = <span class="number">0.5</span> * (p * (log_p - log_m)).<span class="built_in">sum</span>(dim=-<span class="number">1</span>) \</span><br><span class="line">       + <span class="number">0.5</span> * (q * (log_q - log_m)).<span class="built_in">sum</span>(dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Argmax agreement</span></span><br><span class="line">    idx_x = torch.argmax(x, dim=-<span class="number">1</span>)</span><br><span class="line">    idx_y = torch.argmax(y, dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    argmax_agree = (idx_x == idx_y).<span class="built_in">float</span>()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Top-k overlap ratio</span></span><br><span class="line">    topk_x = torch.topk(x, k=k, dim=-<span class="number">1</span>).indices</span><br><span class="line">    topk_y = torch.topk(y, k=k, dim=-<span class="number">1</span>).indices</span><br><span class="line"></span><br><span class="line">    topk_overlap = (</span><br><span class="line">        topk_x.unsqueeze(-<span class="number">1</span>) == topk_y.unsqueeze(-<span class="number">2</span>)</span><br><span class="line">    ).<span class="built_in">any</span>(dim=-<span class="number">1</span>).<span class="built_in">float</span>().mean(dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">&quot;kl&quot;</span>: kl,</span><br><span class="line">        <span class="string">&quot;kl_mean&quot;</span>: kl.mean(),</span><br><span class="line">        <span class="string">&quot;js&quot;</span>: js,</span><br><span class="line">        <span class="string">&quot;js_mean&quot;</span>: js.mean(),</span><br><span class="line">        <span class="string">&quot;argmax_agree&quot;</span>: argmax_agree,</span><br><span class="line">        <span class="string">&quot;argmax_agree_mean&quot;</span>: argmax_agree.mean(),</span><br><span class="line">        <span class="string">&quot;topk_overlap&quot;</span>: topk_overlap,</span><br><span class="line">        <span class="string">&quot;topk_overlap_mean&quot;</span>: topk_overlap.mean(),</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这四个指标不是互相替代关系，而是观察差异的角度不同。</p>
+<p>如果关心完整分布差异，使用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">KL divergence</span><br><span class="line">JS divergence</span><br></pre></td></tr></table></figure>
+
+<p>如果关心最终决策是否一致，使用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">argmax agreement</span><br></pre></td></tr></table></figure>
+
+<p>如果关心候选集合是否稳定，使用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top-k agreement</span><br></pre></td></tr></table></figure>
+
+<p>通常建议组合使用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JS divergence + argmax agreement + top-k agreement</span><br></pre></td></tr></table></figure>
+
+<p>原因是：</p>
+<ul>
+<li>JS divergence 反映整体分布漂移</li>
+<li>argmax agreement 反映最终 top-1 决策一致性</li>
+<li>top-k agreement 反映高分候选集合稳定性</li>
+</ul>
+<p>例如在量化模型评估中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JS 很小，argmax agreement 很高</span><br></pre></td></tr></table></figure>
+
+<p>说明量化后模型输出基本保持一致。</p>
+<p>如果：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JS 较大，但 argmax agreement 很高</span><br></pre></td></tr></table></figure>
+
+<p>说明最终预测类别没变，但置信度或非 top-1 分布发生了明显变化。</p>
+<p>如果：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JS 很小，但 argmax agreement 较低</span><br></pre></td></tr></table></figure>
+
+<p>说明两个分布整体很接近，但 top-1 位置可能经常发生细微交换，常见于多个类别分数非常接近的情况。</p>
+<h2 id="比较分类效果"><a href="#比较分类效果" class="headerlink" title="比较分类效果"></a>比较分类效果</h2><p>推荐：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">accuracy</span><br><span class="line">top-k accuracy</span><br><span class="line">precision</span><br><span class="line">recall</span><br><span class="line">F1</span><br><span class="line">confusion matrix</span><br><span class="line">cross entropy / NLL</span><br></pre></td></tr></table></figure>
+
+<p>如果关注概率校准：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Brier score</span><br><span class="line">ECE</span><br></pre></td></tr></table></figure>
+
+<h3 id="比较回归效果"><a href="#比较回归效果" class="headerlink" title="比较回归效果"></a>比较回归效果</h3><p>推荐：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">MAE / L1</span><br><span class="line">MSE</span><br><span class="line">RMSE</span><br><span class="line">R²</span><br><span class="line">MAPE</span><br><span class="line">relative_error</span><br></pre></td></tr></table></figure>
+
+<h3 id="比较语言模型"><a href="#比较语言模型" class="headerlink" title="比较语言模型"></a>比较语言模型</h3><p>推荐：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mean token NLL</span><br><span class="line">perplexity</span><br><span class="line">average log_prob</span><br></pre></td></tr></table></figure>
+
+<p>任务型评价可以补充：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">exact match</span><br><span class="line">BLEU</span><br><span class="line">ROUGE</span><br><span class="line">pass@k</span><br><span class="line">win rate</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="常见误区"><a href="#常见误区" class="headerlink" title="常见误区"></a>常见误区</h2><ol>
+<li><code>L1</code> 越小只说明数值更接近，不一定说明任务效果更好。</li>
+<li><code>entropy</code> 低只说明模型更自信，不一定说明模型更正确。</li>
+<li><code>log_prob</code> 适合概率模型，但比较时必须保证数据和归一化方式一致。</li>
+<li><code>logits</code> 不是概率，也不是最终精度指标。</li>
+<li>任何指标都要先明确计算维度和 reduction 方式。</li>
+<li>标量指标通常来自对 batch、类别、序列或空间维度的归约。</li>
+<li>比较语言模型时，不要直接比较不同长度文本的总 log_prob。</li>
+</ol>
+<hr>
+<h2 id="简要结论"><a href="#简要结论" class="headerlink" title="简要结论"></a>简要结论</h2><ul>
+<li><code>L1 norm</code>：看数值差异，适合数值误差和回归。</li>
+<li><code>entropy</code>：看分布不确定性，不适合单独代表准确率。</li>
+<li><code>log_prob</code>：看模型给目标的概率，是 NLL 和 cross entropy 的基础。</li>
+<li><code>logits</code>：模型原始分数，需要经过 softmax 或 sigmoid 才能解释为概率。</li>
+<li>比较精度前，必须先明确 tensor 的语义、计算维度和归约方式。</li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Tensor Metrics</p><p><a href="http://icarus.shaojiemike.top/2026/04/23/Work/Artificial Intelligence/BasicConcepts/tensor-measures/">http://icarus.shaojiemike.top/2026/04/23/Work/Artificial Intelligence/BasicConcepts/tensor-measures/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-04-23</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Machine-Learning/">Machine Learning</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/04/25/Work/Programming/2-languageGrammar/AI-DSL/TileLang_megakernel/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">TileLang &amp; Mega-kernel</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/04/23/Work/Artificial%20Intelligence/BasicConcepts/training-accuracy/"><span class="level-item">Model Migrate Accuracy</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

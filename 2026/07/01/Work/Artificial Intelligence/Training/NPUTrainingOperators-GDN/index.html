@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>NPU Training Operators - GDN - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       这篇笔记记录一次很窄的接入设计：在 verl release&amp;#x2F;v0.8.0 的 Qwen3.5 GRPO + FSDP 路径里，NPU 已经有 RMSNorm、RoPE、MoE GMM 等 patch，但 Gated Delta Net &amp;#x2F; GDN 仍然落在原始 eager 路径。目标不是改 GRPO 算法，而"><meta property="og:type" content="blog"><meta property="og:title" content="NPU Training Operators - GDN"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/07/01/Work/Artificial%20Intelligence/Training/NPUTrainingOperators-GDN/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       这篇笔记记录一次很窄的接入设计：在 verl release&amp;#x2F;v0.8.0 的 Qwen3.5 GRPO + FSDP 路径里，NPU 已经有 RMSNorm、RoPE、MoE GMM 等 patch，但 Gated Delta Net &amp;#x2F; GDN 仍然落在原始 eager 路径。目标不是改 GRPO 算法，而"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-07-01T07:36:05.000Z"><meta property="article:modified_time" content="2026-07-03T08:59:59.079Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Ascend"><meta property="article:tag" content="VeRL"><meta property="article:tag" content="NPU"><meta property="article:tag" content="Qwen3.5"><meta property="article:tag" content="GDN"><meta property="article:tag" content="GRPO"><meta property="article:tag" content="Triton"><meta property="article:tag" content="FSDP"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/07/01/Work/Artificial%20Intelligence/Training/NPUTrainingOperators-GDN/"},"headline":"NPU Training Operators - GDN","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-07-01T07:36:05.000Z","dateModified":"2026-07-03T08:59:59.079Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       这篇笔记记录一次很窄的接入设计：在 verl release&#x2F;v0.8.0 的 Qwen3.5 GRPO + FSDP 路径里，NPU 已经有 RMSNorm、RoPE、MoE GMM 等 patch，但 Gated Delta Net &#x2F; GDN 仍然落在原始 eager 路径。目标不是改 GRPO 算法，而"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/07/01/Work/Artificial%20Intelligence/Training/NPUTrainingOperators-GDN/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-07-01T07:36:05.000Z" title="7/1/2026, 7:36:05 AM">2026-07-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.079Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">20 minutes read (About 2949 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">NPU Training Operators - GDN</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>这篇笔记记录一次很窄的接入设计：在 <code>verl</code> release&#x2F;v0.8.0 的 <strong>Qwen3.5 GRPO + FSDP</strong> 路径里，NPU 已经有 RMSNorm、RoPE、MoE GMM 等 patch，但 <strong>Gated Delta Net &#x2F; GDN</strong> 仍然落在原始 eager 路径。目标不是改 GRPO 算法，而是给模型 forward 里的 <code>chunk_gated_delta_rule</code> 加一个可配置的 Triton 优先路径。</p>
+<p>参考对象是 MindSpeed-MM 提交 <code>5aaf0791d00abcbf5dd16af10091f4391030ad00</code>：它把 Qwen3.5 的 GDN 计算模式显式化为 <code>gdn_compute_mode</code>，并区分 <code>triton</code>、<code>ascendc</code>、<code>eager</code>。本文给出的 <code>verl</code> 方案先接入 <strong>Triton</strong>，保留 eager 回退；AscendC 自定义算子作为后续扩展。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<figure markdown>
+  ![Qwen3.5 GDN Triton routing](https://pic.shaojiemike.top/shaojiemike/2026/07/247076020a6be5936dc6caaee5e79664.png){ width=92% }
+  <figcaption>image_gen 原图：`gdn_compute_mode` 只切换 Qwen3.5 GDN 的计算实现，GRPO/FSDP 主流程保持不变。</figcaption>
+</figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li><strong>问题边界</strong>：GDN 是 Qwen3.5 模型 forward 内的 linear attention block，不是 GRPO advantage，也不是 MoE routed expert 的 GMM。</li>
+<li><strong>现状判断</strong>：<code>verl</code> release&#x2F;v0.8.0 的 Qwen3.5 FSDP GRPO 示例已经存在，但 NPU patch 层只覆盖 RMSNorm&#x2F;RoPE&#x2F;MoE GMM 等模块，没有把 <code>Qwen3_5GatedDeltaNet</code> 的 <code>chunk_gated_delta_rule</code> 替换为 fused Triton 或 AscendC 实现。[^verl-qwen35-27b][^verl-npu-patch]</li>
+<li><strong>接入点</strong>：FSDP engine 初始化时调用 <code>apply_npu_fsdp_patches</code>，所以最小改动应落在 <code>verl.models.transformers.npu_patch</code> 的 monkey patch 层，而不是 GRPO trainer。[^verl-fsdp-engine]</li>
+<li><strong>配置方案</strong>：新增 <code>actor_rollout_ref.model.gdn_compute_mode</code>，取值先限制为 <code>eager</code> 或 <code>triton</code>；GPU 默认 <code>eager</code>，NPU 默认 <code>triton</code>。</li>
+<li><strong>代码状态</strong>：draft PR <code>verl-project/verl#6908</code> 已移植 MindSpeed-MM Triton GDN wrapper&#x2F;kernels，并通过 <code>py_compile</code>、<code>ruff check</code>、<code>ruff format --check</code> 与 CRLF-aware <code>git diff --check</code>。由于本机没有 <code>torch_npu</code>&#x2F;Triton Ascend 环境，<strong>数值一致性与性能仍需在 NPU 机器补测</strong>。[^verl-gdn-pr]</li>
+</ul>
+<h2 id="现状路径"><a href="#现状路径" class="headerlink" title="现状路径"></a>现状路径</h2><p><code>verl</code> 的 Qwen3.5 FSDP GRPO 示例主要在两个脚本里：</p>
+<ol>
+<li><code>run_qwen3_5_27b_fsdp.sh</code> 对应 Dense 27B。</li>
+<li><code>run_qwen3_5_35b_fsdp.sh</code> 对应 35B-A3B MoE。</li>
+</ol>
+<p>这两条脚本在算法层还是标准 GRPO trainer：rollout 采样、计算 log probability、构造 GRPO loss、再由 actor&#x2F;ref 模型参与训练或参考分布计算。GRPO 本身来自 DeepSeekMath，它用 <strong>Group Relative Policy Optimization</strong> 避免额外训练 critic model，通过同一 prompt 的多条 sampled output 构造相对优势。[^deepseekmath]</p>
+<p>但 GDN 的位置更靠下。Qwen3.5 的 linear attention 模块在每层 forward 里执行 <code>chunk_gated_delta_rule</code>，输入通常是：</p>
+<table>
+<thead>
+<tr>
+<th>Tensor</th>
+<th>Shape</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>q</code></td>
+<td><code>[B, T, H, K]</code></td>
+<td>query。</td>
+</tr>
+<tr>
+<td><code>k</code></td>
+<td><code>[B, T, H, K]</code></td>
+<td>key。</td>
+</tr>
+<tr>
+<td><code>v</code></td>
+<td><code>[B, T, H, V]</code></td>
+<td>value。</td>
+</tr>
+<tr>
+<td><code>g</code></td>
+<td><code>[B, T, H]</code></td>
+<td>log-space forget gate。</td>
+</tr>
+<tr>
+<td><code>beta</code></td>
+<td><code>[B, T, H]</code></td>
+<td>delta update 的门控系数。</td>
+</tr>
+<tr>
+<td><code>initial_state</code></td>
+<td><code>[N, H, K, V]</code></td>
+<td>chunk recurrent state，可选。</td>
+</tr>
+</tbody></table>
+<p>所以它的性能问题不会通过改 GRPO 公式解决。正确抓手是：<strong>在模型被 FSDP 包装前，把 Qwen3.5 GDN module 的实现函数替换掉</strong>。</p>
+<h2 id="MindSpeed-参考"><a href="#MindSpeed-参考" class="headerlink" title="MindSpeed 参考"></a>MindSpeed 参考</h2><p>MindSpeed-MM 提交 <code>5aaf0791d00abcbf5dd16af10091f4391030ad00</code> 的标题是 <code>[feature] Supports GDN with Ascendc</code>，核心变化有三点：[^mindspeed-commit]</p>
+<ol>
+<li><strong>目录收敛</strong>：把原先散在 Qwen3.5 model 目录下的 Triton GDN kernel 整理到 <code>mindspeed_mm/fsdp/ops/gdn/</code>。</li>
+<li><strong>模式显式化</strong>：把配置从 <code>use_triton_gdn: true</code> 改为 <code>gdn_compute_mode: triton</code>。</li>
+<li><strong>后端分流</strong>：<ul>
+<li><code>triton</code>：NPU 上导入 Triton 版 <code>chunk_gated_delta_rule</code>。</li>
+<li><code>ascendc</code>：NPU 上导入 <code>flash_chunk_gated_delta_rule</code>，内部调用 AscendC 自定义 NPU op。</li>
+<li><code>eager</code>：保留 torch eager 版 <code>torch_chunk_gated_delta_rule</code>。</li>
+</ul>
+</li>
+</ol>
+<p>这给 <code>verl</code> 的启发是：不要把开关命名成“是否 Triton”，而应命名成“GDN 计算模式”。这样当前 PR 可以先接 <code>triton</code>，以后扩展 AscendC 时不需要再次更改配置语义。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>为什么不直接接 AscendC</p>
+</div>
+        <div class="message-body">
+            <p>MindSpeed-MM 的 AscendC 版本依赖 <code>torch.ops.npu.npu_recompute_w_u_fwd</code>、<code>npu_chunk_gated_delta_rule_fwd_h</code>、<code>npu_chunk_fwd_o</code>、<code>npu_chunk_bwd_*</code> 等自定义 op。<code>verl</code> 侧如果直接接入，需要同步 wheel&#x2F;build、op 注册、版本探测和 fallback 逻辑。作为第一步，Triton 移植的边界更小，也更容易 review。</p>
+
+        </div>
+    </article>
+
+<h2 id="算子语义"><a href="#算子语义" class="headerlink" title="算子语义"></a>算子语义</h2><p>GDN 的直觉是：每个 token 不再把全部历史 KV cache 展开成二次 attention，而是维护一个随时间递推的状态矩阵。<code>g</code> 控制遗忘，<code>beta</code> 控制 delta update 强度，<code>q/k/v</code> 控制读写内容。Gated Delta Networks 论文把这类结构放在线性复杂度序列建模问题中讨论，目标是让模型具备更好的长上下文效率和状态更新能力。[^gdn-paper]</p>
+<p>Triton 版 <code>chunk_gated_delta_rule</code> 可以拆成下面几段：</p>
+<ol>
+<li><strong>局部门控前缀和</strong>：<code>chunk_local_cumsum(g)</code> 把 log-space gate 转换为 chunk 内可用的累积门控。</li>
+<li><strong>块内 KKT</strong>：<code>chunk_scaled_dot_kkt_fwd(k, g, beta)</code> 计算 chunk 内 key-key 相关项。</li>
+<li><strong>三角求解</strong>：<code>solve_tril(A)</code> 求解 WY 表示需要的下三角系统。</li>
+<li><strong>WY 表示重算</strong>：<code>recompute_w_u_fwd(k, v, beta, A, g)</code> 得到用于状态更新的 <code>w/u</code>。</li>
+<li><strong>状态递推</strong>：<code>chunk_gated_delta_rule_fwd_h</code> 沿 chunk 递推 hidden state，并可输出 final state。</li>
+<li><strong>输出读出</strong>：<code>chunk_fwd_o(q, k, v_new, h, g, scale)</code> 得到 <code>[B, T, H, V]</code> 输出。</li>
+</ol>
+<p>反向路径也不是一个简单 matmul 的反向，而是需要同时回传：</p>
+<ul>
+<li><code>dq/dk/dv</code>：query、key、value 梯度。</li>
+<li><code>db/dg</code>：<code>beta</code> 和 gate 梯度，其中 <code>dg</code> 需要 reverse cumsum。</li>
+<li><code>dh0</code>：初始 recurrent state 梯度。</li>
+</ul>
+<p>这就是 GDN 比普通 fused RMSNorm&#x2F;GMM 更难接的地方：它跨 chunk、跨状态，还要同时处理 forward cache 与 backward recompute。</p>
+<h2 id="接入方案"><a href="#接入方案" class="headerlink" title="接入方案"></a>接入方案</h2><p><code>verl</code> 的最小方案分四层：</p>
+<ol>
+<li><p><strong>vendored kernel 包</strong></p>
+<p> 新增 <code>verl.models.transformers.gdn</code>，移植 MindSpeed-MM Triton wrapper 和 kernel 文件：</p>
+ <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">verl/models/transformers/gdn/</span><br><span class="line">  chunk_gated_delta_rule.py</span><br><span class="line">  triton/chunk_delta_h.py</span><br><span class="line">  triton/chunk_o.py</span><br><span class="line">  triton/chunk_scaled_dot_kkt.py</span><br><span class="line">  triton/convolution.py</span><br><span class="line">  triton/cumsum.py</span><br><span class="line">  triton/solve_tril.py</span><br><span class="line">  triton/utils.py</span><br><span class="line">  triton/wy_fast.py</span><br></pre></td></tr></table></figure>
+
+<p> 这些文件保持上游 kernel 布局，不做格式化重排，只在文件头部加 <code>ruff: noqa</code> 和 <code>fmt: off</code>，减少后续和 MindSpeed-MM&#x2F;FLA 代码对齐时的噪声。</p>
+</li>
+<li><p><strong>模型配置</strong></p>
+<p> 在 <code>HFModelConfig</code> 增加：</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdn_compute_mode: <span class="type">Optional</span>[<span class="built_in">str</span>] = <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+
+<p> 当用户传入 <code>actor_rollout_ref.model.gdn_compute_mode=triton</code> 时，把字段写入 <code>hf_config</code>；如果存在 <code>text_config</code>，也同步写进去。当前只允许 <code>eager</code> 和 <code>triton</code>，避免用户误以为 AscendC 已经可用。</p>
+</li>
+<li><p><strong>NPU patch</strong></p>
+<p> 在 <code>npu_patch.py</code> 里包装两个类的 <code>__init__</code>：</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_patch_qwen3_5_gated_delta_net_init(modeling_qwen3_5, <span class="string">&quot;Qwen3_5GatedDeltaNet&quot;</span>)</span><br><span class="line">_patch_qwen3_5_gated_delta_net_init(modeling_qwen3_5_moe, <span class="string">&quot;Qwen3_5MoeGatedDeltaNet&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p> wrapper 在原始 init 完成后读取 <code>gdn_compute_mode</code>：</p>
+<ul>
+<li><code>eager</code>：不改任何行为。</li>
+<li><code>triton</code>：把 <code>self.chunk_gated_delta_rule</code> 指向 <code>verl.models.transformers.gdn.chunk_gated_delta_rule</code>。</li>
+<li>其他值：立即抛错。</li>
+</ul>
+</li>
+<li><p><strong>示例脚本</strong></p>
+<p> 在两个 Qwen3.5 FSDP GRPO 示例里增加：</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GDN_COMPUTE_MODE=<span class="variable">$&#123;GDN_COMPUTE_MODE:-&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p> 然后按设备给默认值：</p>
+<table>
+<thead>
+<tr>
+<th>DEVICE</th>
+<th>默认值</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gpu</code></td>
+<td><code>eager</code></td>
+<td>不改变 CUDA&#x2F;GPU 用户现有路径。</td>
+</tr>
+<tr>
+<td><code>npu</code></td>
+<td><code>triton</code></td>
+<td>NPU 上优先启用移植的 GDN Triton kernel。</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<h2 id="Tiling-与硬件约束"><a href="#Tiling-与硬件约束" class="headerlink" title="Tiling 与硬件约束"></a>Tiling 与硬件约束</h2><p>GDN 的 Triton kernel 默认 <code>chunk_size=64</code>。它不是把整段序列一次性展开，而是把序列切成 chunk，在 chunk 内做局部矩阵关系和三角求解，再在 chunk 间递推 state。</p>
+<p>实现时要关注这些约束：</p>
+<ul>
+<li><strong>dtype</strong>：wrapper 明确不支持 FP32 输入，推荐 BF16；部分归约或中间量会升到 FP32 再写回。</li>
+<li><strong>layout</strong>：主路径使用 <code>[B, T, H, K/V]</code>，<code>head_first=False</code>；<code>head_first=True</code> 被标记为 deprecated。</li>
+<li><strong>varlen</strong>：<code>cu_seqlens</code> 兼容 FlashAttention 风格的变长输入，但 <code>verl</code> 的 Qwen3.5 Megatron 示例已经提示 GDN 当前不支持 packed sequences &#x2F; THD 格式；FSDP 路径也要谨慎验证 remove padding。[^verl-megatron-example]</li>
+<li><strong>state</strong>：<code>initial_state</code> 与 <code>final_state</code> 的 shape 是 <code>[N, H, K, V]</code>，其中 <code>N</code> 对等长 batch 通常等于 <code>B</code>，对 varlen 输入等于序列个数。</li>
+<li><strong>NPU 内存</strong>：Ascend 上 kernel 需要考虑 UB 容量、对齐、mask 和 block 维度。Triton 路线先复用上游 tiling，AscendC 路线才需要进一步把 <code>chunk_fwd_h</code>、<code>chunk_fwd_o</code>、backward 等段映射到自定义算子。</li>
+</ul>
+<h2 id="论文证据"><a href="#论文证据" class="headerlink" title="论文证据"></a>论文证据</h2><p>GDN 的系统动机不是“某一个算子天然快”，而是线性注意力&#x2F;状态空间类结构在长序列场景里减少 KV cache 与二次 attention 压力。Qwen3.5-Omni 技术报告把 GDN 放在 Hybrid MoE 设计中讨论，并在 Table 2 给出并发下的首包延迟和 Thinker TPS。[^qwen35-omni]</p>
+<figure markdown>
+  ![Qwen3.5-Omni Table 2 audio evidence](https://pic.shaojiemike.top/shaojiemike/2026/07/6ce40ae7d7aba2fdc62cdd5cfda376d8.png){ width=92% }
+  <figcaption>根据 Qwen3.5-Omni Technical Report Table 2 重绘。这里使用 A/V 数值中的 Audio 侧数据，只能作为架构动机证据，不能当作本次 `verl` NPU GDN kernel 的性能结果。</figcaption>
+</figure>
+
+<p>这张图的正确读法是：</p>
+<ul>
+<li><strong>能说明</strong>：Qwen3.5 系列设计确实把低延迟、高并发和状态化 attention 作为重要目标；GDN 相关路径值得在训练框架里给出 fused 实现。</li>
+<li><strong>不能说明</strong>：本次 Triton 移植已经在 Ascend NPU 上获得同等收益。训练侧还需要单算子 profiler、端到端 step time、loss&#x2F;logprob 对齐和 backward 检查。</li>
+</ul>
+<h2 id="验证项"><a href="#验证项" class="headerlink" title="验证项"></a>验证项</h2><p>正式合入前建议至少补齐这些检查：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>检查项</th>
+<th>失败信号</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单算子 forward</td>
+<td>同一 <code>q/k/v/g/beta/initial_state</code> 下，Triton vs eager 输出对齐。</td>
+<td><code>o</code> 或 <code>final_state</code> diff 放大，尤其是长序列后段。</td>
+</tr>
+<tr>
+<td>单算子 backward</td>
+<td>比较 <code>dq/dk/dv/db/dg/dh0</code>。</td>
+<td>gate 梯度反向 cumsum 错误，或 <code>beta</code> 梯度异常。</td>
+</tr>
+<tr>
+<td>Shape 组合</td>
+<td>覆盖 Dense&#x2F;MoE、<code>B/T/H/K/V</code> 多组 shape、<code>output_final_state</code> 开关。</td>
+<td>某个 head&#x2F;value dim 下 kernel launch 或 mask 越界。</td>
+</tr>
+<tr>
+<td>FSDP actor&#x2F;ref</td>
+<td>actor 和 reference model 都能在 NPU 上完成 forward&#x2F;logprob。</td>
+<td>只有 actor patch 成功，ref 仍走 eager 或初始化失败。</td>
+</tr>
+<tr>
+<td>GRPO step</td>
+<td>跑一个最小 GRPO step，检查 loss、kl、entropy、logprob。</td>
+<td>算子输出有限但训练指标突变。</td>
+</tr>
+<tr>
+<td>变长输入</td>
+<td>检查 <code>cu_seqlens is None</code> 与 varlen 输入；明确 packed&#x2F;THD 是否禁用。</td>
+<td>remove padding 后 shape 进入 GDN 路径不兼容。</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>NPU profiler 看 GDN kernel time、host launch、memory bandwidth。</td>
+<td>Triton kernel 可运行但 launch&#x2F;host overhead 吃掉收益。</td>
+</tr>
+<tr>
+<td>回退</td>
+<td><code>GDN_COMPUTE_MODE=eager</code> 能一键关闭。</td>
+<td>出问题时无法快速隔离 GDN patch。</td>
+</tr>
+</tbody></table>
+<h2 id="风险"><a href="#风险" class="headerlink" title="风险"></a>风险</h2><ul>
+<li><strong>未做 NPU 实测</strong>：本地只能做静态检查，不能替代 Ascend NPU 上的精度和性能验证。</li>
+<li><strong>Triton 版本绑定</strong>：Triton Ascend 的语义、mask、block size 和 dtype 支持可能随环境变化，需要在目标训练镜像里验证。</li>
+<li><strong>transformers 类名变化</strong>：当前 patch 依赖 <code>Qwen3_5GatedDeltaNet</code> 和 <code>Qwen3_5MoeGatedDeltaNet</code>，若上游 transformers 改类名，需要同步更新。</li>
+<li><strong>AscendC 未接入</strong>：配置层保留了 <code>gdn_compute_mode</code> 语义，但当前实现只允许 <code>eager/triton</code>；<code>ascendc</code> 需要后续 op 注册与 wheel 依赖。</li>
+<li><strong>diff 噪声</strong>：<code>npu_patch.py</code> 原文件是 CRLF，本地修改后会显示较多换行变化；review 时应重点看新增 helper 与底部两处调用。</li>
+</ul>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[^verl-qwen35-27b]: <code>verl</code> release&#x2F;v0.8.0 Qwen3.5 27B FSDP GRPO 示例：<a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/blob/release/v0.8.0/examples/grpo_trainer/run_qwen3_5_27b_fsdp.sh">https://github.com/verl-project/verl/blob/release/v0.8.0/examples/grpo_trainer/run_qwen3_5_27b_fsdp.sh</a></p>
+<p>[^verl-npu-patch]: <code>verl</code> release&#x2F;v0.8.0 NPU patch 文件：<a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/blob/release/v0.8.0/verl/models/transformers/npu_patch.py">https://github.com/verl-project/verl/blob/release/v0.8.0/verl/models/transformers/npu_patch.py</a></p>
+<p>[^verl-fsdp-engine]: <code>verl</code> FSDP engine 初始化路径：<a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/blob/release/v0.8.0/verl/workers/engine/fsdp/transformer_impl.py">https://github.com/verl-project/verl/blob/release/v0.8.0/verl/workers/engine/fsdp/transformer_impl.py</a></p>
+<p>[^deepseekmath]: DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models, arXiv:2402.03300. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2402.03300">https://arxiv.org/abs/2402.03300</a></p>
+<p>[^mindspeed-commit]: MindSpeed-MM commit <code>5aaf0791d00abcbf5dd16af10091f4391030ad00</code>: <a target="_blank" rel="noopener" href="https://gitcode.com/Ascend/MindSpeed-MM/commit/5aaf0791d00abcbf5dd16af10091f4391030ad00?ref=master">https://gitcode.com/Ascend/MindSpeed-MM/commit/5aaf0791d00abcbf5dd16af10091f4391030ad00?ref=master</a></p>
+<p>[^gdn-paper]: Gated Delta Networks, arXiv:2412.06464. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2412.06464">https://arxiv.org/abs/2412.06464</a></p>
+<p>[^verl-megatron-example]: <code>verl</code> Qwen3.5 Megatron GRPO 示例中对 GDN 与 packed sequences &#x2F; THD 的说明：<a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/blob/release/v0.8.0/examples/grpo_trainer/run_qwen3_5_35b_megatron.sh">https://github.com/verl-project/verl/blob/release/v0.8.0/examples/grpo_trainer/run_qwen3_5_35b_megatron.sh</a></p>
+<p>[^qwen35-omni]: Qwen3.5-Omni Technical Report, arXiv:2604.15804, Table 2. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2604.15804">https://arxiv.org/abs/2604.15804</a></p>
+<p>[^verl-gdn-pr]: <code>verl</code> draft PR #6908, <code>[Ascend] Add Qwen3.5 Triton GDN patch</code>: <a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6908">https://github.com/verl-project/verl/pull/6908</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>NPU Training Operators - GDN</p><p><a href="http://icarus.shaojiemike.top/2026/07/01/Work/Artificial Intelligence/Training/NPUTrainingOperators-GDN/">http://icarus.shaojiemike.top/2026/07/01/Work/Artificial Intelligence/Training/NPUTrainingOperators-GDN/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-07-01</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Ascend/">Ascend</a><a class="link-muted mr-2" rel="tag" href="/tags/VeRL/">VeRL</a><a class="link-muted mr-2" rel="tag" href="/tags/NPU/">NPU</a><a class="link-muted mr-2" rel="tag" href="/tags/Qwen3-5/">Qwen3.5</a><a class="link-muted mr-2" rel="tag" href="/tags/GDN/">GDN</a><a class="link-muted mr-2" rel="tag" href="/tags/GRPO/">GRPO</a><a class="link-muted mr-2" rel="tag" href="/tags/Triton/">Triton</a><a class="link-muted mr-2" rel="tag" href="/tags/FSDP/">FSDP</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/07/01/Work/Artificial%20Intelligence/Training/PostTrain/VeRLAsync/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">VeRL Async Policy</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/01/Work/Artificial%20Intelligence/Training/NPUTrainingOperators-RoPE-MRoPE/"><span class="level-item">NPU Training Operators - RoPE MRoPE</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">结论</span></span></a></li><li><a class="level is-mobile" href="#现状路径"><span class="level-left"><span class="level-item">2</span><span class="level-item">现状路径</span></span></a></li><li><a class="level is-mobile" href="#MindSpeed-参考"><span class="level-left"><span class="level-item">3</span><span class="level-item">MindSpeed 参考</span></span></a></li><li><a class="level is-mobile" href="#算子语义"><span class="level-left"><span class="level-item">4</span><span class="level-item">算子语义</span></span></a></li><li><a class="level is-mobile" href="#接入方案"><span class="level-left"><span class="level-item">5</span><span class="level-item">接入方案</span></span></a></li><li><a class="level is-mobile" href="#Tiling-与硬件约束"><span class="level-left"><span class="level-item">6</span><span class="level-item">Tiling 与硬件约束</span></span></a></li><li><a class="level is-mobile" href="#论文证据"><span class="level-left"><span class="level-item">7</span><span class="level-item">论文证据</span></span></a></li><li><a class="level is-mobile" href="#验证项"><span class="level-left"><span class="level-item">8</span><span class="level-item">验证项</span></span></a></li><li><a class="level is-mobile" href="#风险"><span class="level-left"><span class="level-item">9</span><span class="level-item">风险</span></span></a></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">10</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

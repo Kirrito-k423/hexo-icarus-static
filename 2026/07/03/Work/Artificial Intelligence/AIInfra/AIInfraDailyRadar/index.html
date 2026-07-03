@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>AI Infra Daily Radar - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       这篇文章记录 AI infra、post-training 和 multimodal serving 方向的每日 PR &amp;#x2F; issue 雷达。每轮只深入少量 P0&amp;#x2F;P1 项：优先性能、多模态、调度、attention、padding、KV cache、MTP、NPU &amp;#x2F; Ascend 相关变化。"><meta property="og:type" content="blog"><meta property="og:title" content="AI Infra Daily Radar"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       这篇文章记录 AI infra、post-training 和 multimodal serving 方向的每日 PR &amp;#x2F; issue 雷达。每轮只深入少量 P0&amp;#x2F;P1 项：优先性能、多模态、调度、attention、padding、KV cache、MTP、NPU &amp;#x2F; Ascend 相关变化。"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-07-03T02:42:00.000Z"><meta property="article:modified_time" content="2026-07-03T08:59:59.108Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="AIInfra"><meta property="article:tag" content="VeRL"><meta property="article:tag" content="vLLM"><meta property="article:tag" content="vLLM-Omni"><meta property="article:tag" content="NPU"><meta property="article:tag" content="Performance"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/"},"headline":"AI Infra Daily Radar","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-07-03T02:42:00.000Z","dateModified":"2026-07-03T08:59:59.108Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       这篇文章记录 AI infra、post-training 和 multimodal serving 方向的每日 PR &#x2F; issue 雷达。每轮只深入少量 P0&#x2F;P1 项：优先性能、多模态、调度、attention、padding、KV cache、MTP、NPU &#x2F; Ascend 相关变化。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-07-03T02:42:00.000Z" title="7/3/2026, 2:42:00 AM">2026-07-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.108Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">33 minutes read (About 4951 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">AI Infra Daily Radar</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>这篇文章记录 AI infra、post-training 和 multimodal serving 方向的每日 PR &#x2F; issue 雷达。每轮只深入少量 P0&#x2F;P1 项：优先性能、多模态、调度、attention、padding、KV cache、MTP、NPU &#x2F; Ascend 相关变化。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="2026-07-03"><a href="#2026-07-03" class="headerlink" title="2026-07-03"></a>2026-07-03</h2><h3 id="扫描范围"><a href="#扫描范围" class="headerlink" title="扫描范围"></a>扫描范围</h3><ul>
+<li><strong>窗口</strong>：2026-07-02T02:12:20Z 至 2026-07-03T02:13Z，约等于上轮之后的 24 小时。</li>
+<li><strong>仓库</strong>：<code>verl-project/verl</code>、<code>verl-project/verl-omni</code>、<code>vllm-project/vllm</code>、<code>vllm-project/vllm-omni</code>、<code>THUDM/slime</code>、<code>ByteDance-Seed/VeOmni</code>。</li>
+<li><strong>Release</strong>：本窗口内种子仓库没有新的正式 release；最近 release 仍是 <code>vllm v0.24.0</code>、<code>vllm-omni v0.24.0rc1</code>、<code>verl v0.8.0</code>。</li>
+<li><strong>深入上限</strong>：本轮深入 5 个 P0&#x2F;P1 项；<code>verl#6901</code> 只做状态复核，因为昨日文档已经记录完整机制和 NPU 边界。</li>
+</ul>
+<h3 id="P0-P1"><a href="#P0-P1" class="headerlink" title="P0 &#x2F; P1"></a>P0 &#x2F; P1</h3><table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>项目</th>
+<th>状态</th>
+<th>NPU 分级</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/pull/4344">vllm-omni#4344</a> HunyuanImage3 MoE EP+SP NPU mapping</td>
+<td>merged, 2026-07-02</td>
+<td>M</td>
+<td>已合入；把 diffusion <code>TP/SP/CFG/DP</code> 映射到 vLLM MoE <code>TP/PCP/DP/EP</code>，修复 HunyuanImage3 DiT NPU fused MoE 在 EP+SP 下的 token dispatch &#x2F; expert placement 不一致。</td>
+</tr>
+<tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/pull/4841">vllm-omni#4841</a> Qwen3-TTS 310P optimization</td>
+<td>open</td>
+<td>M</td>
+<td>310P 专用 patch，覆盖 Talker &#x2F; CodePredictor &#x2F; Code2Wav：CPU Mimi encoder、FRACTAL layout 预打包、fused RMSNorm &#x2F; RoPE &#x2F; attention mask、vLLM-Ascend sampling helper。</td>
+</tr>
+<tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/ByteDance-Seed/VeOmni/pull/879">VeOmni#879</a> Qwen3.5 GDN NPU backend</td>
+<td>open draft</td>
+<td>L</td>
+<td>为 Qwen3.5 gated delta-rule 的 <code>causal_conv1d</code> 和 <code>chunk_gated_delta_rule</code> 增加 NPU backend，vendor MindSpeed-MM &#x2F; FLA Ascend Triton kernels；直接相关但属于 kernel 级引入。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/ByteDance-Seed/VeOmni/pull/880">VeOmni#880</a> Qwen3 residual-add + RMSNorm fusion</td>
+<td>open</td>
+<td>M</td>
+<td>在 Qwen3 decoder layer 内把 post-attention residual add 和 RMSNorm 合成 <code>OpSlot(&quot;rms_norm&quot;, &quot;residual_add&quot;)</code>，GPU 用 Liger，NPU 用 <code>npu_rms_norm</code> wrapper。H100 侧自报 compute kernel time 约 3.5% 改善。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6923">verl#6923</a> Qwen3 MoE FSDP weight sync for vLLM rollout</td>
+<td>merged, 2026-07-03</td>
+<td>S</td>
+<td>已合入 release&#x2F;v0.8.0 backport；把 Transformers 5 packed 3D MoE expert weights 展开成 vLLM reload 需要的 per-expert <code>gate_proj/up_proj/down_proj</code> keys，修 live FSDP-to-vLLM rollout weight sync。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47451">vllm#47451</a> shared JIT warmup infra</td>
+<td>open</td>
+<td>L</td>
+<td>为 Triton &#x2F; CuTeDSL &#x2F; TileLang 等 JIT kernel 定义 compile-key warmup contract，目标是让 kernel owner 暴露真实 specialization key，而不是用 dummy inputs 猜测 warmup 覆盖。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/issues/47458">vllm#47458</a> shape transition stall</td>
+<td>open issue</td>
+<td>L</td>
+<td>Qwen3.6 NVFP4 + flashinfer_b12x + GDN CuteDSL prefill 在大上下文切小请求时出现约 17.5s engine-wide stall；与 JIT &#x2F; shape cache &#x2F; worker 顺序重编译高度相关。</td>
+</tr>
+</tbody></table>
+<h3 id="重点机制"><a href="#重点机制" class="headerlink" title="重点机制"></a>重点机制</h3><p><strong>vllm-omni#4344</strong> 是本轮最明确的已合入 NPU 多模态修复。HunyuanImage3 是 diffusion MoE，vLLM-Omni 自己有 <code>TP/SP/CFG/DP</code>，而 vLLM FusedMoE 期望用 <code>TP/PCP/DP</code> 表达 expert placement。旧路径没有稳定地把 diffusion SP&#x2F;CFG 映射进 vLLM MoE 语义，导致本地 expert placement 与 token dispatch 不一致，出现 <code>shape &#39;[8, 16]&#39; is invalid for input of size 64</code> 一类 runtime failure。新逻辑只在 <code>is_moe &amp;&amp; enable_expert_parallel</code> 下启用映射：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">diffusion TP       -&gt; vLLM TP</span><br><span class="line">diffusion SP       -&gt; vLLM PCP</span><br><span class="line">diffusion CFG * DP -&gt; vLLM DP</span><br><span class="line">EP = TP * SP * CFG * DP</span><br></pre></td></tr></table></figure>
+
+<p>PR 自报在 8 NPU、HunyuanImage3 DiT-only offline serving 上验证了 TP4 + SP2：EP enabled 时 <code>denoise_step_latency_ms=239.397</code>，EP disabled 时 <code>188.118</code>。这不是单纯性能 PR；它先把 <strong>NPU diffusion MoE 的并行语义接到 vLLM FusedMoE 的 EP 公式</strong>，后续才有稳定优化空间。</p>
+<p><strong>vllm-omni#4841</strong> 是 310P 上 Qwen3-TTS 的平台专用优化。它没有改通用模型实现，而是在 <code>vllm_omni/platforms/npu/_310p/patch/qwen3_tts.py</code> 下把 Talker &#x2F; CodePredictor &#x2F; Code2Wav 的热点换成 310P 友好路径：Linear &#x2F; Conv 权重预转 FRACTAL layout，RMSNorm、RoPE、attention mask、attention path 走 fused 或 layout-aware NPU op，CodePredictor codec embedding 预投影，并把 sampling 对齐到 vLLM-Ascend helper。风险是它依赖 CANN 9.1.0 beta、vLLM 0.24.0 和 vLLM-Ascend PR 11227；适配时应优先复现作者的 20 request 平均延迟和 seed-tts-eval zh 精度，而不是直接推广到 A2&#x2F;A3 或其他 TTS 模型。</p>
+<p><strong>VeOmni#879</strong> 和昨日的 <code>verl#6907/#6908</code> 属于同一类 Qwen3.5 Gated Delta Net NPU kernel 化方向。<code>VeOmni#879</code> 更像框架内正式 backend：通过 <code>OpSlot</code> &#x2F; <code>KERNEL_REGISTRY</code> 注册 <code>name=&quot;npu&quot;</code>，给 <code>causal_conv1d</code> 和 <code>chunk_gated_delta_rule</code> 补齐 NPU backend；<code>rms_norm_gated</code> 之前已经有 NPU backend。它声明 NPU e2e Qwen3.5-MoE VL SFT loss &#x2F; accuracy 对齐 reference，并加了可在无硬件机器跑的 hardware-gate unit tests。NPU 分级仍是 <strong>L</strong>，原因不是接入点复杂，而是 vendor Triton kernel 需要覆盖 dtype、varlen、反向、长序列、torch_npu &#x2F; triton-ascend 版本矩阵。</p>
+<p><strong>VeOmni#880</strong> 是更适合拆成 M 级小验证的 fused op。它把 Qwen3 <code>post_attention_layernorm(residual + hidden_states)</code> 折成 fused residual-add + RMSNorm。GPU 侧用 <code>LigerFusedAddRMSNormFunction</code>，NPU 侧用 lazy <code>torch_npu</code> wrapper；选择仍复用 <code>model.ops_implementation.rms_norm_implementation</code>。作者报告 H100 FSDP2 侧 fused 与 eager loss &#x2F; grad_norm 约 <code>1e-5</code> 对齐，compute kernel time 1310.7ms vs 1357.6ms，kernel launches 少约 2760。NPU 需要补真实数值 parity 和 profiler；如果 <code>npu_rms_norm</code> wrapper 已稳定，工作量主要是 shape &#x2F; dtype &#x2F; in-place 语义验证。</p>
+<p><strong>verl#6923</strong> 处理的是训练与 rollout serving 的权重格式边界。Transformers 5 会把 Qwen-style MoE expert weights 存成 packed 3D <code>mlp.experts.gate_up_proj</code> &#x2F; <code>down_proj</code>，但 vLLM 的 Qwen3 MoE reload path 仍期待 per-expert checkpoint keys。PR 在 FSDP parameter streaming 时展开为 <code>mlp.experts.&#123;expert_id&#125;.gate_proj/up_proj/down_proj</code>。这类改动对 Ascend&#x2F;NPU 本身没有 kernel 依赖，但对 fully_async &#x2F; colocated rollout &#x2F; Qwen3 MoE 训练稳定性很关键，适合纳入 S 级回归。</p>
+<p><strong>vLLM#47451 &#x2F; #47458</strong> 是同一类 shape &#x2F; JIT 风险的两面。47451 新增 <code>vllm/model_executor/warmup/jit_warmup.py</code>、<code>jit_warmup_triton_helper.py</code>，并重构 sparse MLA &#x2F; FA4 CuTeDSL warmup，让每个 warmable kernel 声明 frozen <code>CompileKey</code>、<code>dispatch(...)</code>、<code>get_warmup_keys(...)</code> 和 <code>compile(key)</code>。47458 则给出用户侧症状：<code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> 在若干 20K-150K token prefill 后切到 60-120 token 小请求 burst，会让 EngineCore 全局停顿约 17.5s；perf 采样显示 EngineCore idle，而 PP worker 进程顺序 CPU churn。对 NPU serving 的直接启发是：压测不能只测 steady-state tokens&#x2F;s，还要测 cold shape、warmup 覆盖、cache eviction 和跨 worker shape transition。</p>
+<h3 id="6901-状态复核"><a href="#6901-状态复核" class="headerlink" title="6901 状态复核"></a>6901 状态复核</h3><p><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6901">verl#6901</a> 当前仍为 merged，merge commit <code>561a4b03a11b34446e44267c2e84c4bbf63585f5</code>，changed files 仍是 <code>model_forward.py</code>、<code>util.py</code>、Megatron engine&#x2F;config 等 6 个文件。最终合入版本把 <code>pad_bshd_to_minibatch_max</code> 默认设为 <code>True</code>，但只在 <code>use_remove_padding=False</code> 的 BSHD path 生效。PR body 中的机制和性能证据未变：Qwen3.5-35B-A3B 上 Total Step Time 534.13s -&gt; 397.71s，Old Log Prob 78.38s -&gt; 35.45s，Actor Update 247.58s -&gt; 154.50s。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>6901 空 batch 仍需补测</p>
+</div>
+        <div class="message-body">
+            <p>本轮复核确认合入版本仍保留 <code>input_ids.offsets().diff().max()</code>、<code>seqlens_in_batch.max()</code> 这类空 tensor 风险点。动态 batching、DP rank 空输入、VLM BSHD 和 MTP label &#x2F; loss_mask 路径都需要覆盖；没有 NPU 编译缓存收益证据前，不应因为上游默认 <code>True</code> 就在 Ascend 实验配置中无条件继承。</p>
+
+        </div>
+    </article>
+
+<h3 id="简表"><a href="#简表" class="headerlink" title="简表"></a>简表</h3><table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>项目</th>
+<th>状态</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/pull/4849">vllm-omni#4849</a> HunyuanImage3 bridge request batching</td>
+<td>open</td>
+<td>修 #4079 后 request-level batching 与 HunyuanImage3 AR-&gt;diffusion bridge 的契约冲突；作者已在 vLLM &#x2F; vllm-ascend 0.23.0 NPU 栈和 #4344 backport 上验证 MoE EP+SP inference，通过下一轮优先深入。</td>
+</tr>
+<tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47181">vllm#47181</a> DCP + FlashInfer MLA follow-ups</td>
+<td>open, needs-rebase</td>
+<td>Decode Context Parallel 核心 attention&#x2F;parallel serving 路径，覆盖 Spec Decode&#x2F;MTP、SWA hybrid、TRTLLM GQA decode、routed experts replay、NaN guard 和 GPU seq_lens；强 NVIDIA&#x2F;FlashInfer 依赖，NPU 先跟踪机制。</td>
+</tr>
+<tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6907">verl#6907</a> Qwen3.5 NPU Triton GDN kernels</td>
+<td>closed, unmerged</td>
+<td>有完整 NPU forward&#x2F;backward 验证记录，但无 merge commit；可能被 #6908 或后续 PR 替代，继续跟踪。</td>
+</tr>
+<tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6908">verl#6908</a> Qwen3.5 Triton GDN patch</td>
+<td>closed, unmerged draft</td>
+<td>同属 GDN 方向，但 PR 明确写 Needs NPU validation；不当作已合入特性。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/pull/4714">vllm-omni#4714</a> HunyuanImage3 MXFP8&#x2F;MXFP4 online quant on Ascend</td>
+<td>open</td>
+<td>为 HunyuanImage3 AR inference 增加 Ascend NPU W8A8 MXFP8 &#x2F; MXFP4 在线量化；1K input、BS&#x3D;32 自报 TTFT BF16 1440ms -&gt; MXFP8 1380ms &#x2F; MXFP4 1359ms。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/pull/4848">vllm-omni#4848</a> NPU upgrade to v0.24.0</td>
+<td>open</td>
+<td>更新 vllm-ascend CI image、NPU quickstart 和 runner interface；Qwen3-TTS、Qwen3-Omni、Wan2.2 I2V 三组 NPU 测试通过。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47463">vllm#47463</a> fused_topk_bias for DSv4</td>
+<td>open</td>
+<td>小改动，去掉 <code>hash_indices_table is None</code> 时冗余 dtype cast；属于 DeepSeek V4 perf tracker 子项。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47474">vllm#47474</a> cache <code>token_to_req_indices</code> for DSv4</td>
+<td>open</td>
+<td>减少 Sparse MLA &#x2F; SWA &#x2F; Compressor 重复构建 mapping 和 CPU-&gt;GPU copy，微基准报 5x-6x kernel performance improvement。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47443">vllm#47443</a> HPC Attention split-K by shape</td>
+<td>open</td>
+<td>Decode path 按 <code>(max_decode_seq_len, num_decode_tokens, num_heads, num_kv_heads)</code> 选择 split-K；强 H20 &#x2F; SM90 &#x2F; HPC backend 绑定。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47391">vllm#47391</a> padded EAGLE input prep</td>
+<td>open</td>
+<td>Spec Decode perf；优化 padded EAGLE input prep 和 EAGLE3 layer0 RMSNorm concat，偏 serving 热路径。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/ByteDance-Seed/VeOmni/pull/881">VeOmni#881</a> FSDP2 torch compile</td>
+<td>open</td>
+<td>训练框架性能&#x2F;编译方向，需等机制和验证证据更完整。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl-omni/pull/231">verl-omni#231</a> MMK12 Qwen3-Omni GSPO on NPU</td>
+<td>open draft</td>
+<td>多模态 NPU recipe，偏训练验证入口。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl-omni/pull/225">verl-omni#225</a> Ascend NPU Dockerfiles</td>
+<td>open</td>
+<td>环境&#x2F;安装文档，对可复现验证有价值但非算法性能项。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/THUDM/slime/pull/2146">THUDM&#x2F;slime#2146</a> shard-level weight update</td>
+<td>open</td>
+<td>与昨日 <code>slime#2147</code> RFC 同线，关注 non-colocate weight sync 的 shard-level P2P 与 fallback。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47450">vllm#47450</a> structured output crash fix</td>
+<td>open</td>
+<td>稳定性修复，低于性能&#x2F;多模态主线。</td>
+</tr>
+</tbody></table>
+<h3 id="验证清单"><a href="#验证清单" class="headerlink" title="验证清单"></a>验证清单</h3><ol>
+<li><strong>HunyuanImage3 EP+SP</strong>：用 8 NPU 复现 TP4+SP2+EP enabled &#x2F; disabled，核对 vLLM TP&#x2F;PCP&#x2F;DP&#x2F;EP group、MC2 state、token dispatch shape、生成图像正确性和 denoise latency。</li>
+<li><strong>Qwen3-TTS 310P</strong>：锁定 CANN 9.1.0 beta、vLLM 0.24.0、vLLM-Ascend PR 11227，复现 20 request 平均延迟和 seed-tts-eval zh 精度；再尝试 A2&#x2F;A3 前必须先拆平台差异。</li>
+<li><strong>Qwen3.5 GDN NPU kernel</strong>：覆盖 varlen dyn_bsz、Dense&#x2F;MoE、forward&#x2F;backward parity、长序列、异常 shape、bf16&#x2F;fp16、torch_npu &#x2F; triton-ascend 版本矩阵。</li>
+<li><strong>Qwen3 fused RMSNorm</strong>：在 NPU 上比较 eager vs fused 的 loss、grad_norm、activation dtype、in-place residual 语义、kernel launch 数和 step time。</li>
+<li><strong>Qwen3 MoE weight sync</strong>：在 FSDP-to-vLLM rollout live sync 中验证 packed 3D expert weights 展开后的 key、shape、dtype 与 vLLM reload path 一致，覆盖 dense model no-op。</li>
+<li><strong>vLLM JIT &#x2F; shape transition</strong>：构造大 prefill -&gt; 小 decode burst、cold shape -&gt; hot shape、cache eviction 三类负载，采集 TTFT、ITL、worker CPU、compile latency、engine-wide stall 和 warmup key 覆盖率。</li>
+</ol>
+<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/pull/4344">vllm-omni#4344</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/pull/4841">vllm-omni#4841</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/ByteDance-Seed/VeOmni/pull/879">VeOmni#879</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/ByteDance-Seed/VeOmni/pull/880">VeOmni#880</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6923">verl#6923</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6901">verl#6901</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47451">vllm#47451</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/issues/47458">vllm#47458</a></li>
+</ul>
+<h2 id="2026-07-02"><a href="#2026-07-02" class="headerlink" title="2026-07-02"></a>2026-07-02</h2><h3 id="扫描范围-1"><a href="#扫描范围-1" class="headerlink" title="扫描范围"></a>扫描范围</h3><ul>
+<li><strong>窗口</strong>：由于本地状态文件为空，首次运行回看 2026-06-29 至 2026-07-02 的 72 小时窗口。</li>
+<li><strong>仓库</strong>：<code>verl-project/verl</code>、<code>verl-project/verl-omni</code>、<code>vllm-project/vllm</code>、<code>vllm-project/vllm-omni</code>、<code>THUDM/slime</code>、<code>ByteDance-Seed/VeOmni</code>。</li>
+<li><strong>Release</strong>：窗口内重点 release 是 <code>vllm-project/vllm</code> 的 <code>v0.24.0</code> 与 <code>vllm-project/vllm-omni</code> 的 <code>v0.24.0rc1</code>；其他种子仓库无 72 小时内新正式 release。</li>
+<li><strong>深入上限</strong>：本轮只深入 <code>verl#6901</code>；其余 P0&#x2F;P1 项做雷达级机制摘要和后续关注记录，避免一轮扩张过多。</li>
+</ul>
+<h3 id="P0-P1-1"><a href="#P0-P1-1" class="headerlink" title="P0 &#x2F; P1"></a>P0 &#x2F; P1</h3><table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>项目</th>
+<th>状态</th>
+<th>NPU 分级</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6907">verl#6907</a> Qwen3.5 NPU Triton GDN kernels</td>
+<td>open</td>
+<td>L</td>
+<td>新增 <code>verl.models.transformers.ops.gdn</code> Triton kernels、Qwen3.5 &#x2F; Qwen3.5-MoE NPU patch、示例默认开关和单测；直接相关但属于 kernel 级验证，不自动适配。</td>
+</tr>
+<tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6901">verl#6901</a> BSHD micro-batch padding</td>
+<td>merged, 2026-07-02</td>
+<td>M</td>
+<td>已合入；用 mini-batch global max 统一 BSHD micro-batch 的 <code>s_q</code>，减少 cuDNN &#x2F; TE fused-attention plan build。代码迁移轻，但 NPU 收益必须实测。</td>
+</tr>
+<tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6886">verl#6886</a> vLLM 0.19+ Ascend fully_async 适配</td>
+<td>merged, 2026-07-01</td>
+<td>S</td>
+<td>已合入；修 vLLM 0.19+ 下 NPU 场景的 process group、FusedMoE weight loader、RotaryEmbedding flash attention 关闭和 quant auto-detect 环境变量。适合进入本地 Ascend 回归清单。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47355">vllm#47355</a> DCP sparse MLA indexer overlap</td>
+<td>open draft</td>
+<td>L</td>
+<td>把 sparse MLA DCP indexer 切成 custom-op 边界，尝试 side stream overlap，并让 full CUDA graph 保留 stream 结构；当前 smoke 端到端未变快。强 CUDA &#x2F; graph &#x2F; custom op 依赖，NPU 只跟踪机制。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47352">vllm#47352</a> Model Runner V2 MTP top-k index sharing</td>
+<td>open draft</td>
+<td>M</td>
+<td>把 DeepSeek-style MTP 多 draft step 复用 top-k index buffer 的优化接入 Model Runner V2；报告 output throughput 1517.50 -&gt; 1625.59 tok&#x2F;s。NPU 可能复用控制流，但依赖具体 MTP attention&#x2F;indexer 实现。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/issues/4802">vllm-omni#4802</a> KV cache efficiency metrics</td>
+<td>open RFC</td>
+<td>S</td>
+<td>为 omni 多 stage &#x2F; replica &#x2F; modality 增加 KV footprint、occupancy、tail waste、fragmentation、prefix hit attribution。对 NPU 主要是监控维度适配，适合后续接入服务观测。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/issues/4796">vllm-omni#4796</a> OmniSerializer perf refactor</td>
+<td>open RFC</td>
+<td>M</td>
+<td>拆 <code>OmniSerializer</code> &#x2F; SHM connector copy 与 allocation 开销，计划 <code>encode_into</code>、registry、<code>msgspec.Struct</code> wire types。NPU 无硬件绑定，但涉及 wire format 与高并发正确性。</td>
+</tr>
+</tbody></table>
+<h3 id="重点机制-1"><a href="#重点机制-1" class="headerlink" title="重点机制"></a>重点机制</h3><p><strong>verl#6901</strong> 的核心是稳定 shape，不是减少 padding。旧 BSHD path 每个 micro-batch 用自己的 <code>seqlens_in_batch.max()</code> padding，32 个 micro-batch 可能产生 20+ 种 <code>s_q</code>；新 path 在 <code>forward_backward_batch</code> 里从 mini-batch nested <code>input_ids.offsets().diff().max()</code> 计算 <code>forced_max_seqlen</code>，再传给 <code>preprocess_bshd_engine</code>、MTP label &#x2F; loss mask 和 VLM attention mask。作者报告 Qwen3.5-35B-A3B 上 Total Step Time 534.13s -&gt; 397.71s，Old Log Prob 78.38s -&gt; 35.45s，Actor Update 247.58s -&gt; 154.50s。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>6901 的 NPU 边界</p>
+</div>
+        <div class="message-body">
+            <p><code>forced_max_seqlen</code> 传递本身主要是 Python &#x2F; Megatron shape 逻辑，但收益来源是 CUDA &#x2F; cuDNN &#x2F; TransformerEngine 对新 shape 的 fused-attention graph &#x2F; plan build 成本。Ascend &#x2F; NPU 上不能默认推导同样收益；额外 padding 还可能增加 <code>[B,1,S,S]</code> attention mask、HBM 和 host 侧处理成本。</p>
+
+        </div>
+    </article>
+
+<p><strong>verl#6886</strong> 是更直接的 Ascend 适配项：<code>verl/utils/distributed.py</code> 增加 vLLM 0.19+ 的 TCPStore 创建路径，<code>verl/utils/vllm/npu_vllm_patch.py</code> 继续处理 NPU 上的 RotaryEmbedding flash attention、FusedMoE weight loader 和 quantization auto-detect。这个 PR 已合入，适合做 S 级回归：启动、权重加载、fully_async rollout、vLLM Ascend 版本组合。</p>
+<p><strong>verl#6907</strong> 是本轮最直接的 NPU kernel 项：它在 <code>verl/models/transformers/ops/gdn/</code> 下新增 Qwen3.5 gated delta rule Triton kernels，并通过 <code>qwen3_5_gdn_patch.py</code> 在 NPU 上把 HF <code>Qwen3_5GatedDeltaNet</code> 注入到 verl fused path。PR 自报验证包括 Ascend910 上 Triton sanity、fused forward 与 torch reference 对齐、backward 有限梯度，以及 27B &#x2F; 35B GRPO FSDP NPU 示例默认开启 <code>use_triton_gdn=True</code>。这类改动应按 <strong>L 级</strong>处理：先读 kernel 边界、dtype &#x2F; shape 约束、反向正确性和长跑稳定性，不在本轮自动开适配 PR。</p>
+<p><strong>vLLM#47355</strong> 和 <strong>vLLM#47352</strong> 都属于 CUDA serving 热路径探索。前者试图把 sparse MLA DCP indexer work 放到 auxiliary CUDA stream 下 overlap；后者让 Model Runner V2 MTP draft steps 共享 top-k index buffer。两者都不适合直接自动改 NPU，但可以转化为 NPU 适配问题：NPU runtime 是否有等价 stream overlap、图捕获边界、indexer buffer 生命周期和跨 draft step 正确性。</p>
+<p><strong>vLLM-Omni#4802&#x2F;#4796</strong> 是多模态 serving 观测与数据面效率。4802 把 KV cache 指标按 stage &#x2F; replica &#x2F; modality &#x2F; source 拆开，解决单一 engine total 无法解释 talker &#x2F; code2wav 等多 stage 压力的问题；4796 把 serializer 的 copy、allocation、wire format 和 thread-safety 拆成两阶段 RFC。两者对 Ascend&#x2F;NPU 的价值不是算子迁移，而是后续定位多模态 serving 的 host-bound、KV waste 和跨进程传输瓶颈。</p>
+<h3 id="简表-1"><a href="#简表-1" class="headerlink" title="简表"></a>简表</h3><table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>项目</th>
+<th>状态</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6908">verl#6908</a> Qwen3.5 Triton GDN patch</td>
+<td>open</td>
+<td>与 <code>verl#6907</code> 同主题，需下一轮判断是否为替代&#x2F;拆分 PR。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6913">verl#6913</a> fused-kernel gradient tracking bug</td>
+<td>open</td>
+<td>fused kernel 正确性，等待 review。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6911">verl#6911</a> GLM5 on NPU docs</td>
+<td>open</td>
+<td>文档&#x2F;支持矩阵，跟踪即可。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47363">vllm#47363</a> extensible KV cache memory</td>
+<td>open</td>
+<td>KV cache 结构变化，后续可能影响 offload &#x2F; connector。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/issues/47359">vllm#47359</a> Batch Invariant FLASHINFER_MLA</td>
+<td>open feature</td>
+<td>attention backend 形状不变性，值得跟踪。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/issues/47334">vllm#47334</a> CUDA kernels to CuTeDSL</td>
+<td>open RFC</td>
+<td>Hopper &#x2F; Blackwell kernel 重写方向，NPU 为 L 级跟踪。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/issues/47303">vllm#47303</a> MXFP4 MoE OOB reads</td>
+<td>open bug</td>
+<td>量化 MoE kernel 正确性问题。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/issues/4814">vllm-omni#4814</a> Wan2.2 Ulysses + cache-dit on Ascend</td>
+<td>open bug</td>
+<td>直接 Ascend 多模态 serving 问题，待更多复现信息。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/issues/6894">verl#6894</a> FSDP2 GRPO crash on Atlas 800T A3</td>
+<td>open issue</td>
+<td>Ascend A3 训练稳定性，需跟踪最小复现。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6881">verl#6881</a> vLLM 0.19+ Ascend NPU</td>
+<td>open</td>
+<td>与已合入的 #6886 同主题但仍 open，需确认是否是后续补丁还是重复 PR。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6912">verl#6912</a> wake KV cache 前 empty cache</td>
+<td>open</td>
+<td>colocate rollout weight sync 后，PyTorch CUDA allocator 与 vLLM VMM <code>cuMemCreate</code> 不共享 free-list，可能导致 KV cache resume OOM。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/46838">vllm#46838</a> FlashInfer CUTLASS MoE tuning token bound</td>
+<td>open</td>
+<td>修 fused MoE tuning 误用 CUDA graph max capture size，H200x8 上 Mixtral &#x2F; DeepSeek-V2 throughput 有改善。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/ByteDance-Seed/VeOmni/pull/872">VeOmni#872</a> Async Activation Offload</td>
+<td>open draft</td>
+<td>大模型训练显存&#x2F;吞吐相关；新增 <code>veomni/distributed/async_offload.py</code>，下一轮应重点跟踪验证证据。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/ByteDance-Seed/VeOmni/pull/860">VeOmni#860</a> DeepSeek V4 DSA backend</td>
+<td>open</td>
+<td>接 cuDNN DSA indexer 与 FlashMLA&#x2F;cuDNN sparse attention backend；强 CUDA 依赖，NPU 分级 L。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/ByteDance-Seed/VeOmni/pull/871">VeOmni#871</a> Decoupled-Trigger FSDP2</td>
+<td>open draft</td>
+<td>面向 MoE + EP recomputation，减少冗余 pre&#x2F;post forward；值得跟踪但未深入。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/pull/4344">vllm-omni#4344</a> HunyuanImage3 MoE EP+SP on NPU</td>
+<td>open</td>
+<td>8 NPU 离线 serving 已验证 TP4+SP2 的 diffusion MoE parallel mapping，直接关联 Ascend 多模态。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl-omni/pull/208">verl-omni#208</a> Qwen3-Omni Thinker LoRA FSDP</td>
+<td>open</td>
+<td>Qwen3-Omni Thinker transformers 5.x 下 fused MoE expert LoRA&#x2F;FSDP 支持，偏多模态训练 recipe。</td>
+</tr>
+<tr>
+<td>P1</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/THUDM/slime/issues/2147">slime#2147</a> shard-level P2P weight sync</td>
+<td>open RFC</td>
+<td>non-colocate 训练权重同步从 full broadcast 改为 shard-level P2P，报告 Qwen3-8B weight sync 0.76s -&gt; 0.48s。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47368">vllm#47368</a> redact structured-output schema</td>
+<td>open</td>
+<td>安全&#x2F;日志，不是性能主线。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/issues/4826">vllm-omni#4826</a> Qwen2.5-omni video description</td>
+<td>open</td>
+<td>多模态准确性 bug，低优先级。</td>
+</tr>
+</tbody></table>
+<h3 id="验证清单-1"><a href="#验证清单-1" class="headerlink" title="验证清单"></a>验证清单</h3><ol>
+<li><strong>6901 NPU 对照</strong>：固定 seed、模型、长度分布、并行策略，比较 <code>pad_bshd_to_minibatch_max=True/False</code> 的 Total Step、Old Log Prob、Actor Update、tokens&#x2F;s&#x2F;NPU、HBM peak、host CPU、attention mask size。</li>
+<li><strong>6901 正确性</strong>：覆盖空 nested tensor、<code>batch_size == 0</code>、VLM BSHD path、MTP label &#x2F; loss mask、TP &#x2F; CP &#x2F; FP8 alignment 后 shape 一致性。</li>
+<li><strong>6907 kernel 审核</strong>：核对 GDN Triton kernels 的 shape &#x2F; dtype &#x2F; block size &#x2F; backward 约束，补长序列、MoE、异常 shape、不同 torch_npu &#x2F; Triton 版本的回归矩阵。</li>
+<li><strong>6886 回归</strong>：vLLM 0.19+ Ascend 组合下启动、FusedMoE 权重加载、RotaryEmbedding 路径、fully_async rollout、<code>VLLM_ASCEND_AUTO_DETECT_QUANTIZATION=0</code> 是否按预期生效。</li>
+<li><strong>vLLM serving 跟踪</strong>：DCP sparse MLA overlap 和 MTP index sharing 先不迁移；等非 draft PR 出现或有明确 NPU runtime 对应机制后再评估。</li>
+<li><strong>vLLM-Omni 观测</strong>：优先把 KV stage &#x2F; modality attribution 作为多模态 serving 压测指标，而不是先改算子。</li>
+</ol>
+<h3 id="参考链接-1"><a href="#参考链接-1" class="headerlink" title="参考链接"></a>参考链接</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6901">verl#6901</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6907">verl#6907</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl/pull/6886">verl#6886</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47355">vllm#47355</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/pull/47352">vllm#47352</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/issues/4802">vllm-omni#4802</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-omni/issues/4796">vllm-omni#4796</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>AI Infra Daily Radar</p><p><a href="http://icarus.shaojiemike.top/2026/07/03/Work/Artificial Intelligence/AIInfra/AIInfraDailyRadar/">http://icarus.shaojiemike.top/2026/07/03/Work/Artificial Intelligence/AIInfra/AIInfraDailyRadar/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/AIInfra/">AIInfra</a><a class="link-muted mr-2" rel="tag" href="/tags/VeRL/">VeRL</a><a class="link-muted mr-2" rel="tag" href="/tags/vLLM/">vLLM</a><a class="link-muted mr-2" rel="tag" href="/tags/vLLM-Omni/">vLLM-Omni</a><a class="link-muted mr-2" rel="tag" href="/tags/NPU/">NPU</a><a class="link-muted mr-2" rel="tag" href="/tags/Performance/">Performance</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">BSND TND Operator Layout</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/"><span class="level-item">Personal Advantage Workflow</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#2026-07-03"><span class="level-left"><span class="level-item">1</span><span class="level-item">2026-07-03</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#扫描范围"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">扫描范围</span></span></a></li><li><a class="level is-mobile" href="#P0-P1"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">P0 / P1</span></span></a></li><li><a class="level is-mobile" href="#重点机制"><span class="level-left"><span class="level-item">1.3</span><span class="level-item">重点机制</span></span></a></li><li><a class="level is-mobile" href="#6901-状态复核"><span class="level-left"><span class="level-item">1.4</span><span class="level-item">6901 状态复核</span></span></a></li><li><a class="level is-mobile" href="#简表"><span class="level-left"><span class="level-item">1.5</span><span class="level-item">简表</span></span></a></li><li><a class="level is-mobile" href="#验证清单"><span class="level-left"><span class="level-item">1.6</span><span class="level-item">验证清单</span></span></a></li><li><a class="level is-mobile" href="#参考链接"><span class="level-left"><span class="level-item">1.7</span><span class="level-item">参考链接</span></span></a></li></ul></li><li><a class="level is-mobile" href="#2026-07-02"><span class="level-left"><span class="level-item">2</span><span class="level-item">2026-07-02</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#扫描范围-1"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">扫描范围</span></span></a></li><li><a class="level is-mobile" href="#P0-P1-1"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">P0 / P1</span></span></a></li><li><a class="level is-mobile" href="#重点机制-1"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">重点机制</span></span></a></li><li><a class="level is-mobile" href="#简表-1"><span class="level-left"><span class="level-item">2.4</span><span class="level-item">简表</span></span></a></li><li><a class="level is-mobile" href="#验证清单-1"><span class="level-left"><span class="level-item">2.5</span><span class="level-item">验证清单</span></span></a></li><li><a class="level is-mobile" href="#参考链接-1"><span class="level-left"><span class="level-item">2.6</span><span class="level-item">参考链接</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

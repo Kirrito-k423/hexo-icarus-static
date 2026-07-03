@@ -29,346 +29,576 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-07-14T04:16:32.000Z" title="7/14/2021, 4:16:32 AM">2021-07-14</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-03-11T14:17:41.024Z" title="3/11/2026, 2:17:41 PM">2026-03-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">6 minutes read (About 911 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/07/14/Work/HPC/IPCC/ipcc5/">IPCC Preliminary SLIC Analysis part3 : Hot spot analysis</a></p><div class="content"><h2 id="vtune-hotspots"><a href="#vtune-hotspots" class="headerlink" title="vtune hotspots"></a>vtune hotspots</h2><p><img src="https://pic.shaojiemike.top/PicGo20210714124245.png"><br><img src="https://pic.shaojiemike.top/PicGo20210714124503.png"><br><img src="https://pic.shaojiemike.top/PicGo20210714124939.png"><br><img src="https://pic.shaojiemike.top/PicGo20210714125041.png"></p>
-<h3 id="vtune-threading"><a href="#vtune-threading" class="headerlink" title="vtune threading"></a>vtune threading</h3><p><img src="https://pic.shaojiemike.top/img/20210723205435.png"><br><img src="https://pic.shaojiemike.top/img/20210723202925.png"></p>
-<!-- ![](https://pic.shaojiemike.top/img/20210723203113.png) -->
-<p><img src="https://pic.shaojiemike.top/img/20210723205608.png"><br><img src="https://pic.shaojiemike.top/img/20210723205525.png"></p>
-<h2 id="GUN-profile-gprof-gprof2dot-graphviz"><a href="#GUN-profile-gprof-gprof2dot-graphviz" class="headerlink" title="GUN profile gprof + gprof2dot graphviz"></a>GUN profile gprof + gprof2dot graphviz</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">g++ -pg -g -std=c++11 SLIC.cpp -o SLIC</span><br><span class="line">./SLIC # generate gmon.out</span><br><span class="line">less gmon.out</span><br><span class="line">    &quot;gmon.out&quot; may be a binary file.  See it anyway?</span><br><span class="line">gprof ./SLIC</span><br><span class="line">gprof ./SLIC|  /home/shaojiemike/github/isc21-gpaw/LogOrResult/profile/gprof2dot.py -n0 -e0 | dot -Tpng -o output.png</span><br></pre></td></tr></table></figure>
-<p><img src="https://pic.shaojiemike.top/PicGo20210714153808.png"><br><img src="https://pic.shaojiemike.top/PicGooutput.png"><br>没什么用</p>
-<h2 id="接下来"><a href="#接下来" class="headerlink" title="接下来"></a>接下来</h2><ol>
-<li>向量化</li>
-<li>并行化</li>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-10-10T11:56:03.000Z" title="10/10/2021, 11:56:03 AM">2021-10-10</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.188Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">3 minutes read (About 404 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/10/10/Work/HPC/llvm-mca/LLVM-mca6/">uops.info: Characterizing Latency, Throughput, and Port Usage of Instructions on Intel Microarchitectures (2019)</a></p><div class="content"><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>现代计算机微架构是最复杂的几个人造系统。在上面预测，解释和优化软件是困难的。我们需要其运行行为的可信模型，但是事实是稀缺的。</p>
+<p>本文设计和实现了一种构建X86指令的延迟，吞吐量和端口使用的可信模型。并仔细探究了这三个指标的定义。尤其是latency的值在不同的操作数情况时是如何确定的。</p>
+<p>同时其结果也是机器可读的。并且对已有的所有Intel架构都进行了测试。</p>
+<p>官网有结果 <a target="_blank" rel="noopener" href="http://www.uops.info/">http://www.uops.info</a> </p>
+<p>We also plan to release <strong>the source code of our tool</strong> as open source</p>
+<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1 简介"></a>1 简介</h2><h2 id="2-相关工作"><a href="#2-相关工作" class="headerlink" title="2 相关工作"></a>2 相关工作</h2><h3 id="Information-provided-by-Intel"><a href="#Information-provided-by-Intel" class="headerlink" title="Information provided by Intel"></a>Information provided by Intel</h3><h3 id="Measurement-based-Approaches"><a href="#Measurement-based-Approaches" class="headerlink" title="Measurement-based Approaches"></a>Measurement-based Approaches</h3><h2 id="3-Background"><a href="#3-Background" class="headerlink" title="3 Background"></a>3 Background</h2><h3 id="Pipeline-of-Intel-Core-CPUs"><a href="#Pipeline-of-Intel-Core-CPUs" class="headerlink" title="Pipeline of Intel Core CPUs"></a>Pipeline of Intel Core CPUs</h3><h3 id="Assembler-Instructions"><a href="#Assembler-Instructions" class="headerlink" title="Assembler Instructions"></a>Assembler Instructions</h3><h3 id="Hardware-Performance-Counters"><a href="#Hardware-Performance-Counters" class="headerlink" title="Hardware Performance Counters"></a>Hardware Performance Counters</h3><h2 id="4-Definitions"><a href="#4-Definitions" class="headerlink" title="4 Definitions"></a>4 Definitions</h2><h3 id="Latency"><a href="#Latency" class="headerlink" title="Latency"></a>Latency</h3><h3 id="Throughput"><a href="#Throughput" class="headerlink" title="Throughput"></a>Throughput</h3><h3 id="Port-Usage"><a href="#Port-Usage" class="headerlink" title="Port Usage"></a>Port Usage</h3><h2 id="5-Algorithms"><a href="#5-Algorithms" class="headerlink" title="5 Algorithms"></a>5 Algorithms</h2><h3 id="Port-Usage-1"><a href="#Port-Usage-1" class="headerlink" title="Port Usage"></a>Port Usage</h3><ol>
+<li>Finding Blocking Instructions</li>
+<li>Port Usage Algorithm</li>
+<li></li>
 </ol>
-<h2 id="什么时候OpenMP并行-什么时候MPI并行"><a href="#什么时候OpenMP并行-什么时候MPI并行" class="headerlink" title="什么时候OpenMP并行,什么时候MPI并行"></a>什么时候OpenMP并行,什么时候MPI并行</h2><p>根据具体资源情况来，貌似是一个节点，那可以从OpenMP入手</p>
-<h2 id="自动并行化"><a href="#自动并行化" class="headerlink" title="自动并行化"></a>自动并行化</h2><p>Intel编译器的自动并行化功能可以<strong>自动</strong>的将串行程序的一部分转换为线程化代码。进行自动向量化主要包括的步骤有，找到有良好的工作共享(worksharing)的候选循环；对循环进行<strong>数据流(dataflow)分析</strong>，确认并行执行可以得到正确结果；<strong>使用OpenMP指令</strong>生成线程化代码。</p>
-<p>&#x2F;Qparallel：允许编译器进行自动并行化</p>
-<p>&#x2F;Qpar-reportn：n为0、1、2、3，输出自动并行化的报告</p>
-<p>说明：&#x2F;Qparallel必须在使用<strong>O2&#x2F;3</strong>选项下有效</p>
-<h2 id="c-向量化怎么实现"><a href="#c-向量化怎么实现" class="headerlink" title="c++向量化怎么实现"></a>c++向量化怎么实现</h2><h3 id="什么是向量化"><a href="#什么是向量化" class="headerlink" title="什么是向量化"></a>什么是向量化</h3><p>所谓的向量化，简单理解，就是使用高级的向量化SIMD指令（如SSE、SSE2等）优化程序，属于数据并行的范畴。</p>
-<h3 id="如何对代码向量化"><a href="#如何对代码向量化" class="headerlink" title="如何对代码向量化"></a>如何对代码向量化</h3><p>向量化的目标是生成SIMD指令，那么很显然，要对代码进行向量化，</p>
-<p>第一是依靠编译器来生成这些指令；</p>
-<p>第二是使用汇编或Intrinsics函数。</p>
-<h4 id="自动向量分析器"><a href="#自动向量分析器" class="headerlink" title="自动向量分析器"></a>自动向量分析器</h4><p>Intel编译器中，利用其自动向量分析器（auto-vectorizer）对代码进行分析并生成SIMD指令。另外，也会提供一些pragmas等方式使得用户能更好的处理代码来帮助编译器进行向量化。</p>
-<ol>
-<li><p>基本向量化<br>&#x2F;Qvec：开启自动向量化功能，<strong>需要在O2以上使用</strong>。在O2以上，这是默认的向量化选项，默认开启的。此选项生成的代码能用于Intel处理器和非Intel处理器。向量化还可能受其他选项影响。由于此选项是默认开启的，所以不需要在命令行增加此选项。</p>
-</li>
-<li><p>针对指令集（处理器）的向量化<br>&#x2F;QxHost：针对当前使用的主机处理器选择最优的指令集优化。</p>
-</li>
-</ol>
-<p>对于双重循环，外层循环被自动并行化了，而内层循环并没有被自动并行化，内层循环被会自动向量化。</p>
-<h4 id="影响向量化的因素"><a href="#影响向量化的因素" class="headerlink" title="影响向量化的因素"></a>影响向量化的因素</h4><ol>
-<li>首先当然是指令集是否支持</li>
-<li>内存对齐相关的问题，也是影响向量化的，很多的SSE指令都要求内存是16字节对齐，如果不对齐，向量化会得到错误结果。</li>
-</ol>
-<h3 id="如何判断向量化成功"><a href="#如何判断向量化成功" class="headerlink" title="如何判断向量化成功"></a>如何判断向量化成功</h3><p>看汇编代码<br>没成功需要手动内联向量化汇编代码???</p>
-<h3 id="Intel-编译器的向量化实现"><a href="#Intel-编译器的向量化实现" class="headerlink" title="Intel 编译器的向量化实现"></a>Intel 编译器的向量化实现</h3><h3 id="AMD-编译器向量化实现"><a href="#AMD-编译器向量化实现" class="headerlink" title="AMD 编译器向量化实现"></a>AMD 编译器向量化实现</h3><h4 id="AMD-与-Intel-编译器的区别"><a href="#AMD-与-Intel-编译器的区别" class="headerlink" title="AMD 与 Intel 编译器的区别"></a>AMD 与 Intel 编译器的区别</h4><h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/gengshenghong/article/details/7027186">https://blog.csdn.net/gengshenghong/article/details/7027186</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/gengshenghong/article/details/7034748">https://blog.csdn.net/gengshenghong/article/details/7034748</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/gengshenghong/article/details/7022459">https://blog.csdn.net/gengshenghong/article/details/7022459</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-07-13T04:19:06.000Z" title="7/13/2021, 4:19:06 AM">2021-07-13</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-03-11T14:17:40.892Z" title="3/11/2026, 2:17:40 PM">2026-03-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">a few seconds read (About 111 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/07/13/OutOfWork/3-homepage/features/3-homepage_option/">homepage interesting upgrade options</a></p><div class="content"><h2 id="homepage-Live2d-Mouse-click-effects-background-music"><a href="#homepage-Live2d-Mouse-click-effects-background-music" class="headerlink" title="homepage Live2d + Mouse click effects + background-music"></a>homepage Live2d + Mouse click effects + background-music</h2><p>在\themes\hugo-theme-minos\layouts路径下修改模板html即可 </p>
-<p><a target="_blank" rel="noopener" href="https://www.python87.com/p/881.html">https://www.python87.com/p/881.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/stevenjoezhang/live2d-widget">https://github.com/stevenjoezhang/live2d-widget</a></p>
-<p><a target="_blank" rel="noopener" href="https://apps.elfsight.com/panel/applications/background-music/">https://apps.elfsight.com/panel/applications/background-music/</a></p>
-<h3 id="live2d"><a href="#live2d" class="headerlink" title="live2d"></a>live2d</h3><p>live2d              : <a target="_blank" rel="noopener" href="https://jingzhisheng.cn/blog/detail/1406456203487350784">https://jingzhisheng.cn/blog/detail/1406456203487350784</a></p>
-<p><a target="_blank" rel="noopener" href="https://l2d.alg-wiki.com/">https://l2d.alg-wiki.com/</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/alg-wiki/AzurLaneL2DViewer/tree/gh-pages/assets">https://github.com/alg-wiki/AzurLaneL2DViewer/tree/gh-pages/assets</a></p>
-<h3 id="pretty-blogs"><a href="#pretty-blogs" class="headerlink" title="pretty blogs"></a>pretty blogs</h3><p><a target="_blank" rel="noopener" href="https://eikanya.github.io/">anime theme</a></p>
-<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>live2d <a target="_blank" rel="noopener" href="https://github.com/Eikanya/Live2d-model">more</a></p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>无</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-07-12T04:31:40.000Z" title="7/12/2021, 4:31:40 AM">2021-07-12</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-03-11T14:17:41.024Z" title="3/11/2026, 2:17:41 PM">2026-03-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">8 minutes read (About 1251 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/07/12/Work/HPC/IPCC/ipcc4/">IPCC Preliminary SLIC Analysis part2 : Run process</a></p><div class="content"><h2 id="VScode-Debug-Run"><a href="#VScode-Debug-Run" class="headerlink" title="VScode Debug Run"></a>VScode Debug Run</h2><h3 id="Debug-Process"><a href="#Debug-Process" class="headerlink" title="Debug Process"></a>Debug Process</h3><ol start="3">
-<li>创建lables来存储分类结果, m_spcount 200, m_compactness 10</li>
-<li>计时运行 slic.PerformSLICO_ForGivenK(img, width, height, labels, numlabels, m_spcount, m_compactness);<ol>
-<li>参数的最后两项是required number of superpixels和weight given to spatial distance(空间距离的权重)也就是K&#x3D;200</li>
-<li>串行初始化赋值klabels[s] &#x3D; -1</li>
-<li>DoRGBtoLABConversion(ubuff, m_lvec, m_avec, m_bvec);对于整个图像：重载的浮点版本<ol>
-<li>提取第一个像素rgb(229,226,218)</li>
-<li>串行RGB2LAB( r, g, b, lvec[j], avec[j], bvec[j] );</li>
-<li>int变成double数组</li>
+<h3 id="Latency-1"><a href="#Latency-1" class="headerlink" title="Latency"></a>Latency</h3><ol>
+<li>Register -&gt; Register<ol>
+<li>Both registers are general-purpose registers </li>
+<li>Both registers are SIMD registers</li>
+<li>The registers have different types</li>
 </ol>
 </li>
-<li>声明perturbseeds true，edgemag</li>
-<li>DetectLabEdges(m_lvec, m_avec, m_bvec, m_width, m_height, edgemag);<ol>
-<li>串行对每个像素进行$$dx&#x3D;(l[i-1]-l[i+1])^2+(a[i-1]-a[i+1])^2+(b[i-1]-b[i+1])^2$$$$dy&#x3D;(l[i-width]-l[i+width])^2+(a[i-width]-a[i+width])^2+(b[i-width]-b[i+width])^2$$$$edgemag[i]&#x3D;dx+dy$$为了之后计算6.5-PerturbSeeds</li>
-<li>值得注意的是i的取值说2600 &#x3D; width+1是第二行第二列，一直到倒数第二行倒数第二列</li>
+<li>Memory → Register</li>
+<li>Status Flags → Register</li>
+<li>Register → Memory</li>
+<li>Divisions</li>
 </ol>
-</li>
-<li>GetLABXYSeeds_ForGivenK(kseedsl, kseedsa, kseedsb, kseedsx, kseedsy, K, perturbseeds, edgemag);<ol>
-<li>int step &#x3D; sqrt(double(sz)&#x2F;double(K)); \(S&#x3D;\sqrt{N&#x2F;k}&#x3D;225\)</li>
-<li>xoff 与 yoff 为一半 112</li>
-<li>int X &#x3D; x*step + (xoff&lt;&lt;(r&amp;0x1));六角网格???<img src="https://pic.shaojiemike.top/PicGo22E63A31798B596FE385351837095FB1.png"></li>
-<li>串行对每个绿圈存了颜色坐标五元组在kseedsl&#x2F;a&#x2F;b&#x2F;x&#x2F;y 有196个中心</li>
-<li>PerturbSeeds(kseedsl, kseedsa, kseedsb, kseedsx, kseedsy, edgemag);<ol>
-<li>串行对这196个中心和周围8个位置进行，最小edgemag值的寻找。</li>
-<li>并更新196个中心的位置</li>
+<h3 id="Throughtput"><a href="#Throughtput" class="headerlink" title="Throughtput"></a>Throughtput</h3><ol>
+<li>Measuring Throughput</li>
+<li>Computing Throughput from Port Usage</li>
 </ol>
-</li>
-</ol>
-</li>
-<li>int STEP &#x3D; sqrt(double(sz)&#x2F;double(K)) + 2.0;</li>
-<li>PerformSuperpixelSegmentation_VariableSandM(kseedsl,kseedsa,kseedsb,kseedsx,kseedsy,klabels,STEP,10);<ol>
-<li>if(STEP &lt; 10) offset &#x3D; STEP*1.5;</li>
-<li>DBL_MAX ? doubel_max 1.7976931348623157e+308</li>
-<li>变量sigma , distxy, maxxy</li>
-<li>double invxywt &#x3D; 1.0&#x2F;(STEP*STEP);</li>
-<li>迭代10次<ol>
-<li>对中心聚类<ol>
-<li>串行对这196个中心首先划出[2S*2S]的区域（上下左右offset或者STEP）</li>
-<li>再串行对这\(4S^2\)的区域的每个像素，计算与其区域中心的距离<br>$$dist &#x3D; \frac{(l-kl[n])^2+(a-ka[n])^2+(b-kb[n])^2}{maxlab[n]}+\frac{(x-kx[n])^2+(y-ky[n])^2}{S^2}$$</li>
-<li>注意maxlab[n]初始值是10*10,根据dist更新该像素的距离中心的最小距离数组distvec,和指向的最近中心klable<img src="https://pic.shaojiemike.top/PicGo74955994400D7CBE7BB7139383FB3501.png">由于是2S*2S,相邻中心的周围区域是有一部分重叠的(如图中黄色荧光笔区域)，相当于聚类到各个中心，注意由于中心对自己dist&#x3D;0,是不可能某一中心距离其他中心更近。</li>
-</ol>
-</li>
-<li>串行将maxlab与maxlab更新为该聚类集合里的最大值<ol>
-<li>注意maxlab与maxlab都是每个中心维护一个</li>
-</ol>
-</li>
-<li>质心移动：串行将每个聚类区域的每个点的五元组加到质心上，然后除以聚类区域元素总数来得到新的质心五元组</li>
-<li>迭代10次结束（其实可以判断质心是否不再移动来提前结束）</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>EnforceLabelConnectivity(klabels, m_width, m_height, nlabels, numlabels, K);<ol>
-<li>串行新数组赋值for( int i &#x3D; 0; i &lt; sz; i++ ) nlabels[i] &#x3D; -1;全部标记为未处理</li>
-<li>串行对所有元素进行如下处理<ol>
-<li>如果旧index未被处理<ol>
-<li>在其左下上右找到已经处理的元素的nlable,将其值保存在adjlable里</li>
-<li>从该元素开始上下左右寻找未处理，而且其klabels值与旧klabels值相同的元素。<ol>
-<li>将其nlable值改为lable,应该也达到标记为已处理的效果</li>
-<li>最终效果就是把该元素相邻连接区域klabels值与旧klabels值相同的全部标记</li>
-</ol>
-</li>
-<li>如果这块相邻区域过小count &lt;&#x3D; SUPSZ &gt;&gt; 2<ol>
-<li>则将其全部元素赋值为adjlable，即并入上块区域</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>旧index++。</li>
-<li>最终效果就是所有的元素重新整合聚类，达到消除过小区域与不连续区域的效果</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>结果与check.ppm对比<ol>
-<li>我以为只要读取lable的分类，大概sz个int</li>
-<li>fread(rgb, (w)*(h)*3, 1, fp);</li>
-<li>作者是傻逼，只用了1&#x2F;3的空间<img src="https://pic.shaojiemike.top/PicGo20210713214958.png"><img src="https://pic.shaojiemike.top/PicGo20210713215101.png"><img src="https://pic.shaojiemike.top/PicGo20210713215245.png"></li>
-</ol>
-</li>
-</ol>
-<h3 id="skills-size-of-arrays"><a href="#skills-size-of-arrays" class="headerlink" title="skills: size of arrays"></a>skills: size of arrays</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a.size()</span><br></pre></td></tr></table></figure>
-<h2 id="相关知识"><a href="#相关知识" class="headerlink" title="相关知识"></a>相关知识</h2><h3 id="RGB与Lab颜色空间互相转换"><a href="#RGB与Lab颜色空间互相转换" class="headerlink" title="RGB与Lab颜色空间互相转换"></a>RGB与Lab颜色空间互相转换</h3><h4 id="Lab颜色空间简介"><a href="#Lab颜色空间简介" class="headerlink" title="Lab颜色空间简介"></a>Lab颜色空间简介</h4><p>同RGB颜色空间相比，Lab是一种不常用的色彩空间。1976年，经修改后被正式命名为CIELab。Lab颜色空间中的L分量用于表示像素的亮度，取值范围是[0,100],表示从纯黑到纯白；a表示从红色到绿色的范围，取值范围是[127,-128]；b表示从黄色到蓝色的范围，取值范围是[127,-128]。</p>
-<h4 id="RGB转Lab颜色空间"><a href="#RGB转Lab颜色空间" class="headerlink" title="RGB转Lab颜色空间"></a>RGB转Lab颜色空间</h4><p> RGB颜色空间不能直接转换为Lab颜色空间，需要借助XYZ颜色空间，把RGB颜色空间转换到XYZ颜色空间，之后再把XYZ颜色空间转换到Lab颜色空间。</p>
-<p>  RGB与XYZ颜色空间有如下关系：</p>
-<p>  <img src="https://pic.shaojiemike.top/PicGo20170817231806394"></p>
-<p>  LAB与XYZ颜色空间有如下关系：<br>  <img src="https://pic.shaojiemike.top/PicGo20170817232123204"><br>  <img src="https://pic.shaojiemike.top/PicGo20170817232134530"><br>  X,Y,Z会分别除以0.950456、1.0、1.088754。</p>
+<h2 id="Computing-Throughput-from-Port-Usage"><a href="#Computing-Throughput-from-Port-Usage" class="headerlink" title="Computing Throughput from Port Usage"></a>Computing Throughput from Port Usage</h2><h3 id="Details-of-the-x86-Instruction-Set"><a href="#Details-of-the-x86-Instruction-Set" class="headerlink" title="Details of the x86 Instruction Set"></a>Details of the x86 Instruction Set</h3><h3 id="Measurements-on-the-Hardware"><a href="#Measurements-on-the-Hardware" class="headerlink" title="Measurements on the Hardware"></a>Measurements on the Hardware</h3><h3 id="Analysis-Using-Intel-IACA"><a href="#Analysis-Using-Intel-IACA" class="headerlink" title="Analysis Using Intel IACA"></a>Analysis Using Intel IACA</h3><h3 id="Machine-readable-Output"><a href="#Machine-readable-Output" class="headerlink" title="Machine-readable Output"></a>Machine-readable Output</h3><h2 id="7-Evaluation"><a href="#7-Evaluation" class="headerlink" title="7 Evaluation"></a>7 Evaluation</h2><p>balabala~</p>
+<h2 id="8-Limitations"><a href="#8-Limitations" class="headerlink" title="8 Limitations"></a>8 Limitations</h2><h2 id="9-Conclusions-and-Future-Work"><a href="#9-Conclusions-and-Future-Work" class="headerlink" title="9 Conclusions and Future Work"></a>9 Conclusions and Future Work</h2><p>我们的工具可以用来优化llvm-mca等软件。</p>
+<p>Future work includes adapting our algorithms to AMD x86 CPUs. 官网已经实现了。</p>
+<p>We would also like to extend our approach tocharacterize other undocumented performance-relevant aspects of the pipeline, e.g., regarding micro and macro-fusion, or whether instructions use the simple decoder, the complex decoder, or the Microcode-ROM.</p>
 <h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>无</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-07-11T05:49:10.000Z" title="7/11/2021, 5:49:10 AM">2021-07-11</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-03-11T14:17:40.907Z" title="3/11/2026, 2:17:40 PM">2026-03-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">a minute read (About 163 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/07/11/OutOfWork/2-selfLearning/AI-tools/Deepfake/">Deepfake - unravel/Baka Mitai</a></p><div class="content"><h2 id="First-way"><a href="#First-way" class="headerlink" title="First way :"></a>First way :</h2><p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=_laN9jJO63Q">https://www.youtube.com/watch?v=_laN9jJO63Q</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=MXNBtws35WE">https://www.youtube.com/watch?v=MXNBtws35WE</a></p>
-<h3 id="Baka-Mitai-all-in-one"><a href="#Baka-Mitai-all-in-one" class="headerlink" title="Baka Mitai all in one"></a>Baka Mitai all in one</h3><p><a target="_blank" rel="noopener" href="https://colab.research.google.com/github/AliaksandrSiarohin/first-order-model/blob/master/demo.ipynb#scrollTo=Oxi6-riLOgnm">https://colab.research.google.com/github/AliaksandrSiarohin/first-order-model/blob/master/demo.ipynb#scrollTo=Oxi6-riLOgnm</a></p>
-<p>但是由于上传的文件不能太大,对于unravel可以按照youtube视频的传无声音版本，然后用kapwing在线合成导出。</p>
-<p>效果展示1替换</p>
-<p>效果展示2替换</p>
-<p>效果文件链接</p>
-<p><a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/Kirrito-k423/Picbed/main/img/final_60eaff63b13be700ab0582c8_20002.mp4">https://raw.githubusercontent.com/Kirrito-k423/Picbed/main/img/final_60eaff63b13be700ab0582c8_20002.mp4</a></p>
-<p>和</p>
-<p><a target="_blank" rel="noopener" href="http://pic.shaojiemike.top/PicGo%E4%B8%8B%E8%BD%BD.mp4">http://pic.shaojiemike.top/PicGo%E4%B8%8B%E8%BD%BD.mp4</a></p>
-<video id="video" controls="" preload="none" poster="封面">
-      <source id="mp4" src="https://raw.githubusercontent.com/Kirrito-k423/Picbed/main/img/final_60eaff63b13be700ab0582c8_20002.mp4" type="video/mp4">
-</videos>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
+无
 
-<img src="http://pic.shaojiemike.top/PicGo%E4%B8%8B%E8%BD%BD.mp4"/>
-
-<h2 id="Sencond-way-yanderify"><a href="#Sencond-way-yanderify" class="headerlink" title="Sencond way : yanderify"></a>Sencond way : yanderify</h2><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv7475087/">https://www.bilibili.com/read/cv7475087/</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-10-09T16:00:00.000Z" title="10/9/2021, 4:00:00 PM">2021-10-09</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.189Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">28 minutes read (About 4164 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/10/09/Work/HPC/llvm-mca/LLVM-mca4/">LLVM Mca ：with BHive (2019)</a></p><div class="content"><h2 id="BHive"><a href="#BHive" class="headerlink" title="BHive"></a>BHive</h2><p>一种新的profiler，可以profile没有用户干预的内存访问的基本块。</p>
+<p>基于这种profiler创建了BHive,来验证llvm-mca等模型。</p>
+<p>BHive是用来评价llvm-mca这些模型的，实验基于各种收集来的<strong>一个基本块</strong>各种评价</p>
+<h2 id="I-INTRODUCTION"><a href="#I-INTRODUCTION" class="headerlink" title="I. INTRODUCTION"></a>I. INTRODUCTION</h2><h3 id="Automatically-Profiling-Basic-Blocks"><a href="#Automatically-Profiling-Basic-Blocks" class="headerlink" title="Automatically Profiling Basic Blocks"></a>Automatically Profiling Basic Blocks</h3><p>困难在于现有的 没有考虑 memory crash ??? .默认命中L1 cache</p>
+<p>A <strong>key technical challenge</strong> with collecting a large basic block dataset is that there is no existing approach to profile an arbitrary basic block that has been removed from its program<br>context.</p>
+<p>(没懂？那为什么要removed from its program<br>context) 因为要把常用的应用拆成小例子来评判，这些模型的准确性。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>运用隐含狄利克雷分布LDA,基于cpu资源的利用率，来cluster benchmark suite里的基本块</p>
+<p>通过对各种类型最基本的代码块来进行profile，从而形成针对各种performance model的数据库。</p>
+<p>现在已经有超过30万的基本块分析，来源于各种方向的应用，包括数值计算OpenBLAS,数据库SQLite,机器学习TensorFlow，密码学OpenSSL。</p>
+<p>这么多的数据产生了一个用于评估performance model的新benchmark。</p>
+<p>作者说<strong>performance modeling 研究的未来在于与其他先进技术的大规模定量比较</strong></p>
+<h3 id="内存访问的处理"><a href="#内存访问的处理" class="headerlink" title="内存访问的处理"></a>内存访问的处理</h3><p>通过把虚拟页面映射到<strong>单个</strong>物理页面，来合法内存访问同时避免cache miss</p>
+<h2 id="II-背景"><a href="#II-背景" class="headerlink" title="II. 背景"></a>II. 背景</h2><h3 id="Existing-Performance-Models"><a href="#Existing-Performance-Models" class="headerlink" title="Existing Performance Models"></a>Existing Performance Models</h3><p>有两种model</p>
+<ol>
+<li>产生可以详细描述指令何时发射和退休的可解释执行路径的微架构模拟器，附带吞吐量预测。</li>
+<li>每条指令都有延迟、吞吐量查找表，相当于一个被寄存器分配器使用的额外开销估计器</li>
+</ol>
+<p>各种model, 写到另一篇里了</p>
+<ol>
+<li>IACA</li>
+<li>llvm-mca</li>
+<li>OSACA</li>
+<li>Ithemal</li>
+</ol>
+<h3 id="Machine-Code-Profilers"><a href="#Machine-Code-Profilers" class="headerlink" title="Machine Code Profilers"></a>Machine Code Profilers</h3><ol>
+<li>通过 Agner Fog’s script 测量真实的，有周期，cache miss 等等。<a target="_blank" rel="noopener" href="https://www.agner.org/optimize/testp.zip">https://www.agner.org/optimize/testp.zip</a></li>
+<li>nanoBench也是。<a target="_blank" rel="noopener" href="https://github.com/andreas-abel/nanoBench">https://github.com/andreas-abel/nanoBench</a> 可以指定processor?和 kernel模式。</li>
+<li><strong>Unrolling</strong><ol>
+<li>测量吞吐量的基本方法就是展开一个基本块的代码多次，然后测重复多次的代码。把展开的基本块latency除以<code>unroll factor</code>(典型值是100)</li>
+<li>目的：<ol>
+<li>边缘化前几次warm up的latency值的影响。</li>
+<li>减少收起数据的开销影响</li>
+</ol>
+</li>
+<li><code>unroll factor</code>就是循环展开次数。</li>
+</ol>
+</li>
+<li><strong>局限性</strong>是，必须人工给代码块，不能自动profile一堆任意的基本块来系统性验证。???</li>
+</ol>
+<h2 id="III-PROFILING-ARBITRARY-BASIC-BLOCKS"><a href="#III-PROFILING-ARBITRARY-BASIC-BLOCKS" class="headerlink" title="III.  PROFILING ARBITRARY BASIC BLOCKS"></a>III.  PROFILING ARBITRARY BASIC BLOCKS</h2><p>目标是在<strong>不需要手动干预</strong>的情况下分析任意基本块，以便测量的<strong>吞吐量</strong>与性能模型通常假定的<strong>定义和不变量</strong>相对应。关键的挑战是使这些基本块能够在不崩溃的情况下<strong>访问任意内存地址</strong>。</p>
+<p>由于基本块只是正常程序的一部分，导致根本不能单独正常运行。BHive做的事情就是，让他正常运行。</p>
+<h3 id="Handling-Arbitrary-Memory-Accesses"><a href="#Handling-Arbitrary-Memory-Accesses" class="headerlink" title="Handling Arbitrary Memory Accesses"></a>Handling Arbitrary Memory Accesses</h3><p><img src="https://pic.shaojiemike.top/img/20211007210352.png"><br>这个代码块只有执行代码分配在<code>0x4110a</code>时，才能正常运行</p>
+<ol>
+<li>Remapping Virtual Pages.<ol>
+<li>一个基本块的所有虚拟内存页重新映射到一个物理页上，所以全部数据访问都命中L1。这样就可以执行97%的基本块。</li>
+<li>步骤<ol>
+<li>把原本虚拟页全部unmap<ol>
+<li>这会导致除了包含基本块指令的页之外的全部的连续的内存访问出问题？？？</li>
+<li>在子进程里运行展开的基本块指令。<ol>
+<li>这时对每个unmap的虚拟页的访问都会出错，但是主进程一种监视着。一旦中断就重新映射出错地址，然后重新开始跑。</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Memory Initialization<ol>
+<li>初始化一个中等大小0x12345600的物理页，允许都虚拟页都映射</li>
+</ol>
+</li>
+<li>Virtual page aliasing<ol>
+<li>因为不同的虚拟页映射在同一个物理页的同一项导致memory dependences，要等待</li>
+<li><strong>剔除</strong>6.28%的基本块</li>
+<li>可以通过增大物理页，来减小发生的概率。</li>
+</ol>
+</li>
+</ol>
+<h3 id="Overall-Profiling-Workflow"><a href="#Overall-Profiling-Workflow" class="headerlink" title="Overall Profiling Workflow"></a>Overall Profiling Workflow</h3><p>通过重复运行基本块来计算吞吐量</p>
+<ol>
+<li>Raw Measurement<ol>
+<li>先从基本块里，产生不会memory crash的可执行部分。</li>
+<li>unroll factor的选取。It uses 100 and 200 as the unroll factors for basic blocks <strong>smaller than 100 bytes</strong>; 50 and 100 for basic blocks <strong>between 100 bytes and 200 bytes</strong>; and finally 16 and 32 for basic blocks <strong>larger than 200 bytes</strong></li>
+</ol>
+</li>
+<li>Filtering<ol>
+<li>筛选执行代码满足理想化模型的执行结果，比如命中L1cache</li>
+<li>L1 Cache Misses<ol>
+<li>工具可以用硬件计数器监控指令和数据cache misses。拒绝所有cache miss的情况。</li>
+</ol>
+</li>
+<li>Unaligned Loads<ol>
+<li>不连续的访存会很慢，解决方法就是去除所有有不连续的访存的。大约删除了0.18%的基本块</li>
+</ol>
+</li>
+<li>Subnormal Floating Point<ol>
+<li>一些特殊的浮点数计算会比正常的浮点数计算慢20倍，去除了与MXCSR寄存器有关的0.1%的基本块。</li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/8341395/what-is-a-subnormal-floating-point-number">https://stackoverflow.com/questions/8341395/what-is-a-subnormal-floating-point-number</a></li>
+</ol>
+</li>
+<li>Context Switches<ol>
+<li>上下文切换(英语：context switch)，又称环境切换，电脑术语，是一个存储和重建CPU的状态 (内文)，因此令多个进程(process)可以分享单一CPU资源的计算过程。要切换CPU上的进程时，必需先行存储目前进程的状态，再将欲运行的进程之状态读回CPU中。</li>
+</ol>
+</li>
+<li>可接受的评估公式 10%的误差？？？</li>
+</ol>
+</li>
+<li>Throughput Calculation<ol>
+<li>如果通过了基本块的筛选，用有记录的最小延迟计算吞吐量<img src="https://pic.shaojiemike.top/img/20210920154432.png"></li>
+</ol>
+</li>
+<li>Environment Variance<ol>
+<li>由于环境的影响，导致结果有个稳定的偏移。至少执行5次，展开16次的基本块。取最小的5次作为结果。</li>
+</ol>
+</li>
+</ol>
+<h3 id="Portability-to-Other-Architectures"><a href="#Portability-to-Other-Architectures" class="headerlink" title="Portability to Other Architectures"></a>Portability to Other Architectures</h3><p>只要架构满足以下几点要求</p>
+<ol>
+<li>有将多个虚拟页面映射到几个物理页面的API。map<br>multiple virtual pages to a few physical pages <ol>
+<li><strong>without</strong> incurring a performance <strong>penalty</strong> due to unnecessary cache invalidation. We therefore require that the target processor has a **physically tagged data cache(VIPT)**？？？</li>
+<li>we additionally require that the page size is small enough so the indexing bits are<br>not affected by address translation.</li>
+</ol>
+</li>
+<li>detecting cache misses, </li>
+<li>and detecting or disabling floating-point underflow.</li>
+</ol>
+<h2 id="IV-BASIC-BLOCK-DATASET"><a href="#IV-BASIC-BLOCK-DATASET" class="headerlink" title="IV. BASIC BLOCK DATASET"></a>IV. BASIC BLOCK DATASET</h2><p><img src="https://pic.shaojiemike.top/img/20210921190750.png"></p>
+<p>应用的选择</p>
+<ol>
+<li>尽可能还原现实生活的各个方面，</li>
+<li>而且是用户的典型用法。</li>
+<li>Clang&#x2F;LLVM (compiler), Redis (inmemory database), SQLite (database), and Gzip 是用高级语言C或者C++编写的，算法和数据结构有复杂的设计。</li>
+<li>OpenSSL (cryptography), OpenBLAS , Eigen (scientific computing),TensorFlow (machine learning) 代表的是核心循环是手动汇编优化过的高性能库。<ol>
+<li>其中Embree是 用Intel ispc (a data-parallel language)编写的。</li>
+</ol>
+</li>
+</ol>
+<p>We compiled all applications with the <strong>highest optimization</strong> settings defined by their build systems. 如果可以用上了AVX2。</p>
+<p>使用DynamoRIO动态分析来提炼基本块。可以实现在运行时记录每个运行的基本块。我们采用动态分析，而不是静态反汇编。因为静态反汇编无法区别padding bytes from instructions。???</p>
+<p>应用的例子除了FFmpeg and Gzip都是选择的官方的benchmark。<br>Eigen 采用的是 two sparse linear algebra workloads: sparse matrix-matrix multiplication (SpMM) and sparse matrix-vector multiplication (SpMV).</p>
+<h2 id="V-BASIC-BLOCK-CLUSTERING"><a href="#V-BASIC-BLOCK-CLUSTERING" class="headerlink" title="V. BASIC BLOCK CLUSTERING"></a>V. BASIC BLOCK CLUSTERING</h2><p>一些基本块比其他的更难建模，???(建什么模，VI-B说明了什么)有内存依赖的基本块预测错误率更高。</p>
+<p>采用了一种技术???(是应用在提取上) 基于处理器的使用聚类基本块。<br>这个技术有助于性能模型的设计和使用者<strong>更细粒度了解</strong>performance model,让他们能集中以后新添加的资源在有困难的那一类基本块。</p>
+<ol>
+<li>Methodology<ol>
+<li>具体方法<ol>
+<li>找到每个基本块的硬件使用率的表示 port-mapping representation</li>
+<li>根据其聚类</li>
+</ol>
+</li>
+<li>对每条指令结合port使用<ol>
+<li>运用 Abel and Reineke A. Abel and J. Reineke, “uops.info: Characterizing latency, throughput, and port usage of instructions on intel microarchitectures,” in ASPLOS, 2019的结果 ???</li>
+<li>例如???<ol>
+<li><code>xor %rax, %rbx</code> in Haswell is <code>&#123;p0156 → 1&#125;</code></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>使用<strong>Latent Dirichlet Allocation</strong> (LDA)来构建topic model 模型(python 训练模型)<ol>
+<li>在语言处理上的应用是基于统计词频</li>
+<li>在实际运用的时候，微指令操作会根据使用的port而有小不同。<ol>
+<li>topics是分类的类别,6类</li>
+<li>documents是基本块</li>
+<li>α &#x3D; 1&#x2F;6 and β &#x3D; 1&#x2F;13.</li>
+</ol>
+</li>
+<li>为了推断每个微指令操作所属的类别，我们使用了SciKit Learn transform对于LDA的随机变化推断的默认实现</li>
+<li>计算每个基本块的最有可能的类别作为其分类结果</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Results<ol>
+<li>LDA将结果聚类后，根据基本块的内容，手动进行注名以及说明<img src="https://pic.shaojiemike.top/img/20211009165208.png"></li>
+<li>example<img src="https://pic.shaojiemike.top/img/20211009165630.png"></li>
+<li>根据运行时频率确定其权重， 基于sample-based profiler??? (A portable sampling-based profiler for java virtual machines,)确定。</li>
+<li>高性能的库如预期一样，向量化的基本块占比较多。</li>
+<li>其余的无向量化的较多。OpenSSL and Gzip有许多位操作的。</li>
+</ol>
+</li>
+<li>Case Study on Data-Center Applications<ol>
+<li>目的：作为测试例子，看这个聚类方法能不能找得到隐藏的热点、工作负载</li>
+<li>Methodology<ol>
+<li>第一步：首先将其基本块分成之前的几类，还是使用LDA</li>
+<li>第二步：分类结果标注</li>
+<li>第三步：比较聚类结果的perplexity值???</li>
+<li>？？？有没有结合google的应用<img src="https://pic.shaojiemike.top/img/20211009173926.png"></li>
+</ol>
+</li>
+<li>Results<ol>
+<li>添加新应用后，该值只是略微增长。说明模型的代表性好。???</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="VI-PERFORMANCE-MODEL-EVALUATION"><a href="#VI-PERFORMANCE-MODEL-EVALUATION" class="headerlink" title="VI. PERFORMANCE MODEL EVALUATION"></a>VI. PERFORMANCE MODEL EVALUATION</h2><p>在3种Intel架构上验证4种已有的性能模型</p>
+<ol>
+<li>Methodology<ol>
+<li>说明各个测试软件的版本。</li>
+<li>Dataset<ol>
+<li>basic block dataset discussed in Section IV</li>
+</ol>
+</li>
+<li>Platform<ol>
+<li>balabala 3种架构的 Intel cpus</li>
+</ol>
+</li>
+<li>Evaluation Metrics<ol>
+<li>测量吞吐量t和预测吞吐量t’$$err(t,t’)&#x3D;|\frac{t-t’}{t}|$$</li>
+<li>不以预测精度，而是以预测结果的相对关系为评分标准。</li>
+</ol>
+</li>
+<li>额外能评估每个模型如何保持基本块吞吐量的顺序。使用Kendall’s tau系数(越大效果越好)，而不是相对误差。测量的原因是使用者可能关心的不是绝对的数值精度，而是相对关系的准确率。比如优化软件的时候关心的不是具体耗时，而是哪个优化策略耗时更短。</li>
+</ol>
+</li>
+<li>Results<ol>
+<li><img src="https://pic.shaojiemike.top/img/20211010154102.png"></li>
+<li><strong>IACA</strong> 第二好的，在向量化类模拟的最好</li>
+<li><strong>llvm-mca</strong> 最差的，尤其是和loads有关时。</li>
+<li><strong>Ithemal</strong>  除了向量基本块都是最好的。在memory dependence (Ld&#x2F;St)尤其好，但是向量基本块不好，可能与训练集没有向量基本块有关。</li>
+<li><strong>OSACA</strong> 第三。由于还在开发中，使用还遇到5个bug。在遇到一些不认识的指令的时候，会直接按照nops空指令处理。</li>
+</ol>
+</li>
+<li>Examples of Modeling Bugs<img src="https://pic.shaojiemike.top/img/20211010155758.png"><ol>
+<li>最后一个例子是由于模型<strong>错误调度微指令</strong>导致的</li>
+<li>Modeling bug due to unsigned division<ol>
+<li>例子是 a 64-bit by 32-bit unsigned division.<img src="https://pic.shaojiemike.top/img/20211010162409.png"><img src="https://pic.shaojiemike.top/img/20211010163913.png"><img src="https://pic.shaojiemike.top/img/20211010164039.png"><img src="https://pic.shaojiemike.top/img/20211010164455.png"></li>
+<li>???<img src="https://pic.shaojiemike.top/img/20211010164745.png"></li>
+</ol>
+</li>
+<li>Modeling bug due to zero-idioms<ol>
+<li><img src="https://pic.shaojiemike.top/img/20211010165301.png"></li>
+<li>对这种结果固定的特殊指令的快速处理。</li>
+</ol>
+</li>
+<li>Modeling bug due to mis-scheduling<ol>
+<li>对于数据依赖，上下指令的寄存器有写后读。</li>
+<li>Ithemal’s and OSACA忽略了该依赖</li>
+<li><img src="https://pic.shaojiemike.top/img/20211010170051.png"></li>
+<li>llvm-mca 没有注意到(%rcx)是memory，没有依赖可以提前发射。</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="CONCLUSION"><a href="#CONCLUSION" class="headerlink" title="CONCLUSION"></a>CONCLUSION</h2><p>现有的静态分析器对<strong>内存依赖</strong>和<strong>向量化块</strong>的建模还有困难。</p>
+<h2 id="github代码说明"><a href="#github代码说明" class="headerlink" title="github代码说明"></a>github代码说明</h2><ol>
+<li><code>benchmark/sources</code>下是各种软件的各个部分的16进制基本代码块和其出现概率，用csv格式(逗号分隔值 (Comma-separated values))存储</li>
+<li><code>benchmark/throughput</code>是在各种架构下的各基本块的测量吞吐量，单位cycles per hundred-iterations.<br><img src="https://pic.shaojiemike.top/img/20210920151028.png"><img src="https://pic.shaojiemike.top/img/20210920154432.png"></li>
+<li><code>benchmark/disasm</code>可以把16进制代码通过<code>nasm</code>变成汇编，<img src="https://pic.shaojiemike.top/img/20210920151258.png"></li>
+<li><code>timing-harness</code><img src="https://pic.shaojiemike.top/img/20210920153113.png"><br><img src="https://pic.shaojiemike.top/img/20210921143255.png"><br>吞吐量的计算(猜的)Skylake microarchitecture$$\frac{6632-1030}{2333-100}*100&#x3D;250.8 (cyc&#x2F;hundred\ iters)$$</li>
+</ol>
+<h2 id="BHive-被质疑的局限性"><a href="#BHive-被质疑的局限性" class="headerlink" title="BHive 被质疑的局限性"></a>BHive 被质疑的局限性</h2><p>uops 的文章， Accurate Throughput Prediction of Basic Blocks on Recent Intel Microarchitectures</p>
+<p>4.2 Extending BHive</p>
+<h2 id="BHive-运行逻辑"><a href="#BHive-运行逻辑" class="headerlink" title="BHive 运行逻辑"></a>BHive 运行逻辑</h2><ol>
+<li>读入16进制代码和循环次数</li>
+<li><code>hhex2bin</code>转换为二进制</li>
+<li><code>create_shm_fd</code><img src="https://pic.shaojiemike.top/img/20210922150852.png"><img src="https://pic.shaojiemike.top/img/20210922151143.png"><ol>
+<li><p><code>shm_open, shm_unlink</code>creates and opens a new, or opens or unlink an existing, POSIX shared memory object. <code>O_RDWR</code> Open the object for read-write access.<code>O_CREAT</code>  the shared memory object if it does not exist. <code>777</code>是类似文件读写执行组权限的东西 On success, shm_open() <code>returns</code> a file descriptor (a nonnegative integer)</p>
+</li>
+<li><p><code>POSIX</code>可移植操作系统接口The Portable Operating System Interface 是IEEE为要在各种UNIX操作系统上运行软件，而定义API的一系列互相关联的标准的总称。</p>
+</li>
+<li><p><code>ftruncate</code> — truncate截短 a file to a specified length</p>
+</li>
+<li><p>#define SIZE_OF_HARNESS_MEM (4096 * 3)</p>
+</li>
+</ol>
+</li>
+<li><code>measure</code>开始测量<ol>
+<li>int fds[2] ???</li>
+<li><code>pipe</code>用于创建pipe,用来<strong>进程间</strong>通信的<strong>单向</strong>数据通路，传入变量用来返回引用自pipe末端的文件描述符file descriptors。<strong>第一个</strong>指向the read end of the pipe，<strong>第二个</strong>指向the write end of the pipe</li>
+<li><code>mmap(void *addr, size_t length, int prot, int flags,int fd, off_t offset); munmap(void *addr, size_t length);</code>- map or unmap files or devices into memory 在调用进程的虚拟地址空间里create a new mapping.</li>
+<li>fork()产生子进程<ol>
+<li>fork()原理详解<ol>
+<li>复制之前的一模一样。</li>
+<li>fork() returns a zero to the newly created child process.</li>
+<li>fork() returns a positive value, the process ID of the child process, to the parent.</li>
+</ol>
+</li>
+<li>父进程<ol>
+<li>#define OFFSET_TO_COUNTERS 32</li>
+<li>为什么声明一个偏移地址指针???<ol>
+<li>struct pmc_counters 由5个uint64_t组成。 uint64 will always take 8 bytes。一个结构体40bytes</li>
+</ol>
+</li>
+<li><code>attach_to_child(pid, fds[1]);</code> pid是子进程pid<ol>
+<li><code>ptrace(enum __ptrace_request request, pid_t pid,void *addr, void *data)</code> - process trace 提供一种进程tracer跟踪控制另一个进程tracee的方法，可以修改被控制者的memory and registers.<ol>
+<li><code>PTRACE_SEIZE</code> Attach to the process specified in pid, making it a tracee of the calling process.  Unlike PTRACE_ATTACH, PTRACE_SEIZE does <strong>not</strong> stop the process</li>
+</ol>
+</li>
+<li>子进程从fds[0]里读到x里，父进程把x的值写入 fds[1] ???</li>
+</ol>
+</li>
+<li>check Performance Monitoring Counters (PMCs) supports<ol>
+<li><code>rdpmc_open_attr</code> initialize a raw ring 3 ReaDable PerforMance Counter</li>
+</ol>
+</li>
+<li>last_failing_inst 和 mapping_done</li>
+<li>To kill child<ol>
+<li>#define MAX_FAULTS 1024 # 子进程产生的错误需要解决？</li>
+<li><code>wait</code>挂起当前线程，直到有一个children结束，返回其PID</li>
+<li><code>WIFEXITED</code>Wait_IF_EXITED 判断是否正常结束<img src="https://pic.shaojiemike.top/img/20210922185030.png"></li>
+<li>如果错误打印出错信号(eg.11)指令指针寄存器RIP,指针寄存器RSP<img src="https://pic.shaojiemike.top/img/20210922190632.png"><img src="https://pic.shaojiemike.top/img/20210922191039.png"><img src="https://pic.shaojiemike.top/img/20210922191252.png"></li>
+<li>函数是用汇编写的就离谱<img src="https://pic.shaojiemike.top/img/20210922191507.png"><img src="https://pic.shaojiemike.top/img/20210922193149.png"><img src="https://pic.shaojiemike.top/img/20210922192559.png"><img src="https://pic.shaojiemike.top/img/20210922191801.png"><img src="https://pic.shaojiemike.top/img/20210922191931.png">what is aux mem?</li>
+<li>修改出错地方的寄存器，重新运行<code>PTRACE_CONT</code> Restart the stopped tracee process</li>
+<li>最多执行MAX_FAULTS次</li>
+</ol>
+</li>
+<li>最后父进程杀死子进程</li>
+</ol>
+</li>
+<li>子进程<ol>
+<li>父进程测试是否支持PMCs,子进程使用<img src="https://pic.shaojiemike.top/img/20210922194738.png"><img src="https://pic.shaojiemike.top/img/20210922195030.png"></li>
+<li>harness.c ：277</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/from-zero/p/13750852.html">https://www.cnblogs.com/from-zero/p/13750852.html</a></p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><ol>
+<li>time 怎么算的the latency of the basic block？为什么打印15个呢？</li>
+<li>还有中间的错误是怎么回事?</li>
+<li>论文里的误差怎么算的？<ol>
+<li>BHive整合了几个软件（整合了什么呢），应该是真实测量了得出真实吞吐量？还是也是模拟的？</li>
+<li>和uops比怎么样</li>
+</ol>
+</li>
+<li>哪个数据是准确的，是BHive模拟的，还是真实测量的。<ol>
+<li>通过 Agner Fog’s script 测量真实的，有周期，cache miss 等等。<a target="_blank" rel="noopener" href="https://www.agner.org/optimize/testp.zip">https://www.agner.org/optimize/testp.zip</a></li>
+<li>nanoBench也是。<a target="_blank" rel="noopener" href="https://github.com/andreas-abel/nanoBench">https://github.com/andreas-abel/nanoBench</a> 可以指定processor?和 kernel模式。</li>
+<li>局限性是，必须人工给代码块，不能自动profile一堆任意的基本块来系统性验证。???</li>
+</ol>
+</li>
+<li>BHvie的代码实现，移植到鲲鹏，然后根据PMU调准。</li>
+</ol>
+<p>问题是x86的二进制或者汇编不能变成aarm64的二进制或者汇编。</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://github.com/ithemal/bhive">https://github.com/ithemal/bhive</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-10-06T16:00:00.000Z" title="10/6/2021, 4:00:00 PM">2021-10-06</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.190Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tips/">Tips</a></span><span class="level-item">6 minutes read (About 916 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/10/06/Work/hardware/HDMI_DP/">HDMI</a></p><div class="content"><h2 id="HDMI"><a href="#HDMI" class="headerlink" title="HDMI"></a>HDMI</h2><p>高清多媒体界面（英语：<strong>High Definition Multimedia Interface</strong>，缩写：HDMI）是一种全数字化影像和声音发送接口，可以发送<strong>未压缩</strong>的音频及视频信号。HDMI可以同时发送<strong>音频和视频</strong>信号，由于音频和视频信号采用同一条线材，大大简化系统线路的安装难度。</p>
+<h3 id="与DP的区别"><a href="#与DP的区别" class="headerlink" title="与DP的区别"></a>与DP的区别</h3><p>HDMI是被设计来取代较旧的<strong>模拟信号</strong>影音发送接口。HDMI继承DVI的核心技术“传输最小化差分信号”TMDS，从本质上来说仍然是DVI的扩展。画面是以逐行的方式被发送，并在每一行与每祯画面发送完毕后加入一个特定的空白时间（类似模拟扫描线），并没有将数据“Micro-Packet Architecture（微数据包架构）”化，也不会只更新前后两帧画面改变的部分。每张画面在该更新时都会被完整的重新发送。</p>
+<p>而DisplayPort一开始则面向液晶显示器开发，采用“Micro-Packet Architecture(微数据包架构)”传输架构，视频内容以数据包方式传送，这一点同DVI、HDMI等视频传输技术有着明显区别。</p>
+<p><img src="https://pic.shaojiemike.top/img/20211005232118.png"></p>
+<p>更多先进特性对比： <a target="_blank" rel="noopener" href="https://www.cnbeta.com/articles/tech/1034975.htm">https://www.cnbeta.com/articles/tech/1034975.htm</a></p>
+<h2 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h2><h3 id="HDMI-1-4"><a href="#HDMI-1-4" class="headerlink" title="HDMI 1.4"></a>HDMI 1.4</h3><p>2009年5月28日提出，最高支持4K×2K（3840×2160p@24 Hz&#x2F;25 Hz&#x2F;30 Hz或4096×2160p@24 Hz）</p>
+<h3 id="HDMI-2-0"><a href="#HDMI-2-0" class="headerlink" title="HDMI 2.0"></a>HDMI 2.0</h3><p>2013年9月4日提出</p>
+<ol>
+<li>新增2160p@50 YCbCr 4:2:0、2160p@60 YCbCr 4:2:0（4K分辨率）</li>
+<li>传输带宽18Gbit&#x2F;s  支持4096*2160*60Hz</li>
+</ol>
+<h3 id="HDMI-2-1"><a href="#HDMI-2-1" class="headerlink" title="HDMI 2.1"></a>HDMI 2.1</h3><p>2017年1月4日提出</p>
+<ol>
+<li>支持的最大分辨率为 10K&#x2F;120 Hz</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/img/20211006183005.png"><br><img src="https://pic.shaojiemike.top/img/20211005223209.png"><br><img src="https://pic.shaojiemike.top/img/20211005223236.png"></p>
+<h2 id="比特率编码"><a href="#比特率编码" class="headerlink" title="比特率编码"></a>比特率编码</h2><p>在早期的DP和HDMI标注中，数字信号大多使用8b&#x2F;10b的比特率编码进行传输。在8b&#x2F;10b编码模式下，意味着每8位数据在实际传输中需要10位的传输带宽，而这些多出来的冗余用来确保信号的完整性，这意味着他们只有80%的理论带宽可以用来传输数据。</p>
+<p>而在最新的协议下，DP 2.0采用128b&#x2F;132b进行传输，编码效率效率提升到97%，而HDMI 2.1则采用16b&#x2F;18b进行传输，编码效率为88.9%。</p>
+<p>加上同代的DP接口一般都拥有更高的传输速率，所以最新一代DP接口相对HDMI的拥有更高的数据速率。</p>
+<h2 id="数据表示"><a href="#数据表示" class="headerlink" title="数据表示"></a>数据表示</h2><p>每个像素都拥有<strong>红色，绿色和蓝色</strong>（RGB）这三个数据点，或者使用<strong>亮度，蓝色色度差和红色色度差</strong>（YCbCr &#x2F; YPbPr）三个数据点</p>
+<h2 id="各种接口速率"><a href="#各种接口速率" class="headerlink" title="各种接口速率"></a>各种接口速率</h2><h3 id="查看电脑USB接口"><a href="#查看电脑USB接口" class="headerlink" title="查看电脑USB接口"></a>查看电脑USB接口</h3><p><img src="https://pic.shaojiemike.top/img/20211005202948.png"></p>
+<h2 id="接口驱动更新"><a href="#接口驱动更新" class="headerlink" title="接口驱动更新"></a>接口驱动更新</h2><p>？？？</p>
+<h2 id="软件的帧率"><a href="#软件的帧率" class="headerlink" title="软件的帧率"></a>软件的帧率</h2><h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><h3 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h3><h2 id="实际应用"><a href="#实际应用" class="headerlink" title="实际应用"></a>实际应用</h2><h3 id="联想2020R7000"><a href="#联想2020R7000" class="headerlink" title="联想2020R7000"></a>联想2020R7000</h3><p>type c，同时支持dp1.2的视频输出 21.6Gbps</p>
+<p>HDMI2.0 18Gbps</p>
+<h3 id="怎么算"><a href="#怎么算" class="headerlink" title="怎么算"></a>怎么算</h3><p><img src="https://pic.shaojiemike.top/img/20211005231854.png"></p>
+<p>小米的显示器是DP1.4的接口 10bits</p>
+<p>但是实际是8bits 下需要的带宽为为3*8*3440*1440*100Hz&#x3D;11888640000bps 3种颜色每个8位。</p>
+<p>11888640000bps &#x2F; 0.8 &#x3D; 14860800000bps 也不对，哪里有问题</p>
+<h3 id="实际"><a href="#实际" class="headerlink" title="实际"></a>实际</h3><p>买了根DP1.4的线，但是只有DP1.2的口<br><img src="https://pic.shaojiemike.top/img/20211014171944.png"><br>但是144Hz带不动，会花屏，或者闪烁。</p>
 <h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>无</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-07-10T15:25:20.000Z" title="7/10/2021, 3:25:20 PM">2021-07-10</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-03-11T14:17:40.893Z" title="3/11/2026, 2:17:40 PM">2026-03-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">3 minutes read (About 421 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/07/10/OutOfWork/3-homepage/PicBed/3-QiNiuPicBed/">QiNiuPicBed</a></p><div class="content"><h2 id="七牛图床"><a href="#七牛图床" class="headerlink" title="七牛图床"></a>七牛图床</h2><ol>
-<li>ICP域名备案检查失败</li>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/USB#%E6%A0%87%E5%87%86USB%E6%8E%A5%E5%8F%A3">https://zh.wikipedia.org/wiki/USB#%E6%A0%87%E5%87%86USB%E6%8E%A5%E5%8F%A3</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnbeta.com/articles/tech/1034975.htm">https://www.cnbeta.com/articles/tech/1034975.htm</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-10-05T13:19:41.000Z" title="10/5/2021, 1:19:41 PM">2021-10-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.189Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tips/">Tips</a></span><span class="level-item">6 minutes read (About 952 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/10/05/Work/hardware/DP/">DP</a></p><div class="content"><h2 id="DP"><a href="#DP" class="headerlink" title="DP"></a>DP</h2><p>DisplayPort（简称DP）是一个由PC及芯片制造商联盟开发，视频电子标准协会（VESA）标准化的<strong>数字式视频接口标准</strong>。该接口免认证、免授权金，主要用于视频源与显示器等设备的连接，并也支持音频、USB和其他形式的资料。</p>
+<p>用于取代传统的VGA、DVI。 DisplayPort是第一个依赖<strong>数据包化</strong>资料传输技术的显示连接端口。</p>
+<h2 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h2><h3 id="1-0"><a href="#1-0" class="headerlink" title="1.0"></a>1.0</h3><p>2006年5月发布。带宽10.8Gbps。DisplayPort 1.0的最大传输速度是8.64Gbit&#x2F;s，长度是2米。已经废弃。</p>
+<h3 id="1-2"><a href="#1-2" class="headerlink" title="1.2"></a>1.2</h3><p>于2009年12月22日发布。它最大的改变是传输速度增加两倍到21.6Gbit&#x2F;s（High Bit Rate 2（HBR2）mode），支持4K（4096X2160）60Hz，因此支授更高的分辨率、帧速率及色深。苹果公司设计的Mini DisplayPort亦兼容此标准。支持3D、支持多流（multi-streaming）。目前此版本是主流。</p>
+<p><img src="https://pic.shaojiemike.top/img/20211005212825.png"></p>
+<h3 id="1-3"><a href="#1-3" class="headerlink" title="1.3"></a>1.3</h3><p>2014年9月15日，视频电子标准协会发布DisplayPort 1.3，带宽速度最高32.4 Gbps（HBR3），编码后有效带宽为25.92 Gbps，可支持4K（3840X2160）120hz、5K（5120X2880）60hz、8K（7680X4320）30hz。</p>
+<h3 id="1-4"><a href="#1-4" class="headerlink" title="1.4"></a>1.4</h3><p>2016年2月份最终版的DP 1.4连接端口规范，新标准基于2014年9月的DP 1.3规范，带宽不变但加入了显示压缩流(Display Stream Compression)技术、前向错误更正(Forward Error Correction)、高动态范围数据包（HDR meta transport），声道也提升到32声道1536 KHz采样率，一般情况下，DP1.4可提供4K 120Hz 8bit输出，若搭配DSC技术，可提供4K 144Hz 10bit输出。</p>
+<p>DP1.4目前有严重BUG，无法进入bios或屏幕休眠后无法唤醒，20和30系显卡NVIDIA官方尚未放出修复更新，必须要显卡厂商自行修复，建议改用HDMI2.1</p>
+<h3 id="2-0"><a href="#2-0" class="headerlink" title="2.0"></a>2.0</h3><ol>
+<li>三倍数据带宽性能<br>之前版本的DisplayPort v1.4a提供了32.4 Gbps的最大链路带宽，四个通道中的每一个都以8.1 Gbps &#x2F; lane的链路速率运行。使用8b &#x2F; 10b信道编码，相当于25.92 Gbps的最大有效载荷。</li>
 </ol>
-<p><a target="_blank" rel="noopener" href="https://support.huaweicloud.com/usermanual-icp/icp_08_0002.html">https://support.huaweicloud.com/usermanual-icp/icp_08_0002.html</a><br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/335750650/answer/763853314">https://www.zhihu.com/question/335750650/answer/763853314</a><br><a target="_blank" rel="noopener" href="https://support.huaweicloud.com/qs-cdn/cdn_01_0052.html">https://support.huaweicloud.com/qs-cdn/cdn_01_0052.html</a><br>昨天我那个域名实名认证后可以用了，用七牛的图床，不是需要个域名，但是我这个域名对应的机器不是自己的吗，这个怎么备案呢？</p>
-<p>并不需要备案，也可以用CDN，只不过七牛图床需要放到海外（东南亚）。<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/0997d0d15e55">教程</a></p>
-<p>配置的存储区域(华东 z0,华北 z1,华南 z2,北美 na0,东南亚 as0 )</p>
-<h3 id="加速域名配置"><a href="#加速域名配置" class="headerlink" title="加速域名配置"></a>加速域名配置</h3><p><a target="_blank" rel="noopener" href="https://developer.qiniu.com/fusion/1367/custom-domain-name-binding-process">https://developer.qiniu.com/fusion/1367/custom-domain-name-binding-process</a></p>
-<h3 id="内容分发网络-CDN-简介"><a href="#内容分发网络-CDN-简介" class="headerlink" title="内容分发网络 CDN 简介"></a>内容分发网络 CDN 简介</h3><p>内容分发网络（Content Delivery Network，CDN）通过将站点内容发布至遍布全球的海量加速节点，使其用户可就近获取所需内容，避免因网络拥堵、跨运营商、跨地域、跨境等因素带来的网络不稳定、访问延迟高等问题，有效提升下载速度、降低响应时间，提供流畅的用户体验。 </p>
-<p>加速域名：指用户提供的需要使用CDN加速服务的域名，即终端用户访问的域名。<br>源站域名：指服务器IP地址对应的域名，即CDN回源时访问的域名。</p>
+<p>DP 2.0将最大链路速率提高到20 Gbps &#x2F; lane，并具有更高效的128b &#x2F; 132b信道编码，最大有效载荷为77.37 Gbps - 与DP 1.4a相比，增加了三倍。</p>
+<p>这意味着DP 2.0是第一个以60 Hz刷新率支持8K分辨率（7680 x 4320）的标准，全彩色4：4：4分辨率，包括每像素30位（bpp），支持HDR-10。</p>
+<ol start="2">
+<li><p>单显示分辨率???<br> 一个16K（15360×8640）显示器@ 60Hz和30 bpp 4：4：4 HDR（带DSC） </p>
+<p> 一个10K（10240×4320）显示器@ 60Hz和24 bpp 4：4：4（无压缩） 双显示分辨率</p>
+<p> 两个8K（7680×4320）显示器@ 120Hz和30 bpp 4：4：4 HDR（带DSC） </p>
+<p> 两个4K（3840×2160）显示@ 144Hz和24 bpp 4：4：4（无压缩） 三重显示分辨率</p>
+<p> 三个10K（10240×4320）显示器@ 60Hz和30 bpp 4：4：4 HDR（带DSC） </p>
+<p> 三个4K（3840×2160）显示@ 90Hz和30 bpp 4：4：4 HDR（无压缩）</p>
+</li>
+</ol>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ol>
+<li>完全兼容现有HDMI1.4a标准和旧的HDMI标准。</li>
+<li>支持USB Type-C。</li>
+<li>支持144Hz刷新率</li>
+<li>支持6、8、10、12与16位色深。</li>
+<li>1080p的有效传输带宽保证长度为5米。</li>
+<li>多屏幕输出<br> DisplayPort 1.2支持MST（Multi-Stream Transport），单个DP可连接到多个显示器。要使用这项功能，显示器需要支持DP 1.2菊花链（Daisy-chaining），或使用MST Hub把DP一个拆成三个。</li>
+</ol>
 <h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>没有证书导致图床使用的http的图片直连，但是github主页只支持https的下载</p>
-<p><a target="_blank" rel="noopener" href="https://www.vi586.com/web/615.html">https://www.vi586.com/web/615.html</a></p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>无</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-07-10T12:26:46.000Z" title="7/10/2021, 12:26:46 PM">2021-07-10</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-03-11T14:17:40.893Z" title="3/11/2026, 2:17:40 PM">2026-03-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">8 minutes read (About 1229 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/07/10/OutOfWork/3-homepage/PicBed/3-githubPicBed/">PicBed &amp; OSS</a></p><div class="content"><h2 id="PicGo介绍"><a href="#PicGo介绍" class="headerlink" title="PicGo介绍"></a>PicGo介绍</h2><p>这是一款图片上传的工具，目前支持微博图床，七牛图床，腾讯云，又拍云，GitHub等图床，未来将支持更多图床。</p>
-<p>所以解决问题的思路就是，将本地的文件，或者剪切板上面的截图发送图床，然后生成在线图片的链接，走到哪就可以用到哪。</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
+无
+
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-10-05T12:51:19.000Z" title="10/5/2021, 12:51:19 PM">2021-10-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.190Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tips/">Tips</a></span><span class="level-item">6 minutes read (About 974 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/10/05/Work/hardware/USB/">USB &amp; Thunderbolt &amp; Type-C</a></p><div class="content"><h2 id="USB"><a href="#USB" class="headerlink" title="USB"></a>USB</h2><p>通用串行总线（英语：Universal Serial Bus，缩写：USB）是连接计算机系统与外部设备的一种串口总线标准，也是一种输入输出接口的技术规范，被广泛地应用于个人电脑和移动设备等信息通讯产品。</p>
+<p>最新一代的USB是USB4，传输速度为40Gbit&#x2F;s。物理接头USB Type-A、Type-B接头分正反面，新型USB Type-C接头不分正反。</p>
+<h2 id="区分USB3-0"><a href="#区分USB3-0" class="headerlink" title="区分USB3.0"></a>区分USB3.0</h2><ol>
+<li>按颜色区分，接口内部是黑色的为USB2.0，蓝色或红色的为USB3.0</li>
+<li>接口触点区分，USB2.0接口只有四个触点，而USB3.0有9个触点（外五内四）<ol>
+<li>4个（1个供电，2个数据，1个接地）；USB 3.0拥有9个（另外4个提供给SuperSpeed技术）；USB 3.1 Type-C拥有24个</li>
+</ol>
+</li>
+<li>还有一种是看接口标识，见下图<img src="https://pic.shaojiemike.top/img/20211005203056.png"></li>
+</ol>
+<h2 id="速率"><a href="#速率" class="headerlink" title="速率"></a>速率</h2><p><img src="https://pic.shaojiemike.top/img/20211005204513.png"></p>
+<h2 id="接口样式"><a href="#接口样式" class="headerlink" title="接口样式"></a>接口样式</h2><p><img src="https://pic.shaojiemike.top/img/20211005204640.png"><br><img src="https://pic.shaojiemike.top/img/20211006182611.png"><br><img src="https://pic.shaojiemike.top/img/20211006182646.png"></p>
+<h2 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h2><p><img src="https://pic.shaojiemike.top/img/20211006182017.png"></p>
+<h3 id="USB-2-0"><a href="#USB-2-0" class="headerlink" title="USB 2.0"></a>USB 2.0</h3><p>USB 2.0：2000年4月发布。增加更高的数据传输速率480Mbit&#x2F;s（现在称作Hi-Speed，大约57MB&#x2F;s），但受限于BOT传输协议和NRZI编码方式，实际最高传输速度只有35MByte&#x2F;s左右。</p>
+<h3 id="USB-3-0（USB-3-1-Gen1-USB-3-2-Gen1）"><a href="#USB-3-0（USB-3-1-Gen1-USB-3-2-Gen1）" class="headerlink" title="USB 3.0（USB 3.1 Gen1&#x2F;USB 3.2 Gen1）"></a>USB 3.0（USB 3.1 Gen1&#x2F;USB 3.2 Gen1）</h3><p>USB 3.0于2008年11月发布，速度由480Mbps大幅提升到5Gbps。USB 3.0插座通常是<strong>蓝色</strong>的，并向下兼容USB 2.0和USB 1.x。USB 3.0引入了全双工传输，USB 1.x和USB 2.0则是半双工传输。</p>
+<h3 id="USB-3-1（USB-3-1-Gen2-USB-3-2-Gen2x1）"><a href="#USB-3-1（USB-3-1-Gen2-USB-3-2-Gen2x1）" class="headerlink" title="USB 3.1（USB 3.1 Gen2&#x2F;USB 3.2 Gen2x1）"></a>USB 3.1（USB 3.1 Gen2&#x2F;USB 3.2 Gen2x1）</h3><p>USB3.0推广小组于2013年7月31日宣布USB 3.1规格[10]，传输速度提升为10Gb&#x2F;s，比USB3.0的5Gb&#x2F;s快上一倍，并向下兼容USB 2.0&#x2F;1.0，如果要得到10Gb&#x2F;s的传输速度仍需在主机、目标端同时具备对应的芯片才能达成，电力供应可高达100瓦。</p>
+<h3 id="USB-Type-C接口"><a href="#USB-Type-C接口" class="headerlink" title="USB Type-C接口"></a>USB Type-C接口</h3><p>于2014年8月完成。与USB 3.1规格大致相同。但USB-C只是一个接口，不一定支持USB 3.x或Power Delivery（许多手机的Type-C仍然使用USB 2.0）<img src="https://pic.shaojiemike.top/img/20211005210904.png"></p>
+<h3 id="USB-3-2（USB-3-2-Gen2x2）"><a href="#USB-3-2（USB-3-2-Gen2x2）" class="headerlink" title="USB 3.2（USB 3.2 Gen2x2）"></a>USB 3.2（USB 3.2 Gen2x2）</h3><p>在USB Type-C接口上实现双通道，速度方面，使用USB 3.2主机连接USB 3.2存储设备，可以实现两条通道10Gbps的传输速度，理论上也就是相当接近于20Gbps。</p>
+<p>另外，从USB 3.2开始，Type-C是唯一推荐的接口方案。</p>
+<h3 id="USB4"><a href="#USB4" class="headerlink" title="USB4"></a>USB4</h3><p>USB4项目集成Thunderbolt 3协议，USB4支持40Gbps的传输速度，固定Type-C口。</p>
+<h2 id="USB-Type-C接口-1"><a href="#USB-Type-C接口-1" class="headerlink" title="USB Type-C接口"></a>USB Type-C接口</h2><h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><p>可选集成DisplayPort、HDMI、MHL。<br>可选集成Thunderbolt。<br>可选集成USB4。</p>
+<h2 id="Thunderbolt"><a href="#Thunderbolt" class="headerlink" title="Thunderbolt"></a>Thunderbolt</h2><p>Thunderbolt（又称“雷电”，苹果中国译为“雷雳”[4]）是由英特尔发表的连接器标准，目的在于当作电脑与其他设备之间的通用总线，第一代与第二代接口是与Mini DisplayPort集成，较新的第三代开始改为与USB Type-C结合，并能提供电源。</p>
+<h3 id="历史-1"><a href="#历史-1" class="headerlink" title="历史"></a>历史</h3><p>由于 Thunderbolt 1, 2使用的是苹果Mini Displayport，配件无法用在其他电子设备，普及程度远低于对手USB。</p>
+<p>由于雷电协议需要额外的独立芯片支持，费用高昂。Intel决定把雷电协议开源给USB-IF。这间接促成了USB4的推出。<br><strong>第三版（Thunderbolt 3）</strong><br>2015年6月2日，COMPUTEX 2015 ，代号为Alpine Ridge，双倍带宽达到40 Gbit&#x2F;s (5 GB&#x2F;s)。Thunderbolt 3 物理接口改用USB Type-C。<br><img src="https://pic.shaojiemike.top/img/20211006182501.png"></p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
+无
+
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-09-26T13:18:22.000Z" title="9/26/2021, 1:18:22 PM">2021-09-26</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.188Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">3 minutes read (About 434 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/09/26/Work/HPC/llvm-mca/LLVM-mca5/">BHive : An Infrastructure for Adaptive Dynamic Optimization 2003 IEEE</a></p><div class="content"><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>动态优化逐渐显现出是一种解决传统静态汇编困难的好方法。 但是市面上有大量的针对开发静态优化的编译器框架，但是少有针对动态优化的。</p>
+<p>我们实现了一种动态分析和优化的框架，为DynamoRIO动态代码修改系统提供了一种创建额外模块的交互界面。通过简单轻量的API就可以提炼许多DynamoRIO运行时的底层细节，但是只能在单指令流下,而且不同指令显示的细节也是不同的。</p>
+<p>该API不仅可以用来优化，也可以instrumentation,热点分析和动态翻译。</p>
+<p>为了展现架构的有效性，我们实现了若干优化，一些例子有40%提升，基于DynamoRIO平均有12%加速。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>随着现代软件的复杂，还有动态load,共享库等特性，静态分析越来越衰弱。静态分析器去分析整个程序是困难或者不可能的，而静态优化又受限于静态代码分析器的准确性。而且静态优化过多会导致出错时难以debug。</p>
+<h2 id="DynamoRIO"><a href="#DynamoRIO" class="headerlink" title="DynamoRIO"></a>DynamoRIO</h2><h2 id="Client-Interface"><a href="#Client-Interface" class="headerlink" title="Client Interface"></a>Client Interface</h2><h3 id="Instruction-Representation"><a href="#Instruction-Representation" class="headerlink" title="Instruction Representation"></a>Instruction Representation</h3><h3 id="DynamoRIO-API"><a href="#DynamoRIO-API" class="headerlink" title="DynamoRIO API"></a>DynamoRIO API</h3><h3 id="DynamoRIO-Client"><a href="#DynamoRIO-Client" class="headerlink" title="DynamoRIO Client"></a>DynamoRIO Client</h3><h3 id="Extensions-for-Adaptive-Optimization"><a href="#Extensions-for-Adaptive-Optimization" class="headerlink" title="Extensions for Adaptive Optimization"></a>Extensions for Adaptive Optimization</h3><h3 id="Extensions-for-Custom-Traces"><a href="#Extensions-for-Custom-Traces" class="headerlink" title="Extensions for Custom Traces"></a>Extensions for Custom Traces</h3><h2 id="Examples"><a href="#Examples" class="headerlink" title="Examples"></a>Examples</h2><h3 id="Redundant-Load-Removal"><a href="#Redundant-Load-Removal" class="headerlink" title="Redundant Load Removal"></a>Redundant Load Removal</h3><h3 id="Strength-Reduction"><a href="#Strength-Reduction" class="headerlink" title="Strength Reduction"></a>Strength Reduction</h3><h3 id="Indirect-Branch-Dispatch"><a href="#Indirect-Branch-Dispatch" class="headerlink" title="Indirect Branch Dispatch"></a>Indirect Branch Dispatch</h3><h3 id="Custom-Traces"><a href="#Custom-Traces" class="headerlink" title="Custom Traces"></a>Custom Traces</h3><h2 id="Experimental-Results"><a href="#Experimental-Results" class="headerlink" title="Experimental Results"></a>Experimental Results</h2><h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><h2 id="Conclusions"><a href="#Conclusions" class="headerlink" title="Conclusions"></a>Conclusions</h2><p>就是这个动态框架好，使用范围广，前途光明</p>
+<h2 id="BHive的提取基本块的应该就是-bbuf"><a href="#BHive的提取基本块的应该就是-bbuf" class="headerlink" title="BHive的提取基本块的应该就是 bbuf"></a>BHive的提取基本块的应该就是 bbuf</h2><p><a target="_blank" rel="noopener" href="https://github.com/DynamoRIO/dynamorio/blob/master/api/samples/bbbuf.c">https://github.com/DynamoRIO/dynamorio/blob/master/api/samples/bbbuf.c</a></p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
+无
+
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-09-19T11:09:16.000Z" title="9/19/2021, 11:09:16 AM">2021-09-19</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.140Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Tips/">Tips</a></span><span class="level-item">4 minutes read (About 674 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/09/19/Work/software/perf/staticCodeAnalysis/">Static Code Analysis</a></p><div class="content"><h2 id="静态代码分析器的意义"><a href="#静态代码分析器的意义" class="headerlink" title="静态代码分析器的意义"></a>静态代码分析器的意义</h2><p>在不运行程序的情况下，预测程序性能表现。得到估计时钟周期，资源占用情况，潜在的代码瓶颈等的分析。以便优化程序，或者为了更好的运行程序反过来对CPU的架构设计提出意见。</p>
+<p>在预测的过程中，也会简单进行自动向量化，指令调度等工作。</p>
+<p>比如你想看在arm架构下该程序下有什么瓶颈，但是你只有intel的机器，你就可以通过静态代码分析器来分析。但是当前的效果都不是太好。</p>
+<h2 id="已有的Static-Code-Analyzer"><a href="#已有的Static-Code-Analyzer" class="headerlink" title="已有的Static Code Analyzer"></a>已有的Static Code Analyzer</h2><h3 id="IACA"><a href="#IACA" class="headerlink" title="IACA"></a>IACA</h3><p>IACA (the Intel Architecture Code Analyzer) is a (2019: <strong>end-of-life</strong>) freeware, <strong>closed-source</strong> static analysis tool made by Intel</p>
+<p>由于Intel对自己的处理器优化很了解，所有可以更好的预测。<br>比如 zero-idioms 和 micro-op fusions（聚合，将相邻指令变为一条指令）</p>
+<p>zero-idioms —— The processor recognizes that certain instructions are independent of the prior value of the register if the two operand registers are the same. An instruction that subtracts a register from itself will always give zero, regardless of the previous value of the register.</p>
+<h3 id="Ithemal"><a href="#Ithemal" class="headerlink" title="Ithemal"></a>Ithemal</h3><p>Ithemal (Instruction THroughput Estimator using MAchine Learning)<br>基于hierarchical LSTM–based 方法。基本块预测器，但是是黑盒。</p>
+<p>Long short-term memory (LSTM) is an artificial recurrent neural network (RNN) architecture used in the field of deep learning.</p>
+<p>应该是准确度最高的</p>
+<h3 id="LLVM-mca"><a href="#LLVM-mca" class="headerlink" title="LLVM-mca"></a>LLVM-mca</h3><p>LLVM Machine Code Analyzer<br>受到IACA启发的相似的工具，是乱序超标量(多条流水线，每周期可以完成2条以上指令，如下图)微架构模拟器。<br><img src="https://pic.shaojiemike.top/img/20210921154507.png"><br>使用了LLVM后端的调度模型参数。这种重用调度模型的选择对llvm cost 模型提供了经验。其准确性于调度模型有关。</p>
+<h3 id="OSACA"><a href="#OSACA" class="headerlink" title="OSACA"></a>OSACA</h3><p>Open Source Architecture Code Analyzer<br><img src="https://pic.shaojiemike.top/img/20210919192500.png"></p>
+<p>是IACA的开源替代，也和llvm-mca很像。是参数化的乱序模拟器，但是参数来自测量的指令查找表</p>
+<h2 id="cost-model"><a href="#cost-model" class="headerlink" title="cost model"></a>cost model</h2><p>LLVM 和GCC 也有cost model,但是是指令层面的，不是基本块层面的。</p>
+<p>比如LLVM 至少有3个：</p>
 <ol>
-<li>创建github仓库</li>
-<li>在设置的最后生成token<br><img src="https://raw.githubusercontent.com/Kirrito-k423/Picbed/main/img/20191204162436865.png"></li>
-<li>下载PicGo并设置github图床</li>
+<li>a generic, per-instruction IR (Intermediate Representation) cost model for its target-independent optimizations</li>
+<li>one for instruction scheduling (the scheduling model [14] is also used by llvm-mca);</li>
+<li>another one for register allocation</li>
 </ol>
-<h2 id="Cloudflare-R2-Storage"><a href="#Cloudflare-R2-Storage" class="headerlink" title="Cloudflare R2 Storage"></a>Cloudflare R2 Storage</h2><p>对象存储有时也称为 Blob 存储，可以存储任意的大型非结构化文件。我们常用的有 AWS 的 S3、阿里云的 OSS、腾讯云的 COS、华为云的 OBS，都是对象存储，他们都可以为我们提供延迟一致、持久性高和容量无限的服务，免去了我们本地文件系统的共享、备份等痛点。</p>
-<p>最为经典的是 AWS 的 S3（Simple Storage Service），刚刚推出的时候是革命性的服务，但也带来了新的痛点，上传、存储的费用还可以，但下载也就是取回的时候会被收取流量费，这个费用随着时间的推移，存储的文件越来越多，<strong>流量费也变得越来越高</strong>。</p>
-<p>2022年 5月 Cloudflare 就为我们带来了 R2 Storage，基于带宽联盟，为存储对象提供更低成本的存储服务。在后台，R2 自动智能管理数据分层，以在峰值负载时提高性能，并为不经常请求的对象降低成本。</p>
-<article class="message is-primary">
-        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>R2 的革命性</p>
-</div>
-        <div class="message-body">
-            <p>在上面我们了解了 Cloudflare R2 Storage 收费项目，发现了什么？只收取存储费用、操作费用，没有流量费用！是的没有流量费用，这就是 Cloudflare R2 Storage 的革命性，依托带宽联盟，做到了零出口费用！[^5]</p>
-
-        </div>
-    </article>
-
-<h2 id="picbed-OSS-compare"><a href="#picbed-OSS-compare" class="headerlink" title="picbed &#x2F; OSS compare"></a>picbed &#x2F; OSS compare</h2><ol>
-<li>github图床，国内连不上</li>
-<li>(推荐)七牛申请了免费的证书证书,由于是海外访问还是慢。<!-- ![](https://pic.shaojiemike.top/PicGo20210712151639.png)
-![](https://pic.shaojiemike.top/PicGo20210712152353.png) --></li>
-<li>one drive虽然能用也能访问，但是速度慢而且操作麻烦，只能一个个传。而且会失效</li>
-<li>OSS charge but easy-to-use.</li>
-</ol>
-<h3 id="定价对比"><a href="#定价对比" class="headerlink" title="定价对比"></a>定价对比</h3><div class="annotate" markdown>
-
-<table>
-<thead>
-<tr>
-<th>服务名称</th>
-<th>存储费用</th>
-<th>请求操作费用</th>
-<th>网络流量费用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Cloudflare R2</td>
-<td>10GB&#x2F;月免费 + 超量部分 $0.015&#x2F;GB&#x2F;月</td>
-<td>100万次操作&#x2F;月免费 + 超量部分 $4.50&#x2F;百万次操作（B类操作）</td>
-<td>免费</td>
-</tr>
-<tr>
-<td>阿里云 OSS</td>
-<td>0.12元&#x2F;GB&#x2F;月（1）</td>
-<td>0.01元&#x2F;万次请求</td>
-<td>0.50元&#x2F;GB</td>
-</tr>
-</tbody></table>
-</div>
-
-<ol>
-<li>(6GB内无需购买套餐，最低配置一年9元&#x2F;40GB)</li>
-<li>B类操作费用说明：每月有1000万次免费额度，超出后每百万次收取 $0.36 的操作费</li>
-</ol>
-<article class="message is-primary">
-        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>对象读取属于B类操作</p>
-</div>
-        <div class="message-body">
-            <ol>
-<li><strong>A类操作</strong>：费用较高，通常涉及状态变更（如上传、删除）</li>
-<li><strong>B类操作</strong>：通常为读取操作（如查看文件、获取元数据）</li>
-</ol>
-
-        </div>
-    </article>
-
-<h3 id="当前图床使用统计"><a href="#当前图床使用统计" class="headerlink" title="当前图床使用统计"></a>当前图床使用统计</h3><table>
-<thead>
-<tr>
-<th>时间节点</th>
-<th>存储量</th>
-<th>月流量</th>
-<th>请求次数</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>阿里云 2023年10月</td>
-<td>395.13MB</td>
-<td>21.41GB</td>
-<td>61,490次</td>
-</tr>
-<tr>
-<td>Cloudflare 2023年11月</td>
-<td>490MB</td>
-<td>未统计</td>
-<td>9,110次</td>
-</tr>
-</tbody></table>
-<p>当前月支出约10元且费用增长较快</p>
-<h2 id="我的选择分析"><a href="#我的选择分析" class="headerlink" title="我的选择分析"></a>我的选择分析</h2><ol>
-<li><p><strong>自建服务器的可行性</strong><br>我的博客本质是个人知识库（非跨平台发布），理论上可通过自建服务器存储图片，无需图床服务。</p>
-</li>
-<li><p><strong>Cloudflare + GitHub方案的三大隐患</strong>  </p>
-<ul>
-<li><strong>存储限制</strong>：图片可能触及 GitHub 仓库的推荐存储上限（官方建议不超过5GB）</li>
-<li><strong>构建延迟</strong>：每次推送代码后，Cloudflare Pages 会克隆整个图片仓库，导致博客构建时间过长（超20分钟会触发超时）</li>
-<li><strong>文件大小限制</strong>：Cloudflare Pages 对静态文件有单文件25MB的限制</li>
-</ul>
-</li>
-<li><p><strong>最终建议</strong><br>综合考量仍推荐使用对象存储（如阿里云OSS），规避GitHub方案的潜在问题。</p>
-</li>
-</ol>
-<h3 id="旧版阿里云图床配置"><a href="#旧版阿里云图床配置" class="headerlink" title="旧版阿里云图床配置"></a>旧版阿里云图床配置</h3><p>详见</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置参数</span></span><br><span class="line">* 存储空间名 shaojiemike</span><br><span class="line">* 存储区域 oss-cn-hangzhou</span><br><span class="line">* 存储路径 img/</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[^1]: <a target="_blank" rel="noopener" href="https://blog.csdn.net/kai123wen/article/details/104027802">阿里云OSS PicGo 配置图床教程 超详细</a></p>
-<p>[^2]: <a target="_blank" rel="noopener" href="https://docs.github.com/zh/enterprise-server@3.6/repositories/working-with-files/managing-large-files/about-large-files-on-github">large files on github</a></p>
-<p>[^3]: <a target="_blank" rel="noopener" href="https://developers.cloudflare.com/pages/platform/limits/#file-size">cloudflare pages limits</a></p>
-<p>[^4]: <a target="_blank" rel="noopener" href="https://www.aliyun.com/price/product?spm=a2c4g.11186623.2.10.51d344ffLR7P1t#/oss/detail/ossbag">阿里云 价格计算器</a></p>
-<p>[^5]: <a target="_blank" rel="noopener" href="https://www.renfei.net/posts/1003527">关于 Cloudflare R2 Storage 的使用体验测评和我的观点</a></p>
-<p>[^6]: <a target="_blank" rel="noopener" href="https://developers.cloudflare.com/r2/pricing/">cloudflare R2 Pricing</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-07-10T06:18:06.000Z" title="7/10/2021, 6:18:06 AM">2021-07-10</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-03-11T14:17:41.025Z" title="3/11/2026, 2:17:41 PM">2026-03-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">2 minutes read (About 255 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/07/10/Work/HPC/IPCC/ipcc3/">IPCC Preliminary SLIC Analysis</a></p><div class="content"><h2 id="VScode-Debug-Run"><a href="#VScode-Debug-Run" class="headerlink" title="VScode Debug Run"></a>VScode Debug Run</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;name&quot;: &quot;(gdb) 启动&quot;,</span><br><span class="line">    &quot;type&quot;: &quot;cppdbg&quot;,</span><br><span class="line">    &quot;request&quot;: &quot;launch&quot;,</span><br><span class="line">    &quot;program&quot;: &quot;/home/shaojiemike/github/IPCC/SLIC/SLIC&quot;,</span><br><span class="line">    &quot;args&quot;: [],</span><br><span class="line">    &quot;stopAtEntry&quot;: false,</span><br><span class="line">    &quot;cwd&quot;: &quot;$&#123;fileDirname&#125;&quot;,</span><br><span class="line">    &quot;environment&quot;: [],</span><br><span class="line">    &quot;externalConsole&quot;: false,</span><br><span class="line">    &quot;MIMode&quot;: &quot;gdb&quot;,</span><br><span class="line">    &quot;setupCommands&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;description&quot;: &quot;为 gdb 启用整齐打印&quot;,</span><br><span class="line">            &quot;text&quot;: &quot;-enable-pretty-printing&quot;,</span><br><span class="line">            &quot;ignoreFailures&quot;: true</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -g -std=c++11 SLIC.cpp -o SLIC #把调试信息加到可执行文件中，如果没有-g，你将看不见程序的函数名、变量名，所代替的全是运行时的内存地址。</span><br></pre></td></tr></table></figure>
-<h3 id="Debug-Process"><a href="#Debug-Process" class="headerlink" title="Debug Process"></a>Debug Process</h3><ol>
-<li>main</li>
-<li>LoadPPM 把数据读入imag<ol>
-<li>读类型、像素图片长宽 2599 3898</li>
-<li>读最大像素 255(应该是指rgb颜色，比如red只有256种，也就是8位二进制)</li>
-<li>读长宽的像素的rgb到imag返回,imag是2599*3898大小的unsigned int二维数组,每位存24位数2进制数。</li>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="throughput"><a href="#throughput" class="headerlink" title="throughput"></a>throughput</h3><p>Predicting the (average) number of clock cycles a processor takes to execute a block of assembly instructions<br>in steady state</p>
+<h3 id="performance-models-Processor-performance-models"><a href="#performance-models-Processor-performance-models" class="headerlink" title="performance models &#x2F; Processor performance models"></a>performance models &#x2F; Processor performance models</h3><p>指代静态代码分析器,就是别名。</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://github.com/RRZE-HPC/OSACA">https://github.com/RRZE-HPC/OSACA</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-09-18T15:01:13.000Z" title="9/18/2021, 3:01:13 PM">2021-09-18</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.205Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Architecture/">Architecture</a></span><span class="level-item">2 minutes read (About 332 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/09/18/Work/Architecture/companySpecificDesign/kunpeng/">Kunpeng</a></p><div class="content"><p><img src="https://pic.shaojiemike.top/img/20220706191616.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706191804.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706194535.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706192133.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706192208.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706192401.png"></p>
+<p>多线程SMT (Simultaneous multithreading)</p>
+<p><img src="https://pic.shaojiemike.top/img/20220706192649.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706192925.png"><br>统一的调度器复杂度超级高，只有Intel实现了，但是效果很好。</p>
+<p><img src="https://pic.shaojiemike.top/img/20220706193012.png"></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/51354994">什么是CPU Die</a></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706193217.png"><br>良品率会更高</p>
+<p><img src="https://pic.shaojiemike.top/img/20220706193253.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706193414.png"><br>自研OpenBLAS+ ，毕申编译器，自研MPI</p>
+<p><img src="https://pic.shaojiemike.top/img/20220706193501.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706193531.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706193559.png"></p>
+<p>片间一致性可以到达4P到16P？？？。Intel可以达到8P</p>
+<p><img src="https://pic.shaojiemike.top/img/20220706194215.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706194305.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706194356.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706194744.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706195047.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706194818.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706194901.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706194929.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706195017.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706195134.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706195252.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706195417.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706195438.png"></p>
+<p><img src="https://pic.shaojiemike.top/img/20220706195506.png"></p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
+<li>虽然说是保密的，但是鲲鹏930,950应该已经出来了<ol>
+<li>930，950是异构的核(是大小核吗？)</li>
 </ol>
 </li>
-<li>创建lables来存储分类结果, m_spcount 200, m_compactness 10</li>
-<li>计时运行 slic.PerformSLICO_ForGivenK(img, width, height, labels, numlabels, m_spcount, m_compactness);&#x2F;&#x2F;for a given number K of superpixels</li>
-<li>结果与check.ppm对比</li>
 </ol>
-<h3 id="skills-watch-arrays"><a href="#skills-watch-arrays" class="headerlink" title="skills: watch arrays"></a>skills: watch arrays</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">*(int(*)[100])labels</span><br><span class="line">*labels@10000</span><br></pre></td></tr></table></figure>
-<h2 id="SourceTrail-Analysis"><a href="#SourceTrail-Analysis" class="headerlink" title="SourceTrail Analysis"></a>SourceTrail Analysis</h2><h2 id="Vtune-Analysis"><a href="#Vtune-Analysis" class="headerlink" title="Vtune Analysis"></a>Vtune Analysis</h2><h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2></div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-07-10T05:58:05.000Z" title="7/10/2021, 5:58:05 AM">2021-07-10</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-03-11T14:17:41.023Z" title="3/11/2026, 2:17:41 PM">2026-03-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">a minute read (About 214 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/07/10/Work/HPC/IPCC/ipcc2/">IPCC Preliminary SLIC test</a></p><div class="content"><h2 id="test-on-node5"><a href="#test-on-node5" class="headerlink" title="test on node5"></a>test on node5</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">g++ -std=c++11 SLIC.cpp -o SLIC</span><br><span class="line">time ./SLIC</span><br><span class="line">./SLIC  28.46s user 0.52s system 99% cpu 29.027 total</span><br></pre></td></tr></table></figure>
-<p><img src="https://link.jscdn.cn/sharepoint/aHR0cHM6Ly9tYWlsdXN0Y2VkdWNuLW15LnNoYXJlcG9pbnQuY29tLzppOi9nL3BlcnNvbmFsL3NoYW9qaWVtaWtlX21haWxfdXN0Y19lZHVfY24vRWRtc0NBLUdYVWhFbGhvVTB2amM4TUVCdWs1eGVjVHhsYzVJTGx5ZFBxYnlndz9lPXFkeFNRUA.png" alt="slic"></p>
-<h2 id="test-on-amd-256"><a href="#test-on-amd-256" class="headerlink" title="test on amd_256"></a>test on amd_256</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc 10.2.0</span><br><span class="line">[1]    122955 segmentation fault (core dumped)  ./SLIC</span><br></pre></td></tr></table></figure>
-<p>我傻逼了，我把cpp移动了，但是输入文件忘记动了</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cat ./log/job_436960_rank0_fb0707_0.out</span><br><span class="line">Computing time=21872 ms</span><br><span class="line">There are 0 points&#x27; labels are different from original file.</span><br></pre></td></tr></table></figure>
-
-<h3 id="要求"><a href="#要求" class="headerlink" title="要求"></a>要求</h3><ol>
-<li>对slic.PerformSLICO_ForGivenK 函数运行时间进行通用优化<ol>
-<li>首先是并行化处理</li>
-<li>读取时间不在计分范围</li>
-<li>可以优化编译选项</li>
-<li>可以改变数据结构与类型</li>
-</ol>
-</li>
-<li>需保证结果正确</li>
-<li>之后有多组数据</li>
-</ol>
-<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>北京超算的机器传文件只能用wincp,而且有时候不行，需要刷新缓存</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2></div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-07-10T05:06:34.000Z" title="7/10/2021, 5:06:34 AM">2021-07-10</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-03-11T14:17:41.023Z" title="3/11/2026, 2:17:41 PM">2026-03-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Algorithms/">Algorithms</a></span><span class="level-item">3 minutes read (About 514 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/07/10/Work/HPC/IPCC/ipcc1/">IPCC Preliminary SLIC algorithm</a></p><div class="content"><h2 id="SLIC"><a href="#SLIC" class="headerlink" title="SLIC"></a>SLIC</h2><p>超像素算法就是将图像中的像素依据某种相似性进行聚类，形成一个大“像素”，这个大“像素”可以作为其他图像处理算法的基础。<br>或者是超像素算法将像素组合成感知有意义的原子区域( atomic regions)，其可以用于替换像素网格的刚性结构。它们捕获图像冗余，提供计算图像特征的方便原语( primitive )，并且大大降低了后续图像处理任务的复杂性。</p>
-<p>SLIC 算法的基本思想是:</p>
-<ol>
-<li>首先将图像从 RGB 颜色空间转换到 CIE-Lab 颜色空间，并把每个像素的（L，a， b）颜色值和（x， y）坐标值组成一个 5 维的特征向量 V[L, a, b, x, y]，</li>
-<li>然后，根据给定的网格步长 \(S&#x3D;\sqrt{N&#x2F;k}\)，初始化聚类中心 $$C_k&#x3D;[L_k, a_k, b_k, x_k, y_k]^T$$</li>
-<li>之后在每个聚类中心 Ck 的邻域（2Sx2S），计算邻域内各像素与该 Ck 点<br>的相似性度量，从而对邻域内的像素点进行聚类，</li>
-<li>之后迭代更新聚类中心，直至满足收敛条件。<br><img src="https://raw.githubusercontent.com/Kirrito-k423/Picbed/main/img/20161030202609559" alt="233"><br><img src="https://raw.githubusercontent.com/Kirrito-k423/Picbed/main/img/20161030202621414" alt="233"></li>
-</ol>
-<h3 id="算法特点"><a href="#算法特点" class="headerlink" title="算法特点"></a>算法特点</h3><ol>
-<li>通过将搜索空间限制为与超像素大小成比例的区域，显着地减少了优化中的距离计算的数量。<br><img src="https://raw.githubusercontent.com/Kirrito-k423/Picbed/main/img/20161030201633854" alt="233"></li>
-<li>加权距离度量组合颜色和空间接近度，同时提供对超像素的尺寸和紧凑性的控制。</li>
-<li>默认情况下，算法的唯一参数是k，其含义是大小大致相等的超像素的个数。</li>
-</ol>
-<h4 id="距离测量"><a href="#距离测量" class="headerlink" title="距离测量"></a>距离测量</h4><p><img src="https://raw.githubusercontent.com/Kirrito-k423/Picbed/main/img/20161030202918590" alt="233"><br><img src="https://raw.githubusercontent.com/Kirrito-k423/Picbed/main/img/20161030202926434" alt="233"><br><img src="https://raw.githubusercontent.com/Kirrito-k423/Picbed/main/img/20161030202934920" alt="233"></p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/bailing910/article/details/79747689">https://blog.csdn.net/bailing910/article/details/79747689</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-07-09T08:42:20.000Z" title="7/9/2021, 8:42:20 AM">2021-07-09</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-03-11T14:17:40.891Z" title="3/11/2026, 2:17:40 PM">2026-03-11</time></span><span class="level-item"><a class="link-muted" href="/categories/Network/">Network</a></span><span class="level-item">3 minutes read (About 513 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/07/09/OutOfWork/3-homepage/SSL/SSL/">SSL</a></p><div class="content"><h2 id="什么是SSL证书"><a href="#什么是SSL证书" class="headerlink" title="什么是SSL证书"></a>什么是SSL证书</h2><p>SSL是SecureSocketLayer的缩写，即安全套接层协议，SSL证书是一种数字证书，主要是给予网站HTTPS安全协议加密传输与信任的功能。SSL证书拥有数字加密与认证过程，加密协议可以保护网站。</p>
-<p>高层的应用协议如HTTP、FTP、Telnet等能透明地建立于SSL协议之上。其在应用层协议通信之前就已经完成加密算法、通信密钥的协商以及服务器认证工作。在此之后应用层协议所传送的数据都会被加密，从而保证们在互联网上通信的安全。</p>
-<h2 id="个人网站需要证书吗？"><a href="#个人网站需要证书吗？" class="headerlink" title="个人网站需要证书吗？"></a>个人网站需要证书吗？</h2><p>先了解一下安装SSL证书有哪些作用吧。<br>　　<br>　　1.网站数据的加密：对网站的数据进行加密，达到能够保护数据不会被泄露的效果。<br>　　2.身份的验证： 安装SSL证书可以证实真实信息，防止流量被劫持、防止被中间人攻击等。<br>　　3.显示绿色小锁，消除不安全信息：在网址栏当中会展示绿色小锁，消除主流浏览器对该网址提示“不安全”标记。<br>　　4.利于收录：谷歌百度等主流搜索引擎会优先展示和收录https的网站，也就是安装SSL证书的网站。<br>　　5.绿色的地址栏：安装高级的SSL证书可在地址栏当中显示绿色企业名称，有利于企业品牌的宣传以及客户的信任。<br>　　<br>如果你的个人网站不需要信息加密、不需要身份验证、不需要用户的体验、也不需要优化，那么你也就没必要去购买安装SSL证书。</p>
-<h2 id="个人网站DV证书的授权"><a href="#个人网站DV证书的授权" class="headerlink" title="个人网站DV证书的授权"></a>个人网站DV证书的授权</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/bennny/article/details/82988260">https://blog.csdn.net/bennny/article/details/82988260</a></p>
-</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/page/49/">Previous</a></div><div class="pagination-next"><a href="/page/51/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/">1</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/49/">49</a></li><li><a class="pagination-link is-current" href="/page/50/">50</a></li><li><a class="pagination-link" href="/page/51/">51</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">502</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">558</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">47</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">15</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">40</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">55</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-27T12:00:30.000Z">2026-02-27</time></p><p class="title"><a href="/2026/02/27/Work/1-BusinessTrip/2601-VeRLDanceGRPO/">Business Trip: 2601-2602 verl + DanceGRPO</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-05T02:24:57.000Z">2026-02-05</time></p><p class="title"><a href="/2026/02/05/Work/Artificial%20Intelligence/Training/PostTrain/0-RLBasic/">The Mechanics of RL: How Inference Sampling Shapes the Probability Landscape</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-02T12:00:30.000Z">2026-02-02</time></p><p class="title"><a href="/2026/02/02/Work/0-Digital%20Worker/NewCodingWay/">My Digital Worker : New Coding Way</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-02T12:00:30.000Z">2026-02-02</time></p><p class="title"><a href="/2026/02/02/Work/0-Digital%20Worker/Target1/">My Digital Worker : Target 1</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-02T12:00:30.000Z">2026-02-02</time></p><p class="title"><a href="/2026/02/02/Work/0-Digital%20Worker/AutoMonneyMaker/AutoTrader/">My Digital Worker : AutoMoneyMaker - AutoTrader</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BFS/"><span class="tag">BFS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BHive/"><span class="tag">BHive</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BT/"><span class="tag">BT</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/BTL/"><span class="tag">BTL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Baka-Mitai/"><span class="tag">Baka Mitai</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bash/"><span class="tag">Bash</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/268031">https://bbs.huaweicloud.com/blogs/268031</a></p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-09-18T14:03:30.000Z" title="9/18/2021, 2:03:30 PM">2021-09-18</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.198Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Overview/">Overview</a></span><span class="level-item">2 minutes read (About 295 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/09/18/Work/Architecture/GPU/GPU/">GPU</a></p><div class="content"><p>这篇聚焦于 GPU 发展的起源，目的和历史。（看历史真好玩）</p></div><a class="article-more button is-small is-size-7" href="/2021/09/18/Work/Architecture/GPU/GPU/#more">Read more</a></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-09-18T11:28:18.000Z" title="9/18/2021, 11:28:18 AM">2021-09-18</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-03T08:59:59.200Z" title="7/3/2026, 8:59:59 AM">2026-07-03</time></span><span class="level-item"><a class="link-muted" href="/categories/architecture/">architecture</a></span><span class="level-item">11 minutes read (About 1612 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2021/09/18/Work/Architecture/ISA/ISA/">ISA &amp; Micro-architecture</a></p><div class="content"><h2 id="Instruction-Set-Architecture-ISA"><a href="#Instruction-Set-Architecture-ISA" class="headerlink" title="Instruction Set Architecture(ISA)"></a>Instruction Set Architecture(ISA)</h2><p>指令集架构（Instruction Set Architecture）是指一种类型<strong>CPU</strong>中用来计算和控制计算机系统的一套指令的集合。</p>
+<p>指令集架构主要规定了指令格式、寻址访存（寻址范围、寻址模式、寻址粒度、访存方式、地址对齐等）、数据类型、寄存器。指令集通常包括<strong>三大类</strong>主要指令类型：<strong>运算指令、分支指令和访存指令</strong>。此外，还包括架构相关指令、复杂操作指令和其他特殊用途指令。因此，一种CPU执行的指令集架构不仅决定了CPU所要求的能力，而且也决定了指令的格式和CPU的结构。X86架构和ARMv8架构就是指令集架构的范畴。</p>
+<p>所以不要说Nvidia是属于x86还是arm了，显卡应该是有自己的架构的。比如NV Tesla架构 、Fermi架构、Maxwell架构、Kepler架构、Turing架构。</p>
+<p>而且X86具体到Intel,也有Skylake 架构 Ice lake 架构 Haswell架构等具体的实现</p>
+<h2 id="CISC与RISC的历史"><a href="#CISC与RISC的历史" class="headerlink" title="CISC与RISC的历史"></a>CISC与RISC的历史</h2><p>复杂指令集（CISC，complex instruction set computer）</p>
+<p>RISC：Reduced Instruction Set Computer</p>
+<h3 id="Three-Performance-Knobs"><a href="#Three-Performance-Knobs" class="headerlink" title="Three Performance Knobs"></a>Three Performance Knobs</h3><p>$$p(performance)&#x3D;\frac{IPC*f}{Instruction\ Count}$$<br><img src="https://pic.shaojiemike.top/img/20210921151254.png"></p>
+<p>在计算机发展初期，计算机的优化方向是通过设置一些功能复杂的指令，把一些原来由软件实现的、常用的功能改用硬件的指令系统实现(减少IC)，以此来提高计算机的执行速度。也就是为了减少程序的设计时间，逐渐开发出单一指令，复杂操作的程序代码。设计师只需写下简单的指令，再交给CPU去执行。</p>
+<p>但是后来有人发现，整个指令集中，只有约20％的指令常常会被使用到，大约占了整个程序的80％；剩余80％的指令，只占了整个程序的20％。（典型的二八原则）</p>
+<p>于是有人提出RISC尽量简化计算机指令功能的想法，主张硬件应该专心加速常用的指令，较为复杂的指令则利用常用的指令去组合。功能简单、能在一个节拍内执行完成的指令被保留，而较复杂的功能用一段子程序来实现，这种计算机系统就被称为精简指令系统计算机。</p>
+<p>简单来说，CISC任务处理能力强，适合桌面电脑和服务器。RISC通过精简CISC指令种类，格式，简化寻址方式，达到省电高效的效果，适合手机、平板、数码相机等便携式电子产品。<br><img src="https://pic.shaojiemike.top/img/20210918193700.png"></p>
+<h2 id="各种架构"><a href="#各种架构" class="headerlink" title="各种架构"></a>各种架构</h2><h3 id="X86架构"><a href="#X86架构" class="headerlink" title="X86架构"></a>X86架构</h3><p>1978年6月8日，Intel 发布了新款16位微处理器 8086，也同时开创了一个新时代：X86架构诞生了。</p>
+<p>X86指令集是美国Intel公司为其第一块16位CPU（i8086）专门开发的，美国IBM公司1981年推出的世界第一台PC机中的CPU–i8088（i8086简化版）使用的也是X86指令。</p>
+<p>为了保证电脑能继续运行以往开发的各类应用程序以保护和继承丰富的软件资源，所以Intel公司所生产的所有CPU仍然继续使用X86指令集。</p>
+<h3 id="IA64"><a href="#IA64" class="headerlink" title="IA64"></a>IA64</h3><p>IA64，又称英特尔安腾架构（Intel Itanium architecture），使用在Itanium处理器家族上的64位指令集架构，由英特尔公司与惠普公司共同开发，2001年首次推出。</p>
+<h3 id="ARM"><a href="#ARM" class="headerlink" title="ARM"></a>ARM</h3><p>见 arm.md</p>
+<h3 id="MIPS"><a href="#MIPS" class="headerlink" title="MIPS"></a>MIPS</h3><p>1981年出现，由MIPS科技公司开发并授权，它是基于一种固定长度的定期编码指令集，并采用 导入&#x2F;存储（Load&#x2F;Store）数据模型。</p>
+<p>mips是一个学院派的cpu，授权门槛极低，因此很多厂家都做mips或者mips衍生架构。我们平时接触到的mips架构cpu主要用在嵌入式领域，比如路由器。</p>
+<p>目前最活跃的mips是中国的龙芯，其loongisa架构其实是mips的扩展。</p>
+<h3 id="DEC-Alpha"><a href="#DEC-Alpha" class="headerlink" title="DEC Alpha"></a>DEC Alpha</h3><p>Alpha是DEC公司推出的RISC指令集系统，基于Alpha指令集的CPU也称为Alpha AXP架构，是64位的 RISC微处理器，最初由DEC公司制造，并被用于DEC自己的工作站和服务器中。作为VAX的后续被开发，支持VMS操作系统，如 Digital UNIX。</p>
+<p>侧重超算，目前貌似最活跃是中国申威，神威太湖之光的cpu</p>
+<h3 id="RISC-V"><a href="#RISC-V" class="headerlink" title="RISC-V"></a>RISC-V</h3><p>2010年提出，受到大家的支持。USTC有团队研究。<br><img src="https://pic.shaojiemike.top/img/v2-c0636196ce2d4c1522c66d05ab7e50f3_720w.jpg"></p>
+<h2 id="Instruction-Set-Architecture-ISA-的发展展望"><a href="#Instruction-Set-Architecture-ISA-的发展展望" class="headerlink" title="Instruction Set Architecture(ISA)的发展展望"></a>Instruction Set Architecture(ISA)的发展展望</h2><p>90年代，MIPS和Alpha作为知名RISC在与X86竞争计算机市场中失败，又在错过智能终端高速发展的机遇中走向衰弱。2010年发布的RISC-V作为从发明伊始即以开源为最大特色的RISC ISA受到全球学界、产业界的高度关注。全球顶级学府、科研机构、芯片巨头纷纷参与，各国政府出台政策支持RISC-V的发展和商业化。RISC-V有望成为X86和ARM之后ISA第三极。</p>
+<h2 id="微架构（Micro-architecture）"><a href="#微架构（Micro-architecture）" class="headerlink" title="微架构（Micro-architecture）"></a>微架构（Micro-architecture）</h2><p>实现指令集架构的<strong>物理</strong>电路被称为处理器的微架构（Micro-architecture）</p>
+<p>大多数情况下，一种处理器的微架构是针对一种特定指令集架构进行<strong>物理实现</strong>。少部分处理器架构设计为了更好的兼容性，会在电路设计上实现多个指令集架构。虽然，指令集架构可以授权给多家企业，但微架构的设计细节，也就是对指令的<strong>物理实现</strong>方式是各家厂商绝对保密的。</p>
+<h2 id="需要进一步的研究学习"><a href="#需要进一步的研究学习" class="headerlink" title="需要进一步的研究学习"></a>需要进一步的研究学习</h2><p>暂无</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
+<h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/423489755/answer/1622380842">https://www.zhihu.com/question/423489755/answer/1622380842</a></p>
+</div></article></div><nav class="pagination" role="navigation" aria-label="pagination"><div class="pagination-previous"><a href="/page/49/">Previous</a></div><div class="pagination-next"><a href="/page/51/">Next</a></div><ul class="pagination-list is-hidden-mobile"><li><a class="pagination-link" href="/">1</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/49/">49</a></li><li><a class="pagination-link is-current" href="/page/50/">50</a></li><li><a class="pagination-link" href="/page/51/">51</a></li><li><span class="pagination-ellipsis">&hellip;</span></li><li><a class="pagination-link" href="/page/55/">55</a></li></ul></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">547</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">36</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">649</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">85</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:40:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T08:07:04.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/Training/BSND-TND-Operator-Layout/">BSND TND Operator Layout</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-03T02:42:00.000Z">2026-07-03</time></p><p class="title"><a href="/2026/07/03/Work/Artificial%20Intelligence/AIInfra/AIInfraDailyRadar/">AI Infra Daily Radar</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-02T04:50:00.000Z">2026-07-02</time></p><p class="title"><a href="/2026/07/02/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Assembly/"><span class="tag">Assembly</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async/"><span class="tag">Async</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Async-RL/"><span class="tag">Async RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AudioVideo/"><span class="tag">AudioVideo</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
             article: {
                 highlight: {
                     clipboard: true,
