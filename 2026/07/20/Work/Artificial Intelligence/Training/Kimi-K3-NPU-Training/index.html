@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Kimi K3 NPU Training - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       Kimi K3 的 NPU 适配不是给现有 MLA-MoE 模型换一组配置。它同时引入 Kimi Delta Attention（KDA）、Block Attention Residuals（AttnRes）和 Stable LatentMoE，分别改变层内状态、跨层残差和专家通信。 截至 2026 年 7 月 20 日，官方已确"><meta property="og:type" content="blog"><meta property="og:title" content="Kimi K3 NPU Training"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/07/20/Work/Artificial%20Intelligence/Training/Kimi-K3-NPU-Training/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       Kimi K3 的 NPU 适配不是给现有 MLA-MoE 模型换一组配置。它同时引入 Kimi Delta Attention（KDA）、Block Attention Residuals（AttnRes）和 Stable LatentMoE，分别改变层内状态、跨层残差和专家通信。 截至 2026 年 7 月 20 日，官方已确"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-07-20T10:30:00.000Z"><meta property="article:modified_time" content="2026-07-20T11:31:17.113Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="NPU"><meta property="article:tag" content="TND"><meta property="article:tag" content="KIMI"><meta property="article:tag" content="KDA"><meta property="article:tag" content="Megatron"><meta property="article:tag" content="FSDP2"><meta property="article:tag" content="MoE"><meta property="article:tag" content="Parallelism"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/07/20/Work/Artificial%20Intelligence/Training/Kimi-K3-NPU-Training/"},"headline":"Kimi K3 NPU Training","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-07-20T10:30:00.000Z","dateModified":"2026-07-20T11:31:17.113Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       Kimi K3 的 NPU 适配不是给现有 MLA-MoE 模型换一组配置。它同时引入 Kimi Delta Attention（KDA）、Block Attention Residuals（AttnRes）和 Stable LatentMoE，分别改变层内状态、跨层残差和专家通信。 截至 2026 年 7 月 20 日，官方已确"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/07/20/Work/Artificial%20Intelligence/Training/Kimi-K3-NPU-Training/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-07-20T10:30:00.000Z" title="7/20/2026, 10:30:00 AM">2026-07-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-20T11:31:17.113Z" title="7/20/2026, 11:31:17 AM">2026-07-20</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">36 minutes read (About 5398 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Kimi K3 NPU Training</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>Kimi K3 的 NPU 适配不是给现有 MLA-MoE 模型换一组配置。它同时引入 <strong>Kimi Delta Attention（KDA）、Block Attention Residuals（AttnRes）和 Stable LatentMoE</strong>，分别改变层内状态、跨层残差和专家通信。</p>
+<p>截至 2026 年 7 月 20 日，官方已确认 K3 是 2.8T 参数、原生多模态、1M 上下文、896 专家激活 16 个，并采用 <code>3× KDA + 1× Gated MLA</code>；但完整权重、精确 <code>config</code> 和技术报告仍待发布。因此本文严格区分 <strong>已确认事实、组件证据、工程推导和发布后必验项</strong>，目标是形成可执行的 NPU bring-up 与性能优化计划，而不是制造一份猜测配置。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>K3 的 NPU 训练适配可以复用现有 MLA、MoE、GDN、FSDP2 和 checkpoint 基础设施，但不能按“K2 加一个新 attention”估算。真正决定工期的四个问题是：</p>
+<ol>
+<li><strong>KDA 训练算子</strong>：公开 FlashKDA 只有 CUDA 推理前向；NPU 需要 BF16 前向、反向、短卷积、递归状态、重计算和后续 TND&#x2F;CP 语义。</li>
+<li><strong>AttnRes 跨层状态</strong>：它不再只传递相邻层 residual。PP 必须对齐 AttnRes block，并管理跨 stage 的增量 block representation。</li>
+<li><strong>896 专家的分片</strong>：EP 是基础能力，不是可选优化。普通 FSDP2 整层 all-gather 无法合理承载 2.8T、896 专家模型。</li>
+<li><strong>配置仍未公开</strong>：精确层数、hidden size、head、latent size、vision tower 和 checkpoint key 都是权重发布后的 release gate。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>目标路径</th>
+<th>建议</th>
+<th>第一阻塞项</th>
+<th>权重处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Megatron + MindSpeed</td>
+<td>作为完整 TP&#x2F;PP&#x2F;EP&#x2F;CP 路径</td>
+<td>KDA NPU、AttnRes PP、K3 model spec</td>
+<td>HF 权重需要逻辑映射和分布式转换</td>
+</tr>
+<tr>
+<td>FSDP2&#x2F;HSDP + EP</td>
+<td>作为更贴近 HF 的快速 bring-up 路径</td>
+<td>EP-aware expert sharding、KDA NPU</td>
+<td>可直接分片加载 HF；建议转 DCP 加速重启</td>
+</tr>
+<tr>
+<td>定长数据</td>
+<td>第一阶段默认</td>
+<td>多模态 batch contract</td>
+<td>工作量可控，利于静态 EP</td>
+</tr>
+<tr>
+<td>TND&#x2F;THD</td>
+<td>第二阶段</td>
+<td>KDA 序列边界、AttnRes cache、PP&#x2F;CP metadata</td>
+<td>不是只改一次 reshape</td>
+</tr>
+</tbody></table>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>当前不能确定的参数</p>
+</div>
+        <div class="message-body">
+            <p>K3 的精确层数、hidden size、KDA&#x2F;MLA head 数、latent size、vision tower、共享专家数、checkpoint key 和实际激活参数量尚未公开。Kimi Linear 48B-A3B 的 <code>27 layers / hidden 2304 / 256 experts</code> 只能用于理解代码形状，<strong>不能写入 K3 config</strong>。</p>
+
+        </div>
+    </article>
+
+<figure markdown>
+  ![Kimi K3 证据分级与 NPU 适配](https://pic.shaojiemike.top/shaojiemike/2026/07/4741abe745775b133aad2b41c1ef3d61.png){ width=95% }
+  <figcaption>自绘认知示意图：先把官方事实、组件证据和发布后必验项分开，再依次处理 KDA、AttnRes、LatentMoE 与 NPU 适配。</figcaption>
+</figure>
+
+<h2 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h2><h3 id="已确认的骨架"><a href="#已确认的骨架" class="headerlink" title="已确认的骨架"></a>已确认的骨架</h3><p>官方材料确认 K3 使用三组相互耦合的新结构：[^k3-blog][^k3-quickstart]</p>
+<ul>
+<li><strong>KDA 与 Gated MLA</strong>：按 <code>3:1</code> 周期交错。KDA 用固定状态压缩历史，Gated MLA 周期性提供全局 softmax attention。</li>
+<li><strong>Block AttnRes</strong>：沿深度方向从多个 block representation 中学习加权读取，而不是固定把上一层 residual 与当前分支相加。</li>
+<li><strong>Stable LatentMoE</strong>：共有 896 个 routed experts，每个 token 激活 16 个；专家主计算位于低维 latent space。</li>
+<li><strong>训练稳定性与效率组件</strong>：Quantile Balancing、Per-Head Muon、SiTU，以及从 SFT 阶段开始的 MXFP4 weight + MXFP8 activation QAT。</li>
+</ul>
+<p>如果总 Transformer 层数是 <code>L</code>，忽略不完整尾部后只能得到近似层分布：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">KDA layers       ≈ 3L / 4</span><br><span class="line">Gated MLA layers ≈  L / 4</span><br></pre></td></tr></table></figure>
+
+<p>这不是精确层表。发布后必须从 <code>layer_types</code> 或等价配置逐层展开，并检查首尾层、vision 融合层和 AttnRes block 边界是否打破周期。</p>
+<figure markdown>
+  ![Kimi Linear 架构图](https://pic.shaojiemike.top/shaojiemike/2026/07/6642237b2b41a629307bc7b0f11d64b2.png){ width=82% }
+  <figcaption>Kimi Linear 论文 Figure 3：KDA、MLA 与 MoE 的 3:1 混合结构。它是 K3 的组件先例，不是 K3 完整结构图；K3 还加入 Block AttnRes、Stable LatentMoE 等变化。</figcaption>
+</figure>
+
+<p>KDA 不是普通线性 attention 的改名。相较 Gated Delta Net（GDN）每个 head 使用标量 forget gate，KDA 为通道维度提供更细粒度的 gate。公开 Kimi Linear 实现的典型计算包含：[^kimi-linear][^fla-kda]</p>
+<ol>
+<li>从归一化输入投影 <code>q/k/v</code>、forget gate、update gate 和 output gate。</li>
+<li>对 <code>q/k</code> 分支执行短卷积，并对 packed sequence 边界做状态隔离。</li>
+<li>对 <code>q/k</code> 做 L2 normalization，构造通道级衰减与 <code>beta</code>。</li>
+<li>训练时执行 chunkwise KDA，decode 时更新每个 head 的固定矩阵状态。</li>
+<li>对 KDA 输出做 head-wise RMSNorm、output gate 和线性投影。</li>
+</ol>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Kimi Linear 不是 K3 config</p>
+</div>
+        <div class="message-body">
+            <p>Kimi Linear 48B-A3B 有 27 层，其中 20 个 KDA 层和 7 个 full-attention 层；hidden size 为 2304，KDA 有 32 个 128 维 head，MoE 有 256 个 experts、top-8。本文只用它定位 KDA tensor 与 forward 分支。K3 已公开的是 2.8T、896&#x2F;top-16 和 3:1 周期，不能把前者参数外推到后者。</p>
+
+        </div>
+    </article>
+
+<h3 id="参数量与内存"><a href="#参数量与内存" class="headerlink" title="参数量与内存"></a>参数量与内存</h3><p>设非 routed-expert 参数为 <code>D</code>，routed-expert 参数为 <code>E</code>。官方总参数给出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D + E = 2.8T</span><br></pre></td></tr></table></figure>
+
+<p>如果只按 16&#x2F;896 的专家稀疏度计算，token 参与的参数近似为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">P_active = D + E × 16 / 896</span><br><span class="line">         = 50B + 55D / 56</span><br></pre></td></tr></table></figure>
+
+<p>因此只能确定 routed expert 部分每次激活 <code>1/56</code>，不能确定 <code>D</code>。<strong>“K3 激活 50B”不是已公开事实</strong>；shared expert、attention、embedding、vision tower、latent projection 都会增加 active parameters。</p>
+<p>从工程容量看，2.8T 已经给出硬下界：</p>
+<ul>
+<li><strong>BF16 权重</strong>：约 <code>5.6 TB</code>，还不含 padding、metadata 与临时转换空间。</li>
+<li><strong>常见 mixed-precision Adam 规划代理</strong>：按约 16 bytes&#x2F;parameter 是 <code>44.8 TB</code> 全局状态；K3 实际使用 Per-Head Muon，精确状态必须按公开实现重算。</li>
+<li><strong>分摊下界</strong>：44.8 TB 在 512、1024、2048 卡上分别约 87.5、43.75、21.9 GB&#x2F;卡，尚未计 activation、通信 buffer、FSDP all-gather 和 NPU workspace。</li>
+</ul>
+<p>这说明首个正确性任务必须使用 <strong>tiny proxy config</strong>。不应把完整 2.8T checkpoint 当作算子单测环境。</p>
+<h3 id="前向流程"><a href="#前向流程" class="headerlink" title="前向流程"></a>前向流程</h3><p>在未知精确 vision contract 的前提下，可以建立如下模型级前向假设；虚线项都需要发布后核验：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">  A[&quot;文本与视觉输入&quot;] --&gt; B[&quot;Tokenizer / Vision Tower / Projector&quot;]</span><br><span class="line">  B --&gt; C[&quot;Token Embedding&quot;]</span><br><span class="line">  C --&gt; D[&quot;Block AttnRes 深度读取&quot;]</span><br><span class="line">  D --&gt; E&#123;&quot;当前层类型&quot;&#125;</span><br><span class="line">  E --&gt;|&quot;3/4 周期&quot;| F[&quot;KDA: Conv + Gate + Delta State&quot;]</span><br><span class="line">  E --&gt;|&quot;1/4 周期&quot;| G[&quot;Gated MLA&quot;]</span><br><span class="line">  F --&gt; H[&quot;Stable LatentMoE&quot;]</span><br><span class="line">  G --&gt; H</span><br><span class="line">  H --&gt; I[&quot;更新 AttnRes block representation&quot;]</span><br><span class="line">  I --&gt; D</span><br><span class="line">  I --&gt; J[&quot;Final Norm / LM Head&quot;]</span><br></pre></td></tr></table></figure>
+
+<p>三类状态决定并行实现：</p>
+<ul>
+<li><strong>序列状态</strong>：KDA 的短卷积缓存和矩阵递归状态，需要正确处理 sequence boundary、CP 切分和重计算。</li>
+<li><strong>深度状态</strong>：Block AttnRes 的 block representation 跨层存在，PP 不再只传一个 hidden tensor。</li>
+<li><strong>专家状态</strong>：Stable LatentMoE 的 router、latent projection、expert bucket 和负载统计跨 EP group 组织。</li>
+</ul>
+<h2 id="NPU-算子支持度"><a href="#NPU-算子支持度" class="headerlink" title="NPU 算子支持度"></a>NPU 算子支持度</h2><p>现有 Ascend 栈并非从零开始。RMSNorm、RoPE、softmax attention、grouped matmul、MoE token permute&#x2F;unpermute 和 MC2 路径都已有基础；MindSpeed-LLM 还提供 Qwen3-Next GDN 的 NPU、CP、packed&#x2F;TND 与 FSDP2+EP 参考实现。[^mindspeed-gdn][^mindspeed-fsdp-ep]</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>可复用基础</th>
+<th>当前支持判断</th>
+<th>主要缺口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RMSNorm &#x2F; linear &#x2F; SiLU</td>
+<td><code>torch_npu</code> 与融合 MLP</td>
+<td>高</td>
+<td>K3 精确 fusion 边界</td>
+</tr>
+<tr>
+<td>Gated MLA</td>
+<td>NPU fused attention、RoPE、K2 MLA 经验</td>
+<td>中高</td>
+<td>Gated MLA 的 gate 与投影布局</td>
+</tr>
+<tr>
+<td>LatentMoE</td>
+<td>GMM、permute&#x2F;unpermute、AllToAll&#x2F;MC2</td>
+<td>中</td>
+<td>latent projection、SiTU、router 与 shared expert 语义</td>
+</tr>
+<tr>
+<td>Block AttnRes</td>
+<td>基础 GEMM&#x2F;softmax&#x2F;RMSNorm</td>
+<td>中低</td>
+<td>跨层 cache、PP 通信与融合算子</td>
+</tr>
+<tr>
+<td>KDA 固定长度前向</td>
+<td>GDN&#x2F;FLA 算法和 NPU GDN 先例</td>
+<td>低</td>
+<td>通道 gate、DPLR chunk kernel、短卷积、状态布局</td>
+</tr>
+<tr>
+<td>KDA 反向</td>
+<td>FLA CUDA autograd 语义</td>
+<td><strong>缺失</strong></td>
+<td><code>dq/dk/dv/dbeta/dgate/dstate/dA/dbias</code> 的 NPU kernel 与精度</td>
+</tr>
+<tr>
+<td>KDA TND&#x2F;CP</td>
+<td>GDN CP、FLA <code>cu_seqlens</code> 参考</td>
+<td><strong>缺失</strong></td>
+<td>packed 边界 reset、head&#x2F;sequence 通信、变长 backward</td>
+</tr>
+<tr>
+<td>MXFP4&#x2F;MXFP8 训练</td>
+<td>官方 K3 QAT 事实、NPU 低精度基础</td>
+<td>待核验</td>
+<td>training recipe、scale granularity、checkpoint 与累计精度</td>
+</tr>
+</tbody></table>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>不要把 FlashKDA 当训练支持</p>
+</div>
+        <div class="message-body">
+            <p>FlashKDA 当前面向 NVIDIA SM90+、CUDA 12.9+，公开路径在 <code>torch.inference_mode()</code> 下只做 forward。它支持 fixed&#x2F;varlen 和 BF16，可以说明算子接口与 inference 性能潜力，但不能证明 NPU、backward、recompute 或训练稳定性。[^flash-kda]</p>
+
+        </div>
+    </article>
+
+<p>Kimi Linear 的公开组件结果表明混合 KDA 在 1M 上下文可减少最多 75% KV cache，并在论文环境中获得最高约 6.3 倍 decode throughput。它解释了 K3 选择 KDA 的动机，<strong>不是 K3 在 Ascend 上的性能承诺</strong>。[^kimi-linear]</p>
+<figure markdown>
+  ![Kimi Linear 长上下文性能](https://pic.shaojiemike.top/shaojiemike/2026/07/9f55c8febc4c29734b8bcdda21f60d8b.png){ width=82% }
+  <figcaption>Kimi Linear 论文 Figure 7：48B 组件模型在论文硬件与实现下的 prefill 和 decode 对比。该证据用于确定 KDA 优化价值，不可直接外推为 K3 NPU 加速比。</figcaption>
+</figure>
+
+<h2 id="Megatron-后端"><a href="#Megatron-后端" class="headerlink" title="Megatron 后端"></a>Megatron 后端</h2><h3 id="权重是否需要转换"><a href="#权重是否需要转换" class="headerlink" title="权重是否需要转换"></a>权重是否需要转换</h3><p>如果从官方 HF checkpoint 开始，答案是：<strong>需要逻辑权重转换，但不应做单机集中式转存</strong>。</p>
+<ul>
+<li>HF 与 Megatron 对 QKV&#x2F;MLA、experts、TP shard、PP layer placement 和 distributed checkpoint 的 tensor 命名与布局不同。</li>
+<li>2.8T BF16 权重已经约 5.6 TB，集中加载再 <code>torch.cat/split</code> 会制造不可接受的主机内存和临时磁盘峰值。</li>
+<li>应扩展 Megatron Bridge，按 tensor 流式读取 safetensors、执行必要的 transpose&#x2F;concat&#x2F;split，并直接写入 distributed checkpoint。</li>
+<li>转换必须提供逐 tensor shape&#x2F;dtype&#x2F;hash 或数值抽样，以及 HF → Megatron → HF 的 round-trip 验证。</li>
+</ul>
+<p>如果是从头预训练，不存在“HF 权重转 Megatron”的起始步骤；但仍应保存 Megatron distributed checkpoint。已有 Kimi K2 Bridge 可以复用 MLA&#x2F;MoE 映射模式，K3 仍需新增 KDA、AttnRes、Stable LatentMoE、vision tower 和精度 metadata。[^megatron-bridge]</p>
+<h3 id="模型与并行改造"><a href="#模型与并行改造" class="headerlink" title="模型与并行改造"></a>模型与并行改造</h3><p>Megatron 当前已有 GDN 的 TP、CP、packed THD、selective recompute 和 distributed checkpoint 支持，也已有 <code>moe_latent_size</code> 的 LatentMoE 测试。它们是 K3 的骨架，不是现成 K3 支持。[^megatron-gdn][^megatron-latent]</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>设计建议</th>
+<th>关键验证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TP</td>
+<td>KDA 按 head 分片 <code>q/k/v/gate/state</code>；Gated MLA 按 head&#x2F;latent projection 分片</td>
+<td>TP&#x3D;1&#x2F;2&#x2F;4 的 loss、梯度和 recurrent state parity</td>
+</tr>
+<tr>
+<td>PP</td>
+<td>stage 边界对齐 4 层 attention 周期和 AttnRes block</td>
+<td>block cache 所有权、跨 stage 增量通信、virtual PP 与 checkpoint</td>
+</tr>
+<tr>
+<td>EP</td>
+<td>896 experts 按拓扑分组，优先使用 GMM + permute&#x2F;unpermute + MC2</td>
+<td>expert placement、token drop、capacity、负载、跨节点 A2A</td>
+</tr>
+<tr>
+<td>CP</td>
+<td>MVP 设为 1；后续参考 GDN head-parallel all-to-all 或 FLA CP</td>
+<td>sequence chunk、conv&#x2F;state continuity、Gated MLA 与 KDA 共存</td>
+</tr>
+<tr>
+<td>重计算</td>
+<td>selective recompute；KDA projection&#x2F;局部状态按收益重算</td>
+<td>router 决策和 AttnRes cache 必须确定；避免重放主导 A2A</td>
+</tr>
+</tbody></table>
+<p>896 的因数对 EP 规划很友好，但仍不能只按整除关系选：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">EP=64  -&gt; 14 experts/rank</span><br><span class="line">EP=112 -&gt;  8 experts/rank</span><br><span class="line">EP=128 -&gt;  7 experts/rank</span><br><span class="line">EP=224 -&gt;  4 experts/rank</span><br></pre></td></tr></table></figure>
+
+<p>最终值取决于 NPU supernode 规模、机内&#x2F;机间带宽、expert TP、micro batch、top-16 token expansion 和 latent size。官方推荐 64 卡以上 supernode，并强调 fully balanced EP 使用静态 shape、关键路径无 host sync；这意味着 <strong>静态 expert bucket 与通信拓扑</strong> 应进入第一版设计，而不是性能阶段再补。[^k3-blog]</p>
+<h3 id="AttnRes-对-PP-的影响"><a href="#AttnRes-对-PP-的影响" class="headerlink" title="AttnRes 对 PP 的影响"></a>AttnRes 对 PP 的影响</h3><p>普通 pre-norm Transformer 的 PP stage 只需传当前 hidden state。Block AttnRes 会读取多个历史 block representation；若直接把全部历史跨 stage 传递，通信和存储随深度增长。</p>
+<p>Attention Residuals 论文给出的方向是：</p>
+<ol>
+<li>在 block 内维持局部 residual。</li>
+<li>只在 block 完成时产生稳定 representation。</li>
+<li>PP stage 增量缓存已完成 block，而不是每层重发全历史。</li>
+<li>layer query 对缓存 representation 做归一化、softmax 和加权读取。</li>
+</ol>
+<p>因此 PP 切分必须优先落在 AttnRes block 边界，并尽量同时对齐 <code>KDA-KDA-KDA-MLA</code> 周期。论文中的 <code>&lt;4%</code> PP 开销来自组件实验，不能当 K3 集群验收阈值。[^attnres]</p>
+<h2 id="FSDP2-后端"><a href="#FSDP2-后端" class="headerlink" title="FSDP2 后端"></a>FSDP2 后端</h2><p>FSDP2 的优势是更接近 HF 模型代码和 state dict。可以在 meta device 上实例化模型，再按 mesh 分片加载 safetensors；因此 <strong>不强制先生成 Megatron 格式</strong>。为了故障恢复和大规模重复启动，仍建议一次性写成 PyTorch DCP 或等价 sharded checkpoint。</p>
+<p>真正的问题是专家层：</p>
+<ul>
+<li>若把整个 MoE block 当普通 FSDP unit，forward 前可能 all-gather 896 experts，失去稀疏模型的内存意义。</li>
+<li>若按动态路由到的 expert 独立触发 FSDP collectives，不同 rank 的调用集合和顺序可能不一致，导致 collective mismatch 或串行抖动。</li>
+<li>可行结构应是 <strong>dense&#x2F;attention 参数走 FSDP2 或 HSDP，routed experts 走静态 EP placement 与专用 dispatcher</strong>；expert 内是否再 fully shard 取决于单 expert 尺寸和节点层级。</li>
+</ul>
+<p>当前 MindSpeed-LLM 的 FSDP2 路径已经包含 EP dispatcher、GMM&#x2F;MC2 和 GDN context-parallel 组件，是比“原生 PyTorch FSDP 包住 HF K3”更接近目标的底座。[^mindspeed-fsdp-ep]</p>
+<table>
+<thead>
+<tr>
+<th>FSDP2 工作项</th>
+<th>说明</th>
+<th align="right">规模</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HF 模型接入与 meta init</td>
+<td>解析 K3 config、空权重构造、auto-wrap policy</td>
+<td align="right">M</td>
+</tr>
+<tr>
+<td>Sharded load &#x2F; DCP</td>
+<td>safetensors 分片加载、保存恢复、精度 metadata</td>
+<td align="right">M–L</td>
+</tr>
+<tr>
+<td>Dense HSDP&#x2F;FSDP2</td>
+<td>attention、embedding、vision 和 shared parameter 分片</td>
+<td align="right">M</td>
+</tr>
+<tr>
+<td>EP-aware experts</td>
+<td>静态 expert placement、dispatcher、GMM&#x2F;MC2、shared expert</td>
+<td align="right">L–XL</td>
+</tr>
+<tr>
+<td>KDA NPU</td>
+<td>与 Megatron 共用核心算子，但 adapter&#x2F;state 管理不同</td>
+<td align="right">XL</td>
+</tr>
+<tr>
+<td>AttnRes</td>
+<td>FSDP wrapping、checkpoint 与跨层 cache</td>
+<td align="right">L</td>
+</tr>
+<tr>
+<td>TND&#x2F;CP</td>
+<td>packed metadata 与 KDA state 协同</td>
+<td align="right">XL</td>
+</tr>
+</tbody></table>
+<p>FSDP2 路径减少 model spec 和 HF 转换工作，不会消除核心算子工作；其最大价值是更快建立 <strong>单机&#x2F;小规模 reference 与固定长度闭环</strong>。</p>
+<h2 id="定长与-TND"><a href="#定长与-TND" class="headerlink" title="定长与 TND"></a>定长与 TND</h2><h3 id="先做定长"><a href="#先做定长" class="headerlink" title="先做定长"></a>先做定长</h3><p>第一阶段建议：<strong>BF16、定长 padding、静态 shape、CP&#x3D;1、固定 expert bucket</strong>。</p>
+<p>原因不是定长最终性能最好，而是它把变量压缩到最少：</p>
+<ul>
+<li>KDA 短卷积和 recurrent state 不需要在一个 tensor 内处理多个序列边界。</li>
+<li>Gated MLA 可以直接调用稳定的 fused attention 接口。</li>
+<li>AttnRes cache 与 PP metadata 不需要跟随 packed segment 改变。</li>
+<li>MoE 可以提前分配静态 token bucket，更接近官方 fully balanced EP 的描述。</li>
+<li>BF16 先建立收敛与梯度 reference，避免把 KDA、并行 bug 和 MXFP4&#x2F;MXFP8 量化误差混在一起。</li>
+</ul>
+<h3 id="TND-不是布局开关"><a href="#TND-不是布局开关" class="headerlink" title="TND 不是布局开关"></a>TND 不是布局开关</h3><p>TND&#x2F;THD packed 训练至少新增六组工作：</p>
+<ol>
+<li><strong>数据</strong>：<code>cu_seqlens</code>、position、vision span、label 和 loss mask 必须同序重排。</li>
+<li><strong>KDA</strong>：short conv 和 recurrent state 在每个 packed sequence 边界 reset；forward、backward 和 recompute 一致。</li>
+<li><strong>Gated MLA</strong>：接入 varlen fused attention，并验证多模态 span。</li>
+<li><strong>AttnRes</strong>：block cache 采用 token-major 表示，不能跨 packed sample 泄漏。</li>
+<li><strong>MoE</strong>：动态有效 token 数与静态 expert bucket、Quantile Balancing 同时成立。</li>
+<li><strong>分布式</strong>：PP&#x2F;CP 的 metadata、checkpoint 和 loss normalization 保留 sequence boundary。</li>
+</ol>
+<p>公开 FlashKDA 的 varlen 是 inference forward；FLA 提供 CUDA training autograd 与 <code>cu_seqlens</code>，而 MindSpeed GDN 提供 NPU CP&#x2F;TND 工程先例。三者合起来说明路径可行，但没有一个直接等于 <strong>K3 KDA NPU TND training</strong>。</p>
+<h2 id="开箱性能优化"><a href="#开箱性能优化" class="headerlink" title="开箱性能优化"></a>开箱性能优化</h2><p>性能工作应按依赖顺序开展，而不是一开始同时打开 TP&#x2F;PP&#x2F;EP&#x2F;CP、TND 和低精度。</p>
+<h3 id="优先级"><a href="#优先级" class="headerlink" title="优先级"></a>优先级</h3><ol>
+<li><strong>P0 正确性</strong><ul>
+<li>tiny config 完成 KDA BF16 forward&#x2F;backward、state、recompute parity。</li>
+<li>发布后冻结 K3 config、逐层类型、tensor map、vision contract 和 active parameters。</li>
+<li>单 rank 跑通固定长度 loss 与 optimizer step。</li>
+</ul>
+</li>
+<li><strong>P1 并行闭环</strong><ul>
+<li>EP 拓扑对齐，并优先接 NPU GMM、permute&#x2F;unpermute、AllToAll&#x2F;MC2。</li>
+<li>TP 分片 KDA&#x2F;MLA；PP 同时对齐 attention 周期和 AttnRes block。</li>
+<li>CP 暂时保持 1。</li>
+</ul>
+</li>
+<li><strong>P2 内存与调度</strong><ul>
+<li>selective recompute、distributed checkpoint、FSDP async prefetch。</li>
+<li>overlap shared&#x2F;routed expert、token dispatch 与 expert compute。</li>
+<li>避免在重计算阶段重复主导通信。</li>
+</ul>
+</li>
+<li><strong>P3 算子融合</strong><ul>
+<li>首要优化 KDA chunk forward&#x2F;backward、短卷积与 gate 融合。</li>
+<li>其次是 LatentMoE projection + SiTU + GMM、Gated MLA 与 AttnRes depth attention。</li>
+</ul>
+</li>
+<li><strong>P4 长序列</strong><ul>
+<li>引入 TND，再实现 KDA-aware CP，测量 padding 节省是否覆盖新增通信和动态 shape 成本。</li>
+</ul>
+</li>
+<li><strong>P5 低精度</strong><ul>
+<li>只有 BF16 loss&#x2F;gradient&#x2F;收敛基线稳定后，再启用 MXFP4&#x2F;MXFP8 QAT 或官方训练 checkpoint 路径。</li>
+</ul>
+</li>
+</ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>第一组性能实验</p>
+</div>
+        <div class="message-body">
+            <p>用 tiny&#x2F;small K3 proxy 固定 <code>TP=1, PP=1, CP=1</code>，只扫描 EP、micro batch、sequence length 和 expert bucket；再分别加入 TP、PP。这样可以从 profiler 中分离 KDA kernel、MoE AllToAll&#x2F;GMM 和 AttnRes 通信，避免一次实验出现四个并行轴的混合瓶颈。</p>
+
+        </div>
+    </article>
+
+<h3 id="建议观测指标"><a href="#建议观测指标" class="headerlink" title="建议观测指标"></a>建议观测指标</h3><ul>
+<li>KDA forward&#x2F;backward 的 kernel time、带宽、workspace、chunk size 与状态读写量。</li>
+<li>Gated MLA 与 KDA 层的逐层耗时比例，验证 3:1 层分布是否形成预期瓶颈。</li>
+<li>MoE dispatch&#x2F;combine、A2A、GMM、shared expert overlap、每 expert token p50&#x2F;p99。</li>
+<li>AttnRes depth-softmax、cache 内存、跨 PP stage bytes 与 bubble。</li>
+<li>MFU、tokens&#x2F;s、有效 tokens&#x2F;s、padding ratio、recompute FLOPs 和峰值 HBM。</li>
+<li>BF16 与低精度下的 loss、gradient norm、router entropy、expert imbalance 和溢出&#x2F;下溢计数。</li>
+</ul>
+<h2 id="需求拆解"><a href="#需求拆解" class="headerlink" title="需求拆解"></a>需求拆解</h2><p>规模定义：<code>S &lt;= 1</code> 人周，<code>M = 1–3</code> 人周，<code>L = 3–6</code> 人周，<code>XL &gt; 6</code> 人周。它假设人员熟悉 Megatron&#x2F;MindSpeed&#x2F;NPU 算子，并且不包含集群排队和上游发布延期。</p>
+<table>
+<thead>
+<tr>
+<th>Epic</th>
+<th>交付物</th>
+<th align="right">规模</th>
+<th>依赖</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>发布物审计</td>
+<td>exact config、层表、参数计算、dtype、key inventory</td>
+<td align="right">M</td>
+<td>K3 权重与报告</td>
+</tr>
+<tr>
+<td>Reference 模型</td>
+<td>HF&#x2F;CPU 或 GPU reference、tiny proxy、确定性 loss</td>
+<td align="right">L</td>
+<td>config 审计</td>
+</tr>
+<tr>
+<td>KDA NPU</td>
+<td>定长 BF16 forward&#x2F;backward、state、recompute</td>
+<td align="right">XL</td>
+<td>KDA reference</td>
+</tr>
+<tr>
+<td>Block AttnRes</td>
+<td>单 stage、block cache、深度 attention 测试</td>
+<td align="right">L</td>
+<td>exact block config</td>
+</tr>
+<tr>
+<td>Stable LatentMoE</td>
+<td>latent projection、router、SiTU、shared&#x2F;routed expert</td>
+<td align="right">L</td>
+<td>exact MoE config</td>
+</tr>
+<tr>
+<td>Gated MLA</td>
+<td>gate、projection、fused attention</td>
+<td align="right">M</td>
+<td>exact MLA config</td>
+</tr>
+<tr>
+<td>多模态</td>
+<td>vision tower&#x2F;projector、placeholder&#x2F;span、loss mask</td>
+<td align="right">L，待定</td>
+<td>公开代码</td>
+</tr>
+<tr>
+<td>Megatron Bridge</td>
+<td>分布式流式转换、round-trip 校验</td>
+<td align="right">L</td>
+<td>exact checkpoint keys</td>
+</tr>
+<tr>
+<td>TP</td>
+<td>KDA&#x2F;MLA&#x2F;LatentMoE tensor shard 与 parity</td>
+<td align="right">M</td>
+<td>model + kernels</td>
+</tr>
+<tr>
+<td>EP</td>
+<td>expert placement、dispatcher、GMM&#x2F;MC2、负载指标</td>
+<td align="right">L</td>
+<td>Stable LatentMoE</td>
+</tr>
+<tr>
+<td>PP + AttnRes</td>
+<td>block-aligned schedule、跨 stage cache</td>
+<td align="right">L–XL</td>
+<td>AttnRes</td>
+</tr>
+<tr>
+<td>CP</td>
+<td>KDA-aware sequence&#x2F;head parallel</td>
+<td align="right">XL</td>
+<td>定长 KDA parity</td>
+</tr>
+<tr>
+<td>重计算</td>
+<td>deterministic router&#x2F;cache、selective policy</td>
+<td align="right">L</td>
+<td>完整 forward&#x2F;backward</td>
+</tr>
+<tr>
+<td>FSDP2&#x2F;HSDP + EP</td>
+<td>dense sharding、expert-aware sharding、DCP</td>
+<td align="right">L–XL</td>
+<td>HF reference</td>
+</tr>
+<tr>
+<td>定长数据</td>
+<td>文本&#x2F;多模态静态 batch、loss normalization</td>
+<td align="right">M</td>
+<td>tokenizer&#x2F;vision contract</td>
+</tr>
+<tr>
+<td>TND&#x2F;THD</td>
+<td>全链路 packed boundary 与并行 metadata</td>
+<td align="right">XL</td>
+<td>定长闭环</td>
+</tr>
+<tr>
+<td>精度与性能</td>
+<td>BF16 基线、低精度、fusion、规模化调优</td>
+<td align="right">持续</td>
+<td>以上全部</td>
+</tr>
+</tbody></table>
+<h3 id="阶段验收"><a href="#阶段验收" class="headerlink" title="阶段验收"></a>阶段验收</h3><ol>
+<li><strong>M0：发布审计</strong><ul>
+<li>精确 config、参数量、层分布和 tensor key 可重复计算。</li>
+<li>区分 BF16、MXFP4&#x2F;MXFP8 和推理&#x2F;训练 checkpoint。</li>
+</ul>
+</li>
+<li><strong>M1：单 rank 定长</strong><ul>
+<li>tiny config 的 logits、loss、关键中间 tensor 与 reference 对齐。</li>
+<li>KDA 全量梯度、AttnRes cache 和 MoE routing 测试通过。</li>
+</ul>
+</li>
+<li><strong>M2：TP&#x2F;EP</strong><ul>
+<li>TP&#x3D;1&#x2F;2&#x2F;4、EP&#x3D;1&#x2F;多 rank 的 loss 和 gradient parity 通过。</li>
+<li>无整层 896 expert all-gather，expert placement 可检查。</li>
+</ul>
+</li>
+<li><strong>M3：PP 与规模化</strong><ul>
+<li>block-aligned PP 恢复、重计算、distributed checkpoint 通过。</li>
+<li>profiler 能分别归因 KDA、MoE 与 AttnRes 瓶颈。</li>
+</ul>
+</li>
+<li><strong>M4：TND&#x2F;CP&#x2F;低精度</strong><ul>
+<li>packed sequence 无状态串扰，CP parity 通过。</li>
+<li>MXFP4&#x2F;MXFP8 相对 BF16 的收敛与吞吐收益有端到端数据。</li>
+</ul>
+</li>
+</ol>
+<p>按当前未知量，固定长度 MVP 可暂按 <strong>2–3 名核心工程师、8–12 周</strong>估算；TND&#x2F;CP 和成熟开箱性能再增加 <strong>6–10 周</strong>。这是立项代理值，不是承诺：KDA NPU backward、AttnRes PP 细节和官方 checkpoint 形态都可能改变关键路径。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>K3 的模型级特点可以概括为三种稀疏或压缩：KDA 压缩序列历史、AttnRes 选择性读取深度历史、LatentMoE 稀疏并压缩专家计算。它们同时把系统复杂度从“矩阵乘与 all-reduce”推向 <strong>状态、路由和跨层缓存</strong>。</p>
+<p>因此最稳妥的 NPU 路径是：先冻结发布事实，再以 tiny config 建立 BF16 定长 reference；优先完成 KDA backward 与 EP-aware MoE；随后接 TP 和 block-aligned PP；最后处理 TND、KDA-aware CP 和 MXFP4&#x2F;MXFP8。Megatron 与 FSDP2 可以共享核心 NPU 算子，但分别承担分布式转换&#x2F;PP 和 expert-aware sharding 的主要成本。</p>
+<p>[^k3-blog]: <a target="_blank" rel="noopener" href="https://www.kimi.com/blog/kimi-k3">Kimi K3 technical blog</a><br>[^k3-quickstart]: <a target="_blank" rel="noopener" href="https://platform.kimi.ai/docs/guide/kimi-k3-quickstart">Kimi K3 quick start</a><br>[^kimi-linear]: <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2510.26692">Kimi Linear technical report</a> and <a target="_blank" rel="noopener" href="https://github.com/MoonshotAI/Kimi-Linear">official repository</a><br>[^fla-kda]: <a target="_blank" rel="noopener" href="https://github.com/fla-org/flash-linear-attention/tree/main/fla/ops/kda">Flash Linear Attention KDA training implementation</a><br>[^flash-kda]: <a target="_blank" rel="noopener" href="https://github.com/MoonshotAI/FlashKDA">FlashKDA repository</a><br>[^attnres]: <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2603.15031">Attention Residuals</a> and <a target="_blank" rel="noopener" href="https://github.com/MoonshotAI/Attention-Residuals">official repository</a><br>[^mindspeed-gdn]: <a target="_blank" rel="noopener" href="https://gitee.com/ascend/MindSpeed-LLM/blob/master/mindspeed_llm/fsdp2/distributed/context_parallel/gdn_context_parallel.py">MindSpeed-LLM GDN context parallel</a><br>[^mindspeed-fsdp-ep]: <a target="_blank" rel="noopener" href="https://gitee.com/ascend/MindSpeed-LLM/tree/master/mindspeed_llm/fsdp2/distributed/expert_parallel">MindSpeed-LLM FSDP2 expert parallel</a><br>[^megatron-bridge]: <a target="_blank" rel="noopener" href="https://github.com/NVIDIA-NeMo/Megatron-Bridge/tree/main/src/megatron/bridge/models/kimi">Megatron Bridge Kimi support</a><br>[^megatron-gdn]: <a target="_blank" rel="noopener" href="https://github.com/NVIDIA/Megatron-LM/blob/main/megatron/core/ssm/gated_delta_net.py">Megatron Core Gated Delta Net</a><br>[^megatron-latent]: <a target="_blank" rel="noopener" href="https://github.com/NVIDIA/Megatron-LM/blob/main/tests/unit_tests/transformer/moe/test_latent_moe_layer.py">Megatron Core LatentMoE unit test</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Kimi K3 NPU Training</p><p><a href="http://icarus.shaojiemike.top/2026/07/20/Work/Artificial Intelligence/Training/Kimi-K3-NPU-Training/">http://icarus.shaojiemike.top/2026/07/20/Work/Artificial Intelligence/Training/Kimi-K3-NPU-Training/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-07-20</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-20</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/NPU/">NPU</a><a class="link-muted mr-2" rel="tag" href="/tags/TND/">TND</a><a class="link-muted mr-2" rel="tag" href="/tags/KIMI/">KIMI</a><a class="link-muted mr-2" rel="tag" href="/tags/KDA/">KDA</a><a class="link-muted mr-2" rel="tag" href="/tags/Megatron/">Megatron</a><a class="link-muted mr-2" rel="tag" href="/tags/FSDP2/">FSDP2</a><a class="link-muted mr-2" rel="tag" href="/tags/MoE/">MoE</a><a class="link-muted mr-2" rel="tag" href="/tags/Parallelism/">Parallelism</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/15/Work/Artificial%20Intelligence/Training/XTuner-Domino-EP/"><span class="level-item">XTuner Domino EP</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">553</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">37</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">671</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">结论</span></span></a></li><li><a class="level is-mobile" href="#模型结构"><span class="level-left"><span class="level-item">2</span><span class="level-item">模型结构</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#已确认的骨架"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">已确认的骨架</span></span></a></li><li><a class="level is-mobile" href="#参数量与内存"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">参数量与内存</span></span></a></li><li><a class="level is-mobile" href="#前向流程"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">前向流程</span></span></a></li></ul></li><li><a class="level is-mobile" href="#NPU-算子支持度"><span class="level-left"><span class="level-item">3</span><span class="level-item">NPU 算子支持度</span></span></a></li><li><a class="level is-mobile" href="#Megatron-后端"><span class="level-left"><span class="level-item">4</span><span class="level-item">Megatron 后端</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#权重是否需要转换"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">权重是否需要转换</span></span></a></li><li><a class="level is-mobile" href="#模型与并行改造"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">模型与并行改造</span></span></a></li><li><a class="level is-mobile" href="#AttnRes-对-PP-的影响"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">AttnRes 对 PP 的影响</span></span></a></li></ul></li><li><a class="level is-mobile" href="#FSDP2-后端"><span class="level-left"><span class="level-item">5</span><span class="level-item">FSDP2 后端</span></span></a></li><li><a class="level is-mobile" href="#定长与-TND"><span class="level-left"><span class="level-item">6</span><span class="level-item">定长与 TND</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#先做定长"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">先做定长</span></span></a></li><li><a class="level is-mobile" href="#TND-不是布局开关"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">TND 不是布局开关</span></span></a></li></ul></li><li><a class="level is-mobile" href="#开箱性能优化"><span class="level-left"><span class="level-item">7</span><span class="level-item">开箱性能优化</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#优先级"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">优先级</span></span></a></li><li><a class="level is-mobile" href="#建议观测指标"><span class="level-left"><span class="level-item">7.2</span><span class="level-item">建议观测指标</span></span></a></li></ul></li><li><a class="level is-mobile" href="#需求拆解"><span class="level-left"><span class="level-item">8</span><span class="level-item">需求拆解</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#阶段验收"><span class="level-left"><span class="level-item">8.1</span><span class="level-item">阶段验收</span></span></a></li></ul></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">9</span><span class="level-item">总结</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">89</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-20T10:30:00.000Z">2026-07-20</time></p><p class="title"><a href="/2026/07/20/Work/Artificial%20Intelligence/Training/Kimi-K3-NPU-Training/">Kimi K3 NPU Training</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-15T09:40:00.000Z">2026-07-15</time></p><p class="title"><a href="/2026/07/15/Work/Artificial%20Intelligence/Training/XTuner-Domino-EP/">XTuner Domino EP</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-08T08:33:55.000Z">2026-07-08</time></p><p class="title"><a href="/2026/07/08/Work/Artificial%20Intelligence/SoftwareFramework/vllm/VLLM-Inference-Profiling/">vLLM Inference Profiling</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-07T13:41:49.000Z">2026-07-07</time></p><p class="title"><a href="/2026/07/07/Work/Artificial%20Intelligence/AIInfra/Ascend-950-A5-Multimodal-Quantization/">Ascend 950 A5 Multimodal Quantization</a></p><p class="categories"><a href="/categories/Work/">Work</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">15</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/All-to-All/"><span class="tag">All-to-All</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AllGather/"><span class="tag">AllGather</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Alpha/"><span class="tag">Alpha</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Analysis/"><span class="tag">Analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Apt/"><span class="tag">Apt</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend/"><span class="tag">Ascend</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ascend-950/"><span class="tag">Ascend 950</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
