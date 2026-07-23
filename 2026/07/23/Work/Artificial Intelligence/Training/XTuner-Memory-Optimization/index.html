@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>XTuner Memory Optimization - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       “降低显存”不是一种动作。它可能是在减少对象大小、限制同时在途的对象数量、把对象搬到 CPU、缩短对象生命周期，也可能只是把 allocator 中未占用的缓存块归还给驱动。 本文固定到 XTuner 397b 分支 commit e949653，从一个第一次接触训练显存优化的读者视角，拆解原始清单中的 13 个技术点。每项都回答"><meta property="og:type" content="blog"><meta property="og:title" content="XTuner Memory Optimization"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/07/23/Work/Artificial%20Intelligence/Training/XTuner-Memory-Optimization/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       “降低显存”不是一种动作。它可能是在减少对象大小、限制同时在途的对象数量、把对象搬到 CPU、缩短对象生命周期，也可能只是把 allocator 中未占用的缓存块归还给驱动。 本文固定到 XTuner 397b 分支 commit e949653，从一个第一次接触训练显存优化的读者视角，拆解原始清单中的 13 个技术点。每项都回答"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-07-23T13:14:00.000Z"><meta property="article:modified_time" content="2026-07-23T14:21:24.621Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="FSDP2"><meta property="article:tag" content="MoE"><meta property="article:tag" content="XTuner"><meta property="article:tag" content="Memory Optimization"><meta property="article:tag" content="Activation Offload"><meta property="article:tag" content="MTP"><meta property="article:tag" content="Muon"><meta property="article:tag" content="CUDA Allocator"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/07/23/Work/Artificial%20Intelligence/Training/XTuner-Memory-Optimization/"},"headline":"XTuner Memory Optimization","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-07-23T13:14:00.000Z","dateModified":"2026-07-23T14:21:24.621Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       “降低显存”不是一种动作。它可能是在减少对象大小、限制同时在途的对象数量、把对象搬到 CPU、缩短对象生命周期，也可能只是把 allocator 中未占用的缓存块归还给驱动。 本文固定到 XTuner 397b 分支 commit e949653，从一个第一次接触训练显存优化的读者视角，拆解原始清单中的 13 个技术点。每项都回答"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/07/23/Work/Artificial%20Intelligence/Training/XTuner-Memory-Optimization/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-07-23T13:14:00.000Z" title="7/23/2026, 1:14:00 PM">2026-07-23</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-23T14:21:24.621Z" title="7/23/2026, 2:21:24 PM">2026-07-23</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">an hour read (About 7295 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">XTuner Memory Optimization</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>“降低显存”不是一种动作。它可能是在<strong>减少对象大小</strong>、<strong>限制同时在途的对象数量</strong>、<strong>把对象搬到 CPU</strong>、<strong>缩短对象生命周期</strong>，也可能只是把 allocator 中未占用的缓存块归还给驱动。</p>
+<p>本文固定到 XTuner <code>397b</code> 分支 commit <code>e949653</code>，从一个第一次接触训练显存优化的读者视角，拆解原始清单中的 13 个技术点。每项都回答：<strong>大对象是什么、为什么形成峰值、执行时序怎样、数据流经过哪里、伪代码如何写、适用于什么条件，以及效果边界在哪里。</strong></p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<figure markdown>
+  ![XTuner memory waterline intuition](https://pic.shaojiemike.top/shaojiemike/2026/07/c3a223ab72c551907f7b27852aa0c6cf.png){ width=96% }
+  <figcaption>认知插画：切块限制单次水位，offload 把对象搬到 CPU，checkpoint 用计算换保存空间，及时断开引用缩短对象寿命；缓存碎片则不是仍在使用的活张量。</figcaption>
+</figure>
+
+<h2 id="显存峰值"><a href="#显存峰值" class="headerlink" title="显存峰值"></a>显存峰值</h2><p>一次训练 step 的峰值可以先用下面的对象账本理解：</p>
+<p>$$<br>M_{\text{peak}} &#x3D;<br>M_{\text{model state}} +<br>M_{\text{saved activations}} +<br>M_{\text{operator workspace}} +<br>M_{\text{communication buffers}} +<br>M_{\text{live inputs&#x2F;outputs}} +<br>M_{\text{reserved unused}} +<br>M_{\text{runtime margin}}<br>$$</p>
+<p>公式中的加法不是说这些对象一直同时存在，而是提醒我们：<strong>峰值取决于某一时刻有哪些对象重叠</strong>。同一个优化在不同 schedule、序列长度、并行组和互联带宽下，可能把峰值移到另一个阶段。</p>
+<table>
+<thead>
+<tr>
+<th>物理动作</th>
+<th>回答的问题</th>
+<th>本文技术</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Reduce</strong></td>
+<td>真正减少需要计算或保存的数据量</td>
+<td>MTP 重计算、跳过 Pad Token</td>
+</tr>
+<tr>
+<td><strong>Bound</strong></td>
+<td>把一次在途的大对象限制在块大小以内</td>
+<td>ChunkLoss、ChunkMoE</td>
+</tr>
+<tr>
+<td><strong>Shift</strong></td>
+<td>把设备常驻对象搬到 CPU</td>
+<td>ViT&#x2F;LM 激活卸载、SwapAdamW、Muon 状态卸载、pixel values</td>
+</tr>
+<tr>
+<td><strong>Shorten lifetime</strong></td>
+<td>让对象最后一次使用后尽快变成可回收</td>
+<td>MTP&#x2F;LMHead 重排、roll tensor、Muon workspace、pixel values</td>
+</tr>
+<tr>
+<td><strong>Allocator cleanup</strong></td>
+<td>归还已经空闲的缓存块</td>
+<td><code>gc + empty_cache</code></td>
+</tr>
+</tbody></table>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>先分清 allocated 与 reserved</p>
+</div>
+        <div class="message-body">
+            <p><code>memory_allocated</code> 更接近活张量实际占用，<code>memory_reserved</code> 还包含 caching allocator 留着复用的块。只有后者高而前者低时，碎片和缓存策略才更值得怀疑；二者都高时，应先找仍然存活的大张量。</p>
+
+        </div>
+    </article>
+
+<h2 id="分块减峰"><a href="#分块减峰" class="headerlink" title="分块减峰"></a>分块减峰</h2><h3 id="ChunkLoss"><a href="#ChunkLoss" class="headerlink" title="ChunkLoss"></a>ChunkLoss</h3><p>语言模型输出层会把 <code>[B, S, H]</code> 投影为 <code>[B, S, V]</code>。当词表 <code>V</code> 很大时，logits、交叉熵 workspace 和局部梯度会在 loss 阶段形成尖峰。ChunkLoss 沿序列轴把 <code>S</code> 切成大小为 <code>C</code> 的块，每块完成投影、loss 和局部求导后再处理下一块。[^chunk-loss]</p>
+<figure markdown>
+  ![ChunkLoss five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/8f75c045a86528cd7d6c99f8985dab98.png){ width=98% }
+  <figcaption>ChunkLoss 五联图：物理前后对比、设计逻辑、执行流程、组件时序和张量数据流。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>如何变化</th>
+<th>不会自动变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>logits &#x2F; CE workspace</td>
+<td>从约 <code>O(B·S·V)</code> 限制为 <code>O(B·C·V)</code></td>
+<td>词表大小 <code>V</code></td>
+</tr>
+<tr>
+<td>块输入与局部梯度</td>
+<td>一块用完即可合并</td>
+<td>完整 hidden 的总大小</td>
+</tr>
+<tr>
+<td>LMHead 权重梯度</td>
+<td>分块求出后累加</td>
+<td>模型参数与优化器状态</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">chunk_loss</span>(<span class="params">hidden, labels, lm_head, chunk_size</span>):</span><br><span class="line">    grad_hidden = zeros_like(hidden)</span><br><span class="line">    grad_weight = zeros_like(lm_head.weight)</span><br><span class="line">    total_loss = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> start <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, hidden.size(<span class="number">1</span>), chunk_size):</span><br><span class="line">        stop = <span class="built_in">min</span>(start + chunk_size, hidden.size(<span class="number">1</span>))</span><br><span class="line">        h = hidden[:, start:stop].detach().requires_grad_(<span class="literal">True</span>)</span><br><span class="line">        y = labels[:, start:stop]</span><br><span class="line"></span><br><span class="line">        logits = lm_head(h)</span><br><span class="line">        loss_i = cross_entropy(logits, y, reduction=<span class="string">&quot;sum&quot;</span>)</span><br><span class="line">        grad_h, grad_w = autograd.grad(</span><br><span class="line">            loss_i, (h, lm_head.weight)</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        total_loss += loss_i.detach()</span><br><span class="line">        grad_hidden[:, start:stop].copy_(grad_h)</span><br><span class="line">        grad_weight.add_(grad_w)</span><br><span class="line"></span><br><span class="line">    save_for_backward(grad_hidden, grad_weight)</span><br><span class="line">    <span class="keyword">return</span> total_loss</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>大词表、长序列且 profiler 显示 LMHead&#x2F;loss 是峰值阶段的训练。</li>
+<li><strong>块越小不一定越好</strong>：会增加 kernel launch、Python&#x2F;Autograd 调度与权重梯度累加次数。</li>
+<li><strong>效果是 Bound，不是全局按比例下降</strong>：模型状态、完整 hidden 和其他层激活仍构成下限。</li>
+</ul>
+<h3 id="ChunkMoE"><a href="#ChunkMoE" class="headerlink" title="ChunkMoE"></a>ChunkMoE</h3><p>MoE 的 dispatch、专家 MLP 和 combine 会产生 token 相关中间量。ChunkMoE 先按完整序列完成 Attention 与 Gate，再把 hidden、residual 和 router 结果切块，串行执行块级 MoE，最后拼接输出。[^chunk-moe]</p>
+<figure markdown>
+  ![ChunkMoE five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/aa5d22d940e754713f0412fe172f8458.png){ width=98% }
+  <figcaption>ChunkMoE 五联图：只有专家路径按块串行，Attention、Gate 和最终输出仍保留完整序列语义。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>如何变化</th>
+<th>仍然存在的下限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>专家中间激活</td>
+<td>一次只处理 <code>S/K</code> 的 token</td>
+<td>单块最大专家负载</td>
+</tr>
+<tr>
+<td>dispatch&#x2F;combine workspace</td>
+<td>随块复用</td>
+<td>通信元数据与路由结果</td>
+</tr>
+<tr>
+<td>Attention、Gate、输出</td>
+<td>不因 MoE 切块而消失</td>
+<td>clone、结果列表和 concat</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">chunk_moe_forward</span>(<span class="params">hidden, mask, chunk_size</span>):</span><br><span class="line">    residual, attn_hidden = attention_forward(hidden, mask)</span><br><span class="line">    topk_ids, topk_weights = gate(attn_hidden)</span><br><span class="line">    outputs = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> slc <span class="keyword">in</span> sequence_slices(attn_hidden, chunk_size):</span><br><span class="line">        h_i = attn_hidden[slc].clone()</span><br><span class="line">        r_i = residual[slc].clone()</span><br><span class="line">        route_i = (topk_ids[slc].clone(), topk_weights[slc].clone())</span><br><span class="line"></span><br><span class="line">        out_i = checkpoint_if_enabled(</span><br><span class="line">            moe_dispatch_experts_combine,</span><br><span class="line">            h_i,</span><br><span class="line">            route_i,</span><br><span class="line">        )</span><br><span class="line">        outputs.append(out_i + r_i)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> concat(outputs, dim=sequence_axis)</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>峰值明确出现在 experts&#x2F;dispatcher，且序列可安全切分的 MoE 路径。</li>
+<li><strong>依赖细粒度重计算边界</strong>：Attention 与 MoE 若被错误地一起 checkpoint，可能重复更多计算。</li>
+<li><strong>效果是 Bound</strong>：专家激活下降，但完整 Attention、Gate、输出、clone 与 concat 不能按块数等比例下降。</li>
+</ul>
+<h2 id="激活卸载"><a href="#激活卸载" class="headerlink" title="激活卸载"></a>激活卸载</h2><p>PyTorch Autograd 会保存反向所需的张量；<code>saved_tensors_hooks</code> 允许在保存时 pack、取用时 unpack。XTuner 的 offload manager 把选中的张量异步复制到 pinned CPU，随后把设备 storage 缩小为零；反向前再 H2D 恢复。[^saved-hooks][^activation-offload]</p>
+<h3 id="ViT-激活卸载"><a href="#ViT-激活卸载" class="headerlink" title="ViT 激活卸载"></a>ViT 激活卸载</h3><p>视觉 token 数会随图像分辨率、图片数和视频帧数快速增长。ViT offload 在视觉 block 范围内选择需要保存的输入激活，并使用 <code>group=&quot;vision&quot;</code> 管理其键和预取顺序。[^vit-offload]</p>
+<figure markdown>
+  ![ViT activation offload five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/1411e5fd5d434b0dd4f20bdf2b03684a.png){ width=98% }
+  <figcaption>ViT 激活卸载五联图：CPU 保存的是反向仍需要的视觉激活，不是删除数学依赖。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>设备侧变化</th>
+<th>代价与边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ViT block saved input</td>
+<td>D2H 后释放设备 storage</td>
+<td>pinned CPU 容量增加</td>
+</tr>
+<tr>
+<td>offload event &#x2F; key</td>
+<td>记录副本完成与恢复顺序</td>
+<td>需要 stream&#x2F;event 同步</td>
+</tr>
+<tr>
+<td>visual embeddings</td>
+<td>仍供 LM 使用</td>
+<td>不属于被卸载的 block input</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">vit_block_with_offload</span>(<span class="params">hidden</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">pack</span>(<span class="params">saved</span>):</span><br><span class="line">        <span class="keyword">if</span> saved.data_ptr() != hidden.data_ptr():</span><br><span class="line">            <span class="keyword">return</span> saved</span><br><span class="line">        cpu = empty_pinned_like(saved)</span><br><span class="line">        d2h_stream.copy_(cpu, saved, non_blocking=<span class="literal">True</span>)</span><br><span class="line">        key = register(<span class="string">&quot;vision&quot;</span>, cpu, d2h_event())</span><br><span class="line">        saved.untyped_storage().resize_(<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> SwapTensor(key, saved.shape, saved.dtype, saved.device)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">unpack</span>(<span class="params">swapped</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(swapped, SwapTensor):</span><br><span class="line">            <span class="keyword">return</span> swapped</span><br><span class="line">        <span class="keyword">return</span> prefetch_h2d_and_wait(swapped.key)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> saved_tensors_hooks(pack, unpack):</span><br><span class="line">        <span class="keyword">return</span> vit_block(hidden)</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>视觉激活占比高、CPU 内存充足且 PCIe&#x2F;HCCS&#x2F;NVLink 传输可与计算覆盖的 VLM。</li>
+<li><strong>效果是 Shift</strong>：设备 saved activations 下降，但总系统内存没有消失。</li>
+<li>若反向很快追上前向或互联较慢，H2D 等待可能直接暴露在关键路径上。</li>
+</ul>
+<h3 id="LM-激活卸载"><a href="#LM-激活卸载" class="headerlink" title="LM 激活卸载"></a>LM 激活卸载</h3><p>LM offload 与 ViT 使用同一物理机制，但对象变成 Decoder 层为反向保存的输入，分组为 <code>text</code>。层数越深、序列越长，前向末尾累积的 saved activations 越多。[^lm-offload]</p>
+<figure markdown>
+  ![LM activation offload five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/f4d51920a592ace0faf0517f3b16648e.png){ width=98% }
+  <figcaption>LM 激活卸载五联图：前向按层 D2H，反向按相反层序 H2D 预取。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>设备侧变化</th>
+<th>仍需验证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Decoder saved input</td>
+<td>前向后转移到 CPU</td>
+<td>是否只选中目标 hidden</td>
+</tr>
+<tr>
+<td>CPU activation queue</td>
+<td>随层数累积</td>
+<td>主机内存容量与 NUMA</td>
+</tr>
+<tr>
+<td>H2D 恢复对象</td>
+<td>反向到该层前短暂回到设备</td>
+<td>预取是否覆盖传输</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">decoder_layer_with_offload</span>(<span class="params">hidden, layer_id</span>):</span><br><span class="line">    key = <span class="string">f&quot;text_block_<span class="subst">&#123;layer_id&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">pack</span>(<span class="params">saved</span>):</span><br><span class="line">        <span class="keyword">if</span> saved.data_ptr() == hidden.data_ptr():</span><br><span class="line">            cpu = async_copy_to_pinned_cpu(saved)</span><br><span class="line">            register(key, cpu, current_d2h_event())</span><br><span class="line">            saved.untyped_storage().resize_(<span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span> SwapTensor(key, saved.meta)</span><br><span class="line">        <span class="keyword">return</span> saved</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">unpack</span>(<span class="params">value</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(value, SwapTensor):</span><br><span class="line">            prefetch_previous_layer_if_possible(value.key)</span><br><span class="line">            <span class="keyword">return</span> restore_to_device_and_wait(value.key)</span><br><span class="line">        <span class="keyword">return</span> value</span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> saved_tensors_hooks(pack, unpack):</span><br><span class="line">        <span class="keyword">return</span> decoder_layer(hidden)</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>saved activations 是主要峰值且计算足够长，能够隐藏大部分传输的 Decoder。</li>
+<li><strong>不适合盲目全卸载</strong>：过多小张量会放大事件和副本管理成本。</li>
+<li>实际收益由 CPU 容量、互联带宽、预取距离和计算覆盖共同决定。</li>
+</ul>
+<h2 id="优化器状态"><a href="#优化器状态" class="headerlink" title="优化器状态"></a>优化器状态</h2><h3 id="SwapAdamW"><a href="#SwapAdamW" class="headerlink" title="SwapAdamW"></a>SwapAdamW</h3><p>AdamW 通常为每个参数保留一阶矩 <code>m</code> 和二阶矩 <code>v</code>；AMSGrad 还会增加 <code>max_v</code>。SwapAdamW 把 CPU pinned tensor 作为权威状态，step 时逐参数 H2D、更新，再 D2H 写回。源码虽然使用 non-blocking copy，但 step 末尾仍有显式同步，不能简单理解为“传输完全异步隐藏”。[^swap-adamw]</p>
+<figure markdown>
+  ![SwapAdamW five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/3bc96866dc3533d505a6bbc89358990e.png){ width=98% }
+  <figcaption>SwapAdamW 五联图：CPU 常驻优化器状态，设备只在当前参数更新窗口持有临时副本。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>常驻位置</th>
+<th>更新窗口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>exp_avg</code> &#x2F; <code>exp_avg_sq</code></td>
+<td>pinned CPU</td>
+<td>当前参数 step 时 H2D</td>
+</tr>
+<tr>
+<td><code>max_exp_avg_sq</code></td>
+<td>AMSGrad 时 pinned CPU</td>
+<td>与其他状态一起搬运</td>
+</tr>
+<tr>
+<td>参数与梯度</td>
+<td>仍在其训练设备&#x2F;分片位置</td>
+<td>AdamW kernel 消费</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">swap_adamw_step</span>(<span class="params">params</span>):</span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> params:</span><br><span class="line">        <span class="keyword">if</span> p.grad <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        cpu_m, cpu_v, cpu_max_v = cpu_state[p]</span><br><span class="line">        dev_m = cpu_m.to(p.device, non_blocking=<span class="literal">True</span>)</span><br><span class="line">        dev_v = cpu_v.to(p.device, non_blocking=<span class="literal">True</span>)</span><br><span class="line">        dev_max_v = maybe_to_device(cpu_max_v, p.device)</span><br><span class="line"></span><br><span class="line">        adamw_update(</span><br><span class="line">            p, p.grad, dev_m, dev_v,</span><br><span class="line">            max_exp_avg_sq=dev_max_v,</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        cpu_m.copy_(dev_m, non_blocking=<span class="literal">True</span>)</span><br><span class="line">        cpu_v.copy_(dev_v, non_blocking=<span class="literal">True</span>)</span><br><span class="line">        maybe_copy_back(cpu_max_v, dev_max_v)</span><br><span class="line"></span><br><span class="line">    synchronize_device()</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>优化器状态是常驻显存大头、CPU 内存足够、step time 能接受传输的训练。</li>
+<li><strong>效果是 Shift</strong>：<code>m/v</code> 常驻显存下降，参数、梯度和当前参数状态仍需设备空间。</li>
+<li>对小参数很多的模型，逐参数 copy 与 Python 循环可能比大块批处理更低效。</li>
+</ul>
+<h3 id="Muon-状态卸载"><a href="#Muon-状态卸载" class="headerlink" title="Muon 状态卸载"></a>Muon 状态卸载</h3><p>Muon 至少维护 momentum；XTuner 中部分参数组仍走 AdamW，并可能维护 variance。<code>swap=True</code> 时这些状态驻留 pinned CPU，按参数 shape&#x2F;sharding 分批搬到设备；<code>AsyncRuntime</code> 最多允许 3 个更新任务同时在途。[^muon-offload]</p>
+<figure markdown>
+  ![Muon state offload five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/618695e1c5d5b60e8112d3088cbaee00.png){ width=98% }
+  <figcaption>Muon 状态卸载五联图：常驻状态被搬走，但并发批次、通信、全参重建和 Newton-Schulz workspace 仍会抬高瞬时峰值。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>如何处理</th>
+<th>峰值来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Muon momentum</td>
+<td>pinned CPU 常驻</td>
+<td>每批 H2D 临时副本</td>
+</tr>
+<tr>
+<td>AdamW variance</td>
+<td>对相应参数组卸载</td>
+<td>与 momentum 共同在途</td>
+</tr>
+<tr>
+<td>全参与 NS workspace</td>
+<td>设备上按批创建</td>
+<td>最多 3 个异步任务叠加</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">muon_step</span>(<span class="params">parameter_batches, max_inflight=<span class="number">3</span></span>):</span><br><span class="line">    runtime = AsyncRuntime(max_tasks=max_inflight)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> parameter_batches:</span><br><span class="line">        runtime.submit(<span class="keyword">lambda</span> batch=batch: update_batch(batch))</span><br><span class="line"></span><br><span class="line">    runtime.wait_all()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">update_batch</span>(<span class="params">batch</span>):</span><br><span class="line">    state = h2d(cpu_state[batch], non_blocking=<span class="literal">True</span>)</span><br><span class="line">    full_params = communication_reconstruct(batch.params)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> batch.algorithm == <span class="string">&quot;muon&quot;</span>:</span><br><span class="line">        updated = muon_newton_schulz(full_params, state.momentum)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        updated = adamw_update(full_params, state.momentum, state.variance)</span><br><span class="line"></span><br><span class="line">    scatter_updated_parameters(updated)</span><br><span class="line">    async_d2h(cpu_state[batch], state)</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>Muon&#x2F;AdamW 状态常驻占用明显、通信与计算可覆盖状态传输的分布式训练。</li>
+<li><strong>效果是 Shift + Bound</strong>：常驻状态转到 CPU，但 bound 取决于批大小与并发任务数。</li>
+<li>调小并发会降峰值但可能减少 overlap；调大并发可能把 offload 节省重新花在 workspace 上。</li>
+</ul>
+<h2 id="MTP-生命周期"><a href="#MTP-生命周期" class="headerlink" title="MTP 生命周期"></a>MTP 生命周期</h2><h3 id="MTP-重计算"><a href="#MTP-重计算" class="headerlink" title="MTP 重计算"></a>MTP 重计算</h3><p>Multi-Token Prediction 会增加额外 depth。若每个 MTP 层像普通层一样保存内部激活，前向末尾会叠加多个 depth 的 saved activations。activation checkpoint 只保留入口，在 backward 中重跑 forward，以计算换显存。[^checkpoint][^mtp-recompute]</p>
+<figure markdown>
+  ![MTP recompute five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/3091d3dfebe498cbd71a53d62dbf0507.png){ width=98% }
+  <figcaption>MTP 重计算五联图：减少的是 saved activations，不是 MTP 层参数或当次执行的 workspace。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>前向后是否保留</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>checkpoint 输入</td>
+<td>保留</td>
+<td>仍占入口张量空间</td>
+</tr>
+<tr>
+<td>MTP 内部中间量</td>
+<td>丢弃</td>
+<td>backward 时重算</td>
+</tr>
+<tr>
+<td>RNG &#x2F; 状态语义</td>
+<td>需要一致</td>
+<td>有状态算子需额外谨慎</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">mtp_forward</span>(<span class="params">hidden, future_embeddings, mtp_layers</span>):</span><br><span class="line">    outputs = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> layer <span class="keyword">in</span> mtp_layers:</span><br><span class="line">        hidden = checkpoint(</span><br><span class="line">            layer,</span><br><span class="line">            hidden,</span><br><span class="line">            future_embeddings,</span><br><span class="line">            use_reentrant=<span class="literal">False</span>,</span><br><span class="line">            preserve_rng_state=<span class="literal">True</span>,</span><br><span class="line">        )</span><br><span class="line">        outputs.append(hidden)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> outputs</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>MTP saved activations 占峰值，且额外 forward 计算可接受的训练。</li>
+<li><strong>要求函数可重复</strong>：依赖外部可变状态、随机数或设备状态的实现需要核对 checkpoint 语义。</li>
+<li>397b 分支当前相关条件带有强制 checkpoint 的实现特例；迁移时应按目标框架重新设计开关，而不是照抄条件表达式。</li>
+</ul>
+<h3 id="MTP-与-LMHead-重排"><a href="#MTP-与-LMHead-重排" class="headerlink" title="MTP 与 LMHead 重排"></a>MTP 与 LMHead 重排</h3><p>这项优化不改变单个 tensor 的字节数，而是改变对象重叠：旧路径在每个 MTP depth 后立即计算 LMHead&#x2F;loss；新路径先完成所有 MTP forwards，再在尾部集中计算各 depth loss，并调整 FSDP 预取链。源码能证明顺序变化，<strong>不能仅凭提交证明节省比例</strong>。[^mtp-reorder]</p>
+<figure markdown>
+  ![MTP and LMHead reorder five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/5bf1d785fb0b34480d058fcd0e28fff5.png){ width=98% }
+  <figcaption>MTP/LMHead 重排五联图：目标是错开 LMHead 梯度缓冲与其他阶段峰值，不是压缩 LMHead 本身。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>旧顺序</th>
+<th>新顺序</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MTP outputs</td>
+<td>逐 depth 产出并立刻消费</td>
+<td>先形成列表</td>
+</tr>
+<tr>
+<td>LMHead&#x2F;loss 临时量</td>
+<td>与后续 MTP&#x2F;FSDP 对象重叠</td>
+<td>集中到尾部</td>
+</tr>
+<tr>
+<td>单个对象大小</td>
+<td>不变</td>
+<td>不变</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">reordered_mtp_and_loss</span>(<span class="params">hidden, mtp_layers, lm_head</span>):</span><br><span class="line">    mtp_outputs = []</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Phase 1: finish MTP forwards and use the intended FSDP prefetch chain.</span></span><br><span class="line">    <span class="keyword">for</span> depth, layer <span class="keyword">in</span> <span class="built_in">enumerate</span>(mtp_layers):</span><br><span class="line">        prefetch_next_module(depth)</span><br><span class="line">        hidden = checkpoint(layer, hidden)</span><br><span class="line">        mtp_outputs.append(hidden)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Phase 2: calculate all depth losses at the tail.</span></span><br><span class="line">    mtp_loss = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> depth, depth_hidden <span class="keyword">in</span> <span class="built_in">enumerate</span>(mtp_outputs):</span><br><span class="line">        mtp_loss += chunk_loss(</span><br><span class="line">            depth_hidden,</span><br><span class="line">            shifted_label(depth),</span><br><span class="line">            lm_head,</span><br><span class="line">            chunk_size,</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mtp_loss / <span class="built_in">len</span>(mtp_outputs)</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>只适合</strong>原 schedule 确实让多个大对象形成不必要重叠的实现。</li>
+<li><strong>效果是 Shorten overlap</strong>：必须用 memory timeline 或 snapshot 验证峰值窗口是否真的被错开。</li>
+<li>新顺序也可能延长 <code>mtp_outputs</code> 列表的生命周期，因此不能只看“LMHead 被放到最后”这句话。</li>
+</ul>
+<h3 id="roll-packed-tensor-生命周期"><a href="#roll-packed-tensor-生命周期" class="headerlink" title="roll_packed_tensor 生命周期"></a>roll_packed_tensor 生命周期</h3><p>Sequence Parallel 下，<code>rolled_e[rank_slice]</code> 是一个小 view，但仍共享完整 <code>rolled_e</code> 的底层 storage。对 rank-local slice 调用 <code>clone()</code> 后，它获得独立存储；再清空旧 <code>_raw_inputs_embeds</code> 引用，完整 storage 才可能回收。[^mtp-roll]</p>
+<figure markdown>
+  ![MTP rolled tensor lifetime five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/bee2aff9e8ecbbf52d7acb0f9856cb02.png){ width=98% }
+  <figcaption>roll_packed_tensor 五联图：小 view 也可能保活完整底层 storage；clone 的目的不是省掉局部分片，而是解除共享。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>优化前</th>
+<th>优化后</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>完整 <code>rolled_e</code> storage</td>
+<td>被 rank-local view 间接引用</td>
+<td>view clone 后可释放</td>
+</tr>
+<tr>
+<td>rank-local tensor</td>
+<td>view，无独立 storage</td>
+<td><code>[B, S/P, H]</code> 独立副本</td>
+</tr>
+<tr>
+<td>旧 raw embeddings</td>
+<td>context 继续引用</td>
+<td>最后消费后清空</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">next_mtp_embeddings</span>(<span class="params">seq_ctx, sp_rank, sp_size</span>):</span><br><span class="line">    rolled = roll_packed_tensor(</span><br><span class="line">        seq_ctx._raw_inputs_embeds,</span><br><span class="line">        seq_ctx.cu_seq_lens,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    rank_slice = split_for_sequence_parallel(</span><br><span class="line">        rolled, sp_rank, sp_size</span><br><span class="line">    )</span><br><span class="line">    local = rank_slice.clone()  <span class="comment"># break the full-storage alias</span></span><br><span class="line"></span><br><span class="line">    seq_ctx._raw_inputs_embeds = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">del</span> rank_slice, rolled</span><br><span class="line">    <span class="keyword">return</span> local</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>memory snapshot 显示小 view 保活大 storage 的生命周期问题。</li>
+<li><strong>效果是 Shorten lifetime</strong>：完整 storage 可更早回收，但新增一次局部分片 copy。</li>
+<li>若下游本就需要完整 tensor，或 clone 后仍保留其他 view，收益会消失。</li>
+</ul>
+<h3 id="论文中的-MTP"><a href="#论文中的-MTP" class="headerlink" title="论文中的 MTP"></a>论文中的 MTP</h3><figure markdown>
+  ![DeepSeek-V3 MTP Figure 3](https://pic.shaojiemike.top/shaojiemike/2026/07/ec2149754b52f5add25d571aa19a1033.png){ width=92% }
+  <figcaption>DeepSeek-V3 Technical Report Figure 3：MTP 通过顺序预测额外 token，把相邻 depth 的表示与未来 token embedding 组合。该图解释 MTP 数据依赖，不证明 XTuner checkpoint 或调度重排的显存收益。</figcaption>
+</figure>
+
+<figure markdown>
+  ![DeepSeek-V3 MTP Table 4](https://pic.shaojiemike.top/shaojiemike/2026/07/46d535c96751ff2a8d47f6b9f7e77a92.png){ width=92% }
+  <figcaption>DeepSeek-V3 Technical Report Table 4：论文设置下的 MTP 模型质量消融。它支持“为什么使用 MTP”的讨论，但不是 XTuner 重计算、LMHead 重排或 roll tensor 优化的显存 benchmark。</figcaption>
+</figure>
+
+<p>论文证据和工程证据需要分开：DeepSeek-V3 报告说明 MTP 架构及其模型质量实验；XTuner 源码与提交说明具体对象如何保存、重算和释放。只有在固定模型、batch、并行配置和版本的 profiler 中，才能给出这些工程补丁的显存节省比例。[^deepseek-v3]</p>
+<h2 id="临时量与碎片"><a href="#临时量与碎片" class="headerlink" title="临时量与碎片"></a>临时量与碎片</h2><h3 id="Muon-workspace-释放"><a href="#Muon-workspace-释放" class="headerlink" title="Muon workspace 释放"></a>Muon workspace 释放</h3><p>Muon 的 AGRS 路径会先后产生 <code>ag_output</code>、reshape view、<code>full_params</code>、Newton-Schulz 输出和 ReduceScatter 输入。若 Python 引用跨阶段保留，这些大 storage 会在同一任务内重叠；再乘上最多 3 个异步任务，就形成 optimizer step 峰值。补丁在每个对象最后一个消费者之后显式 <code>del</code>。[^muon-release]</p>
+<figure markdown>
+  ![Muon workspace release five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/7930f5cb6c2eccb1735ad1f969c0a4f1.png){ width=98% }
+  <figcaption>Muon workspace 释放五联图：缩短同一 update batch 内的临时量重叠，但不改变各阶段自身大小和任务并发数。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>最后消费者</th>
+<th>释放后的意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ag_output</code> &#x2F; <code>ag_reshaped</code></td>
+<td>全参重建</td>
+<td>storage 可被后续阶段复用</td>
+</tr>
+<tr>
+<td><code>full_params</code></td>
+<td>Newton-Schulz</td>
+<td>不再与 NS 结果长期重叠</td>
+</tr>
+<tr>
+<td><code>ns_results</code> &#x2F; <code>ns_stacked</code></td>
+<td>ReduceScatter</td>
+<td>任务尾部及时退场</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">agrs_muon_update</span>(<span class="params">local_params</span>):</span><br><span class="line">    ag_output = all_gather(local_params)</span><br><span class="line">    ag_reshaped = reshape_for_optimizer(ag_output)</span><br><span class="line">    full_params = flatten_params(ag_reshaped)</span><br><span class="line">    <span class="keyword">del</span> ag_output, ag_reshaped</span><br><span class="line"></span><br><span class="line">    ns_results = newton_schulz(full_params)</span><br><span class="line">    <span class="keyword">del</span> full_params</span><br><span class="line"></span><br><span class="line">    ns_stacked = stack(ns_results)</span><br><span class="line">    <span class="keyword">del</span> ns_results</span><br><span class="line"></span><br><span class="line">    local_update = reduce_scatter(ns_stacked)</span><br><span class="line">    <span class="keyword">del</span> ns_stacked</span><br><span class="line">    <span class="keyword">return</span> local_update</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>Python 引用让已经无用的大临时量跨阶段存活的路径。</li>
+<li><strong>效果是 Shorten lifetime</strong>：不减少 AllGather、NS 或 ReduceScatter 各自必需的 workspace。</li>
+<li>如果 allocator 已能复用但峰值由 3 个任务并发决定，还需同时调小 batch 或 <code>max_tasks</code>。</li>
+</ul>
+<h3 id="gc-与-empty-cache"><a href="#gc-与-empty-cache" class="headerlink" title="gc 与 empty_cache"></a>gc 与 empty_cache</h3><p><code>gc.collect()</code> 只会清理已经不可达的 Python 对象；<code>empty_cache()</code> 只释放 caching allocator 中<strong>未占用</strong>的缓存块。PyTorch 官方文档明确说明，它不会增加 PyTorch 可用于活张量的显存，只可能在部分情况下缓解碎片。[^empty-cache]</p>
+<p>原始清单给出的阈值逻辑来自 commit <code>c5e1005</code>，但该提交不是本文固定 <code>e949653</code> 的祖先；<code>e949653</code> 当前 trainer 对应位置只有周期性 <code>gc.collect()</code>。因此，“超过 33 GB 自动 empty_cache”应视为<strong>分支补丁建议</strong>，不能写成 397b 当前默认行为。[^allocator-branch][^trainer-gc]</p>
+<figure markdown>
+  ![Allocator cleanup five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/a324f91283d8222c8992117d6e1c178d.png){ width=98% }
+  <figcaption>gc + empty_cache 五联图：活张量原样保留，只有引用已经消失并进入缓存的空闲块才可能归还驱动。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th><code>gc.collect()</code></th>
+<th><code>empty_cache()</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>仍被引用的 tensor</td>
+<td>不释放</td>
+<td>不释放</td>
+</tr>
+<tr>
+<td>不可达 Python 循环对象</td>
+<td>可清理</td>
+<td>不负责</td>
+</tr>
+<tr>
+<td>allocator 未占用缓存块</td>
+<td>间接创造可回收条件</td>
+<td>归还给驱动</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">maybe_clean_allocator</span>(<span class="params">step, threshold_bytes</span>):</span><br><span class="line">    peak = device.max_memory_allocated()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> step % cleanup_interval == <span class="number">0</span> <span class="keyword">or</span> peak &gt; threshold_bytes:</span><br><span class="line">        gc.collect()</span><br><span class="line">        device.empty_cache()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># This does not free any tensor that is still referenced.</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong><code>reserved &gt;&gt; allocated</code>、snapshot 显示空闲块难以复用、且在阶段边界可承受同步的场景。</li>
+<li><strong>不是 OOM 根治方案</strong>：若 allocated 本身逼近容量，应找活张量、batch、序列或 workspace。</li>
+<li>高频触发会丢失缓存复用收益，并可能增加同步和重新分配开销。</li>
+</ul>
+<h2 id="Token-与输入"><a href="#Token-与输入" class="headerlink" title="Token 与输入"></a>Token 与输入</h2><h3 id="MoE-跳过-Pad-Token"><a href="#MoE-跳过-Pad-Token" class="headerlink" title="MoE 跳过 Pad Token"></a>MoE 跳过 Pad Token</h3><p>Pad Token 仍会经过 router 并产生 top-k；若大量 Pad 集中到少数专家，会抬高局部专家 token 数、通信量和中间激活。XTuner 在 Attention 与 Gate 之后选出 <code>nonpad_indices</code>，只让有效 token 进入 MoE，再 scatter 回原序列并保留 Pad 位置的 hidden。[^skip-pad]</p>
+<figure markdown>
+  ![MoE skip padding five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/40c5f976ed52f8dd53aa293937ed0295.png){ width=98% }
+  <figcaption>跳过 Pad Token 五联图：减少的是 MoE token 相关计算与通信，Attention 和 Gate 仍按完整序列执行。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>从 <code>T_total</code> 变为 <code>T_valid</code></th>
+<th>仍按完整序列</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dispatch token &#x2F; expert input</td>
+<td>是</td>
+<td>否</td>
+</tr>
+<tr>
+<td>expert activation &#x2F; combine</td>
+<td>是</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Attention、router top-k、最终输出</td>
+<td>否</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">moe_skip_pad</span>(<span class="params">hidden, attention_mask</span>):</span><br><span class="line">    residual, hidden = attention_forward(hidden, attention_mask)</span><br><span class="line">    topk_ids, topk_weights = gate(hidden)</span><br><span class="line"></span><br><span class="line">    nonpad = where(attention_mask.reshape(-<span class="number">1</span>) != <span class="number">0</span>)</span><br><span class="line">    pad = where(attention_mask.reshape(-<span class="number">1</span>) == <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    valid_hidden = index_select(hidden.reshape(-<span class="number">1</span>, H), nonpad)</span><br><span class="line">    valid_route = (</span><br><span class="line">        index_select(topk_ids, nonpad),</span><br><span class="line">        index_select(topk_weights, nonpad),</span><br><span class="line">    )</span><br><span class="line">    valid_out = dispatch_experts_combine(valid_hidden, valid_route)</span><br><span class="line"></span><br><span class="line">    output = residual.reshape(-<span class="number">1</span>, H).clone()</span><br><span class="line">    output[nonpad] += valid_out</span><br><span class="line">    output[pad] += hidden.reshape(-<span class="number">1</span>, H)[pad]</span><br><span class="line">    <span class="keyword">return</span> output.reshape_as(hidden)</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>padding ratio 高，且 Pad 路由导致专家负载或峰值异常的 MoE batch。</li>
+<li><strong>效果是 Reduce</strong>：MoE token 相关对象从 <code>T_total</code> 缩到 <code>T_valid</code>。</li>
+<li>若数据已做高效 packing、几乎没有 Pad，索引与 scatter 成本可能抵消收益。</li>
+</ul>
+<h3 id="pixel-values-生命周期"><a href="#pixel-values-生命周期" class="headerlink" title="pixel_values 生命周期"></a>pixel_values 生命周期</h3><p>多图或视频的 <code>pixel_values</code> 可能很大。关键不是 ViT 结束后调用一个通用释放函数，而是<strong>不要让 SequenceContext 提前把完整像素搬到设备并长期持有</strong>：原始像素留在 CPU，Vision 路径按 SP 需要切分后再 H2D；产生 visual&#x2F;deepstack embeddings 后，LM 不再需要设备像素。[^pixel-values]</p>
+<figure markdown>
+  ![pixel values lifetime five-view mechanism](https://pic.shaojiemike.top/shaojiemike/2026/07/1f64de99d9b875168eeb954713a5d187.png){ width=98% }
+  <figcaption>pixel_values 生命周期五联图：延迟 H2D 并缩短设备驻留窗口，ViT 激活和 visual embeddings 则是另外两类对象。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>位置与生命周期</th>
+<th>不同于</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原始 <code>pixel_values</code></td>
+<td>CPU 常驻，Vision 使用窗口才 H2D</td>
+<td>ViT saved activations</td>
+</tr>
+<tr>
+<td>rank-local device pixels</td>
+<td>SP 切分后短暂存在</td>
+<td>完整 CPU 原始输入</td>
+</tr>
+<tr>
+<td>visual embeddings</td>
+<td>ViT 后继续供 LM 使用</td>
+<td>可立即释放的像素输入</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">multimodal_forward</span>(<span class="params">seq_ctx</span>):</span><br><span class="line">    <span class="comment"># Generic context-to-device logic intentionally skips pixel_values.</span></span><br><span class="line">    move_metadata_and_text_tensors_to_device(seq_ctx)</span><br><span class="line">    cpu_pixels = seq_ctx.pixel_values</span><br><span class="line"></span><br><span class="line">    local_pixels = split_pixels_for_sp(cpu_pixels, sp_rank, sp_size)</span><br><span class="line">    device_pixels = local_pixels.to(device, non_blocking=<span class="literal">True</span>)</span><br><span class="line">    visual_embeds, deepstack_embeds = vision_encoder(device_pixels)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">del</span> device_pixels, local_pixels</span><br><span class="line">    <span class="keyword">return</span> language_model(</span><br><span class="line">        seq_ctx.text_inputs,</span><br><span class="line">        visual_embeds,</span><br><span class="line">        deepstack_embeds,</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用范围与效果：</strong></p>
+<ul>
+<li><strong>适合</strong>多图、视频或高分辨率 VLM，且设备像素在 ViT 后仍被 context 引用的实现。</li>
+<li><strong>效果是 Shift + Shorten</strong>：像素输入不再提前、长期占设备，但 CPU 原始输入仍存在。</li>
+<li>ViT 激活卸载与 pixel lifetime 可以组合：前者处理反向保存对象，后者处理原始输入。</li>
+</ul>
+<h2 id="联合选择"><a href="#联合选择" class="headerlink" title="联合选择"></a>联合选择</h2><p>不要把 13 个开关一次全开。先用对象账本和时间线找到峰值，再选择作用于该对象的最小组合：</p>
+<table>
+<thead>
+<tr>
+<th>观察到的峰值</th>
+<th>优先验证</th>
+<th>需要同时关注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LMHead logits &#x2F; CE 突刺</td>
+<td>ChunkLoss</td>
+<td>chunk launch 与梯度累加</td>
+</tr>
+<tr>
+<td>experts &#x2F; dispatcher 突刺</td>
+<td>ChunkMoE、skip Pad</td>
+<td>Attention&#x2F;Gate 下限、负载均衡</td>
+</tr>
+<tr>
+<td>前向末尾 saved activations 高</td>
+<td>ViT&#x2F;LM offload、MTP recompute</td>
+<td>CPU 容量、传输、重算时间</td>
+</tr>
+<tr>
+<td>optimizer step 高</td>
+<td>状态 offload、Muon workspace 释放</td>
+<td>并发任务数、通信与 NS workspace</td>
+</tr>
+<tr>
+<td>MTP 与 LMHead 交界高</td>
+<td>schedule reorder、roll lifetime</td>
+<td>列表&#x2F;view 的真实生命周期</td>
+</tr>
+<tr>
+<td>VLM 开始后像素长期占用</td>
+<td>pixel values 延迟 H2D</td>
+<td>visual embeddings 与 ViT 激活</td>
+</tr>
+<tr>
+<td><code>reserved &gt;&gt; allocated</code></td>
+<td>gc + empty_cache</td>
+<td>先确认没有活张量泄漏</td>
+</tr>
+</tbody></table>
+<p>一个可靠的 A&#x2F;B 顺序是：</p>
+<ol>
+<li><strong>固定语义</strong>：模型、global batch、micro-batch、序列、精度、并行组和数据完全相同。</li>
+<li><strong>记录对象</strong>：同时采集 <code>allocated</code>、<code>reserved</code>、<code>max_memory_allocated</code>、memory snapshot 和 profiler timeline。</li>
+<li><strong>一次改一类物理动作</strong>：先 Reduce&#x2F;Bound，再评估 Shift，最后处理 lifetime 与 allocator。</li>
+<li><strong>检查峰值迁移</strong>：优化一个阶段后，新的峰值可能转移到通信、optimizer 或 backward。</li>
+<li><strong>同时验吞吐与精度</strong>：显存下降但 step time 大幅增加，或 loss&#x2F;梯度语义变化，都不能算完成。</li>
+</ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>最小效果说明</p>
+</div>
+        <div class="message-body">
+            <p>每个实验至少记录“优化前峰值、优化后峰值、峰值所在阶段、step time、CPU 内存、传输时间、是否改变 batch&#x2F;shape”。没有固定这些条件时，只能说明机制，不能声称节省了某个百分比。</p>
+
+        </div>
+    </article>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>XTuner 这组显存优化可以归结为三个问题：</p>
+<ol>
+<li><strong>谁太大</strong>：logits、专家激活、saved activations、优化器状态、像素输入或临时 workspace。</li>
+<li><strong>为什么同时活着</strong>：算法依赖、schedule 重叠、view 保活 storage、Python 引用，还是异步任务并发。</li>
+<li><strong>应该怎样退场</strong>：切块限制、跳过无效 token、checkpoint 重算、搬到 CPU、调整顺序、clone 解除共享，或在最后消费者后删除引用。</li>
+</ol>
+<p>最重要的边界是：**<code>empty_cache()</code> 不能替代对象级优化，offload 也不等于减少总内存。** 只有把峰值拆回具体对象、存储位置和生命周期，才能判断某个补丁是否可迁移，以及它节省的是哪一部分显存。</p>
+<p>[^chunk-loss]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/loss/chunk_loss.py#L7-L69">XTuner <code>chunk_loss.py</code>，commit <code>e949653</code></a>。<br>[^chunk-moe]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/module/decoder_layer/moe_decoder_layer.py#L579-L770">XTuner <code>moe_decoder_layer.py</code> ChunkMoE，commit <code>e949653</code></a>；<a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/commit/2df5b5d3f7f2933061107662eb7b37cedd412f9f">引入提交 <code>2df5b5d</code></a>。<br>[^saved-hooks]: <a target="_blank" rel="noopener" href="https://docs.pytorch.org/docs/stable/autograd.html#torch.autograd.graph.saved_tensors_hooks">PyTorch <code>saved_tensors_hooks</code></a>。<br>[^activation-offload]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/utils/activation_offload.py#L312-L380">XTuner <code>activation_offload.py</code>，commit <code>e949653</code></a>。<br>[^vit-offload]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/model/compose/qwen3_vl/modeling_vision.py#L523-L550">XTuner Qwen3-VL <code>modeling_vision.py</code>，commit <code>e949653</code></a>。<br>[^lm-offload]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/model/moe/moe.py#L784-L805">XTuner <code>moe.py</code> LM activation offload，commit <code>e949653</code></a>。<br>[^swap-adamw]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/optim/swap_adamw.py#L13-L217">XTuner <code>swap_adamw.py</code>，commit <code>e949653</code></a>。<br>[^muon-offload]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/optim/muon.py#L251-L469">XTuner <code>muon.py</code> 状态初始化与 swap，commit <code>e949653</code></a>；<a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/optim/muon.py#L729-L910">异步更新路径</a>。<br>[^checkpoint]: <a target="_blank" rel="noopener" href="https://docs.pytorch.org/docs/stable/checkpoint.html">PyTorch activation checkpointing</a>。<br>[^mtp-recompute]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/commit/67bc238234accbf4e61799d0fcce194c16fd9011">XTuner MTP recompute 提交 <code>67bc238</code></a>；<a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/model/moe/moe.py#L1190-L1226"><code>e949653</code> 的 MTP checkpoint 路径</a>。<br>[^mtp-reorder]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/commit/65e9fcdf1e36ba5d8673ad4cc16f277b117bd256">XTuner MTP&#x2F;LMHead 重排提交 <code>65e9fcd</code></a>。<br>[^mtp-roll]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/commit/d5790e93c2267a4e1ba48aa4cdb373d3a6bfe3f3">XTuner MTP roll 生命周期提交 <code>d5790e9</code></a>；<a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/module/mtp/utils.py#L80-L132"><code>mtp/utils.py</code> 当前实现</a>。<br>[^deepseek-v3]: <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2412.19437">DeepSeek-V3 Technical Report</a>。<br>[^muon-release]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/commit/17047f5ceb42ea13c090258bb85c69854ac1c560">XTuner Muon 临时量释放提交 <code>17047f5</code></a>。<br>[^empty-cache]: <a target="_blank" rel="noopener" href="https://docs.pytorch.org/docs/stable/generated/torch.cuda.memory.empty_cache.html">PyTorch <code>torch.cuda.memory.empty_cache</code></a>。<br>[^allocator-branch]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/commit/c5e10053e92f7c1bc9f767326bd0a2e8764a9f53">XTuner 分支补丁提交 <code>c5e1005</code></a>。<br>[^trainer-gc]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/train/trainer.py#L862-L863">XTuner <code>e949653</code> trainer 周期性 GC</a>。<br>[^skip-pad]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/commit/2512534616b1377dde5e9afb867a368fe6ec7145">XTuner 跳过 Pad Token 提交 <code>2512534</code></a>；<a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/module/decoder_layer/moe_decoder_layer.py#L601-L642"><code>e949653</code> 当前实现</a>。<br>[^pixel-values]: <a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/commit/9573bab2ef417b99f920d53116e62a30ceab8af8">XTuner pixel values 生命周期提交 <code>9573bab</code></a>；<a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/data_proto/sequence_context.py#L504-L521"><code>SequenceContext</code> 保留 CPU 像素</a>；<a target="_blank" rel="noopener" href="https://github.com/Ascend-ShangHai-LLM/xtuner/blob/e949653622e1fecef17a776ea08c2e4e3590584f/xtuner/v1/model/compose/qwen3_vl/modeling_vision.py#L470-L494">Vision 路径按需处理</a>。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>XTuner Memory Optimization</p><p><a href="http://icarus.shaojiemike.top/2026/07/23/Work/Artificial Intelligence/Training/XTuner-Memory-Optimization/">http://icarus.shaojiemike.top/2026/07/23/Work/Artificial Intelligence/Training/XTuner-Memory-Optimization/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-07-23</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-23</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/FSDP2/">FSDP2</a><a class="link-muted mr-2" rel="tag" href="/tags/MoE/">MoE</a><a class="link-muted mr-2" rel="tag" href="/tags/XTuner/">XTuner</a><a class="link-muted mr-2" rel="tag" href="/tags/Memory-Optimization/">Memory Optimization</a><a class="link-muted mr-2" rel="tag" href="/tags/Activation-Offload/">Activation Offload</a><a class="link-muted mr-2" rel="tag" href="/tags/MTP/">MTP</a><a class="link-muted mr-2" rel="tag" href="/tags/Muon/">Muon</a><a class="link-muted mr-2" rel="tag" href="/tags/CUDA-Allocator/">CUDA Allocator</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/23/Work/Artificial%20Intelligence/Training/DeepSpeed/DeepSpeed-Observability-Autotuning/"><span class="level-item">DeepSpeed Observability and Autotuning</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">563</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">37</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">719</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#显存峰值"><span class="level-left"><span class="level-item">1</span><span class="level-item">显存峰值</span></span></a></li><li><a class="level is-mobile" href="#分块减峰"><span class="level-left"><span class="level-item">2</span><span class="level-item">分块减峰</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#ChunkLoss"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">ChunkLoss</span></span></a></li><li><a class="level is-mobile" href="#ChunkMoE"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">ChunkMoE</span></span></a></li></ul></li><li><a class="level is-mobile" href="#激活卸载"><span class="level-left"><span class="level-item">3</span><span class="level-item">激活卸载</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#ViT-激活卸载"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">ViT 激活卸载</span></span></a></li><li><a class="level is-mobile" href="#LM-激活卸载"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">LM 激活卸载</span></span></a></li></ul></li><li><a class="level is-mobile" href="#优化器状态"><span class="level-left"><span class="level-item">4</span><span class="level-item">优化器状态</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#SwapAdamW"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">SwapAdamW</span></span></a></li><li><a class="level is-mobile" href="#Muon-状态卸载"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">Muon 状态卸载</span></span></a></li></ul></li><li><a class="level is-mobile" href="#MTP-生命周期"><span class="level-left"><span class="level-item">5</span><span class="level-item">MTP 生命周期</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#MTP-重计算"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">MTP 重计算</span></span></a></li><li><a class="level is-mobile" href="#MTP-与-LMHead-重排"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">MTP 与 LMHead 重排</span></span></a></li><li><a class="level is-mobile" href="#roll-packed-tensor-生命周期"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">roll_packed_tensor 生命周期</span></span></a></li><li><a class="level is-mobile" href="#论文中的-MTP"><span class="level-left"><span class="level-item">5.4</span><span class="level-item">论文中的 MTP</span></span></a></li></ul></li><li><a class="level is-mobile" href="#临时量与碎片"><span class="level-left"><span class="level-item">6</span><span class="level-item">临时量与碎片</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Muon-workspace-释放"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">Muon workspace 释放</span></span></a></li><li><a class="level is-mobile" href="#gc-与-empty-cache"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">gc 与 empty_cache</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Token-与输入"><span class="level-left"><span class="level-item">7</span><span class="level-item">Token 与输入</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#MoE-跳过-Pad-Token"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">MoE 跳过 Pad Token</span></span></a></li><li><a class="level is-mobile" href="#pixel-values-生命周期"><span class="level-left"><span class="level-item">7.2</span><span class="level-item">pixel_values 生命周期</span></span></a></li></ul></li><li><a class="level is-mobile" href="#联合选择"><span class="level-left"><span class="level-item">8</span><span class="level-item">联合选择</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">9</span><span class="level-item">总结</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">99</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2028-01-03T16:00:00.000Z">2028-01-03</time></p><p class="title"><a href="/2028/01/03/Work/Artificial%20Intelligence/Training/Training-Performance-Model/">Training Performance Model</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2028-01-02T16:00:00.000Z">2028-01-02</time></p><p class="title"><a href="/2028/01/02/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2028-01-01T16:00:00.000Z">2028-01-01</time></p><p class="title"><a href="/2028/01/01/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-12-31T16:00:00.000Z">2027-12-31</time></p><p class="title"><a href="/2027/12/31/Work/0-Digital%20Worker/WorkWithAIDocWorkflow/">AI Documentation Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2028/01/"><span class="level-start"><span class="level-item">January 2028</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2027/12/"><span class="level-start"><span class="level-item">December 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Activation-Offload/"><span class="tag">Activation Offload</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/All-to-All/"><span class="tag">All-to-All</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
