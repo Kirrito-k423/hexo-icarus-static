@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Attention Cache and Sequence Parallelism - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       KV cache 最容易造成的误解，是把所有名为 K&amp;#x2F;V 或 state 的张量都看成同一种“缓存”。事实上，训练时为反向传播保留的 K&amp;#x2F;V activation、推理时跨 decode step 存活的 KV cache、GDN 跨 token 改写的固定状态，生命周期和分布式处理都不同。 本文从一次 tok"><meta property="og:type" content="blog"><meta property="og:title" content="Attention Cache and Sequence Parallelism"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/07/23/Work/Artificial%20Intelligence/Model/LLM/Attention-Cache-and-Sequence-Parallelism/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       KV cache 最容易造成的误解，是把所有名为 K&amp;#x2F;V 或 state 的张量都看成同一种“缓存”。事实上，训练时为反向传播保留的 K&amp;#x2F;V activation、推理时跨 decode step 存活的 KV cache、GDN 跨 token 改写的固定状态，生命周期和分布式处理都不同。 本文从一次 tok"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-07-23T10:00:00.000Z"><meta property="article:modified_time" content="2026-07-23T10:42:16.876Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="USP"><meta property="article:tag" content="GDN"><meta property="article:tag" content="Attention"><meta property="article:tag" content="MHA"><meta property="article:tag" content="DSA"><meta property="article:tag" content="KV Cache"><meta property="article:tag" content="Context Parallelism"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/07/23/Work/Artificial%20Intelligence/Model/LLM/Attention-Cache-and-Sequence-Parallelism/"},"headline":"Attention Cache and Sequence Parallelism","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-07-23T10:00:00.000Z","dateModified":"2026-07-23T10:42:16.876Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       KV cache 最容易造成的误解，是把所有名为 K&#x2F;V 或 state 的张量都看成同一种“缓存”。事实上，训练时为反向传播保留的 K&#x2F;V activation、推理时跨 decode step 存活的 KV cache、GDN 跨 token 改写的固定状态，生命周期和分布式处理都不同。 本文从一次 tok"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/07/23/Work/Artificial%20Intelligence/Model/LLM/Attention-Cache-and-Sequence-Parallelism/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-07-23T10:00:00.000Z" title="7/23/2026, 10:00:00 AM">2026-07-23</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-23T10:42:16.876Z" title="7/23/2026, 10:42:16 AM">2026-07-23</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">39 minutes read (About 5911 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Attention Cache and Sequence Parallelism</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>KV cache 最容易造成的误解，是把所有名为 K&#x2F;V 或 state 的张量都看成同一种“缓存”。事实上，<strong>训练时为反向传播保留的 K&#x2F;V activation、推理时跨 decode step 存活的 KV cache、GDN 跨 token 改写的固定状态</strong>，生命周期和分布式处理都不同。</p>
+<p>本文从一次 token 生成开始，逐对象解释 MHA、DSA 与 GDN 保存什么，再讨论 CP、USP 切开长序列后，临时 activation 和持久 cache 分别需要怎样的通信。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>先记住六个判断：</p>
+<ol>
+<li><strong>KV cache 主要服务自回归推理</strong>。Prefill 一次构建 prompt 的逐层历史，decode 每步追加新 K&#x2F;V；旧 Q 不缓存，因为未来不会再用它去发起查询。</li>
+<li><strong>训练通常没有跨 forward 持久增长的 KV cache</strong>。Teacher forcing 已知整段目标，一次并行形成所有 Q&#x2F;K&#x2F;V；K&#x2F;V 只是当前 batch 的 activation，为 backward 保存或重算。</li>
+<li><strong>MHA 保存逐 token、逐 KV head 的 K&#x2F;V</strong>，cache 随上下文长度线性增长。</li>
+<li><strong>DSA 仍有两套随长度增长的历史</strong>：Lightning Indexer 的低维 K&#x2F;scale，以及 MLA 的 <code>cKV/kR</code>；Indexer 扫描全历史，主 MLA 只读取 global top-k。</li>
+<li><strong>GDN 没有逐 token KV cache</strong>。它保存固定大小矩阵状态和有界短卷积状态；代价是历史被压进有限容量，而不是无损保留每个 token。</li>
+<li><strong>CP&#x2F;USP 的训练通信不能直接等同于 decode cache 分片</strong>。训练时 Q&#x2F;K&#x2F;V 都有长序列维；decode 的 Query 长度通常只有 1，若把历史 cache 按 token 分片，还要额外做 distributed softmax 或 global top-k。</li>
+</ol>
+<figure markdown>
+  ![训练激活、KV cache 与递归状态的生命周期](https://pic.shaojiemike.top/shaojiemike/2026/07/ecdd1c05dba5e3bb12df0bf04b8a399e.png){ width=94% }
+  <figcaption>小黑认知示意图：训练 activation 是一次作业的临时工位，MHA cache 是不断增长的历史抽屉，GDN 则反复改写一块固定尺寸状态板。</figcaption>
+</figure>
+
+<h2 id="先分清三种“保存”"><a href="#先分清三种“保存”" class="headerlink" title="先分清三种“保存”"></a>先分清三种“保存”</h2><h3 id="为什么只缓存-K-V"><a href="#为什么只缓存-K-V" class="headerlink" title="为什么只缓存 K&#x2F;V"></a>为什么只缓存 K&#x2F;V</h3><p>在第 <code>l</code> 层、第 <code>t</code> 个位置，MHA 先把当前层输入 <code>h_t^l∈R^D</code> 投影成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">q_t^l = reshape(h_t^l W_Q^l)    [B,Hq,1,d]</span><br><span class="line">k_t^l = reshape(h_t^l W_K^l)    [B,Hkv,1,d]</span><br><span class="line">v_t^l = reshape(h_t^l W_V^l)    [B,Hkv,1,d]</span><br></pre></td></tr></table></figure>
+
+<p>对于 causal decoder，历史 token <code>j≤t</code> 的 <code>k_j^l,v_j^l</code> 一旦算出，以后不会因为生成了新 token 而改变。第 <code>t+1</code> 步的新 Query 要再次读取它们，所以 cache 执行：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">K_cache^l ← concat(K_cache^l, k_t^l, axis=time)</span><br><span class="line">V_cache^l ← concat(V_cache^l, v_t^l, axis=time)</span><br><span class="line"></span><br><span class="line">a_t^l = (q_t^l (K_cache^l)^T) / sqrt(d) + causal_mask</span><br><span class="line">p_t^l = softmax(a_t^l, axis=history)</span><br><span class="line">o_t^l = p_t^l V_cache^l</span><br></pre></td></tr></table></figure>
+
+<p>旧 <code>q_j^l</code> 的工作在第 <code>j</code> 步已经结束；未来发起查询的是新 <code>q_t^l</code>，所以通常没有 <code>Q_cache</code>。Transformers 的通用动态 cache 也按层保存 shape 为 <code>[B,Hkv,T,d]</code> 的 K 和 V，并沿倒数第二维 append。[^hf-cache]</p>
+<h3 id="Prefill-与-decode"><a href="#Prefill-与-decode" class="headerlink" title="Prefill 与 decode"></a>Prefill 与 decode</h3><ul>
+<li><strong>Prefill</strong>：输入 prompt 的 <code>S</code> 个 token 已知，可以用矩阵乘法一次形成所有层的 Q&#x2F;K&#x2F;V，并把各层 K&#x2F;V 写入初始 cache。它不是逐 token Python 循环，但 causal mask 仍保证位置 <code>i</code> 看不到未来位置。</li>
+<li><strong>Decode</strong>：每步通常只有一个新 token。模型只为它计算新 Q&#x2F;K&#x2F;V，把新 K&#x2F;V 追加到各层 cache；新 Q 读取从 prompt 到当前步的全部历史。</li>
+<li><strong>每层独立保存</strong>：第 <code>l</code> 层的 K&#x2F;V 来自该层输入，不能拿第 <code>l-1</code> 层 cache 代替。</li>
+</ul>
+<p>以 BF16、<code>L=32</code> 层、<code>B=1</code>、<code>Hkv=32</code>、<code>d=128</code>、<code>T=8192</code> 为例，忽略对齐和管理开销：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">M_KV = 2 × L × B × Hkv × T × d × 2 bytes</span><br><span class="line">     = 4,294,967,296 bytes</span><br><span class="line">     = 4 GiB</span><br></pre></td></tr></table></figure>
+
+<p>这里第一个 <code>2</code> 是 K 与 V 两份，最后一个 <code>2 bytes</code> 是 BF16 元素大小。换成 GQA&#x2F;MQA 会减少 <code>Hkv</code>，但 attention score 仍要覆盖全部历史 token。</p>
+<h3 id="训练为什么不同"><a href="#训练为什么不同" class="headerlink" title="训练为什么不同"></a>训练为什么不同</h3><p>训练使用 teacher forcing：目标序列在一次 forward 前已经全部给定。所有位置的 Q&#x2F;K&#x2F;V 可以并行计算，causal mask 只限制可见性。K&#x2F;V 可能因 autograd 被保存到 backward，也可能由 activation checkpointing 重算，但它们通常在该次迭代结束后释放，<strong>不会在下一批数据上继续 append</strong>。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>同一个 <code>use_cache</code> 不代表训练也该开</p>
+</div>
+        <div class="message-body">
+            <p>Hugging Face 官方文档明确把 cache 限定为 inference；训练时启用可能引发非预期错误。[^hf-cache] 训练图需要梯度、dropout 和完整序列语义，生成 cache 的原地更新与跨 forward 生命周期并不匹配这些要求。</p>
+
+        </div>
+    </article>
+
+<h2 id="MHA：逐-token-保存-K-V"><a href="#MHA：逐-token-保存-K-V" class="headerlink" title="MHA：逐 token 保存 K&#x2F;V"></a>MHA：逐 token 保存 K&#x2F;V</h2><p>MHA 的对象账本如下。为了突出 cache，省略 MLP 和残差分支。</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>公式 &#x2F; 代码名</th>
+<th>Shape</th>
+<th>生产者 → 消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>当前层输入</td>
+<td><code>h_t</code> &#x2F; <code>hidden_states</code></td>
+<td><code>[B,1,D]</code></td>
+<td>上一子层 → Q&#x2F;K&#x2F;V 投影</td>
+<td>临时 activation</td>
+</tr>
+<tr>
+<td>当前 Query</td>
+<td><code>q_t</code> &#x2F; <code>query_states</code></td>
+<td><code>[B,Hq,1,d]</code></td>
+<td><code>WQ</code>、reshape、RoPE → QK MatMul</td>
+<td>临时 activation</td>
+</tr>
+<tr>
+<td>当前 Key&#x2F;Value</td>
+<td><code>k_t,v_t</code></td>
+<td><code>[B,Hkv,1,d]</code></td>
+<td><code>WK/WV</code>、reshape、RoPE(K) → cache update</td>
+<td>临时 activation</td>
+</tr>
+<tr>
+<td>历史 Key&#x2F;Value</td>
+<td><code>K_cache,V_cache</code></td>
+<td><code>[B,Hkv,T,d]</code></td>
+<td>旧 cache + 当前 K&#x2F;V → score&#x2F;value MatMul</td>
+<td><strong>跨 decode step cache</strong></td>
+</tr>
+<tr>
+<td>分数与概率</td>
+<td><code>a_t,p_t</code></td>
+<td><code>[B,Hq,1,T]</code></td>
+<td>QK MatMul、scale、mask、Softmax → PV MatMul</td>
+<td>临时 activation</td>
+</tr>
+<tr>
+<td>输出</td>
+<td><code>o_t,y_t</code></td>
+<td><code>[B,Hq,1,d] → [B,1,D]</code></td>
+<td>PV MatMul、concat、<code>WO</code> → 下一子层</td>
+<td>临时 activation</td>
+</tr>
+</tbody></table>
+<p>下面是完整的单层 decode 伪代码。<code>repeat_kv</code> 表示 GQA&#x2F;MQA 为计算建立的逻辑 head view；MHA 中 <code>Hkv=Hq</code>，它是恒等操作。实际 kernel 可以不物化复制。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">mha_decode</span>(<span class="params">hidden_t, layer_cache, wq, wk, wv, wo, rope, scale</span>):</span><br><span class="line">    batch, one, model_dim = hidden_t.shape</span><br><span class="line">    q = (hidden_t @ wq).view(batch, one, Hq, head_dim).transpose(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">    k = (hidden_t @ wk).view(batch, one, Hkv, head_dim).transpose(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">    v = (hidden_t @ wv).view(batch, one, Hkv, head_dim).transpose(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">    q = rope(q, position=layer_cache.length)</span><br><span class="line">    k = rope(k, position=layer_cache.length)</span><br><span class="line">    k_all = concat([layer_cache.k, k], dim=<span class="number">2</span>)</span><br><span class="line">    v_all = concat([layer_cache.v, v], dim=<span class="number">2</span>)</span><br><span class="line">    layer_cache.k = k_all</span><br><span class="line">    layer_cache.v = v_all</span><br><span class="line">    k_for_q = repeat_kv(k_all, groups=Hq // Hkv)</span><br><span class="line">    v_for_q = repeat_kv(v_all, groups=Hq // Hkv)</span><br><span class="line">    scores = matmul(q, transpose(k_for_q, -<span class="number">1</span>, -<span class="number">2</span>)) * scale</span><br><span class="line">    probs = softmax(scores, dim=-<span class="number">1</span>)</span><br><span class="line">    heads = matmul(probs, v_for_q)</span><br><span class="line">    merged = heads.transpose(<span class="number">1</span>, <span class="number">2</span>).reshape(batch, one, model_dim)</span><br><span class="line">    <span class="keyword">return</span> merged @ wo, layer_cache</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![MHA prefill 与 decode 的 KV cache 逻辑](https://pic.shaojiemike.top/shaojiemike/2026/07/6a2ea7e9538f7c19a91101ef3301ce86.png){ width=98% }
+  <figcaption>物理语义图：蓝色圆点是当前 activation，双圈是跨 decode step cache，方块是具体算子；训练分支中的 K/V 只在本轮 forward/backward 存活。</figcaption>
+</figure>
+
+<h2 id="DSA：两套随序列增长的压缩缓存"><a href="#DSA：两套随序列增长的压缩缓存" class="headerlink" title="DSA：两套随序列增长的压缩缓存"></a>DSA：两套随序列增长的压缩缓存</h2><p>DSA 不是把 MHA cache 直接截成 top-k。DeepSeek-V3.2-Exp 在 MLA 前放置 Lightning Indexer：先用低维 Key 为每个 Query 选择历史位置，再让主 MLA 只读取这些位置。[^dsa-release]</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>源码 &#x2F; 公式名</th>
+<th>Shape</th>
+<th>生产者 → 消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Indexer Query</td>
+<td><code>q_i</code></td>
+<td><code>[B,Hidx,Didx]</code></td>
+<td>当前 hidden → Indexer Q 投影、RoPE、量化</td>
+<td>临时 activation</td>
+</tr>
+<tr>
+<td>Indexer Key</td>
+<td><code>k_j</code></td>
+<td><code>[B,T,Didx]</code> FP8 + scale</td>
+<td>每个历史 hidden → <code>k_cache/k_scale_cache</code></td>
+<td><strong>随 T 增长的 cache</strong></td>
+</tr>
+<tr>
+<td>Indexer head 权重</td>
+<td><code>w_i</code> &#x2F; <code>weights</code></td>
+<td><code>[B,Hidx]</code></td>
+<td>当前 hidden → 加权跨 head score</td>
+<td>临时 activation</td>
+</tr>
+<tr>
+<td>Index score</td>
+<td><code>I_j</code></td>
+<td><code>[B,T]</code></td>
+<td>FP8 dot、ReLU、跨 head 求和 → top-k</td>
+<td>临时 activation</td>
+</tr>
+<tr>
+<td>选择位置</td>
+<td><code>J=TopK(I,k)</code></td>
+<td><code>[B,k]</code></td>
+<td>Indexer → 主 MLA gather &#x2F; mask</td>
+<td>临时控制对象</td>
+</tr>
+<tr>
+<td>MLA latent cache</td>
+<td><code>cKV_j,kR_j</code></td>
+<td><code>[B,T,Rkv]</code>、<code>[B,T,DR]</code></td>
+<td>KV down projection、RMSNorm、RoPE → 主 MLA</td>
+<td><strong>随 T 增长的 cache</strong></td>
+</tr>
+<tr>
+<td>主 MLA 输出</td>
+<td><code>y_t</code></td>
+<td><code>[B,D]</code></td>
+<td>只聚合 <code>J</code> 中 latent → <code>WUV/WO</code></td>
+<td>临时 activation</td>
+</tr>
+</tbody></table>
+<p>固定 revision 的 Indexer 把低维 K 和量化 scale 物理写入两块 cache，再对全历史求分数：[^dsa-kernel]</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">q_fp8, q_scale = act_quant(q, block_size, <span class="variable language_">self</span>.scale_fmt)</span><br><span class="line">k_fp8, k_scale = act_quant(k, block_size, <span class="variable language_">self</span>.scale_fmt)</span><br><span class="line"><span class="variable language_">self</span>.k_cache[:bsz, start_pos:end_pos] = k_fp8</span><br><span class="line"><span class="variable language_">self</span>.k_scale_cache[:bsz, start_pos:end_pos] = k_scale</span><br><span class="line">weights = <span class="variable language_">self</span>.weights_proj(x.<span class="built_in">float</span>()) * <span class="variable language_">self</span>.n_heads ** -<span class="number">0.5</span></span><br><span class="line">weights = weights.unsqueeze(-<span class="number">1</span>) * q_scale * <span class="variable language_">self</span>.softmax_scale</span><br><span class="line">index_score = fp8_index(</span><br><span class="line">    q_fp8,</span><br><span class="line">    weights,</span><br><span class="line">    <span class="variable language_">self</span>.k_cache[:bsz, :end_pos],</span><br><span class="line">    <span class="variable language_">self</span>.k_scale_cache[:bsz, :end_pos],</span><br><span class="line">)</span><br><span class="line">topk_indices = index_score.topk(<span class="built_in">min</span>(<span class="variable language_">self</span>.index_topk, end_pos), dim=-<span class="number">1</span>)[<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+
+<p>算法目标的 decode 语义可以写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">I_j = Σ_i w_i ReLU(q_i k_j^T)                         [B,T]</span><br><span class="line">J   = TopK(I,k)                                       [B,k]</span><br><span class="line">a_j = (qC&#x27; cKV_j^T + qR kR_j^T) / sqrt(d), j∈J       [B,H,k]</span><br><span class="line">p   = Softmax(a, axis=selected_history)                [B,H,k]</span><br><span class="line">u   = Σ_(j∈J) p_j cKV_j                               [B,H,Rkv]</span><br><span class="line">y   = WO(Concat_h(u WUV_h))                            [B,D]</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>qC&#39;=qC WUK</code> 是 memory-optimal decode 中的代数吸收对象，不是另一份 cache；<code>WUK/WUV</code> 都来自联合 KV up-projection 的 K&#x2F;V 分区。固定 Python reference 为验证语义，实际先形成 dense 主 score 再用 <code>topk_indices</code> scatter mask；论文目标的 production sparse kernel 则应先 gather 选中 latent，再做主 MLA。[^dsa-model]</p>
+<figure markdown>
+  ![DSA 双缓存与 top-k 读取逻辑](https://pic.shaojiemike.top/shaojiemike/2026/07/d0c32b41ddf32ea71df8c1eebbdb52a6.png){ width=98% }
+  <figcaption>物理对象图：Indexer cache 和 MLA latent cache 都随历史长度增长；稀疏发生在主 MLA 的高维读取，不代表 Indexer 不扫描历史。</figcaption>
+</figure>
+
+<p>训练时也会形成整段 Indexer K 与 MLA latent，但它们是当前 batch 的 activation，而不是跨请求持久 cache。若沿序列切分，top-k 不能只在本 rank 决定：每个 rank 的 local top-k 只是候选，必须再合并成 global top-k，主 MLA 才能读取正确位置。</p>
+<h2 id="GDN：固定状态替代逐-token-cache"><a href="#GDN：固定状态替代逐-token-cache" class="headerlink" title="GDN：固定状态替代逐 token cache"></a>GDN：固定状态替代逐 token cache</h2><p>GDN 把历史写入每个 head 的矩阵状态 <code>S_t∈R^(K×V)</code>，不保存每个 token 的 K&#x2F;V。它先衰减旧状态，再计算旧状态对当前 key 的 value 预测，最后只写入预测误差。[^gdn-paper]</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>公式 &#x2F; 源码名</th>
+<th>Shape</th>
+<th>生产者 → 消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Q&#x2F;K&#x2F;V</td>
+<td><code>q_t,k_t,v_t</code></td>
+<td><code>[B,H,K]</code>、<code>[B,H,K]</code>、<code>[B,H,V]</code></td>
+<td>投影、ShortConv、SiLU、Q&#x2F;K L2Norm → recurrence</td>
+<td>临时 activation</td>
+</tr>
+<tr>
+<td>衰减与写入率</td>
+<td><code>lambda_t,beta_t</code></td>
+<td><code>[B,H]</code></td>
+<td><code>a_proj/b_proj</code> 与参数化 → state update</td>
+<td>临时 activation</td>
+</tr>
+<tr>
+<td>衰减后状态</td>
+<td><code>Sbar_t</code></td>
+<td><code>[B,H,K,V]</code></td>
+<td><code>lambda_t S_(t-1)</code> → 预测、写入</td>
+<td>语义中间量；kernel 可融合</td>
+</tr>
+<tr>
+<td>预测与误差</td>
+<td><code>vhat_t,e_t</code></td>
+<td><code>[B,H,V]</code></td>
+<td><code>Sbar_t^T k_t</code>、<code>beta(v-vhat)</code> → delta 写入</td>
+<td>临时 activation</td>
+</tr>
+<tr>
+<td>递归状态</td>
+<td><code>S_t</code> &#x2F; <code>h</code></td>
+<td><code>[B,H,K,V]</code>；cache 可为 <code>[B,H,V,K]</code></td>
+<td>上一步 → 当前读写 → 下一步</td>
+<td><strong>固定大小跨 token state</strong></td>
+</tr>
+<tr>
+<td>短卷积状态</td>
+<td><code>conv_state_q/k/v</code></td>
+<td>三个有界窗口</td>
+<td>ShortConv 上一步 → 下一步</td>
+<td><strong>固定大小 cache</strong></td>
+</tr>
+<tr>
+<td>读出</td>
+<td><code>r_t,y_t</code></td>
+<td><code>[B,H,V] → [B,D]</code></td>
+<td><code>q_t^T S_t</code>、Gated RMSNorm、<code>WO</code></td>
+<td>临时 activation</td>
+</tr>
+</tbody></table>
+<p>完整单 token 递推为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Sbar_t = lambda_t S_(t-1)                     [B,H,K,V]</span><br><span class="line">vhat_t = Sbar_t^T k_t                         [B,H,V]</span><br><span class="line">e_t    = beta_t (v_t - vhat_t)                [B,H,V]</span><br><span class="line">S_t    = Sbar_t + k_t e_t^T                   [B,H,K,V]</span><br><span class="line">r_t    = q_t^T S_t                            [B,H,V]</span><br><span class="line">y_t    = WO(GatedRMSNorm(r_t,z_t))            [B,D]</span><br></pre></td></tr></table></figure>
+
+<p>FLA naive reference 中 <code>h</code> 是 <code>S</code>，<code>b_v</code> 先是 <code>v_t</code>，随后被复用为误差 <code>e_t</code>：[^gdn-naive]</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">h = h.clone() * g[:, :, i].exp()[..., <span class="literal">None</span>, <span class="literal">None</span>]</span><br><span class="line">b_v = v[:, :, i].clone()</span><br><span class="line">b_k = k[:, :, i]</span><br><span class="line">b_v = b_v - (h.clone() * b_k[..., <span class="literal">None</span>]).<span class="built_in">sum</span>(-<span class="number">2</span>)</span><br><span class="line">b_v = b_v * beta[:, :, i][..., <span class="literal">None</span>]</span><br><span class="line">h = h.clone() + b_k.unsqueeze(-<span class="number">1</span>) * b_v.unsqueeze(-<span class="number">2</span>)</span><br><span class="line">o[:, :, i] = torch.einsum(<span class="string">&quot;bhd,bhdm-&gt;bhm&quot;</span>, q[:, :, i], h)</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![GDN 固定状态在训练与推理中的逻辑](https://pic.shaojiemike.top/shaojiemike/2026/07/82b7f691e5f7d37ff047994d2da1f26d.png){ width=98% }
+  <figcaption>物理语义图：decode 保存双圈状态 `S_t` 与短卷积窗口；训练的 chunk kernel 会产生边界状态，但没有逐 token 持久 KV cache。</figcaption>
+</figure>
+
+<p>训练为了并行，不会真的用 Python 按 token 慢循环。FLA 使用 chunk recurrence 或 fused kernel，并在需要时输出 final state；短序列 decode 则走 recurrent kernel。两条路径实现同一递推，但物化的中间量和 workspace 不同。[^gdn-layer]</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>固定大小不等于无损</p>
+</div>
+        <div class="message-body">
+            <p>MHA&#x2F;DSA 仍为每个历史 token 保存独立表示；GDN 让多个 token 竞争同一状态矩阵容量。它用固定内存换取了历史压缩归纳偏置，不应只凭 cache 大小判断模型质量。</p>
+
+        </div>
+    </article>
+
+<h2 id="CP：训练时交换临时-K-V-分块"><a href="#CP：训练时交换临时-K-V-分块" class="headerlink" title="CP：训练时交换临时 K&#x2F;V 分块"></a>CP：训练时交换临时 K&#x2F;V 分块</h2><p>Megatron Context Parallelism 沿 sequence 维切分网络输入和<strong>所有 activation</strong>。Linear、RMSNorm 等不跨 token，可直接在本地 <code>S/P</code> 个位置上执行；Attention 的本地 Query 仍必须看到全局 K&#x2F;V。官方语义是前向收集 K&#x2F;V，反向对 K&#x2F;V activation gradient 做 reduce-scatter，高性能路径以 P2P Ring 实现。[^mcore-cp]</p>
+<p>设 Rank <code>r</code> 初始拥有：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Q_r,K_r,V_r : [B,H,S/P,d]</span><br></pre></td></tr></table></figure>
+
+<p>Ring 路径固定 <code>Q_r</code>，让 <code>(K_j,V_j)</code> 依次经过所有 rank。每轮用 online softmax 合并局部分数，避免物化完整 <code>[S/P,S]</code> 分数矩阵：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">cp_ring_forward</span>(<span class="params">q_local, k_local, v_local, cp_group</span>):</span><br><span class="line">    running_max = full([B, H, S_local, <span class="number">1</span>], -inf)</span><br><span class="line">    running_sum = zeros([B, H, S_local, <span class="number">1</span>])</span><br><span class="line">    running_out = zeros([B, H, S_local, head_dim])</span><br><span class="line">    k_block, v_block = k_local, v_local</span><br><span class="line">    owner = cp_group.rank</span><br><span class="line">    <span class="keyword">for</span> round_id <span class="keyword">in</span> <span class="built_in">range</span>(cp_group.size):</span><br><span class="line">        scores = matmul(q_local, transpose(k_block, -<span class="number">1</span>, -<span class="number">2</span>)) * scale</span><br><span class="line">        scores = apply_global_causal_mask(scores, q_owner=cp_group.rank, kv_owner=owner)</span><br><span class="line">        block_max = scores.<span class="built_in">max</span>(dim=-<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br><span class="line">        new_max = maximum(running_max, block_max)</span><br><span class="line">        old_factor = exp(running_max - new_max)</span><br><span class="line">        block_exp = exp(scores - new_max)</span><br><span class="line">        running_out = running_out * old_factor + matmul(block_exp, v_block)</span><br><span class="line">        running_sum = running_sum * old_factor + block_exp.<span class="built_in">sum</span>(dim=-<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br><span class="line">        running_max = new_max</span><br><span class="line">        k_block, v_block, owner = ring_send_recv(k_block, v_block, owner, cp_group)</span><br><span class="line">    <span class="keyword">return</span> running_out / running_sum</span><br></pre></td></tr></table></figure>
+
+<p>这里 <code>K_j,V_j</code> 是当前训练 forward 的临时 activation block。反向还需把各轮产生的 <code>dK_j,dV_j</code> 送回 owner 并累加；它们不会像推理 cache 那样在下一次 forward 继续存在。</p>
+<figure markdown>
+  ![CP 的临时 KV 分块与 Ring 计算](https://pic.shaojiemike.top/shaojiemike/2026/07/84e26ec1e3beaa6d9574dc954be2feca.png){ width=98% }
+  <figcaption>训练物理语义图：本地 Q 固定，K/V block 轮转，online-softmax 状态留在 Query owner；反向的 KV 梯度回到原 owner。</figcaption>
+</figure>
+
+<p>对于 MQA&#x2F;GQA，<code>Hkv</code> 更小，Ring 发送的 K&#x2F;V 体积也更小，NVIDIA 文档明确把它列为降低 CP 通信量的手段。[^mcore-cp] 但这不改变“本地 Q 要覆盖全局 token”的语义。</p>
+<h2 id="USP：先换轴，再沿-Ring-扩展上下文"><a href="#USP：先换轴，再沿-Ring-扩展上下文" class="headerlink" title="USP：先换轴，再沿 Ring 扩展上下文"></a>USP：先换轴，再沿 Ring 扩展上下文</h2><p>USP 是 Ulysses 与 Ring 的二维组合。令总 sequence-parallel degree 为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">P = Pu × Pr</span><br></pre></td></tr></table></figure>
+
+<p>初始每个 rank 拥有 <code>[B,S/(PuPr),H,D]</code>。Ulysses group 中的 All-to-All 把一部分 sequence 分片换成 head 分片：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[B,S/(PuPr),H,D]</span><br><span class="line">    -- A2A(seq → head) --&gt;</span><br><span class="line">[B,S/Pr,H/Pu,D]</span><br></pre></td></tr></table></figure>
+
+<p>随后 Ring group 在 <code>Pr</code> 个 rank 之间轮转 K&#x2F;V，最后 inverse A2A 把输出恢复到初始 layout。YunChang 的公开实现正是按照 process group 初始化、local shard 提取、LongContextAttention 的顺序组织，并要求 <code>world_size=Pu×Pr</code>。[^usp-code]</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">usp_attention</span>(<span class="params">q_local, k_local, v_local, ulysses_group, ring_group</span>):</span><br><span class="line">    q_head = all_to_all(q_local, scatter_axis=<span class="string">&quot;head&quot;</span>, gather_axis=<span class="string">&quot;sequence&quot;</span>,</span><br><span class="line">                        group=ulysses_group)</span><br><span class="line">    k_head = all_to_all(k_local, scatter_axis=<span class="string">&quot;head&quot;</span>, gather_axis=<span class="string">&quot;sequence&quot;</span>,</span><br><span class="line">                        group=ulysses_group)</span><br><span class="line">    v_head = all_to_all(v_local, scatter_axis=<span class="string">&quot;head&quot;</span>, gather_axis=<span class="string">&quot;sequence&quot;</span>,</span><br><span class="line">                        group=ulysses_group)</span><br><span class="line">    out_head = ring_online_attention(q_head, k_head, v_head, group=ring_group)</span><br><span class="line">    out_local = all_to_all(out_head, scatter_axis=<span class="string">&quot;sequence&quot;</span>, gather_axis=<span class="string">&quot;head&quot;</span>,</span><br><span class="line">                           group=ulysses_group)</span><br><span class="line">    <span class="keyword">return</span> out_local</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![USP 的二维换轴与 Ring KV 轮转](https://pic.shaojiemike.top/shaojiemike/2026/07/95f09e03ed7f2d5b8ef9e3f69fa1eccb.png){ width=98% }
+  <figcaption>训练物理语义图：`Pu` 维用 A2A 将 sequence 换为 head 分片，`Pr` 维再让 K/V block 轮转；最后逆 A2A 恢复每 rank 的原始 sequence shard。</figcaption>
+</figure>
+
+<p>纯 Ulysses 的并行度受可切分 head 数限制；Ring 不切 head，但增加 P2P 轮次。USP 只让 <code>Pu</code> 消耗 head 维，<code>Pr</code> 可继续扩展，因此适合把节点内高带宽交给 A2A、节点间交给 Ring。论文在特定 2×8 A800、LLaMA3-8B 配置下报告 208K 序列的 47% MFU；这只是该硬件和配置的证据，不是普遍性能保证。[^usp-paper]</p>
+<figure markdown>
+  ![USP 论文中的 Ulysses 与 Ring Attention](https://pic.shaojiemike.top/shaojiemike/2026/07/a3d4240389e511a794248dfce06e4807.png){ width=90% }
+  <figcaption>USP 论文 Figure 2：左侧是 Ulysses 换轴，右侧是 Ring 的 KV block 轮转；USP 把二者放到正交 process group。</figcaption>
+</figure>
+
+<figure markdown>
+  ![USP 在 208K 序列长度下的性能实验](https://pic.shaojiemike.top/shaojiemike/2026/07/7d5cceaab46c046afeb1a46c8b67da95.png){ width=90% }
+  <figcaption>USP 论文 Table 7：2×8 A800、LLaMA3-8B 的 TP × Ulysses × Ring 组合。不能把该结果外推到不同网络、head 布局与模型。</figcaption>
+</figure>
+
+<h2 id="训练切分与推理-cache-分片"><a href="#训练切分与推理-cache-分片" class="headerlink" title="训练切分与推理 cache 分片"></a>训练切分与推理 cache 分片</h2><h3 id="MHA-decode：需要-distributed-softmax"><a href="#MHA-decode：需要-distributed-softmax" class="headerlink" title="MHA decode：需要 distributed softmax"></a>MHA decode：需要 distributed softmax</h3><p>训练 CP&#x2F;USP 的输入有长 sequence 维，可以把 Q&#x2F;K&#x2F;V activation 一起切开。decode 通常只有 <code>q_t</code> 一个 Query；若把持久 K&#x2F;V cache 按历史 token 分给 <code>P</code> 个 rank，每个 rank 只能算局部 score，必须按全局 Softmax 合并。</p>
+<p>Rank <code>r</code> 对本地 cache 得到局部最大值 <code>m_r</code>、局部分母 <code>l_r</code> 与未归一化输出 <code>u_r</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">m_r = max_j a_(r,j)</span><br><span class="line">l_r = Σ_j exp(a_(r,j)-m_r)</span><br><span class="line">u_r = Σ_j exp(a_(r,j)-m_r) v_(r,j)</span><br></pre></td></tr></table></figure>
+
+<p>全局结果是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">m = max_r m_r</span><br><span class="line">l = Σ_r exp(m_r-m) l_r</span><br><span class="line">o = (Σ_r exp(m_r-m) u_r) / l</span><br></pre></td></tr></table></figure>
+
+<p>所以“每卡只放 <code>T/P</code> cache”并不免费：还要复制或切分新 Query、归并 max&#x2F;sum&#x2F;output，并处理 PagedAttention 的 block table、请求迁移和负载均衡。只有 cache 容量或带宽收益超过通信成本时才值得。</p>
+<h3 id="DSA：先全局选，再稀疏读"><a href="#DSA：先全局选，再稀疏读" class="headerlink" title="DSA：先全局选，再稀疏读"></a>DSA：先全局选，再稀疏读</h3><p>DSA 的 cache 若按历史 token 分片，每个 rank 可先为本地 Indexer K 算 <code>local_topk</code>，但随后必须：</p>
+<ol>
+<li>合并所有 rank 的候选分数与全局位置，得到真正的 <code>global_topk</code>。</li>
+<li>按 owner gather 选中的 <code>cKV/kR</code>，或把当前 Query 发到 owner 上完成局部主 MLA。</li>
+<li>对选中位置的主 attention 做全局 Softmax 合并。</li>
+</ol>
+<p>若 USP 的 Ulysses 维还切分了 Indexer heads，<code>I_j=Σ_i w_i ReLU(q_i k_j^T)</code> 的跨 head 求和也要先 reduce，才能做 top-k。<strong>标准 MHA 的 A2A&#x2F;Ring wrapper 因此不能不加修改地保证 DSA 语义。</strong></p>
+<h3 id="GDN：传状态，不传-KV"><a href="#GDN：传状态，不传-KV" class="headerlink" title="GDN：传状态，不传 KV"></a>GDN：传状态，不传 KV</h3><p>GDN 没有历史 K&#x2F;V block 可供 Ring 轮转。若训练序列按连续 chunk 分在多个 rank，后一个 chunk 的第一个 token 需要前一个 chunk 的结束状态：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">S_end^(r-1) → S_init^r</span><br></pre></td></tr></table></figure>
+
+<p>最直观实现是按 causal 顺序传 boundary state；更并行的实现可以让每个 chunk 形成“输入状态 → 输出状态”的 transition summary，再做 prefix scan。反向传播依赖方向相反。若用 Ulysses 只按 head 切分，GDN 的 head-wise 状态相互独立，通常更自然；若再增加 Ring 序列维，就要把 KV Ring 改成状态传递或 scan。</p>
+<p>这三段是从计算依赖推出的实现条件，<strong>不表示 Megatron CP 或 YunChang 已经为任意 DSA&#x2F;GDN 模型提供开箱即用的训练与 serving 支持</strong>。</p>
+<h2 id="联合比较"><a href="#联合比较" class="headerlink" title="联合比较"></a>联合比较</h2><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>MHA</th>
+<th>DSA</th>
+<th>GDN</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>训练历史对象</td>
+<td>全序列 Q&#x2F;K&#x2F;V activation</td>
+<td>Indexer K + MLA latent activation</td>
+<td>chunk activation + boundary state</td>
+</tr>
+<tr>
+<td>推理持久对象</td>
+<td><code>K_cache,V_cache</code></td>
+<td>Indexer K&#x2F;scale + <code>cKV/kR</code></td>
+<td><code>S_t</code> + 短卷积 state</td>
+</tr>
+<tr>
+<td>随上下文 <code>T</code> 增长</td>
+<td>是，<code>O(T Hkv d)</code></td>
+<td>是，两套压缩历史</td>
+<td>否，相对 <code>T</code> 为固定大小</td>
+</tr>
+<tr>
+<td>Decode 主读取</td>
+<td>全历史 K&#x2F;V</td>
+<td>Indexer 全历史；主 MLA top-k</td>
+<td>当前固定状态</td>
+</tr>
+<tr>
+<td>CP 序列切分</td>
+<td>KV block 全局交互</td>
+<td>global top-k + selected latent</td>
+<td>boundary state &#x2F; prefix scan</td>
+</tr>
+<tr>
+<td>USP 的 Ulysses 维</td>
+<td>切 heads 后本地 attention</td>
+<td>Indexer 跨 head score 可能需 reduce</td>
+<td>head-wise state 较自然</td>
+</tr>
+<tr>
+<td>USP 的 Ring 维</td>
+<td>KV block 轮转</td>
+<td>Indexer&#x2F;latent 分片与全局 top-k</td>
+<td>不轮转 KV，改传 state</td>
+</tr>
+</tbody></table>
+<p>显存峰值应分项记录：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">M_peak =</span><br><span class="line">    M_model_state</span><br><span class="line">  + M_saved_activation</span><br><span class="line">  + M_persistent_cache_or_state</span><br><span class="line">  + max_t(M_operator_workspace(t) + M_comm_buffer(t))</span><br><span class="line">  + M_allocator_margin</span><br></pre></td></tr></table></figure>
+
+<p>不能只把某个对象除以 <code>P</code> 就声称总显存严格缩小 <code>P</code> 倍。All-to-All 接收 buffer、Ring 双缓冲、FlashAttention workspace、GDN chunk 中间量和 allocator 碎片都可能形成新的峰值。</p>
+<h2 id="常见误区"><a href="#常见误区" class="headerlink" title="常见误区"></a>常见误区</h2><ol>
+<li><strong>“训练也有 K&#x2F;V，所以就是 KV cache”</strong>：名字相同，生命周期不同。训练 K&#x2F;V 属于本轮计算图；推理 cache 跨 decode step 存活。</li>
+<li><strong>“用了 KV cache，decode 就是 O(1)”</strong>：省掉的是历史 K&#x2F;V 重算；dense MHA 的新 Query 仍读取 <code>T</code> 个历史位置，单步 attention 仍随 <code>T</code> 线性。</li>
+<li><strong>“DSA 只保存 top-k”</strong>：错误。为了下一个 Query 能重新选择，Indexer 与 MLA 历史表示仍要保存；top-k 是每个 Query 的读取集合。</li>
+<li><strong>“GDN 是另一种压缩 KV cache”</strong>：更准确地说它是递归状态。旧 token 不再拥有可逐项寻址的独立 K&#x2F;V。</li>
+<li><strong>“CP 就是每卡只看局部上下文”</strong>：每卡只保存局部 activation，但本地 Query 的数学结果仍须包含全局允许的 K&#x2F;V。</li>
+<li><strong>“训练 USP 配置可直接照搬到 decode”</strong>：decode 的 Query sequence 长度通常为 1，持久 cache 的放置、请求调度和归并通信需要独立设计。</li>
+<li><strong>“USP 总并行度只要不超过 Q heads 就行”</strong>：真正消耗 head 维的是 <code>Pu</code>，而 GQA&#x2F;MQA、Indexer 和 TP 共存时还要核对 KV&#x2F;head 映射与跨 head reduce。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>理解 cache 的最好方法不是背缩写，而是对每个对象问四遍：</p>
+<ol>
+<li><strong>谁产生它？</strong></li>
+<li><strong>谁在什么时候再次读取它？</strong></li>
+<li><strong>它活到当前 forward、当前 chunk，还是下一次 decode step？</strong></li>
+<li><strong>沿 sequence 或 head 切分后，哪个归约才能保持与单卡相同的数学结果？</strong></li>
+</ol>
+<p>沿这四个问题看，MHA 是逐 token 历史表，DSA 是“全历史轻索引 + top-k 主读取”，GDN 是固定状态机；CP&#x2F;USP 则是训练时重排全局交互的办法。它们可以组合，但绝不能仅凭都出现了 K、V、state 或 sequence shard，就认为保存与通信语义相同。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>[^hf-cache]: Hugging Face, <a target="_blank" rel="noopener" href="https://huggingface.co/docs/transformers/main/cache_explanation">Transformers Caching</a>, accessed 2026-07-23.<br>[^mcore-cp]: NVIDIA, <a target="_blank" rel="noopener" href="https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/features/context_parallel.html">Megatron Core Context Parallel Package</a>, accessed 2026-07-23.<br>[^usp-paper]: Fang et al., <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2405.07719">USP: A Unified Sequence Parallelism Approach for Long Context Generative AI</a>, first submitted 2024-05-13.<br>[^usp-code]: YunChang, <a target="_blank" rel="noopener" href="https://github.com/feifeibear/long-context-attention/blob/56118e0d8fe377d43441226dd8bdd07135c92c22/yunchang/hybrid/attn_layer.py#L14-L161">hybrid Attention implementation</a>, commit <code>56118e0d</code>.<br>[^dsa-release]: DeepSeek-AI, <a target="_blank" rel="noopener" href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp">DeepSeek-V3.2-Exp</a>, released 2025-09-29.<br>[^dsa-model]: DeepSeek-AI, <a target="_blank" rel="noopener" href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp/blob/87e509a2e5a100d221c97df52c6e8be7835f0057/inference/model.py#L526-L607"><code>inference/model.py</code></a>, commit <code>87e509a2</code>.<br>[^dsa-kernel]: DeepSeek-AI, <a target="_blank" rel="noopener" href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp/blob/87e509a2e5a100d221c97df52c6e8be7835f0057/inference/kernel.py#L199-L274"><code>inference/kernel.py</code></a>, commit <code>87e509a2</code>.<br>[^gdn-paper]: Yang et al., <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2412.06464">Gated Delta Networks: Improving Mamba2 with Delta Rule</a>, first submitted 2024-12-09.<br>[^gdn-layer]: FLA, <a target="_blank" rel="noopener" href="https://github.com/fla-org/flash-linear-attention/blob/c70f11c5530142450525549cc96d13d9f5165f69/fla/layers/gated_deltanet.py#L248-L345"><code>fla/layers/gated_deltanet.py</code></a>, commit <code>c70f11c5</code>.<br>[^gdn-naive]: FLA, <a target="_blank" rel="noopener" href="https://github.com/fla-org/flash-linear-attention/blob/c70f11c5530142450525549cc96d13d9f5165f69/fla/ops/gated_delta_rule/naive.py#L13-L64"><code>fla/ops/gated_delta_rule/naive.py</code></a>, commit <code>c70f11c5</code>.</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Attention Cache and Sequence Parallelism</p><p><a href="http://icarus.shaojiemike.top/2026/07/23/Work/Artificial Intelligence/Model/LLM/Attention-Cache-and-Sequence-Parallelism/">http://icarus.shaojiemike.top/2026/07/23/Work/Artificial Intelligence/Model/LLM/Attention-Cache-and-Sequence-Parallelism/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-07-23</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-23</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/USP/">USP</a><a class="link-muted mr-2" rel="tag" href="/tags/GDN/">GDN</a><a class="link-muted mr-2" rel="tag" href="/tags/Attention/">Attention</a><a class="link-muted mr-2" rel="tag" href="/tags/MHA/">MHA</a><a class="link-muted mr-2" rel="tag" href="/tags/DSA/">DSA</a><a class="link-muted mr-2" rel="tag" href="/tags/KV-Cache/">KV Cache</a><a class="link-muted mr-2" rel="tag" href="/tags/Context-Parallelism/">Context Parallelism</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/07/23/Work/Artificial%20Intelligence/Training/DeepSpeed/DeepSpeed-Communication/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">DeepSpeed Communication Compression and Hiding</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/23/Work/Artificial%20Intelligence/Training/DeepSpeed/DeepSpeed-Memory-Parallelism/"><span class="level-item">DeepSpeed Memory and Parallelism</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">562</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">37</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">715</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">结论</span></span></a></li><li><a class="level is-mobile" href="#先分清三种“保存”"><span class="level-left"><span class="level-item">2</span><span class="level-item">先分清三种“保存”</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#为什么只缓存-K-V"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">为什么只缓存 K/V</span></span></a></li><li><a class="level is-mobile" href="#Prefill-与-decode"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">Prefill 与 decode</span></span></a></li><li><a class="level is-mobile" href="#训练为什么不同"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">训练为什么不同</span></span></a></li></ul></li><li><a class="level is-mobile" href="#MHA：逐-token-保存-K-V"><span class="level-left"><span class="level-item">3</span><span class="level-item">MHA：逐 token 保存 K/V</span></span></a></li><li><a class="level is-mobile" href="#DSA：两套随序列增长的压缩缓存"><span class="level-left"><span class="level-item">4</span><span class="level-item">DSA：两套随序列增长的压缩缓存</span></span></a></li><li><a class="level is-mobile" href="#GDN：固定状态替代逐-token-cache"><span class="level-left"><span class="level-item">5</span><span class="level-item">GDN：固定状态替代逐 token cache</span></span></a></li><li><a class="level is-mobile" href="#CP：训练时交换临时-K-V-分块"><span class="level-left"><span class="level-item">6</span><span class="level-item">CP：训练时交换临时 K/V 分块</span></span></a></li><li><a class="level is-mobile" href="#USP：先换轴，再沿-Ring-扩展上下文"><span class="level-left"><span class="level-item">7</span><span class="level-item">USP：先换轴，再沿 Ring 扩展上下文</span></span></a></li><li><a class="level is-mobile" href="#训练切分与推理-cache-分片"><span class="level-left"><span class="level-item">8</span><span class="level-item">训练切分与推理 cache 分片</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#MHA-decode：需要-distributed-softmax"><span class="level-left"><span class="level-item">8.1</span><span class="level-item">MHA decode：需要 distributed softmax</span></span></a></li><li><a class="level is-mobile" href="#DSA：先全局选，再稀疏读"><span class="level-left"><span class="level-item">8.2</span><span class="level-item">DSA：先全局选，再稀疏读</span></span></a></li><li><a class="level is-mobile" href="#GDN：传状态，不传-KV"><span class="level-left"><span class="level-item">8.3</span><span class="level-item">GDN：传状态，不传 KV</span></span></a></li></ul></li><li><a class="level is-mobile" href="#联合比较"><span class="level-left"><span class="level-item">9</span><span class="level-item">联合比较</span></span></a></li><li><a class="level is-mobile" href="#常见误区"><span class="level-left"><span class="level-item">10</span><span class="level-item">常见误区</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">11</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">12</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">98</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2028-01-03T16:00:00.000Z">2028-01-03</time></p><p class="title"><a href="/2028/01/03/Work/Artificial%20Intelligence/Training/Training-Performance-Model/">Training Performance Model</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2028-01-02T16:00:00.000Z">2028-01-02</time></p><p class="title"><a href="/2028/01/02/Work/Artificial%20Intelligence/Model/LLM/Scaling-Law/">Scaling Law</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2028-01-01T16:00:00.000Z">2028-01-01</time></p><p class="title"><a href="/2028/01/01/Work/0-Digital%20Worker/00-PersonalAdvantageWorkflow/">Personal Advantage Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-12-31T16:00:00.000Z">2027-12-31</time></p><p class="title"><a href="/2027/12/31/Work/0-Digital%20Worker/WorkWithAIDocWorkflow/">AI Documentation Workflow</a></p><p class="categories"><a href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2028/01/"><span class="level-start"><span class="level-item">January 2028</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2027/12/"><span class="level-start"><span class="level-item">December 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">20</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/All-to-All/"><span class="tag">All-to-All</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AllGather/"><span class="tag">AllGather</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
