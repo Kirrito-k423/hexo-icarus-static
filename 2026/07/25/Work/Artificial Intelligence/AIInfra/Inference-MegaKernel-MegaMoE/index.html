@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Inference MegaKernel - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       小 batch LLM 推理并不总是被矩阵乘法本身限制。数十到数百个 kernel 的启动边界、kernel 尾部气泡、中间张量写回 HBM，以及 MoE 的 Dispatch&amp;#x2F;Combine 通信，都可能让计算单元等数据、让内存等指令、让互联等计算。MegaKernel 的核心不是“把代码写得更大”，而是把 host"><meta property="og:type" content="blog"><meta property="og:title" content="Inference MegaKernel"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/07/25/Work/Artificial%20Intelligence/AIInfra/Inference-MegaKernel-MegaMoE/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       小 batch LLM 推理并不总是被矩阵乘法本身限制。数十到数百个 kernel 的启动边界、kernel 尾部气泡、中间张量写回 HBM，以及 MoE 的 Dispatch&amp;#x2F;Combine 通信，都可能让计算单元等数据、让内存等指令、让互联等计算。MegaKernel 的核心不是“把代码写得更大”，而是把 host"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-07-25T03:00:00.000Z"><meta property="article:modified_time" content="2026-07-27T05:03:36.734Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="MegaKernel"><meta property="article:tag" content="MegaMoE"><meta property="article:tag" content="MPK"><meta property="article:tag" content="LLM Inference"><meta property="article:tag" content="MoE"><meta property="article:tag" content="CUDA"><meta property="article:tag" content="Blackwell"><meta property="article:tag" content="NVLink"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/07/25/Work/Artificial%20Intelligence/AIInfra/Inference-MegaKernel-MegaMoE/"},"headline":"Inference MegaKernel","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-07-25T03:00:00.000Z","dateModified":"2026-07-27T05:03:36.734Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       小 batch LLM 推理并不总是被矩阵乘法本身限制。数十到数百个 kernel 的启动边界、kernel 尾部气泡、中间张量写回 HBM，以及 MoE 的 Dispatch&#x2F;Combine 通信，都可能让计算单元等数据、让内存等指令、让互联等计算。MegaKernel 的核心不是“把代码写得更大”，而是把 host"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/07/25/Work/Artificial%20Intelligence/AIInfra/Inference-MegaKernel-MegaMoE/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-07-25T03:00:00.000Z" title="7/25/2026, 3:00:00 AM">2026-07-25</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-27T05:03:36.734Z" title="7/27/2026, 5:03:36 AM">2026-07-27</time></span><span class="level-item"><a class="link-muted" href="/categories/1-Operator-Development/">1-Operator Development</a></span><span class="level-item">41 minutes read (About 6187 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Inference MegaKernel</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>小 batch LLM 推理并不总是被矩阵乘法本身限制。数十到数百个 kernel 的启动边界、kernel 尾部气泡、中间张量写回 HBM，以及 MoE 的 Dispatch&#x2F;Combine 通信，都可能让计算单元等数据、让内存等指令、让互联等计算。<strong>MegaKernel 的核心不是“把代码写得更大”，而是把 host 侧的算子调度下沉为 GPU 内部的任务系统。</strong></p>
+<p>本文沿三条路线展开：Hazy Research 的手写整模型 MegaKernel、MPK 的编译器与常驻运行时、DeepSeek MegaMoE 的 expert-wave 通信计算流水。结论是：这类优化用更强的静态专用化和片上资源约束，换取更少的启动边界与更细的就绪事件；收益必须与寄存器、共享内存、HBM、互联、功耗和动态路由一起核算。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="为什么常规推理仍有气泡"><a href="#为什么常规推理仍有气泡" class="headerlink" title="为什么常规推理仍有气泡"></a>为什么常规推理仍有气泡</h2><p>一次 Transformer 推理通常被拆成 Norm、QKV GEMM、RoPE、Attention、残差、MLP、通信和采样等 kernel。传统执行依赖 host&#x2F;driver 按 kernel 边界推进：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">host launch</span><br><span class="line">→ kernel 执行</span><br><span class="line">→ 全局完成/可见</span><br><span class="line">→ 下一个 launch</span><br></pre></td></tr></table></figure>
+
+<p>即使每个 kernel 内部已经高度优化，端到端时间仍可近似写成：</p>
+<h1 id="T-text-e2e"><a href="#T-text-e2e" class="headerlink" title="$$T_{\text{e2e}}"></a>$$<br>T_{\text{e2e}}</h1><p>\sum_i T_{\text{kernel},i}</p>
+<ul>
+<li>\sum_i T_{\text{launch},i}</li>
+<li>\sum_i T_{\text{tail},i}</li>
+<li>\sum_i T_{\text{materialize},i}</li>
+<li>T_{\text{communication}}.<br>$$</li>
+</ul>
+<p>其中，<code>tail</code> 是一个 kernel 尾部只有少数 SM 仍在工作造成的气泡，<code>materialize</code> 是跨 kernel 依赖迫使中间结果落到全局内存的成本。Hazy Research 在 batch size 1 的 Llama-3.2-1B 案例中观察到约 100 个 kernel，传统实现的 DRAM 带宽利用率最高约 50%；这正是小 batch、memory-bound decode 容易暴露的边界成本。<a target="_blank" rel="noopener" href="https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles">Hazy Research</a></p>
+<figure markdown>
+  ![软硬件协同的认知锚点：同时驱动 HBM、Tensor Core 和 NVLink](https://pic.shaojiemike.top/shaojiemike/2026/07/5c068d008a077a769a0141ea0f4ea7da.png){ width=90% }
+  <figcaption>认知锚点：优化目标不是单独跑满某个部件，而是让 HBM、Tensor Core 与 NVLink 在依赖允许时持续并行工作。该图不作性能证据。</figcaption>
+</figure>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>三个容易混淆的概念</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><strong>Operator Fusion</strong> 通常融合局部相邻算子，调度单位仍是 kernel。</li>
+<li><strong>CUDA Graph</strong> 降低 host launch 和图重放开销，但依赖主要仍表达在 kernel 节点之间。</li>
+<li><strong>MegaKernel</strong> 把任务、事件、队列和通信进一步放进一个常驻 kernel，调度粒度下沉到 SM、CTA、warp 或 tile。</li>
+</ul>
+
+        </div>
+    </article>
+
+<p>NVIDIA 的 Programmatic Dependent Launch（PDL）允许依赖 kernel 在前序 kernel 完全结束前提前启动，但官方文档明确说明这种重叠是<strong>机会性的</strong>，不能依赖实际并发来保证正确性。因此，PDL 能缓解部分边界，却不能替代一个显式管理细粒度依赖的设备内运行时。<a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/programmatic-dependent-launch.html">CUDA PDL</a></p>
+<h2 id="统一框架：把算子图下沉为片上任务系统"><a href="#统一框架：把算子图下沉为片上任务系统" class="headerlink" title="统一框架：把算子图下沉为片上任务系统"></a>统一框架：把算子图下沉为片上任务系统</h2><p>三条路线的共同转换可以概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">kernel-level graph</span><br><span class="line">→ tile / task graph</span><br><span class="line">→ per-SM queue + event/counter</span><br><span class="line">→ resident worker</span><br><span class="line">→ register / SMEM / HBM / interconnect co-scheduling</span><br></pre></td></tr></table></figure>
+
+<p><strong>算子和张量的逻辑语义没有消失。</strong> 改变的是物理执行边界：某个中间张量是否必须完整写回 HBM，某个消费者是否要等待整个生产者 kernel，某段通信是否能与下一块 Tensor Core 计算重叠。</p>
+<table>
+<thead>
+<tr>
+<th>路线</th>
+<th>调度生成</th>
+<th>主要粒度</th>
+<th>最适合</th>
+<th>主要代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>手写整模型 MegaKernel</td>
+<td>离线脚本与手工 CUDA</td>
+<td>模型专用 tile&#x2F;instruction</td>
+<td>固定模型、固定 shape、batch 1 极低延迟</td>
+<td>工程成本高，硬件和模型专用</td>
+</tr>
+<tr>
+<td>MPK</td>
+<td>编译器生成 tGraph，运行时调度</td>
+<td>SM-level task&#x2F;event</td>
+<td>多算子、多模型、单&#x2F;多 GPU 自动化</td>
+<td>scheduler SM、event traffic、编译复杂度</td>
+</tr>
+<tr>
+<td>MegaMoE</td>
+<td>MoE 专用动态 scheduler</td>
+<td>expert block&#x2F;wave</td>
+<td>SM100 上 EP MoE 的通信计算融合</td>
+<td>routing、ring capacity、互联和功耗约束</td>
+</tr>
+</tbody></table>
+<p>这不是免费的抽象迁移。原来由 driver 和 kernel boundary 隐式提供的正确性，现在必须由设备内协议显式完成：</p>
+<ol>
+<li><strong>数据可见性</strong>：生产者写入必须先于完成事件发布。</li>
+<li><strong>进度保证</strong>：等待方不能占满所有 resident resource，使生产者无法获得 SM。</li>
+<li><strong>容量保证</strong>：queue、ring、combine slot 和 KV page 必须覆盖配置上限。</li>
+<li><strong>资源保证</strong>：最大 task body 的寄存器和共享内存需求不能让 kernel 无法启动或 occupancy 过低。</li>
+</ol>
+<h2 id="手写整模型-MegaKernel"><a href="#手写整模型-MegaKernel" class="headerlink" title="手写整模型 MegaKernel"></a>手写整模型 MegaKernel</h2><h3 id="原理、调度与数据流"><a href="#原理、调度与数据流" class="headerlink" title="原理、调度与数据流"></a>原理、调度与数据流</h3><p>Hazy Research 的路线从一个固定 Llama 配置出发，将每个算子切成 tile，构造依赖 DAG，再把 tile 静态分配到每个 SM 的指令队列。运行时启动一个与目标 GPU SM 数匹配的常驻 grid，每个 CTA 读取自己的队列、等待 counter、租用共享内存页、执行对应 operator body，再发布下游事件。</p>
+<figure markdown>
+  ![手写整模型 MegaKernel 五视图](https://pic.shaojiemike.top/shaojiemike/2026/07/27821db6b287ff5d359de80e0c0596db.png){ width=100% }
+  <figcaption>手写整模型 MegaKernel 五视图。阅读重点：A 的 kernel boundary 变化，D 的常驻对象生命周期，以及 E 中逻辑张量与物理 materialization 的区别。</figcaption>
+</figure>
+
+<p>源码中的 <code>scheduler.py</code> 先建立 DAG、分配 wave 与 memory&#x2F;compute pool，再把每个 SM 的计划张量化为指令队列；<code>llama.cu</code> 只做一次模型专用 <code>mk</code> 绑定，权重、KV cache、activation 和 counter 都作为这次常驻执行的对象传入。<a target="_blank" rel="noopener" href="https://github.com/HazyResearch/Megakernels">Megakernels repository</a></p>
+<p>下面的规范化伪代码保留了完整控制流：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">run_full_model_megakernel</span>(<span class="params">sm_id, queue, tensors, pages, counters</span>):</span><br><span class="line">    program_counter = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        instruction = queue[sm_id][program_counter]</span><br><span class="line">        <span class="keyword">if</span> instruction.opcode == <span class="string">&quot;END&quot;</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> dependency <span class="keyword">in</span> instruction.dependencies:</span><br><span class="line">            <span class="keyword">while</span> counters[dependency.counter_id] &lt; dependency.required_value:</span><br><span class="line">                device_pause()</span><br><span class="line"></span><br><span class="line">        leased_pages = []</span><br><span class="line">        <span class="keyword">for</span> page_index <span class="keyword">in</span> <span class="built_in">range</span>(instruction.required_pages):</span><br><span class="line">            leased_pages.append(pages.acquire(sm_id, page_index))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> instruction.opcode == <span class="string">&quot;RMS_NORM&quot;</span>:</span><br><span class="line">            execute_rms_norm(instruction, tensors, leased_pages)</span><br><span class="line">        <span class="keyword">elif</span> instruction.opcode == <span class="string">&quot;QKV_MATVEC&quot;</span>:</span><br><span class="line">            execute_qkv_matvec(instruction, tensors, leased_pages)</span><br><span class="line">        <span class="keyword">elif</span> instruction.opcode == <span class="string">&quot;ATTENTION&quot;</span>:</span><br><span class="line">            execute_attention(instruction, tensors, leased_pages)</span><br><span class="line">        <span class="keyword">elif</span> instruction.opcode == <span class="string">&quot;MLP_UP_GATE&quot;</span>:</span><br><span class="line">            execute_mlp_up_gate(instruction, tensors, leased_pages)</span><br><span class="line">        <span class="keyword">elif</span> instruction.opcode == <span class="string">&quot;MLP_DOWN&quot;</span>:</span><br><span class="line">            execute_mlp_down(instruction, tensors, leased_pages)</span><br><span class="line">        <span class="keyword">elif</span> instruction.opcode == <span class="string">&quot;LM_HEAD&quot;</span>:</span><br><span class="line">            execute_lm_head(instruction, tensors, leased_pages)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            raise_invalid_opcode(instruction.opcode)</span><br><span class="line"></span><br><span class="line">        device_memory_fence()</span><br><span class="line">        <span class="keyword">for</span> completion <span class="keyword">in</span> instruction.completions:</span><br><span class="line">            atomic_add(counters[completion.counter_id], completion.delta)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> leased_page <span class="keyword">in</span> leased_pages:</span><br><span class="line">            pages.release(sm_id, leased_page)</span><br><span class="line"></span><br><span class="line">        program_counter += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>共享内存分页</strong>解决了异构算子争用同一 CTA 片上空间的问题：算子不再各自声明互不复用的大块静态 SMEM，而是按阶段租用固定页。<strong>全局 counter</strong>则承担跨 SM 依赖；生产者完成一个 tile 后增加 counter，消费者只等待自己需要的计数值。代价是 counter 的 L2&#x2F;atomic 流量与更复杂的 memory ordering。</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>典型形状&#x2F;类型</th>
+<th>位置</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>per-SM 指令队列</td>
+<td><code>[S,Q,32] int32</code> 一类编码</td>
+<td>HBM&#x2F;L2</td>
+<td>整个 MegaKernel</td>
+</tr>
+<tr>
+<td>权重</td>
+<td>模型固定张量</td>
+<td>HBM</td>
+<td>模型实例</td>
+</tr>
+<tr>
+<td>KV cache</td>
+<td>分层分页 K&#x2F;V</td>
+<td>HBM</td>
+<td>request</td>
+</tr>
+<tr>
+<td>activation tile</td>
+<td>operator-specific tile</td>
+<td>register&#x2F;SMEM，必要时 HBM</td>
+<td>依赖区间</td>
+</tr>
+<tr>
+<td>SMEM page</td>
+<td>固定页集合</td>
+<td>片上共享内存</td>
+<td>task 租用区间</td>
+</tr>
+<tr>
+<td>counter&#x2F;barrier</td>
+<td>标量或数组</td>
+<td>SMEM + HBM&#x2F;L2</td>
+<td>kernel 或依赖区间</td>
+</tr>
+</tbody></table>
+<h3 id="效果与适用边界"><a href="#效果与适用边界" class="headerlink" title="效果与适用边界"></a>效果与适用边界</h3><figure markdown>
+  ![常规 kernel 边界与 MegaKernel 内部边界](https://pic.shaojiemike.top/shaojiemike/2026/07/0d622056756b4de566447b5c5e0560e8.png){ width=90% }
+  <figcaption>Hazy 官方逻辑图：上方是传统 kernel 边界，下方把工作切成可跨算子交错的 tile。来源：Hazy Research。</figcaption>
+</figure>
+
+<figure markdown>
+  ![Hazy MegaKernel 官方性能图](https://pic.shaojiemike.top/shaojiemike/2026/07/74796821083e45d7f7b4fd7f52032ff9.png){ width=92% }
+  <figcaption>Hazy 官方结果图。博客报告 H100 超过 1.5×，B200 端到端低于 680 μs；这些是其特定 Llama-3.2-1B、batch 1 配置的结果，本轮未独立复现。</figcaption>
+</figure>
+
+<p>Hazy 报告其 H100 实现达到约 78% DRAM 带宽利用率，并在 B200 上进一步利用更强的 Tensor Core 与内存系统。这里的关键不是“B200 自动让融合更快”，而是静态 schedule 必须针对 SM 数、共享内存、Tensor Core 指令和内存系统重新专用化。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>手写路线的边界</p>
+</div>
+        <div class="message-body">
+            <p>固定提交中的 Llama shape、H100&#x2F;B200 SM 数和 task layout 都是显式配置。它证明了<strong>模型专用 MegaKernel 可以工作</strong>，不等于任意 Hugging Face 模型都能自动转换。动态 batch、变长 request、量化格式变化和新算子都会改变静态队列。</p>
+
+        </div>
+    </article>
+
+<h2 id="MPK-编译器与运行时"><a href="#MPK-编译器与运行时" class="headerlink" title="MPK 编译器与运行时"></a>MPK 编译器与运行时</h2><h3 id="从-kernel-graph-到-tGraph"><a href="#从-kernel-graph-到-tGraph" class="headerlink" title="从 kernel graph 到 tGraph"></a>从 kernel graph 到 tGraph</h3><p>MPK 将手写路线中的“构图、切 tile、插事件、分配 SM”提升为编译器问题。输入是 tensor program 与 inference config，输出是优化后的 <strong>SM-level tGraph</strong>。节点分为 task 与 event：task 在一个 SM 上执行计算或通信，event 聚合多个 task 的通知并触发下游 task。</p>
+<figure markdown>
+  ![MPK 编译器与运行时五视图](https://pic.shaojiemike.top/shaojiemike/2026/07/2d5cf09657c04a1b249d449305b5bd09.png){ width=100% }
+  <figcaption>MPK 五视图。阅读重点：A 的 kernel graph→tGraph，D 的 worker/scheduler SM 所有权，E 的“先写数据、后发事件”正确性链。</figcaption>
+</figure>
+
+<figure markdown>
+  ![MPK Figure 4：从算子图到 SM-level tGraph](https://pic.shaojiemike.top/shaojiemike/2026/07/343d187165ca63611d8b9921e199b4ed.png){ width=92% }
+  <figcaption>MPK Figure 4：细粒度 event 只连接真正依赖的 MatMul tile 与 AllReduce tile，避免把整个算子串行化。来源：MPK 论文。</figcaption>
+</figure>
+
+<p>编译阶段包含 event fusion、normalization 和 linearization；运行阶段将部分 SM 作为 worker、部分 SM 作为 scheduler。worker 从自己的 task queue 取任务，完成后向 event queue 发布通知；scheduler warp 聚合通知，把新就绪 task 放入 worker queue。多 GPU tensor 与事件可放在 NVSHMEM symmetric heap 中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">compile_mpk</span>(<span class="params">tensor_program, inference_config</span>):</span><br><span class="line">    task_graph = lower_operators_to_sm_tasks(tensor_program)</span><br><span class="line">    task_graph = infer_precise_tile_dependencies(task_graph)</span><br><span class="line">    task_graph = fuse_equivalent_events(task_graph)</span><br><span class="line">    task_graph = normalize_task_and_event_edges(task_graph)</span><br><span class="line">    task_graph = linearize_ready_task_ranges(task_graph)</span><br><span class="line">    binary = jit_or_aot_compile(task_graph, inference_config)</span><br><span class="line">    <span class="keyword">return</span> binary, task_graph</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">run_mpk</span>(<span class="params">runtime, task_graph, request</span>):</span><br><span class="line">    runtime.bind_request_tensors(request)</span><br><span class="line">    runtime.enqueue_root_events(task_graph.root_events)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> runtime.request_finished(request):</span><br><span class="line">        <span class="keyword">for</span> scheduler <span class="keyword">in</span> runtime.local_schedulers:</span><br><span class="line">            event = scheduler.try_pop_ready_event()</span><br><span class="line">            <span class="keyword">if</span> event <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                <span class="keyword">for</span> task_id <span class="keyword">in</span> event.ready_tasks:</span><br><span class="line">                    worker_id = scheduler.select_worker(task_id)</span><br><span class="line">                    runtime.worker_queues[worker_id].push_release(task_id)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> worker <span class="keyword">in</span> runtime.workers:</span><br><span class="line">            task_id = runtime.worker_queues[worker.<span class="built_in">id</span>].try_pop_acquire()</span><br><span class="line">            <span class="keyword">if</span> task_id <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                task = task_graph.tasks[task_id]</span><br><span class="line">                execute_sm_task(task, runtime.tensor_table)</span><br><span class="line">                device_memory_fence()</span><br><span class="line">                <span class="keyword">for</span> event_id <span class="keyword">in</span> task.triggered_events:</span><br><span class="line">                    runtime.scheduler_queues[event_id.owner].push_release(event_id)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> runtime.online_mode <span class="keyword">and</span> runtime.no_active_tokens():</span><br><span class="line">            <span class="keyword">if</span> runtime.shutdown_requested():</span><br><span class="line">                runtime.publish_termination_events()</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            device_pause()</span><br></pre></td></tr></table></figure>
+
+<p>固定 Mirage 源码中的 online 模式在没有 active token 时不会退出 kernel，而是轮询 shutdown signal；worker queue 与 scheduler queue 使用 acquire&#x2F;release 风格的 load&#x2F;store&#x2F;atomic 顺序维持数据可见性。<a target="_blank" rel="noopener" href="https://github.com/mirage-project/mirage">Mirage repository</a></p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>作用</th>
+<th>所有者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tGraph task</td>
+<td>operator tile 或 communication tile</td>
+<td>scheduler→worker</td>
+<td>graph iteration</td>
+</tr>
+<tr>
+<td>event</td>
+<td>dependency count 与 ready state</td>
+<td>producer + scheduler</td>
+<td>graph iteration</td>
+</tr>
+<tr>
+<td>worker queue</td>
+<td><code>TaskId</code> ring</td>
+<td>worker SM</td>
+<td>常驻 kernel</td>
+</tr>
+<tr>
+<td>scheduler queue</td>
+<td><code>EventId</code> ring</td>
+<td>scheduler warp</td>
+<td>常驻 kernel</td>
+</tr>
+<tr>
+<td>tensor tile</td>
+<td>task-specific shape&#x2F;dtype</td>
+<td>worker CTA</td>
+<td>task</td>
+</tr>
+<tr>
+<td>remote tensor&#x2F;event</td>
+<td>symmetric allocation</td>
+<td>GPU rank&#x2F;PE</td>
+<td>runtime&#x2F;request</td>
+</tr>
+<tr>
+<td>KV page queue</td>
+<td>page id 与 cursor</td>
+<td>online runtime</td>
+<td>server</td>
+</tr>
+</tbody></table>
+<h3 id="自动化收益与新瓶颈"><a href="#自动化收益与新瓶颈" class="headerlink" title="自动化收益与新瓶颈"></a>自动化收益与新瓶颈</h3><figure markdown>
+  ![MPK Figure 9：端到端相对性能](https://pic.shaojiemike.top/shaojiemike/2026/07/0562ab7acda1d5d4dda5fba2cabb1632.png){ width=96% }
+  <figcaption>MPK Figure 9：A100/H100/B200、五个模型和多个 batch size 下的论文结果，MPK 相对最佳 baseline 的标注约为 1.0–1.7×。所有柱均按 MPK 归一化，本轮未复现。</figcaption>
+</figure>
+
+<p>论文以 Qwen3-8B 为例统计到 293 次 eager launch，并报告 eager launch 约 <code>3.8 μs</code>、CUDA Graph 约 <code>0.8 μs</code>；MPK 内部 scheduler 开销约占 <code>0.28%</code>。这说明 launch 边界足够多时，下沉调度存在明确窗口。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2512.22219">MPK paper</a></p>
+<p>但自动化引入了新的优化面：</p>
+<ul>
+<li><strong>scheduler 占用 SM</strong>：用于调度的 SM 不再直接执行主要算术。</li>
+<li><strong>最大寄存器体</strong>：单一常驻 kernel 内任一重 task 的寄存器需求可能约束所有 CTA。</li>
+<li><strong>事件粒度</strong>：过粗失去 overlap，过细增加 queue、atomic 和 L2 流量。</li>
+<li><strong>编译搜索</strong>：task 切分、event fusion、worker&#x2F;scheduler 比例和通信 task 都与硬件相关。</li>
+</ul>
+<h2 id="MegaMoE-专用流水"><a href="#MegaMoE-专用流水" class="headerlink" title="MegaMoE 专用流水"></a>MegaMoE 专用流水</h2><h3 id="语义不变，物理阶段被打散"><a href="#语义不变，物理阶段被打散" class="headerlink" title="语义不变，物理阶段被打散"></a>语义不变，物理阶段被打散</h3><p>对 token <code>t</code>，top-k MoE 的语义仍可写为：</p>
+<h1 id="y-t"><a href="#y-t" class="headerlink" title="$$y_t"></a>$$<br>y_t</h1><p>\sum_{j&#x3D;1}^{K}<br>p_{t,j}<br>W^{(2)}<em>{e</em>{t,j}}<br>\operatorname{SwiGLU}<br>\left(<br>W^{(1)}<em>{e</em>{t,j}}x_t<br>\right).<br>$$</p>
+<p>传统 expert parallelism 的物理阶段通常是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Dispatch All-to-All</span><br><span class="line">→ Linear-1</span><br><span class="line">→ SwiGLU</span><br><span class="line">→ Linear-2</span><br><span class="line">→ Combine All-to-All</span><br></pre></td></tr></table></figure>
+
+<p>MegaMoE 将 expert 切成多个 wave。一个 wave 的 token 到齐后立即计算，不等待所有 expert；稳态时同时执行：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">下一 wave 的 Dispatch/Pull</span><br><span class="line">+ 当前 wave 的 L1/Act/L2</span><br><span class="line">+ 上一 wave 的 Combine</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![MegaMoE 五视图](https://pic.shaojiemike.top/shaojiemike/2026/07/167d9a164e7befac4655fd27ecf459eb.png){ width=100% }
+  <figcaption>MegaMoE 五视图。阅读重点：A 的三段稳态流水，D 的 EP rank 与 bounded ring，E 的远端 pull 和 combine slot 回写。</figcaption>
+</figure>
+
+<figure markdown>
+  ![DeepSeek-V4 Figure 5：MegaMoE wave 流水](https://pic.shaojiemike.top/shaojiemike/2026/07/2c6572e4f070d6876780131f63d32cb0.png){ width=94% }
+  <figcaption>DeepSeek-V4 Figure 5。图中的 1.92× 是 V4-Flash 配置下的理论 speedup，不能当作通用实测值。来源：DeepSeek-V4 技术报告。</figcaption>
+</figure>
+
+<h3 id="对称内存、pull-dispatch-与-ring"><a href="#对称内存、pull-dispatch-与-ring" class="headerlink" title="对称内存、pull dispatch 与 ring"></a>对称内存、pull dispatch 与 ring</h3><p>当前 DeepGEMM 固定提交首先通过 <code>torch.distributed._symmetric_memory</code> 分配每个 rank 形状一致的 buffer，执行 <code>rendezvous</code> 获得 peer 指针，再将 input、scale、top-k、workspace、L1&#x2F;L2 ring 和 combine slot 切成固定布局。PyTorch 官方将 symmetric memory 标为 alpha，并明确要求各 rank 以相同顺序、相同 shape&#x2F;dtype 建立 rendezvous。<a target="_blank" rel="noopener" href="https://docs.pytorch.org/docs/stable/symmetric_memory.html">PyTorch Symmetric Memory</a></p>
+<p>Dispatch 不是 source rank 把完整 activation push 到目标 expert rank，而是：</p>
+<ol>
+<li>source rank 统计 route，向目标 rank 写入 source-token&#x2F;top-k 元数据与 expert count；</li>
+<li>目标 rank 读取元数据；</li>
+<li>目标 rank 通过 peer pointer <strong>pull</strong> 远端 token 与 scale 到本地 L1 ring；</li>
+<li>L1&#x2F;L2 task 消费本地 ring；</li>
+<li>L2 epilogue 将 BF16 结果写回 source rank 的 combine slot；</li>
+<li>source rank 归约 top-k slot 得到输出。</li>
+</ol>
+<p>这种 one-sided 访问符合 NVSHMEM&#x2F;PyTorch symmetric memory 的 PGAS 思路：数据位置由 <code>&lt;symmetric address, rank&gt;</code> 表示，GPU kernel 可发起远端 load&#x2F;store&#x2F;RMA。但通信与同步被解耦后，程序必须自己处理 fence、signal 与 buffer reuse。<a target="_blank" rel="noopener" href="https://docs.nvidia.com/nvshmem/api/using.html">NVSHMEM</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">run_mega_moe</span>(<span class="params">rank, x, x_scale, topk_idx, topk_weight, w1, w2, symm</span>):</span><br><span class="line">    symm.copy_input(rank, x, x_scale, topk_idx, topk_weight)</span><br><span class="line">    symm.zero_workspace(rank)</span><br><span class="line">    symm.rank_barrier()</span><br><span class="line"></span><br><span class="line">    local_route_count = count_routes_per_expert(topk_idx)</span><br><span class="line">    route_offsets = exclusive_prefix_sum(local_route_count)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> token_id <span class="keyword">in</span> <span class="built_in">range</span>(x.shape[<span class="number">0</span>]):</span><br><span class="line">        <span class="keyword">for</span> topk_slot <span class="keyword">in</span> <span class="built_in">range</span>(topk_idx.shape[<span class="number">1</span>]):</span><br><span class="line">            expert_id = topk_idx[token_id, topk_slot]</span><br><span class="line">            <span class="keyword">if</span> expert_id &gt;= <span class="number">0</span>:</span><br><span class="line">                destination_rank = owner_rank(expert_id)</span><br><span class="line">                destination_slot = allocate_route_slot(route_offsets, expert_id)</span><br><span class="line">                symm.write_remote_route_metadata(</span><br><span class="line">                    destination_rank,</span><br><span class="line">                    expert_id,</span><br><span class="line">                    destination_slot,</span><br><span class="line">                    rank,</span><br><span class="line">                    token_id,</span><br><span class="line">                    topk_slot,</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line">    symm.publish_expert_counts(rank, local_route_count)</span><br><span class="line">    symm.nvlink_barrier()</span><br><span class="line">    scheduler = build_wave_scheduler(symm.read_local_expert_counts(rank))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> scheduler.has_task():</span><br><span class="line">        task = scheduler.next_task()</span><br><span class="line">        <span class="keyword">if</span> task.phase == <span class="string">&quot;LINEAR1&quot;</span>:</span><br><span class="line">            source = symm.read_route_metadata(task.expert_id, task.token_block)</span><br><span class="line">            token_block = symm.pull_remote_input_to_l1_ring(source)</span><br><span class="line">            l1_output = fp8_fp4_or_bf16_linear1(token_block, w1[task.expert_id])</span><br><span class="line">            activated = swiglu_and_cast(l1_output)</span><br><span class="line">            symm.commit_l2_ring(task.ring_slot, activated)</span><br><span class="line">            scheduler.publish_linear1_completion(task)</span><br><span class="line">        <span class="keyword">elif</span> task.phase == <span class="string">&quot;LINEAR2&quot;</span>:</span><br><span class="line">            scheduler.wait_linear1_completion(task)</span><br><span class="line">            activated = symm.read_l2_ring(task.ring_slot)</span><br><span class="line">            expert_output = fp8_fp4_or_bf16_linear2(activated, w2[task.expert_id])</span><br><span class="line">            symm.write_remote_combine_slot(task.source, expert_output)</span><br><span class="line">            scheduler.publish_linear2_completion(task)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            raise_invalid_phase(task.phase)</span><br><span class="line"></span><br><span class="line">    symm.nvlink_barrier()</span><br><span class="line">    y = zeros_bf16(x.shape)</span><br><span class="line">    <span class="keyword">for</span> token_id <span class="keyword">in</span> <span class="built_in">range</span>(x.shape[<span class="number">0</span>]):</span><br><span class="line">        <span class="keyword">for</span> topk_slot <span class="keyword">in</span> <span class="built_in">range</span>(topk_idx.shape[<span class="number">1</span>]):</span><br><span class="line">            expert_output = symm.read_local_combine_slot(token_id, topk_slot)</span><br><span class="line">            y[token_id] += topk_weight[token_id, topk_slot] * expert_output</span><br><span class="line">    symm.rank_barrier()</span><br><span class="line">    <span class="keyword">return</span> y</span><br></pre></td></tr></table></figure>
+
+<p>源码还包含一个容易忽略的进度保证：scheduler 先预热若干 L1 wave，再交错 L1&#x2F;L2。原因是 L2 依赖 L1 产生 ring 数据；如果过早分配太多 L2 task，可能占住资源并阻塞继续产生 L1 数据，形成 L1→L2 ring deadlock。</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>逻辑形状</th>
+<th>物理位置</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>x</code></td>
+<td><code>[T,H]</code> FP8&#x2F;BF16</td>
+<td>per-rank symmetric input</td>
+<td>kernel call</td>
+</tr>
+<tr>
+<td><code>topk_idx/weight</code></td>
+<td><code>[T,K]</code></td>
+<td>per-rank symmetric input</td>
+<td>kernel call</td>
+</tr>
+<tr>
+<td>route metadata</td>
+<td>source rank&#x2F;token&#x2F;top-k + count</td>
+<td>workspace&#x2F;L2</td>
+<td>kernel call</td>
+</tr>
+<tr>
+<td>L1 ring</td>
+<td><code>[B_r,H]</code></td>
+<td>destination rank workspace</td>
+<td>wave</td>
+</tr>
+<tr>
+<td>L2 ring</td>
+<td><code>[B_r,I]</code></td>
+<td>destination rank workspace</td>
+<td>L1→L2</td>
+</tr>
+<tr>
+<td>combine slot</td>
+<td><code>[K(+shared),T,H]</code> BF16</td>
+<td>source rank workspace</td>
+<td>直到归约</td>
+</tr>
+<tr>
+<td><code>W1/W2</code></td>
+<td>expert-local matrices</td>
+<td>local HBM</td>
+<td>模型实例</td>
+</tr>
+<tr>
+<td><code>y</code></td>
+<td><code>[T,H]</code> BF16</td>
+<td>source rank output</td>
+<td>下游消费</td>
+</tr>
+</tbody></table>
+<h3 id="计算通信比与功耗墙"><a href="#计算通信比与功耗墙" class="headerlink" title="计算通信比与功耗墙"></a>计算通信比与功耗墙</h3><p>完全隐藏通信的必要条件可写为：</p>
+<p>$$<br>\frac{C}{B}<br>\le<br>\frac{V_{\text{comp}}}{V_{\text{comm}}},<br>$$</p>
+<p>左边是通信时间，右边是可与通信重叠的计算窗口。DeepSeek-V4 报告对 V4-Pro 给出每 token-expert 约 <code>6hd</code> FLOP 与 <code>3h</code> byte，得到：</p>
+<p>$$<br>\frac{C}{B} \le 2d &#x3D; 6144\ \text{FLOP&#x2F;Byte}.<br>$$</p>
+<p>换句话说，每 <code>1 GB/s</code> 互联带宽最多可被约 <code>6.1 TFLOP/s</code> 的相应计算窗口覆盖。这是<strong>模型化上限</strong>，真实系统还会受 route skew、短消息 notification、ring tail 和 memory ordering 影响。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2606.19348">DeepSeek-V4 report</a></p>
+<p>更深的软硬协同来自功耗。MegaMoE 同时驱动 Tensor Core、HBM 和 NVLink；如果板卡总功耗触顶导致某一域降频，“重叠”可能只是把三个阶段都变慢。报告因此把 power throttling 明确列为关键问题。性能实验必须同时记录 clocks、power cap、温度和 throttling reason，而不应只看 kernel duration。</p>
+<h3 id="开源状态与性能证据"><a href="#开源状态与性能证据" class="headerlink" title="开源状态与性能证据"></a>开源状态与性能证据</h3><p>DeepGEMM PR #304 首发时描述为融合 Dispatch、Linear-1、SwiGLU、Linear-2 与 Combine，并只支持 FP8×FP4；当前固定提交 <code>559d79f</code> 已出现 <code>bf16_mega_moe</code> 路径。报告使用 <code>MegaMoE2</code> 名称，但固定提交的公开 API 仍是 <code>mega_moe</code>，没有独立同名 public symbol。<a target="_blank" rel="noopener" href="https://github.com/deepseek-ai/DeepGEMM/pull/304">PR #304</a></p>
+<figure markdown>
+  ![按 DeepGEMM PR #316 数据重绘的 MegaMoE 延迟与 speedup](https://pic.shaojiemike.top/shaojiemike/2026/07/a0539804d60fd8ccfabf7f9b1df2b3c8.png){ width=100% }
+  <figcaption>按 DeepGEMM PR #316 数据确定性重绘。EP8、8 rank 平均；柱高是延迟，badge 是官方报告 speedup。该图不是独立复现。</figcaption>
+</figure>
+
+<p><a target="_blank" rel="noopener" href="https://github.com/deepseek-ai/DeepGEMM/pull/316">PR #316</a> 报告 V4-Flash&#x2F;V4-Pro 在不同 token 数下约 <code>1.50–1.96×</code>。但 PR 正文没有披露 GPU 型号、功耗状态、CUDA&#x2F;PyTorch 构建、对比 baseline 细节和测量方差；评论区也有人追问这些信息。因此，<strong>这些数字只能被称为官方报告值，不能外推为 B200、B300 或任意 SM100 系统的性能。</strong></p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>GPU 与 NPU 证据不能混写</p>
+</div>
+        <div class="message-body">
+            <p>DeepSeek-V4 报告称方案在 NVIDIA GPU 与 Huawei Ascend NPU 上验证，并报告一般推理 <code>1.50–1.73×</code>、低延迟场景最高 <code>1.96×</code>。公开 DeepGEMM 固定提交展示的是 CUDA SM100 实现；本轮没有找到等价的公开 Ascend kernel，因此不能声称 NPU 路径已开源可复现。</p>
+
+        </div>
+    </article>
+
+<h2 id="软硬协同的五本账"><a href="#软硬协同的五本账" class="headerlink" title="软硬协同的五本账"></a>软硬协同的五本账</h2><h3 id="调度、片上资源与内存"><a href="#调度、片上资源与内存" class="headerlink" title="调度、片上资源与内存"></a>调度、片上资源与内存</h3><table>
+<thead>
+<tr>
+<th>账本</th>
+<th>MegaKernel 改变了什么</th>
+<th>主要风险</th>
+<th>必测指标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>调度</td>
+<td>host kernel graph→device task&#x2F;event</td>
+<td>queue contention、event 过细</td>
+<td>launch 数、scheduler 周期、L2 atomic</td>
+</tr>
+<tr>
+<td>寄存器&#x2F;SMEM</td>
+<td>多种 task 共存，SMEM 可分页复用</td>
+<td>max-register body、spill、低 occupancy</td>
+<td>registers&#x2F;thread、spill、active CTA&#x2F;SM</td>
+</tr>
+<tr>
+<td>HBM</td>
+<td>减少中间 materialization，缩短 tile 生命周期</td>
+<td>queue&#x2F;ring&#x2F;counter 新流量</td>
+<td>DRAM BW、L2 hit、bytes&#x2F;token</td>
+</tr>
+<tr>
+<td>互联</td>
+<td>communication task 与 compute task 统一调度</td>
+<td>notification、ordering、routing skew</td>
+<td>NVLink BW、wave tail、remote load latency</td>
+</tr>
+<tr>
+<td>功耗</td>
+<td>HBM、Tensor Core、NVLink 同时活跃</td>
+<td>power cap 触发降频</td>
+<td>clocks、board power、throttle reason</td>
+</tr>
+</tbody></table>
+<p>CUDA 官方文档给出的底层约束非常直接：一个 block 需要的寄存器数与共享内存必须能放进 SM，否则 kernel 无法启动；即使能启动，也会限制 resident block&#x2F;warp 数。<a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html">CUDA Programming Model</a> 对常驻 kernel 而言，这不是局部算子的 occupancy 问题，而可能成为<strong>整个模型执行体</strong>的 occupancy 问题。</p>
+<p>跨 CTA 同步同样必须满足进度契约。Cooperative Groups 提供显式 grid 级同步，但所有参与线程必须到达 collective；分支不一致会导致死锁或数据破坏。<a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/cooperative-groups.html">CUDA Cooperative Groups</a></p>
+<p>峰值显存应按对象而不是按 kernel 数计算：</p>
+<p>$$<br>\begin{aligned}<br>M_{\text{peak}}<br>&#x3D;&amp;<br>M_{\text{model state}}</p>
+<ul>
+<li>M_{\text{live activations}}</li>
+<li>M_{\text{workspace}} \<br>&amp;+ M_{\text{communication buffers}}</li>
+<li>M_{\text{live I&#x2F;O}}</li>
+<li>M_{\text{allocator reserved}}</li>
+<li>M_{\text{runtime margin}}.<br>\end{aligned}<br>$$</li>
+</ul>
+<p>MegaKernel 可能减少全局中间 activation，却增加常驻 queue&#x2F;event、SMEM page、symmetric buffer、ring capacity 和 combine slot。权重、KV cache 与最终输出不会因为 kernel 数减少而自动缩小。<strong>没有同模型、同 shape、同 allocator 的实测，不能给出通用显存节省比例。</strong></p>
+<h2 id="选型与验证"><a href="#选型与验证" class="headerlink" title="选型与验证"></a>选型与验证</h2><h3 id="什么时候选择哪条路线"><a href="#什么时候选择哪条路线" class="headerlink" title="什么时候选择哪条路线"></a>什么时候选择哪条路线</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>首选</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>固定模型、固定 shape、batch 1、追求最低延迟</td>
+<td>手写整模型 MegaKernel</td>
+<td>能做最激进的静态布局与 per-SM schedule</td>
+</tr>
+<tr>
+<td>多模型或多 GPU，希望自动跨算子&#x2F;通信优化</td>
+<td>MPK</td>
+<td>编译器生成 tGraph，运行时处理 task&#x2F;event</td>
+</tr>
+<tr>
+<td>Blackwell SM100、EP MoE、NVLink 通信显著</td>
+<td>MegaMoE</td>
+<td>专门融合 Dispatch&#x2F;MLP&#x2F;Combine 并使用 expert wave</td>
+</tr>
+<tr>
+<td>单个大 GEMM&#x2F;Attention 已长期饱和</td>
+<td>先优化算子</td>
+<td>launch&#x2F;tail 占比可能不足以覆盖 MegaKernel 复杂度</td>
+</tr>
+<tr>
+<td>shape 高度动态、控制流复杂、多租户隔离严格</td>
+<td>CUDA Graph&#x2F;局部 fusion 起步</td>
+<td>常驻静态 schedule 的维护和隔离成本更高</td>
+</tr>
+</tbody></table>
+<h3 id="可复现实验清单"><a href="#可复现实验清单" class="headerlink" title="可复现实验清单"></a>可复现实验清单</h3><ol>
+<li><strong>固定环境</strong><ul>
+<li>GPU&#x2F;NPU 型号、SM&#x2F;Cube 数、HBM、互联拓扑。</li>
+<li>driver、CUDA&#x2F;CANN、PyTorch、编译器与提交。</li>
+<li>clocks、power cap、MIG&#x2F;虚拟化、温度。</li>
+</ul>
+</li>
+<li><strong>固定语义</strong><ul>
+<li>模型、精度、量化 scale、batch、prompt&#x2F;decode 长度。</li>
+<li>MoE 的 <code>E/K/H/I/P</code>、shared expert、capacity 与 routing 分布。</li>
+<li>输出精度和 deterministic tolerance。</li>
+</ul>
+</li>
+<li><strong>拆分时间</strong><ul>
+<li>host launch、device scheduler、compute、HBM、NVLink、tail。</li>
+<li>prefill 与 decode 分开，warmup 与 steady state 分开。</li>
+</ul>
+</li>
+<li><strong>审计资源</strong><ul>
+<li>registers&#x2F;thread、spill、static&#x2F;dynamic SMEM、occupancy。</li>
+<li>queue&#x2F;ring 高水位、atomic contention、L2 hit。</li>
+<li>峰值 allocated&#x2F;reserved、symmetric heap 与 workspace。</li>
+</ul>
+</li>
+<li><strong>做压力测试</strong><ul>
+<li>routing skew、hot expert、极小 token、capacity 边界。</li>
+<li>power throttling、跨节点互联、故障&#x2F;超时与 shutdown。</li>
+</ul>
+</li>
+</ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>推荐的落地顺序</p>
+</div>
+        <div class="message-body">
+            <p>先用 profiler 证明 launch + tail + materialization 占比足够大；再做局部 persistent&#x2F;fusion 原型；随后审计寄存器、SMEM 和 queue 进度；最后才把通信与多 GPU 加入同一 kernel。否则容易用一个更复杂的调度器，替换掉一个并非主要瓶颈的 kernel graph。</p>
+
+        </div>
+    </article>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>MegaKernel 是执行抽象的迁移，不只是 fusion 的扩大。</strong> 它把 host&#x2F;driver 的 kernel 边界改造成设备内 task、event、queue 和 counter，从而让消费者按 tile 就绪、让中间对象更短命、让通信与计算进入同一调度域。</p>
+<ul>
+<li><strong>手写整模型 MegaKernel</strong>证明了极致静态专用化可显著降低小 batch 推理气泡，但维护成本和硬件绑定最强。</li>
+<li><strong>MPK</strong>尝试把这一过程编译器化，以 SM-level tGraph 统一计算和通信，代价是 on-device scheduler 与事件系统。</li>
+<li><strong>MegaMoE</strong>把相同思想收缩到最值得专用化的 EP MoE 层，用 symmetric memory、远端 pull、bounded ring 和 expert wave 同时驱动 NVLink 与 Tensor Core。</li>
+</ul>
+<p>真正的软硬协同判断不是“是否只有一个 kernel”，而是：<strong>调度粒度是否足够细、依赖协议是否正确、片上资源是否可驻留、HBM 与互联是否能被计算窗口覆盖，以及三者并发时是否撞上功耗墙。</strong></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li>Hazy Research, <a target="_blank" rel="noopener" href="https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles">No Bubbles at All: Megakernels for LLM Inference</a>.</li>
+<li>HazyResearch, <a target="_blank" rel="noopener" href="https://github.com/HazyResearch/Megakernels">Megakernels</a>, pinned at <code>7309cec</code>.</li>
+<li>Cheng et al., <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2512.22219">MPK: A Compiler and Runtime for Mega-Kernelizing Tensor Programs</a>.</li>
+<li>Mirage Project, <a target="_blank" rel="noopener" href="https://github.com/mirage-project/mirage">Mirage &#x2F; MPK</a>, pinned at <code>5715c6f</code>.</li>
+<li>DeepSeek-AI, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2606.19348">DeepSeek-V4 Technical Report</a>.</li>
+<li>DeepSeek-AI, <a target="_blank" rel="noopener" href="https://github.com/deepseek-ai/DeepGEMM">DeepGEMM</a>, pinned at <code>559d79f</code>.</li>
+<li>NVIDIA, <a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/programmatic-dependent-launch.html">CUDA Programmatic Dependent Launch</a>.</li>
+<li>PyTorch, <a target="_blank" rel="noopener" href="https://docs.pytorch.org/docs/stable/symmetric_memory.html">Symmetric Memory</a>.</li>
+<li>NVIDIA, <a target="_blank" rel="noopener" href="https://docs.nvidia.com/nvshmem/api/using.html">NVSHMEM Programming Model</a>.</li>
+</ol>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Inference MegaKernel</p><p><a href="http://icarus.shaojiemike.top/2026/07/25/Work/Artificial Intelligence/AIInfra/Inference-MegaKernel-MegaMoE/">http://icarus.shaojiemike.top/2026/07/25/Work/Artificial Intelligence/AIInfra/Inference-MegaKernel-MegaMoE/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-07-25</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-27</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/MegaKernel/">MegaKernel</a><a class="link-muted mr-2" rel="tag" href="/tags/MegaMoE/">MegaMoE</a><a class="link-muted mr-2" rel="tag" href="/tags/MPK/">MPK</a><a class="link-muted mr-2" rel="tag" href="/tags/LLM-Inference/">LLM Inference</a><a class="link-muted mr-2" rel="tag" href="/tags/MoE/">MoE</a><a class="link-muted mr-2" rel="tag" href="/tags/CUDA/">CUDA</a><a class="link-muted mr-2" rel="tag" href="/tags/Blackwell/">Blackwell</a><a class="link-muted mr-2" rel="tag" href="/tags/NVLink/">NVLink</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/07/27/Work/Artificial%20Intelligence/AIInfra/Memory-Semantics-vs-RDMA/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Memory Semantics vs RDMA</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/23/Work/Artificial%20Intelligence/Training/XTuner-Memory-Optimization/"><span class="level-item">XTuner Memory Optimization</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">565</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">44</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">733</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><ul class="menu-list"><li><a class="level is-mobile" href="#为什么常规推理仍有气泡"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">为什么常规推理仍有气泡</span></span></a></li></ul><li><a class="level is-mobile" href="#T-text-e2e"><span class="level-left"><span class="level-item">2</span><span class="level-item">$$T_{\text{e2e}}</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#统一框架：把算子图下沉为片上任务系统"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">统一框架：把算子图下沉为片上任务系统</span></span></a></li><li><a class="level is-mobile" href="#手写整模型-MegaKernel"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">手写整模型 MegaKernel</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#原理、调度与数据流"><span class="level-left"><span class="level-item">2.2.1</span><span class="level-item">原理、调度与数据流</span></span></a></li><li><a class="level is-mobile" href="#效果与适用边界"><span class="level-left"><span class="level-item">2.2.2</span><span class="level-item">效果与适用边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#MPK-编译器与运行时"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">MPK 编译器与运行时</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#从-kernel-graph-到-tGraph"><span class="level-left"><span class="level-item">2.3.1</span><span class="level-item">从 kernel graph 到 tGraph</span></span></a></li><li><a class="level is-mobile" href="#自动化收益与新瓶颈"><span class="level-left"><span class="level-item">2.3.2</span><span class="level-item">自动化收益与新瓶颈</span></span></a></li></ul></li><li><a class="level is-mobile" href="#MegaMoE-专用流水"><span class="level-left"><span class="level-item">2.4</span><span class="level-item">MegaMoE 专用流水</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#语义不变，物理阶段被打散"><span class="level-left"><span class="level-item">2.4.1</span><span class="level-item">语义不变，物理阶段被打散</span></span></a></li></ul></li></ul></li><li><a class="level is-mobile" href="#y-t"><span class="level-left"><span class="level-item">3</span><span class="level-item">$$y_t</span></span></a><ul class="menu-list"><ul class="menu-list"><li><a class="level is-mobile" href="#对称内存、pull-dispatch-与-ring"><span class="level-left"><span class="level-item">3.1.1</span><span class="level-item">对称内存、pull dispatch 与 ring</span></span></a></li><li><a class="level is-mobile" href="#计算通信比与功耗墙"><span class="level-left"><span class="level-item">3.1.2</span><span class="level-item">计算通信比与功耗墙</span></span></a></li><li><a class="level is-mobile" href="#开源状态与性能证据"><span class="level-left"><span class="level-item">3.1.3</span><span class="level-item">开源状态与性能证据</span></span></a></li></ul><li><a class="level is-mobile" href="#软硬协同的五本账"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">软硬协同的五本账</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#调度、片上资源与内存"><span class="level-left"><span class="level-item">3.2.1</span><span class="level-item">调度、片上资源与内存</span></span></a></li></ul></li><li><a class="level is-mobile" href="#选型与验证"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">选型与验证</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#什么时候选择哪条路线"><span class="level-left"><span class="level-item">3.3.1</span><span class="level-item">什么时候选择哪条路线</span></span></a></li><li><a class="level is-mobile" href="#可复现实验清单"><span class="level-left"><span class="level-item">3.3.2</span><span class="level-item">可复现实验清单</span></span></a></li></ul></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">3.4</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">3.5</span><span class="level-item">参考文献</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">10</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-27T05:00:00.000Z">2026-07-27</time></p><p class="title"><a href="/2026/07/27/Work/Artificial%20Intelligence/AIInfra/Memory-Semantics-vs-RDMA/">Memory Semantics vs RDMA</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-25T03:00:00.000Z">2026-07-25</time></p><p class="title"><a href="/2026/07/25/Work/Artificial%20Intelligence/AIInfra/Inference-MegaKernel-MegaMoE/">Inference MegaKernel</a></p><p class="categories"><a href="/categories/1-Operator-Development/">1-Operator Development</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-23T13:14:00.000Z">2026-07-23</time></p><p class="title"><a href="/2026/07/23/Work/Artificial%20Intelligence/Training/XTuner-Memory-Optimization/">XTuner Memory Optimization</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-23T10:40:00.000Z">2026-07-23</time></p><p class="title"><a href="/2026/07/23/Work/Artificial%20Intelligence/Training/DeepSpeed/DeepSpeed-Observability-Autotuning/">DeepSpeed Observability and Autotuning</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">27</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Activation-Offload/"><span class="tag">Activation Offload</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Algorithm/"><span class="tag">Algorithm</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/All-to-All/"><span class="tag">All-to-All</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
