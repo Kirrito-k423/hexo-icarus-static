@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Inference Quantization Formats - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       W8A8、W8A4、W16A8 看似只差两个数字，实际可能对应完全不同的对象、尺度粒度、在线流程和硬件 kernel；FP8 与 MXFP8 都是八位元素，却又因块尺度而具有不同的数据布局。更容易误解的是，量化位宽、检查点大小和最低运行显存是三个不同问题。 本文先建立一套可复用的阅读方法，再用物理结构、实现逻辑、流程、时序和张量数"><meta property="og:type" content="blog"><meta property="og:title" content="Inference Quantization Formats"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/07/28/Work/Artificial%20Intelligence/AIInfra/Inference-Quantization-Formats/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       W8A8、W8A4、W16A8 看似只差两个数字，实际可能对应完全不同的对象、尺度粒度、在线流程和硬件 kernel；FP8 与 MXFP8 都是八位元素，却又因块尺度而具有不同的数据布局。更容易误解的是，量化位宽、检查点大小和最低运行显存是三个不同问题。 本文先建立一套可复用的阅读方法，再用物理结构、实现逻辑、流程、时序和张量数"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-07-28T07:30:00.000Z"><meta property="article:modified_time" content="2026-07-28T07:33:46.520Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Inference Quantization"><meta property="article:tag" content="W8A8"><meta property="article:tag" content="W8A4"><meta property="article:tag" content="FP8"><meta property="article:tag" content="MXFP8"><meta property="article:tag" content="GPTQ"><meta property="article:tag" content="Qwen3.5"><meta property="article:tag" content="Kimi K3"><meta property="article:tag" content="GLM-5.2"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/07/28/Work/Artificial%20Intelligence/AIInfra/Inference-Quantization-Formats/"},"headline":"Inference Quantization Formats","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-07-28T07:30:00.000Z","dateModified":"2026-07-28T07:33:46.520Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       W8A8、W8A4、W16A8 看似只差两个数字，实际可能对应完全不同的对象、尺度粒度、在线流程和硬件 kernel；FP8 与 MXFP8 都是八位元素，却又因块尺度而具有不同的数据布局。更容易误解的是，量化位宽、检查点大小和最低运行显存是三个不同问题。 本文先建立一套可复用的阅读方法，再用物理结构、实现逻辑、流程、时序和张量数"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/07/28/Work/Artificial%20Intelligence/AIInfra/Inference-Quantization-Formats/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-07-28T07:30:00.000Z" title="7/28/2026, 7:30:00 AM">2026-07-28</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-28T07:33:46.520Z" title="7/28/2026, 7:33:46 AM">2026-07-28</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">41 minutes read (About 6190 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Inference Quantization Formats</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p><code>W8A8</code>、<code>W8A4</code>、<code>W16A8</code> 看似只差两个数字，实际可能对应完全不同的对象、尺度粒度、在线流程和硬件 kernel；<code>FP8</code> 与 <code>MXFP8</code> 都是八位元素，却又因块尺度而具有不同的数据布局。更容易误解的是，<strong>量化位宽、检查点大小和最低运行显存是三个不同问题</strong>。</p>
+<p>本文先建立一套可复用的阅读方法，再用物理结构、实现逻辑、流程、时序和张量数据流解释常见路径，最后核对截至 <strong>2026-07-28</strong> 的 Qwen3.5、Kimi K3 和 GLM-5.2 开放权重。所有“多大”均来自当前 Hugging Face 仓库中 <code>.safetensors</code> 文件的实际字节和，而不是用参数量乘标称位宽反推。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="先读懂量化记法"><a href="#先读懂量化记法" class="headerlink" title="先读懂量化记法"></a>先读懂量化记法</h2><p>一句话先给结论：**<code>WnAm</code> 只是一段算子精度标签，不是一份完整的量化规格。**</p>
+<ul>
+<li><code>W</code> 是目标算子的 <strong>weight</strong>，<code>A</code> 是输入 <strong>activation</strong>。</li>
+<li><code>n</code>、<code>m</code> 是计划使用的位宽，不说明数值是 INT、FP 还是 MX。</li>
+<li><code>A</code> 不是 accumulator。累加器可能是 INT32、FP16、FP32 或硬件定义的更宽内部格式。</li>
+<li>标签不说明尺度、零点、分组粒度、静态或动态量化、输出 dtype、排除模块、KV cache 和实际 kernel。</li>
+</ul>
+<p>因此，看到一个短标签时，至少补全下面六列：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>必须追问</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数值家族</td>
+<td>INT、FP、MX，还是厂商格式</td>
+<td>INT8、E4M3、MXFP4、NVFP4</td>
+</tr>
+<tr>
+<td>量化对象</td>
+<td>权重、激活、KV、通信张量</td>
+<td>W4A16 只压目标权重</td>
+</tr>
+<tr>
+<td>粒度</td>
+<td>tensor、channel、group、token、block</td>
+<td>GPTQ group 128、MX block 32</td>
+</tr>
+<tr>
+<td>参数</td>
+<td>scale、zero point、是否对称</td>
+<td>INT8 对称量化可令 <code>z=0</code></td>
+</tr>
+<tr>
+<td>时机</td>
+<td>离线、静态校准、每次动态生成</td>
+<td>per-token dynamic activation</td>
+</tr>
+<tr>
+<td>执行</td>
+<td>原生低比特、融合解量化、fallback</td>
+<td>MXFP4 → W4A8 或 W4A16</td>
+</tr>
+</tbody></table>
+<p>常见记法可以先按“主要压缩对象”归类：</p>
+<table>
+<thead>
+<tr>
+<th>记法</th>
+<th align="right">权重</th>
+<th align="right">激活</th>
+<th>首要收益</th>
+<th>首要风险</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>W4A16</td>
+<td align="right">4 bit</td>
+<td align="right">16 bit</td>
+<td>权重常驻量和读取带宽</td>
+<td>解量化成本、权重误差</td>
+</tr>
+<tr>
+<td>W8A16</td>
+<td align="right">8 bit</td>
+<td align="right">16 bit</td>
+<td>较稳健的权重压缩</td>
+<td>加速幅度依赖 kernel</td>
+</tr>
+<tr>
+<td>W8A8</td>
+<td align="right">8 bit</td>
+<td align="right">8 bit</td>
+<td>两侧带宽与低精度 GEMM</td>
+<td>激活异常值、在线量化</td>
+</tr>
+<tr>
+<td>W16A8</td>
+<td align="right">16 bit</td>
+<td align="right">8 bit</td>
+<td>激活&#x2F;通信带宽</td>
+<td><strong>不降低权重常驻量</strong></td>
+</tr>
+<tr>
+<td>W8A4</td>
+<td align="right">8 bit</td>
+<td align="right">4 bit</td>
+<td>更激进的激活与计算压缩</td>
+<td>A4 精度与硬件约束</td>
+</tr>
+<tr>
+<td>MXFP8 W8A8</td>
+<td align="right">E4M3</td>
+<td align="right">E4M3</td>
+<td>小块动态范围与原生 MX kernel</td>
+<td>块尺度布局、硬件限制</td>
+</tr>
+<tr>
+<td>MXFP4 W4A4&#x2F;A8</td>
+<td align="right">E2M1</td>
+<td align="right">FP4&#x2F;FP8</td>
+<td>极低位宽 MoE&#x2F;GEMM</td>
+<td>fallback 后可能变成 A16</td>
+</tr>
+</tbody></table>
+<figure markdown>
+  ![小黑压缩权重行李，但运行显存还包含尺度、KV 和工作区](https://pic.shaojiemike.top/shaojiemike/2026/07/25d494e03860a873f7e8e14392d1d5b7.png){ width=92% }
+  <figcaption>认知锚点：短标签只描述部分行李。压缩权重以后，尺度、KV 或循环状态、workspace 等运行对象仍需装上“运行显存”这辆车。该图用于解释概念，不作为容量证据。</figcaption>
+</figure>
+
+<h2 id="量化算子的共同骨架"><a href="#量化算子的共同骨架" class="headerlink" title="量化算子的共同骨架"></a>量化算子的共同骨架</h2><p>无论是 INT 还是 FP&#x2F;MX，量化线性层都要处理三类对象：低精度元素、恢复数值范围的尺度，以及比输入更宽的累加&#x2F;输出。区别主要发生在映射公式、尺度粒度和生成时机。</p>
+<h3 id="整数量化"><a href="#整数量化" class="headerlink" title="整数量化"></a>整数量化</h3><p>对 <code>b</code> bit 整数，最常见的仿射量化写成：</p>
+<p>$$<br>q &#x3D; \operatorname{clip}\left(<br>\operatorname{round}\left(\frac{x}{s}\right) + z,,<br>q_{\min},q_{\max}<br>\right), \qquad<br>\hat{x}&#x3D;s(q-z).<br>$$</p>
+<p>其中 <code>s</code> 是 scale，<code>z</code> 是 zero point。对称量化通常令 <code>z=0</code>；若使用有符号 <code>b</code> bit 且按最大绝对值定标，可近似取：</p>
+<p>$$<br>s&#x3D;\frac{\max |x|}{2^{b-1}-1}.<br>$$</p>
+<p>这两个式子只定义了数值映射。实现还要决定 <code>max</code> 在整张量、每通道、每组还是每 token 上求；粒度越细，局部范围通常越容易拟合，但尺度数量、布局和 kernel 复杂度也越高。TensorRT 的量化文档给出了 INT8 的舍入、裁剪和反量化定义，可作为理解框架。<a target="_blank" rel="noopener" href="https://docs.nvidia.com/deeplearning/tensorrt/latest/inference-library/quantized-types-schemes.html">TensorRT Quantized Types</a></p>
+<h3 id="静态、动态与-QAT"><a href="#静态、动态与-QAT" class="headerlink" title="静态、动态与 QAT"></a>静态、动态与 QAT</h3><ul>
+<li><strong>PTQ（Post-Training Quantization）</strong>：训练完成后，用权重统计或校准样本生成量化参数。GPTQ、AWQ 和许多 FP8 转换属于这一大类。</li>
+<li><strong>静态激活量化</strong>：提前校准并保存激活尺度；运行时少做一次范围统计，但尺度对输入分布漂移更敏感。</li>
+<li><strong>动态激活量化</strong>：每次执行按 token、row 或 group 求范围并生成尺度；适应性更好，但增加归约与转换。</li>
+<li><strong>QAT（Quantization-Aware Training）</strong>：训练或 SFT 阶段模拟量化误差，使模型主动适应低精度。Kimi K3 的模型卡明确把 MXFP4&#x2F;MXFP8 与 QAT 绑定。<a target="_blank" rel="noopener" href="https://huggingface.co/moonshotai/Kimi-K3">Kimi K3 Model Card</a></li>
+</ul>
+<p>一个完整的动态量化线性层可以规范化为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">dynamic_quantized_linear</span>(<span class="params">x16, packed_weight, weight_scale, spec</span>):</span><br><span class="line">    <span class="comment"># 1. 当前激活的量化参数</span></span><br><span class="line">    activation_range = reduce_amax(x16, axis=spec.activation_group_axis)</span><br><span class="line">    activation_scale = choose_scale(</span><br><span class="line">        activation_range,</span><br><span class="line">        bits=spec.activation_bits,</span><br><span class="line">        value_format=spec.activation_format,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 2. 当前算子生命周期内的低精度激活</span></span><br><span class="line">    xq = quantize_and_pack(</span><br><span class="line">        x16,</span><br><span class="line">        scale=activation_scale,</span><br><span class="line">        bits=spec.activation_bits,</span><br><span class="line">        symmetric=spec.symmetric,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 3. kernel 直接消费 packed W、xq 和两侧尺度</span></span><br><span class="line">    accumulator = low_precision_gemm(</span><br><span class="line">        xq,</span><br><span class="line">        packed_weight,</span><br><span class="line">        x_scale=activation_scale,</span><br><span class="line">        w_scale=weight_scale,</span><br><span class="line">        accumulator_dtype=spec.accumulator_dtype,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 4. 输出通常回到残差路径要求的较宽 dtype</span></span><br><span class="line">    <span class="keyword">return</span> rescale_and_cast(accumulator, spec.output_dtype)</span><br></pre></td></tr></table></figure>
+
+<p>TorchAO 也把 weight-only、dynamic activation plus weight、static quantization 分为不同工作流；<strong>“都是 8 bit”并不意味着运行阶段相同。</strong> <a target="_blank" rel="noopener" href="https://docs.pytorch.org/ao/stable/contributing/quantization_overview.html">torchao Quantization Overview</a></p>
+<h2 id="W4-W8A16：只压权重"><a href="#W4-W8A16：只压权重" class="headerlink" title="W4&#x2F;W8A16：只压权重"></a>W4&#x2F;W8A16：只压权重</h2><p>Weight-only 是最直接的推理量化：先缩小模型生命周期内的权重对象，不改变进入算子的高精度激活。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>W4A16 或 W8A16 的目标是让持久化权重从 BF16&#x2F;FP16 变成低比特元素，加上较少的 scale&#x2F;zero-point side data。激活仍保持 BF16&#x2F;FP16。推理时有两种主要执行方式：</p>
+<ol>
+<li><strong>融合解量化 GEMM</strong>：kernel 读 packed weight，在寄存器或片上块内恢复数值，然后直接参与乘加。</li>
+<li><strong>原生混合低比特 GEMM</strong>：硬件和 kernel 直接支持低比特权重与 A16 的组合。</li>
+</ol>
+<p>如果框架先把整层权重完整反量化到显存，再调用普通 GEMM，就会额外产生大张量和带宽，削弱 weight-only 的优势。</p>
+<figure markdown>
+  ![W4/W8A16 权重量化的物理、逻辑、流程、时序和数据流](https://pic.shaojiemike.top/shaojiemike/2026/07/3d2f95d9946f665c963b7e27ec4b5478.png){ width=100% }
+  <figcaption>W4/W8A16 五视图。源码锚点为 vLLM commit <code>7aea73d8</code> 的 <code>compressed_tensors_wNa16.py</code>：2–8 bit 权重、pack factor、packed INT32 权重与 scale 注册，以及 A16 kernel 配置。图示不表示所有模块都被量化。</figcaption>
+</figure>
+
+<h3 id="适用性与效果"><a href="#适用性与效果" class="headerlink" title="适用性与效果"></a>适用性与效果</h3><ul>
+<li><strong>适合</strong>：模型主要受权重常驻量或 HBM 读取限制；目标硬件没有稳定的低比特激活路径；希望降低部署风险。</li>
+<li><strong>直接效果</strong>：目标线性层的 packed weight 变小，权重带宽下降。</li>
+<li><strong>不能推出</strong>：模型整体严格缩小为 <code>4/16</code>；embedding、norm、LM head、视觉编码器和尺度仍可能是高精度。</li>
+<li><strong>性能边界</strong>：大 batch&#x2F;prefill 可能更 compute-bound；解码时 weight-only 往往更容易体现权重带宽收益，但仍要实测。</li>
+</ul>
+<p>vLLM 当前的通用 WnA16 scheme 明确注册了 packed 权重、尺度与目标激活 dtype，<code>apply</code> 最终委托给选中的 kernel，而不是由 <code>W4A16</code> 标签自行保证速度。<a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/blob/7aea73d83d6064449ff8147899de161e6eb68a20/vllm/model_executor/layers/quantization/compressed_tensors/schemes/compressed_tensors_wNa16.py">vLLM WnA16 source</a></p>
+<h2 id="W8A8：权重与激活同时压缩"><a href="#W8A8：权重与激活同时压缩" class="headerlink" title="W8A8：权重与激活同时压缩"></a>W8A8：权重与激活同时压缩</h2><p>W8A8 进一步把当前算子生命周期内的 activation 也变窄，因而把动态范围统计和尺度流带进在线关键路径。</p>
+<h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>INT8 W8A8 常把权重离线量化，把激活在线动态量化。一个 token&#x2F;row 到达线性层后，前处理先求 <code>amax</code>、生成 input scale、舍入到 INT8；GEMM 再读取 INT8 weight 与 weight scale，使用较宽累加器，最后反缩放并输出 BF16&#x2F;FP16。</p>
+<figure markdown>
+  ![动态 INT8 W8A8 的物理、逻辑、流程、时序和数据流](https://pic.shaojiemike.top/shaojiemike/2026/07/4dfb6ac6fc34e79b05ce4b73086f92c1.png){ width=100% }
+  <figcaption>动态 INT8 W8A8 五视图。源码锚点为 vLLM commit <code>7aea73d8</code> 的 <code>compressed_tensors_w8a8_int8.py</code>：INT8 weight/scale、可选静态 input scale/zero point 与 kernel apply。</figcaption>
+</figure>
+
+<h3 id="适用性与效果-1"><a href="#适用性与效果-1" class="headerlink" title="适用性与效果"></a>适用性与效果</h3><ul>
+<li><strong>适合</strong>：目标硬件具有成熟 INT8&#x2F;FP8 Tensor Core，权重和激活搬运都显著，校准或动态范围策略已验证。</li>
+<li><strong>潜在收益</strong>：两侧操作数更窄，低精度矩阵吞吐更高。</li>
+<li><strong>新增成本</strong>：动态 <code>amax</code> 归约、激活转换、scale 传递和可能的离群值处理。</li>
+<li><strong>精度风险</strong>：激活分布比权重更依赖输入；少数大异常值会把 scale 拉大，使普通值的有效分辨率下降。</li>
+</ul>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>W8A8 不是 INT8 的同义词</p>
+</div>
+        <div class="message-body">
+            <p>W8A8 也可以是普通 FP8 或 MXFP8。只有把元素编码和尺度方案写出来，才能比较精度、存储和 kernel。</p>
+
+        </div>
+    </article>
+
+<h2 id="W16A8-与-W8A4：非对称混合位宽"><a href="#W16A8-与-W8A4：非对称混合位宽" class="headerlink" title="W16A8 与 W8A4：非对称混合位宽"></a>W16A8 与 W8A4：非对称混合位宽</h2><p>这两个标签都让 W&#x2F;A 位宽不同，但前者保留高精度权重，后者对激活施加更激进的四位约束，不能作为同一强度的优化理解。</p>
+<h3 id="W16A8：只压激活"><a href="#W16A8：只压激活" class="headerlink" title="W16A8：只压激活"></a>W16A8：只压激活</h3><p>W16A8 保留 16 bit 权重，只把激活变成 8 bit。它的价值通常在：</p>
+<ul>
+<li>减少激活读写或跨设备通信；</li>
+<li>使用硬件提供的 W16×A8 混合 kernel；</li>
+<li>让精度敏感权重保持高精度。</li>
+</ul>
+<p>它<strong>不会降低权重常驻量</strong>。若部署的主要瓶颈是数百 GiB 模型权重，W16A8 不能解决“模型放不下”的问题；若后端没有原生混合 kernel，在线量化甚至可能只增加开销。</p>
+<h3 id="W8A4：激进压缩激活"><a href="#W8A4：激进压缩激活" class="headerlink" title="W8A4：激进压缩激活"></a>W8A4：激进压缩激活</h3><p>W8A4 把权重压到 8 bit、激活压到 4 bit。四位激活的可表达值很少，通常需要更细的 per-token&#x2F;per-group 动态尺度，并依赖专用 kernel。</p>
+<p>vLLM 当前一个 <code>WnA4</code> compressed-tensors 路径明确限制为<strong>对称、动态、per-token&#x2F;per-group INT4 activation</strong>，并拒绝静态、per-tensor 或非对称组合。这说明 <code>W8A4</code> 更像一个接口族，而不是跨框架完全一致的格式。<a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/blob/7aea73d83d6064449ff8147899de161e6eb68a20/vllm/model_executor/layers/quantization/compressed_tensors/schemes/compressed_tensors_wNa4.py">vLLM WnA4 source</a></p>
+<figure markdown>
+  ![W16A8 与 W8A4 的物理、逻辑、流程、时序和数据流](https://pic.shaojiemike.top/shaojiemike/2026/07/ad5fcfad0538bce2e1f63060b8faf993.png){ width=100% }
+  <figcaption>W16A8 与 W8A4 五视图。二者共享“激活在线量化”骨架，但压缩对象、误差预算和 kernel 完全不同。图中的 W8A4 约束来自 pinned vLLM WnA4 实现，不外推为所有框架。</figcaption>
+</figure>
+
+<p>规范化控制流是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">mixed_width_linear</span>(<span class="params">x16, weight, mode</span>):</span><br><span class="line">    <span class="keyword">if</span> mode == <span class="string">&quot;W16A8&quot;</span>:</span><br><span class="line">        xq, sx = dynamic_quantize(x16, bits=<span class="number">8</span>, granularity=<span class="string">&quot;token_or_row&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> kernel_w16_a8(weight.w16, xq, sx)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> mode == <span class="string">&quot;W8A4&quot;</span>:</span><br><span class="line">        <span class="keyword">assert</span> mode.symmetric <span class="keyword">and</span> mode.dynamic</span><br><span class="line">        xq, sx = dynamic_quantize(x16, bits=<span class="number">4</span>, granularity=<span class="string">&quot;token_group&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> kernel_w8_a4(weight.w8, weight.scale, xq, sx)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">raise</span> UnsupportedKernel(mode)</span><br></pre></td></tr></table></figure>
+
+<p>工程上必须先调用后端能力矩阵确认 <code>kernel_w16_a8</code> 或 <code>kernel_w8_a4</code> 确实存在；否则标签可能被拒绝、重新量化，或者 fallback 到 A16。</p>
+<h2 id="FP8、MXFP8-与-MXFP4：浮点格式不是整数位宽"><a href="#FP8、MXFP8-与-MXFP4：浮点格式不是整数位宽" class="headerlink" title="FP8、MXFP8 与 MXFP4：浮点格式不是整数位宽"></a>FP8、MXFP8 与 MXFP4：浮点格式不是整数位宽</h2><p>浮点低精度不仅要看总 bit，还要看指数&#x2F;尾数怎样分配，以及尺度是全局、张量级还是每个小块共享。</p>
+<h3 id="FP8"><a href="#FP8" class="headerlink" title="FP8"></a>FP8</h3><p>OCP OFP8 规范定义两种八位浮点交换编码：</p>
+<ul>
+<li><strong>E4M3</strong>：1 sign、4 exponent、3 mantissa，最大有限幅值为 <code>448</code>，精度相对更高。</li>
+<li><strong>E5M2</strong>：1 sign、5 exponent、2 mantissa，最大有限幅值为 <code>57,344</code>，动态范围更大。</li>
+</ul>
+<p>OCP 规范定义的是编码和从更宽格式转换时的舍入、饱和行为，并<strong>不规定模型必须怎样选 scale，也不保证速度或精度</strong>。<a target="_blank" rel="noopener" href="https://github.com/opencomputeproject/FP8/blob/main/OCP%208-bit%20Floating%20Point%20Specification%20%28OFP8%29%20Revision%201.0%202023-06-20.pdf">OCP OFP8 Specification</a></p>
+<p>普通 FP8 推理仍常使用 per-tensor 或较大 block 的 scale。一个“FP8 checkpoint”也可能只量化部分 Linear，并排除 attention、embedding、LM head 或视觉模块。</p>
+<h3 id="MXFP8"><a href="#MXFP8" class="headerlink" title="MXFP8"></a>MXFP8</h3><p>MXFP8 在元素编码之外增加 microscaling：</p>
+<p>$$<br>x_i \approx s_b q_i,\qquad q_i \in \text{E4M3},\qquad<br>s_b \in \text{E8M0},\qquad i\in \text{block}_b.<br>$$</p>
+<p>NVIDIA Transformer Engine 的 MXFP8 路径让 <strong>32 个连续 E4M3 元素共享一个 E8M0 scale</strong>。E8M0 只有指数，表示 2 的幂。每块大致执行：</p>
+<ol>
+<li>求 32 个值的 <code>amax</code>；</li>
+<li>以 E4M3 最大幅值 <code>448</code> 为基准生成 E8M0 指数；</li>
+<li>用块尺度缩放；</li>
+<li>舍入到 E4M3。</li>
+</ol>
+<p>理想原始存储为：</p>
+<p>$$<br>\frac{32\times 8 + 8}{32}&#x3D;8.25\ \text{bit&#x2F;value}.<br>$$</p>
+<p>这还未计算 scale 布局、对齐、元数据和可能同时保存的 rowwise&#x2F;columnwise 表示。MXFP8 的行向与列向分块方向不同，不能简单把一个量化张量转置后当成另一个方向的同值表示。<a target="_blank" rel="noopener" href="https://docs.nvidia.com/deeplearning/transformer-engine/user-guide/features/low_precision_training/mxfp8/mxfp8.html">NVIDIA MXFP8</a></p>
+<h3 id="MXFP4-与-fallback"><a href="#MXFP4-与-fallback" class="headerlink" title="MXFP4 与 fallback"></a>MXFP4 与 fallback</h3><p>MXFP4 使用 E2M1 四位元素，并为每 32 个元素提供一个 E8M0 scale。真正决定运行位宽的是后端：</p>
+<ul>
+<li>vLLM 当前 <code>compressed_tensors_w4a4_mxfp4.py</code> 在支持的 SM100+ FlashInfer 路径使用低比特 activation；</li>
+<li>不满足该路径时，可以改走 Marlin W4A16。</li>
+</ul>
+<p>因此，<strong>同一个 MXFP4 权重仓库可以在一台机器上表现为 W4A8&#x2F;W4A4，在另一台机器上表现为 W4A16。</strong> <a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/blob/7aea73d83d6064449ff8147899de161e6eb68a20/vllm/model_executor/layers/quantization/compressed_tensors/schemes/compressed_tensors_w4a4_mxfp4.py">vLLM MXFP4 source</a></p>
+<figure markdown>
+  ![FP8、MXFP8 与 MXFP4 的物理、逻辑、流程、时序和数据流](https://pic.shaojiemike.top/shaojiemike/2026/07/d85177a1b1ed5b815bea67afcf83e72e.png){ width=100% }
+  <figcaption>FP8/MX 五视图。格式证据来自 OCP OFP8 Revision 1.0、NVIDIA MXFP8 文档和 pinned vLLM MX schemes。图中的 8.25 bit/value 是元素与 E8M0 scale 的理想原始值，不是完整 checkpoint 或运行显存。</figcaption>
+</figure>
+
+<h2 id="开放权重盘点"><a href="#开放权重盘点" class="headerlink" title="开放权重盘点"></a>开放权重盘点</h2><p>下面只统计模型组织的官方量化权重，以及与 GLM-5.2 明确绑定的 NVIDIA&#x2F;AMD 厂商版本；不把持续变化的社区 GGUF、AWQ 或二次量化仓库混入同一口径。</p>
+<h3 id="统计口径"><a href="#统计口径" class="headerlink" title="统计口径"></a>统计口径</h3><p>下表采用以下固定口径：</p>
+<ol>
+<li>调用 Hugging Face model API 记录当前 repository SHA。</li>
+<li>递归列出仓库文件。</li>
+<li>对所有以 <code>.safetensors</code> 结尾的文件求字节和。</li>
+<li>同时报告十进制 GB 和二进制 GiB：<code>1 GB=10^9 bytes</code>，<code>1 GiB=2^30 bytes</code>。</li>
+</ol>
+<p>这比 <code>参数量 × 标称 bit</code> 更可靠，因为真实仓库还包含未量化模块、scale、zero point、padding、多模态组件和 MTP 权重。它仍只是<strong>检查点权重下界</strong>，不是进程峰值。</p>
+<h3 id="Qwen3-5"><a href="#Qwen3-5" class="headerlink" title="Qwen3.5"></a>Qwen3.5</h3><p>Qwen 的<a target="_blank" rel="noopener" href="https://huggingface.co/collections/Qwen/qwen35">官方 Qwen3.5 集合</a>当前为 397B-A17B、122B-A10B、35B-A3B 和 27B 列出 FP8 与 GPTQ-Int4；9B、4B、2B、0.8B 没有列出官方量化仓库。社区 GGUF&#x2F;AWQ 版本更新频繁，不混入这张官方口径表。</p>
+<table>
+<thead>
+<tr>
+<th>官方仓库</th>
+<th>当前 SHA</th>
+<th align="right">safetensors</th>
+<th>维护者给出的实际部署下界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/Qwen/Qwen3.5-397B-A17B-FP8">397B-A17B-FP8</a></td>
+<td><code>ea5b4f81</code></td>
+<td align="right"><strong>406.15 GB &#x2F; 378.26 GiB</strong></td>
+<td>SGLang：8×H100、4×H200、4×B200 或 2×B300；vLLM 另验证 8×H200</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/Qwen/Qwen3.5-397B-A17B-GPTQ-Int4">397B-A17B-GPTQ-Int4</a></td>
+<td><code>df333de3</code></td>
+<td align="right"><strong>235.71 GB &#x2F; 219.52 GiB</strong></td>
+<td>vLLM recipe 标注约 239 GB aggregate；实际并行拓扑需按后端核验</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/Qwen/Qwen3.5-122B-A10B-FP8">122B-A10B-FP8</a></td>
+<td><code>a099dee7</code></td>
+<td align="right"><strong>127.16 GB &#x2F; 118.43 GiB</strong></td>
+<td>2×H200 或 4×H100</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/Qwen/Qwen3.5-122B-A10B-GPTQ-Int4">122B-A10B-GPTQ-Int4</a></td>
+<td><code>30cd92cb</code></td>
+<td align="right"><strong>78.86 GB &#x2F; 73.45 GiB</strong></td>
+<td>1×80 GB GPU</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/Qwen/Qwen3.5-35B-A3B-FP8">35B-A3B-FP8</a></td>
+<td><code>9d1823d2</code></td>
+<td align="right"><strong>37.46 GB &#x2F; 34.89 GiB</strong></td>
+<td>单张 H100&#x2F;H200；recipe 运行预算约 42 GB</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/Qwen/Qwen3.5-35B-A3B-GPTQ-Int4">35B-A3B-GPTQ-Int4</a></td>
+<td><code>3af5ca29</code></td>
+<td align="right"><strong>24.42 GB &#x2F; 22.74 GiB</strong></td>
+<td>1×24 GB GPU</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/Qwen/Qwen3.5-27B-FP8">27B-FP8</a></td>
+<td><code>97f5941b</code></td>
+<td align="right"><strong>30.87 GB &#x2F; 28.75 GiB</strong></td>
+<td>1×40 GB GPU</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/Qwen/Qwen3.5-27B-GPTQ-Int4">27B-GPTQ-Int4</a></td>
+<td><code>8f0c09f2</code></td>
+<td align="right"><strong>30.24 GB &#x2F; 28.16 GiB</strong></td>
+<td>recipe 写 1×24 GB，但当前完整仓库字节已超过 24 GB，见下方警告</td>
+</tr>
+</tbody></table>
+<p>这些设备结论来自 <a target="_blank" rel="noopener" href="https://recipes.vllm.ai/Qwen/Qwen3.5-122B-A10B">vLLM Qwen3.5 recipes</a> 和 <a target="_blank" rel="noopener" href="https://docs.sglang.io/cookbook/autoregressive/Qwen/Qwen3.5">SGLang Qwen3.5 cookbook</a>，并受 engine 版本、上下文、并发和 text-only&#x2F;multimodal 模式约束。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>27B GPTQ 的 24 GB 冲突</p>
+</div>
+        <div class="message-body">
+            <p>当前 <code>Qwen3.5-27B-GPTQ-Int4</code> 的完整 safetensors 已是 <strong>28.16 GiB</strong>。因此，“单张 24 GB GPU 完整加载当前多模态仓库且无 offload”在算术上不成立。</p>
+<p>vLLM recipe 的 24 GB 标签可能依赖 text-only 加载、跳过视觉组件、CPU offload、优化后的运行布局或不同修订。这里保留双方证据，不把 24 GB 写成无条件最低显存；真实部署必须记录启动参数和峰值。</p>
+
+        </div>
+    </article>
+
+<h3 id="Kimi-K3"><a href="#Kimi-K3" class="headerlink" title="Kimi K3"></a>Kimi K3</h3><p><a target="_blank" rel="noopener" href="https://huggingface.co/moonshotai/Kimi-K3">Kimi K3</a> 是 <strong>2.8T total &#x2F; 104B active</strong> 的 MoE，模型卡声明 MXFP4 weight、MXFP8 activation，并从 SFT 开始做 QAT。当前 SHA <code>9f62e4e9</code> 的 96 个 safetensors 合计：</p>
+<p>$$<br>\mathbf{1{,}560.94\ GB &#x3D; 1{,}453.74\ GiB}.<br>$$</p>
+<p>104B active 主要降低每 token 参与计算的专家数，<strong>不意味着只需常驻 104B 参数</strong>。当前 config 的 MXFP4 group size 为 32，但 attention、shared experts、普通 MLP pattern、LM head、vision tower 和 projector 等存在高精度排除项。</p>
+<p>部署方面：</p>
+<ul>
+<li>vLLM 表示最容易的路径是 <strong>8×B300 或 8×MI355X</strong>；</li>
+<li>在 B200&#x2F;GB200 这一代上至少需要 <strong>16 张</strong>；</li>
+<li>SGLang 给出的其他拓扑包括 16×H200 和 32×H100。</li>
+</ul>
+<p>更重要的是，SGLang 说明 Blackwell 可走 FlashInfer MXFP4&#x2F;W4A8，而 H100&#x2F;H200 固定走 Marlin W4A16。模型卡的“MXFP8 activation”是训练与目标数值方案，checkpoint config 只序列化 weight compression；最终 activation 路径仍由运行 kernel 决定。<a target="_blank" rel="noopener" href="https://vllm-project.github.io/2026/07/27/k3.html">vLLM Kimi K3</a> <a target="_blank" rel="noopener" href="https://docs.sglang.io/cookbook/autoregressive/Moonshotai/Kimi-K3">SGLang Kimi K3</a></p>
+<h3 id="GLM-5-2"><a href="#GLM-5-2" class="headerlink" title="GLM-5.2"></a>GLM-5.2</h3><p>Z.ai 的<a target="_blank" rel="noopener" href="https://huggingface.co/collections/zai-org/glm-52">官方 GLM-5.2 集合</a>当前只有 BF16 与 FP8。NVIDIA NVFP4 和 AMD MXFP4 是厂商量化仓库，应与 Z.ai 官方权重分开标注。</p>
+<table>
+<thead>
+<tr>
+<th>仓库</th>
+<th>身份与量化范围</th>
+<th align="right">safetensors</th>
+<th>维护者实际部署下界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/zai-org/GLM-5.2-FP8">zai-org&#x2F;GLM-5.2-FP8</a></td>
+<td><strong>官方</strong> FP8，部分模块排除</td>
+<td align="right"><strong>755.63 GB &#x2F; 703.74 GiB</strong></td>
+<td>vLLM：8×H200&#x2F;H20；完整 1M context 使用 8×B200 + FP8 KV</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/nvidia/GLM-5.2-NVFP4">nvidia&#x2F;GLM-5.2-NVFP4</a></td>
+<td>厂商版；主要量化 MoE expert linear，其他模块保留 FP8&#x2F;BF16</td>
+<td align="right"><strong>464.82 GB &#x2F; 432.90 GiB</strong></td>
+<td>Blackwell-only，vLLM recipe 使用 TP8</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/amd/GLM-5.2-MXFP4">amd&#x2F;GLM-5.2-MXFP4</a></td>
+<td>厂商版；主要量化 MoE weight，非 MoE 模块高精度</td>
+<td align="right"><strong>438.00 GB &#x2F; 407.92 GiB</strong></td>
+<td>8×MI355X TP8 推荐；TP4 可做有余量的验证</td>
+</tr>
+</tbody></table>
+<p>GLM-5.2 FP8 的纯权重算术看似约五张 141 GB 设备就够，但维护者使用八张，是因为模型还要满足分片、非均匀模块、KV、workspace、图和服务余量。<strong>这正是“文件放得下”与“系统跑得起来”的差别。</strong> <a target="_blank" rel="noopener" href="https://recipes.vllm.ai/zai-org/GLM-5.2">vLLM GLM-5.2 Recipe</a> <a target="_blank" rel="noopener" href="https://docs.sglang.io/cookbook/autoregressive/GLM/GLM-5.2">SGLang GLM-5.2</a></p>
+<h2 id="显存下界与可运行拓扑"><a href="#显存下界与可运行拓扑" class="headerlink" title="显存下界与可运行拓扑"></a>显存下界与可运行拓扑</h2><p>检查点回答“持久化权重至少占多少”，运行拓扑还要回答这些权重怎样分片，以及每个请求把哪些短期和长期状态带入设备。</p>
+<h3 id="完整峰值"><a href="#完整峰值" class="headerlink" title="完整峰值"></a>完整峰值</h3><p>推理峰值应拆为：</p>
+<p>$$<br>\begin{aligned}<br>M_{\text{peak}}&#x3D;{}&amp;M_{\text{weights}}<br>+M_{\text{KV&#x2F;recurrent}}<br>+M_{\text{live activations}}\<br>&amp;+M_{\text{operator workspace}}<br>+M_{\text{graph&#x2F;communication}}<br>+M_{\text{allocator reserve}}<br>+M_{\text{margin}}.<br>\end{aligned}<br>$$</p>
+<ul>
+<li><strong>Weights</strong>：packed elements、scale、zero point、未量化模块和运行时重排。</li>
+<li><strong>KV&#x2F;recurrent</strong>：KV cache、MLA latent、GDN&#x2F;KDA state，随上下文、batch 和并发变化。</li>
+<li><strong>Activations</strong>：prefill 通常比单 token decode 保留更多中间量。</li>
+<li><strong>Workspace</strong>：动态量化、GEMM、Attention、MoE routing、repack&#x2F;swizzle 的临时对象。</li>
+<li><strong>Graph&#x2F;communication</strong>：CUDA Graph、TP&#x2F;EP collective、对称内存和通信 staging。</li>
+<li><strong>Reserve&#x2F;margin</strong>：分配器保留、碎片和服务波动余量。</li>
+</ul>
+<figure markdown>
+  ![量化检查点到运行峰值的物理、逻辑、流程、时序和数据流](https://pic.shaojiemike.top/shaojiemike/2026/07/27f843e58f21956f2cb4b840bd9017c4.png){ width=100% }
+  <figcaption>检查点到运行显存五视图。仓库 shard 字节和只锚定 <code>Mweights</code> 的下界；其余项必须用具体 engine、硬件、上下文、并发和多模态模式测量。</figcaption>
+</figure>
+
+<h3 id="三个必须分开的数字"><a href="#三个必须分开的数字" class="headerlink" title="三个必须分开的数字"></a>三个必须分开的数字</h3><ol>
+<li><strong>仓库字节</strong>：固定 SHA 后求 safetensors 之和，是可复核事实。</li>
+<li><strong>权重算术下界</strong>：<code>ceil(checkpoint_GiB / device_GiB)</code>，只能回答聚合容量，不能证明能分片或启动。</li>
+<li><strong>维护者拓扑</strong>：给出硬件、TP&#x2F;EP&#x2F;PP、KV dtype、上下文和验证状态，才接近工程最低配置。</li>
+</ol>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>MoE 的 active parameters</p>
+</div>
+        <div class="message-body">
+            <p>Active parameters 影响每 token 的 FLOPs 和通信，不自动降低所有专家的常驻权重。除非系统明确做 expert offload、按需加载或分层存储，否则估算权重显存应使用 total checkpoint bytes。</p>
+
+        </div>
+    </article>
+
+<h3 id="本地测量方法"><a href="#本地测量方法" class="headerlink" title="本地测量方法"></a>本地测量方法</h3><p>真正要确认“我的机器至少多少显存”，应固定下列条件再启动：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">model repo + revision</span><br><span class="line">+ engine image/version</span><br><span class="line">+ quantization backend/kernel</span><br><span class="line">+ TP/EP/PP topology</span><br><span class="line">+ text-only or multimodal</span><br><span class="line">+ max model length</span><br><span class="line">+ KV/state dtype</span><br><span class="line">+ max concurrent requests / batch tokens</span><br><span class="line">+ CUDA graph and speculative decoding settings</span><br></pre></td></tr></table></figure>
+
+<p>然后分别记录：</p>
+<ul>
+<li>load 完成后的 resident memory；</li>
+<li>首次 warmup&#x2F;JIT&#x2F;repack 峰值；</li>
+<li>prefill 峰值；</li>
+<li>steady decode 峰值；</li>
+<li>最大上下文和目标并发下的峰值；</li>
+<li>每卡最大值，而不是只看集群总和。</li>
+</ul>
+<h2 id="选型与验证清单"><a href="#选型与验证清单" class="headerlink" title="选型与验证清单"></a>选型与验证清单</h2><p>如果目标是“先跑起来，再逐步提速”，可以按以下顺序选择：</p>
+<ol>
+<li><strong>先核对 kernel</strong>：目标 GPU&#x2F;加速卡是否原生支持该 W&#x2F;A 组合；没有原生路径时，先把它当成兼容性或存储格式，而不是性能承诺。</li>
+<li><strong>再看压缩对象</strong>：<ul>
+<li>权重放不下：优先 W4&#x2F;W8A16、GPTQ&#x2F;AWQ、FP8&#x2F;MXFP4 weight。</li>
+<li>激活或通信瓶颈：再考虑 W16A8、W8A8。</li>
+<li>追求极限低比特：W8A4、W4A4&#x2F;A8，但先做精度回归。</li>
+</ul>
+</li>
+<li><strong>读取 config</strong>：确认 target、group size、dynamic&#x2F;static、symmetric、ignore 和 KV scheme。</li>
+<li><strong>核对完整仓库字节</strong>：不要从模型名推断大小。</li>
+<li><strong>按维护者拓扑预留</strong>：权重算术下界只能用来发现“不可能”，不能用来证明“可运行”。</li>
+<li><strong>分阶段验收精度</strong>：至少覆盖 perplexity&#x2F;任务集、长上下文、工具调用、多模态和极端 activation。</li>
+<li><strong>分阶段验收性能</strong>：区分 load、prefill、decode、单请求延迟、并发吞吐和每卡峰值。</li>
+</ol>
+<p>最终判断可以压缩为：</p>
+<blockquote>
+<p><strong>位宽决定候选表示，尺度与粒度决定数值误差，kernel 决定实际执行，完整对象生命周期决定显存。</strong></p>
+</blockquote>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencomputeproject/FP8/blob/main/OCP%208-bit%20Floating%20Point%20Specification%20%28OFP8%29%20Revision%201.0%202023-06-20.pdf">OCP 8-bit Floating Point Specification</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.opencompute.org/documents/ocp-microscaling-formats-mx-v1-0-spec-final-pdf">OCP Microscaling Formats Specification</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.nvidia.com/deeplearning/transformer-engine/user-guide/features/low_precision_training/mxfp8/mxfp8.html">NVIDIA Transformer Engine MXFP8</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.nvidia.com/deeplearning/tensorrt/latest/inference-library/quantized-types-schemes.html">TensorRT Quantized Types and Schemes</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.pytorch.org/ao/stable/contributing/quantization_overview.html">PyTorch torchao Quantization Overview</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm/tree/7aea73d83d6064449ff8147899de161e6eb68a20/vllm/model_executor/layers/quantization/compressed_tensors/schemes">vLLM Quantization Schemes at <code>7aea73d8</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://huggingface.co/collections/Qwen/qwen35">Qwen3.5 Official Collection</a></li>
+<li><a target="_blank" rel="noopener" href="https://huggingface.co/moonshotai/Kimi-K3">Kimi K3 Model Card</a></li>
+<li><a target="_blank" rel="noopener" href="https://huggingface.co/collections/zai-org/glm-52">GLM-5.2 Official Collection</a></li>
+<li><a target="_blank" rel="noopener" href="https://recipes.vllm.ai/">vLLM Recipes</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.sglang.io/cookbook/">SGLang Model Cookbooks</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Inference Quantization Formats</p><p><a href="http://icarus.shaojiemike.top/2026/07/28/Work/Artificial Intelligence/AIInfra/Inference-Quantization-Formats/">http://icarus.shaojiemike.top/2026/07/28/Work/Artificial Intelligence/AIInfra/Inference-Quantization-Formats/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-07-28</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-28</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Inference-Quantization/">Inference Quantization</a><a class="link-muted mr-2" rel="tag" href="/tags/W8A8/">W8A8</a><a class="link-muted mr-2" rel="tag" href="/tags/W8A4/">W8A4</a><a class="link-muted mr-2" rel="tag" href="/tags/FP8/">FP8</a><a class="link-muted mr-2" rel="tag" href="/tags/MXFP8/">MXFP8</a><a class="link-muted mr-2" rel="tag" href="/tags/GPTQ/">GPTQ</a><a class="link-muted mr-2" rel="tag" href="/tags/Qwen3-5/">Qwen3.5</a><a class="link-muted mr-2" rel="tag" href="/tags/Kimi-K3/">Kimi K3</a><a class="link-muted mr-2" rel="tag" href="/tags/GLM-5-2/">GLM-5.2</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/27/Work/Artificial%20Intelligence/AIInfra/UB-Mesh-Beginner-Guide/"><span class="level-item">UB-Mesh Architecture</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">569</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">44</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">755</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#先读懂量化记法"><span class="level-left"><span class="level-item">1</span><span class="level-item">先读懂量化记法</span></span></a></li><li><a class="level is-mobile" href="#量化算子的共同骨架"><span class="level-left"><span class="level-item">2</span><span class="level-item">量化算子的共同骨架</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#整数量化"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">整数量化</span></span></a></li><li><a class="level is-mobile" href="#静态、动态与-QAT"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">静态、动态与 QAT</span></span></a></li></ul></li><li><a class="level is-mobile" href="#W4-W8A16：只压权重"><span class="level-left"><span class="level-item">3</span><span class="level-item">W4/W8A16：只压权重</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#原理"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">原理</span></span></a></li><li><a class="level is-mobile" href="#适用性与效果"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">适用性与效果</span></span></a></li></ul></li><li><a class="level is-mobile" href="#W8A8：权重与激活同时压缩"><span class="level-left"><span class="level-item">4</span><span class="level-item">W8A8：权重与激活同时压缩</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#原理-1"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">原理</span></span></a></li><li><a class="level is-mobile" href="#适用性与效果-1"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">适用性与效果</span></span></a></li></ul></li><li><a class="level is-mobile" href="#W16A8-与-W8A4：非对称混合位宽"><span class="level-left"><span class="level-item">5</span><span class="level-item">W16A8 与 W8A4：非对称混合位宽</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#W16A8：只压激活"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">W16A8：只压激活</span></span></a></li><li><a class="level is-mobile" href="#W8A4：激进压缩激活"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">W8A4：激进压缩激活</span></span></a></li></ul></li><li><a class="level is-mobile" href="#FP8、MXFP8-与-MXFP4：浮点格式不是整数位宽"><span class="level-left"><span class="level-item">6</span><span class="level-item">FP8、MXFP8 与 MXFP4：浮点格式不是整数位宽</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#FP8"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">FP8</span></span></a></li><li><a class="level is-mobile" href="#MXFP8"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">MXFP8</span></span></a></li><li><a class="level is-mobile" href="#MXFP4-与-fallback"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">MXFP4 与 fallback</span></span></a></li></ul></li><li><a class="level is-mobile" href="#开放权重盘点"><span class="level-left"><span class="level-item">7</span><span class="level-item">开放权重盘点</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#统计口径"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">统计口径</span></span></a></li><li><a class="level is-mobile" href="#Qwen3-5"><span class="level-left"><span class="level-item">7.2</span><span class="level-item">Qwen3.5</span></span></a></li><li><a class="level is-mobile" href="#Kimi-K3"><span class="level-left"><span class="level-item">7.3</span><span class="level-item">Kimi K3</span></span></a></li><li><a class="level is-mobile" href="#GLM-5-2"><span class="level-left"><span class="level-item">7.4</span><span class="level-item">GLM-5.2</span></span></a></li></ul></li><li><a class="level is-mobile" href="#显存下界与可运行拓扑"><span class="level-left"><span class="level-item">8</span><span class="level-item">显存下界与可运行拓扑</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#完整峰值"><span class="level-left"><span class="level-item">8.1</span><span class="level-item">完整峰值</span></span></a></li><li><a class="level is-mobile" href="#三个必须分开的数字"><span class="level-left"><span class="level-item">8.2</span><span class="level-item">三个必须分开的数字</span></span></a></li><li><a class="level is-mobile" href="#本地测量方法"><span class="level-left"><span class="level-item">8.3</span><span class="level-item">本地测量方法</span></span></a></li></ul></li><li><a class="level is-mobile" href="#选型与验证清单"><span class="level-left"><span class="level-item">9</span><span class="level-item">选型与验证清单</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">10</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">14</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-28T07:30:00.000Z">2026-07-28</time></p><p class="title"><a href="/2026/07/28/Work/Artificial%20Intelligence/AIInfra/Inference-Quantization-Formats/">Inference Quantization Formats</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-27T08:00:00.000Z">2026-07-27</time></p><p class="title"><a href="/2026/07/27/Work/Artificial%20Intelligence/AIInfra/UB-Mesh-Beginner-Guide/">UB-Mesh Architecture</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-27T08:00:00.000Z">2026-07-27</time></p><p class="title"><a href="/2026/07/27/Work/Artificial%20Intelligence/AIInfra/xDeepServe-CloudMatrix384/">xDeepServe on CloudMatrix384</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-27T07:58:10.000Z">2026-07-27</time></p><p class="title"><a href="/2026/07/27/Work/Artificial%20Intelligence/AIInfra/CloudMatrix384-LLM-Serving/">CloudMatrix384 LLM Serving</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">31</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/APR/"><span class="tag">APR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Activation-Offload/"><span class="tag">Activation Offload</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-RL/"><span class="tag">Agentic RL</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
