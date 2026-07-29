@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>AI Technology Value Stack - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       最近我对应该长期研究什么技术产生了迷茫。我不喜欢人员管理：每个人的诉求和心思不同，统一理解、共情和换位思考会持续消耗精力。我更希望别人因为我的技术判断、工程能力和解决方案付费。 但“越底层越关键”“越难越值钱”“卖价越高工资越高”都不是可靠规律。AI 应用背后横跨算法、训练系统、推理服务、框架、操作系统、驱动、芯片、封装和晶圆制造"><meta property="og:type" content="blog"><meta property="og:title" content="AI Technology Value Stack"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/07/29/Thinking/1-target2chase/career/AI-Technology-Value-Stack/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       最近我对应该长期研究什么技术产生了迷茫。我不喜欢人员管理：每个人的诉求和心思不同，统一理解、共情和换位思考会持续消耗精力。我更希望别人因为我的技术判断、工程能力和解决方案付费。 但“越底层越关键”“越难越值钱”“卖价越高工资越高”都不是可靠规律。AI 应用背后横跨算法、训练系统、推理服务、框架、操作系统、驱动、芯片、封装和晶圆制造"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-07-29T04:25:00.000Z"><meta property="article:modified_time" content="2026-07-29T04:33:21.846Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="AI Infrastructure"><meta property="article:tag" content="Value Capture"><meta property="article:tag" content="Foundation Model Training"><meta property="article:tag" content="Open Source"><meta property="article:tag" content="Career Strategy"><meta property="article:tag" content="Performance Engineering"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/07/29/Thinking/1-target2chase/career/AI-Technology-Value-Stack/"},"headline":"AI Technology Value Stack","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-07-29T04:25:00.000Z","dateModified":"2026-07-29T04:33:21.846Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       最近我对应该长期研究什么技术产生了迷茫。我不喜欢人员管理：每个人的诉求和心思不同，统一理解、共情和换位思考会持续消耗精力。我更希望别人因为我的技术判断、工程能力和解决方案付费。 但“越底层越关键”“越难越值钱”“卖价越高工资越高”都不是可靠规律。AI 应用背后横跨算法、训练系统、推理服务、框架、操作系统、驱动、芯片、封装和晶圆制造"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/07/29/Thinking/1-target2chase/career/AI-Technology-Value-Stack/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-07-29T04:25:00.000Z" title="7/29/2026, 4:25:00 AM">2026-07-29</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:33:21.846Z" title="7/29/2026, 4:33:21 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">an hour read (About 7652 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">AI Technology Value Stack</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>最近我对应该长期研究什么技术产生了迷茫。我不喜欢人员管理：每个人的诉求和心思不同，统一理解、共情和换位思考会持续消耗精力。我更希望别人因为我的<strong>技术判断、工程能力和解决方案</strong>付费。</p>
+<p>但“越底层越关键”“越难越值钱”“卖价越高工资越高”都不是可靠规律。AI 应用背后横跨算法、训练系统、推理服务、框架、操作系统、驱动、芯片、封装和晶圆制造；每一层的交易单位、商业模式、资本强度和劳动议价方式完全不同。本文用截至 <strong>2026 年 7 月 29 日</strong>可公开核验的价格、收入和工资数据，回答两个问题：钱在技术栈中如何流动，以及我应该站在哪个位置积累长期能力。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="先说结论"><a href="#先说结论" class="headerlink" title="先说结论"></a>先说结论</h2><p><strong>客户不是为技术本身付费，而是为技术消除的昂贵后果付费。</strong> 这些后果通常只有四类：增加收入、降低持续成本、缩短上市时间、降低失败与合规风险。技术越难，如果离这四类后果越远、效果越难证明、替代方案越多，付费意愿仍然可能很低。</p>
+<p>因此，不能用一个“最赚钱技术排行榜”决定职业方向。至少要同时看：</p>
+<ol>
+<li><strong>痛点成本</strong>：问题不解决，每年浪费多少算力、停机时间、研发工时或市场窗口？</li>
+<li><strong>可证明性</strong>：能否用同口径 A&#x2F;B、Profiler、故障率、训练吞吐或客户指标证明效果？</li>
+<li><strong>复用范围</strong>：方案只覆盖一个模型的一个分支，还是能迁移到一类模型、框架和硬件？</li>
+<li><strong>技术所有权</strong>：结果能否沉淀成自己可维护的代码、工具、规范、基准和知识？</li>
+<li><strong>可替代性</strong>：换一个工程师、开源库或下一代模型，价值是否立即归零？</li>
+</ol>
+<p>对我而言，最合适的主线不是纯应用、纯算法或纯硬件，而是：</p>
+<blockquote>
+<p><strong>从基础模型训练的昂贵失败点出发，建立模型—训练系统—框架—算子—加速器之间的跨层诊断与优化能力；用开源吸收共识，用真实训练验证价值，用可复用工具沉淀经验。</strong></p>
+</blockquote>
+<p>这不是人员管理路线，而是<strong>技术所有权</strong>路线。它仍然需要理解算法人员、客户和底层工程师的约束，但主要通过模型、指标、接口、设计文档和实验结果达成共识，而不是把大量精力用于人员情绪和组织协调。</p>
+<h2 id="四种价格"><a href="#四种价格" class="headerlink" title="四种价格"></a>四种价格</h2><p>讨论“这一层值多少钱”之前，必须先把四种价格拆开：</p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>回答的问题</th>
+<th>常用单位</th>
+<th>不能推出什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>客户价格</strong></td>
+<td>客户愿意为一次使用、一个席位或一套设备付多少？</td>
+<td>元&#x2F;月、美元&#x2F;Token、美元&#x2F;GPU·h、美元&#x2F;台</td>
+<td>不能直接推出供应商利润</td>
+</tr>
+<tr>
+<td><strong>公司价值捕获</strong></td>
+<td>供应商从该层获得多少收入与毛利？</td>
+<td>年收入、毛利率、续费率</td>
+<td>不能直接推出某位工程师的贡献</td>
+</tr>
+<tr>
+<td><strong>劳动价格</strong></td>
+<td>雇主为某类岗位支付多少？</td>
+<td>工资、奖金、股权</td>
+<td>不能直接推出技术的社会重要性</td>
+</tr>
+<tr>
+<td><strong>技术重要性</strong></td>
+<td>缺失该层会让多少系统失效？</td>
+<td>故障范围、替代时间、性能损失</td>
+<td>不能直接推出直接收费能力</td>
+</tr>
+</tbody></table>
+<p>一个开源框架可以有极高的使用价值，却以 <strong>0 美元许可证价格</strong>被使用；一家云厂商可以把它包装成托管服务并收费。一个价值数亿美元的光刻设备需要大量工程角色协作，但设备价格不会按比例流到每位制造技术员的工资里。反过来，一段只改动几百行的调度代码，如果每年能减少数百万美元的空转算力，也可能具有很高的商业价值。</p>
+<p>衡量个人方向时，可以用下面的<strong>定性启发式</strong>，但不能把它当成工资预测公式：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">方向价值</span><br><span class="line">    ~ 痛点年成本</span><br><span class="line">    × 可消除比例</span><br><span class="line">    × 证据置信度</span><br><span class="line">    × 复用系数</span><br><span class="line">    × 技术所有权</span><br><span class="line">    ÷ 可替代性</span><br></pre></td></tr></table></figure>
+
+<p>这里每个对象都有明确含义：痛点成本来自账单、停机、延期和人工；可消除比例来自受控实验；证据置信度取决于复现和 A&#x2F;B 质量；复用与所有权决定价值能否积累；可替代性描述市场上有多少等价的人和方案。<strong>这个式子只用于排序调研方向，不预测工资、股权或公司收入。</strong></p>
+<figure markdown>
+  ![小黑操作四种价格的压力歧管并观察开源价值泄压](https://pic.shaojiemike.top/shaojiemike/2026/07/5f0d0e1ca33bb3543c7244873f97ff00.png){ width=95% }
+  <figcaption>自绘示意图：客户价格、公司收入、个人工资和技术重要性是四只不同的表；开源可以让使用价值广泛扩散，却不会让交换价值自动回流给开发者。</figcaption>
+</figure>
+
+<h2 id="逐层看价格"><a href="#逐层看价格" class="headerlink" title="逐层看价格"></a>逐层看价格</h2><p>不同层没有统一的“单价”。下面只选公开、可核验的<strong>交易锚点</strong>，而不是制造一个虚假的横向价格排名。企业协议价、地区折扣、硬件供需和软件版本都会改变真实成交价。</p>
+<h3 id="应用与模型"><a href="#应用与模型" class="headerlink" title="应用与模型"></a>应用与模型</h3><p>应用层最接近用户效果，交易单位通常最小，也最容易形成持续订阅。2026 年 7 月，GitHub Copilot Business 和 Enterprise 的公开价格分别是 <strong>19 和 39 美元&#x2F;用户&#x2F;月</strong>；ChatGPT Business 年付价格是 <strong>20 美元&#x2F;用户&#x2F;月</strong>，月付为 25 美元。[^copilot-price][^chatgpt-price] 这里的价格不是在给 Transformer、推理框架或 GPU 单独定价，而是在给完整工作流、管理能力、安全和结果体验定价。</p>
+<p>模型 API 把交易单位缩小到 Token。GPT-5.4 的公开价格是每百万 Token <strong>2.50 美元输入、0.25 美元缓存输入、15 美元输出</strong>；同一模型的 Pro 档是 30 美元输入和 180 美元输出。[^openai-price] 这说明模型能力可以形成溢价，但最终账单还受 Token 效率、缓存率、工具调用和失败重试影响，不能只看每百万 Token 的标签。</p>
+<p>基础模型训练则是另一种数量级。Meta 的 Llama 3.1 405B 模型卡披露了 <strong>3,084 万 H100 GPU 小时</strong>。AWS 当前列出的 H100 Capacity Block 价格约为每卡每小时 <strong>3.933–4.326 美元</strong>。两者相乘得到约 <strong>1.21–1.33 亿美元</strong>的公开云价等效算力成本。[^llama-card][^aws-price]</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>不是 Meta 的真实账单</p>
+</div>
+        <div class="message-body">
+            <p>这只是反事实的公有云等效值，不是 Meta 的内部现金成本。它没有计入数据、网络、存储、CPU、电力、失败实验、人员、后训练和评测，也没有扣除自建集群折旧、采购议价和利用率差异。它的作用是说明：<strong>基础模型训练中的 1% 效率、稳定性或重跑概率变化，可以对应非常大的经济量级。</strong></p>
+
+        </div>
+    </article>
+
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th align="right">公开交易锚点</th>
+<th>付费对象</th>
+<th>主要价值证据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AI 应用</td>
+<td align="right">19–39 美元&#x2F;席位&#x2F;月</td>
+<td>工作流与团队能力</td>
+<td>使用率、任务完成率、人工节省</td>
+</tr>
+<tr>
+<td>模型 API</td>
+<td align="right">0.25–180 美元&#x2F;百万 Token，不同模型与输入输出不同</td>
+<td>能力、延迟与可靠性</td>
+<td>单任务成本、质量、SLA</td>
+</tr>
+<tr>
+<td>基础模型训练</td>
+<td align="right">Llama 3.1 405B 云价等效约 1.21–1.33 亿美元</td>
+<td>一次训练工程</td>
+<td>收敛、有效 Token、训练时间、失败率</td>
+</tr>
+</tbody></table>
+<h3 id="集群与软件栈"><a href="#集群与软件栈" class="headerlink" title="集群与软件栈"></a>集群与软件栈</h3><p>AWS 的公开 Capacity Block 中，8 张 H100 的 <code>p5.48xlarge</code> 约为 <strong>31.464–34.608 美元&#x2F;小时</strong>；连续运行一年约 <strong>27.6–30.3 万美元</strong>。8 张 B200 的 <code>p6-b200.48xlarge</code> 是 82.368 美元&#x2F;小时。[^aws-price] 在大集群上，低 MFU、长尾通信、数据阻塞、故障恢复和 checkpoint 停顿都会以集群小时直接计费。</p>
+<p>框架层却呈现相反表象。PyTorch 采用允许再分发和修改的 BSD 风格许可证，许可证价格是 <strong>0</strong>。[^pytorch-license] 但“代码免费”不代表生产责任免费：NVIDIA AI Enterprise 的一年期列表价是 <strong>4,500 美元&#x2F;GPU&#x2F;年</strong>，它出售的是验证、兼容、支持和责任边界。[^nvaie-price]</p>
+<p>CUDA 与 CANN 也不适合硬造一个独立单价。CUDA Toolkit 官方文档列出了编译器、运行时、数学库和调试工具，并由专有 EULA 管理；CANN Community Edition 官方文档提供 Toolkit 下载并要求接受软件许可。[^cuda-eula][^cann-community] 截至本文调研日期，这两份官方资料都没有给出类似“每服务器&#x2F;年”的独立目录价。<strong>这不等于它们是开源软件或经济价值为零</strong>，而是说明运行时生态的价值主要随 GPU&#x2F;NPU 硬件、云实例、企业支持、兼容性和平台锁定被捕获。</p>
+<p>操作系统也类似。Linux 内核源代码按 GPLv2 提供，不按每台服务器收许可证费；Red Hat Enterprise Linux Server 则把稳定版本、生命周期和支持打包，Standard 与 Premium 的一年公开价格分别约为 <strong>878.90 和 1,428.90 美元&#x2F;服务器</strong>。[^linux-license][^rhel-price]</p>
+<p>这组价格揭示了中间层的商业规律：</p>
+<ul>
+<li><strong>通用代码趋向免费</strong>，因为生态需要低摩擦扩散。</li>
+<li><strong>确定性可以收费</strong>，包括兼容矩阵、长期维护、安全更新、SLA 和事故响应。</li>
+<li><strong>定制解决方案可以收费</strong>，尤其是它直接关联昂贵集群的利用率、稳定性和上线时间时。</li>
+<li><strong>一次性补丁难以收费</strong>，如果它不能复用、无法进入正式版本、效果又没有受控证据。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>免费部分</th>
+<th>付费部分</th>
+<th>容易陷入的低价值工作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AI Infra 框架</td>
+<td>源码、基础能力、社区知识</td>
+<td>托管、企业支持、定制优化</td>
+<td>长期维护私有分叉</td>
+</tr>
+<tr>
+<td>OS&#x2F;运行时</td>
+<td>内核、社区工具链</td>
+<td>认证、生命周期、SLA</td>
+<td>无指标的兼容性修补</td>
+</tr>
+<tr>
+<td>集群服务</td>
+<td>很少免费</td>
+<td>GPU 小时、网络、存储、运维</td>
+<td>只优化局部算子，不看端到端瓶颈</td>
+</tr>
+</tbody></table>
+<h3 id="芯片与制造"><a href="#芯片与制造" class="headerlink" title="芯片与制造"></a>芯片与制造</h3><p>硬件和制造层的交易额巨大，但公开的单卡、单片晶圆价格并不完整。与其引用渠道传闻，更可靠的做法是看公司披露的收入、毛利和资本开支，同时承认它们不是产品目录价。</p>
+<p>NVIDIA 2026 财年数据中心收入达到 <strong>1,937 亿美元</strong>，公司 GAAP 毛利率为 **71.1%**。[^nvidia-results] 这表明加速计算平台在当前 AI 需求中捕获了很强的经济价值，但这个毛利率混合了芯片、系统、网络和软件，也不能用来推断某个驱动或算子工程师应得多少工资。</p>
+<p>ASML 2025 年确认了 48 台 EUV 光刻系统、对应 <strong>116 亿欧元</strong>系统收入，简单相除约为每台 <strong>2.417 亿欧元</strong>；公司全年毛利率为 52.8%。[^asml-results] 这个派生值混合 NXE、EXE 等产品，不是报价单，却足以说明尖端设备的资本数量级。</p>
+<p>TSMC 2025 年收入 <strong>1,224.2 亿美元</strong>、毛利率 59.9%、资本开支 <strong>409 亿美元</strong>；其亚利桑那规划总投资 <strong>1,650 亿美元</strong>，覆盖六座晶圆厂、两座先进封装设施和一个研发中心。[^tsmc-report][^tsmc-arizona] 晶圆代工的真实合同价、良率、节点、封装和客户协议通常不公开，因此“每片多少钱”不能用一个数字代表这一层。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th align="right">公开价值信号</th>
+<th>主要壁垒</th>
+<th>个人价值更可能来自</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>加速器平台</td>
+<td align="right">NVIDIA 数据中心年收入 1,937 亿美元</td>
+<td>架构、生态、供给、网络</td>
+<td>芯片&#x2F;系统设计、软硬协同、平台采用</td>
+</tr>
+<tr>
+<td>EUV 设备</td>
+<td align="right">派生平均确认系统收入约 2.42 亿欧元&#x2F;台</td>
+<td>极端工程、供应链、服务</td>
+<td>核心模块、控制、光学、维护可靠性</td>
+</tr>
+<tr>
+<td>晶圆制造</td>
+<td align="right">TSMC 年资本开支 409 亿美元</td>
+<td>节点、良率、产能、客户信任</td>
+<td>工艺研发、良率、设备与量产爬坡</td>
+</tr>
+</tbody></table>
+<h2 id="工资在给什么定价"><a href="#工资在给什么定价" class="headerlink" title="工资在给什么定价"></a>工资在给什么定价</h2><p>工资不是“所在技术层价格”的分红。它更接近以下变量的组合：岗位稀缺性、边际产出、承担的决策与失败责任、雇主利润池、地域、职级和议价能力。</p>
+<p>中国国家统计局 2025 年规模以上企业数据提供了一个宽口径切片。信息传输、软件和信息技术服务业就业人员年平均工资是 <strong>242,019 元</strong>，其中专业技术人员是 <strong>275,504 元</strong>；制造业分别是 <strong>100,572 元</strong>和 <strong>151,997 元</strong>；科学研究和技术服务业分别是 <strong>173,855 元</strong>和 <strong>172,877 元</strong>。[^nbs-wage]</p>
+<table>
+<thead>
+<tr>
+<th>中国规模以上企业，2025 年</th>
+<th align="right">全体就业人员平均工资</th>
+<th align="right">专业技术人员平均工资</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>信息传输、软件和信息技术服务业</td>
+<td align="right">242,019 元</td>
+<td align="right">275,504 元</td>
+</tr>
+<tr>
+<td>科学研究和技术服务业</td>
+<td align="right">173,855 元</td>
+<td align="right">172,877 元</td>
+</tr>
+<tr>
+<td>制造业</td>
+<td align="right">100,572 元</td>
+<td align="right">151,997 元</td>
+</tr>
+</tbody></table>
+<p>这些是<strong>行业和岗位大类平均数</strong>，不是 AI Infra 工程师、芯片架构师或先进工艺工程师的市场报价；统计口径还不包含股权激励兑现收益。它只能说明软件与信息服务目前拥有更高的总体工资池，不能说明任何软件岗位都比任何硬件岗位值钱。</p>
+<p>美国 BLS 的职业中位数能进一步显示层内差异。2024 年计算机硬件工程师中位年薪是 <strong>155,020 美元</strong>，计算机与信息研究科学家是 <strong>140,910 美元</strong>，软件开发者是 <strong>133,080 美元</strong>，电子工程师是 <strong>127,590 美元</strong>，半导体生产技术员则是 <strong>51,180 美元</strong>。[^bls-hardware][^bls-research][^bls-software][^bls-electronics][^bls-technician]</p>
+<table>
+<thead>
+<tr>
+<th>技术栈岗位代理，美国 2024 年</th>
+<th align="right">中位年薪</th>
+<th>同一数据中的边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>计算机硬件工程师</td>
+<td align="right">155,020 美元</td>
+<td>半导体制造行业中位数 162,460 美元</td>
+</tr>
+<tr>
+<td>计算机与信息研究科学家</td>
+<td align="right">140,910 美元</td>
+<td>软件出版行业中位数 237,990 美元</td>
+</tr>
+<tr>
+<td>软件开发者</td>
+<td align="right">133,080 美元</td>
+<td>软件出版行业中位数 149,990 美元</td>
+</tr>
+<tr>
+<td>电子工程师（不含计算机）</td>
+<td align="right">127,590 美元</td>
+<td>半导体制造行业中位数 142,760 美元</td>
+</tr>
+<tr>
+<td>半导体生产技术员</td>
+<td align="right">51,180 美元</td>
+<td>典型入门教育和职责不同</td>
+</tr>
+</tbody></table>
+<p>最关键的反例就在最后两行：<strong>晶圆厂极其昂贵，不代表所有身处晶圆厂的人都获得最高工资。</strong> 资本设备价格由设备稀缺、工艺壁垒和产能风险决定；个人工资还取决于岗位是否拥有稀缺知识、决策权和高替换成本。</p>
+<p>同样，研究科学家整体中位数不是最高，但在软件出版行业的中位数达到 237,990 美元。<strong>雇主所处利润池和岗位位置，可能比抽象的“算法层还是 Infra 层”更重要。</strong></p>
+<h2 id="开源的价值断层"><a href="#开源的价值断层" class="headerlink" title="开源的价值断层"></a>开源的价值断层</h2><p>AI 的开源氛围确实比许多传统行业强。Hugging Face 在 2025 年披露其 Hub 已提供超过 <strong>200 万个公开模型、50 万个公开数据集和 100 万个公开 Spaces</strong>。[^hf-scale] 这种密度显著降低了学习、复现和组合创新的门槛，也让模型和框架迭代更快。</p>
+<p>但开源创造的是<strong>使用价值扩散</strong>，不自动保证开发者获得<strong>交换价值</strong>。许可证允许别人复制代码时，源码本身很难按份收费；价值更容易被以下位置捕获：</p>
+<ul>
+<li>拥有客户关系和分发入口的应用；</li>
+<li>承担托管、SLA、安全与事故责任的云服务；</li>
+<li>控制稀缺算力、芯片和供应链的平台；</li>
+<li>能把通用代码适配到私有数据、流程和硬件的解决方案团队。</li>
+</ul>
+<p>Redis 的许可证历史是一个直接案例。Redis 官方说明，2024 年许可证调整的动因之一，是托管服务商使用 BSD 版本并提供有限回馈；Redis 8 后又加入 AGPLv3，试图同时维持开源选项和商业可持续性。[^redis-license] 这不是“开源一定失败”的证据，而是说明<strong>高使用量与高收入不会自动流向同一个主体</strong>。</p>
+<p>对个人工程师而言，开源投入至少要命中一种回报：</p>
+<ol>
+<li><strong>学习回报</strong>：通过真实代码建立稀缺能力。</li>
+<li><strong>声誉回报</strong>：让高质量提交成为可验证的公开履历。</li>
+<li><strong>上游回报</strong>：减少私有分叉和长期维护成本。</li>
+<li><strong>商业回报</strong>：由雇主、咨询、支持或产品为维护工作付费。</li>
+<li><strong>资产回报</strong>：沉淀成自己可以反复调用的工具、基准和方法。</li>
+</ol>
+<p>如果一个开源工作既没有雇主资助，又不提升能力、声誉、上游影响或可复用资产，它可能只有社会价值，没有可持续的个人价值。<strong>不应把“社区需要”自动解释为“我应该无限义务维护”。</strong></p>
+<h2 id="AI-Infra-是否无止境"><a href="#AI-Infra-是否无止境" class="headerlink" title="AI Infra 是否无止境"></a>AI Infra 是否无止境</h2><p>AI Infra 的工作会长期存在，但不能把它浪漫化为“每一次适配都能永久增值”。模型结构、模态、序列长度、并行策略、精度格式、训练范式和硬件都会变化，新的计算、显存、通信和可靠性问题会不断出现；与此同时，成功的接口、编译器和框架能力也会把旧问题商品化。</p>
+<p>因此，应把 AI Infra 工作分成三类：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>例子</th>
+<th>价值持续性</th>
+<th>主要风险</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>重复出现的物理瓶颈</strong></td>
+<td>计算、显存、通信、I&#x2F;O、故障恢复</td>
+<td>高</td>
+<td>需要端到端证据和多层能力</td>
+</tr>
+<tr>
+<td><strong>可复用的软件机制</strong></td>
+<td>并行抽象、调度器、Profiler、Checkpoint、算子库</td>
+<td>中高</td>
+<td>会被框架吸收并标准化</td>
+</tr>
+<tr>
+<td><strong>一次性兼容补丁</strong></td>
+<td>某模型某版本的私有分支适配</td>
+<td>低</td>
+<td>Case 小、维护久、指标收益弱</td>
+</tr>
+</tbody></table>
+<p>真正长期的不是某个框架 API，而是以下能力：</p>
+<ul>
+<li>把新模型结构翻译成计算图、状态、通信和生命周期；</li>
+<li>找到系统峰值，而不是只优化最显眼的算子；</li>
+<li>用相同训练语义进行可复现测量；</li>
+<li>在算法、框架、运行时和硬件之间选择正确的修改层；</li>
+<li>让一次优化进入上游或沉淀为可迁移模块。</li>
+</ul>
+<p>AI 理论上能够进入千行万业，会持续产生新的工作负载；但行业真正付费的仍是可用性、成本、可靠性、安全和集成。<strong>“AI 能改变一切”只说明机会空间大，不证明任何 AI 项目都值得做。</strong></p>
+<h2 id="适合我的技术位置"><a href="#适合我的技术位置" class="headerlink" title="适合我的技术位置"></a>适合我的技术位置</h2><p>我不需要因为管理岗平均工资更高就强迫自己转向人员管理。更合适的做法，是把职业上升方式从“管理更多人”改为“拥有更昂贵、更宽的技术责任边界”。</p>
+<h3 id="技术所有权"><a href="#技术所有权" class="headerlink" title="技术所有权"></a>技术所有权</h3><p>技术所有权不是“最难的代码归我写”，而是对一个昂贵结果负责：</p>
+<ul>
+<li>能定义基线、口径和成功条件；</li>
+<li>能解释模型、框架、运行时和硬件各自承担什么；</li>
+<li>能在错误的修改层出现时及时止损；</li>
+<li>能交付可维护实现、验证、回滚和文档；</li>
+<li>能把一次客户问题抽象成下一次可复用的能力。</li>
+</ul>
+<p>这条路线仍需要沟通，但沟通围绕<strong>对象和证据</strong>展开：模型配置、性能账本、接口、Trace、复现脚本、设计取舍和验收指标。它比人员管理更符合我的兴趣，也能降低“理解所有人的心思”带来的消耗。</p>
+<h3 id="训练系统主线"><a href="#训练系统主线" class="headerlink" title="训练系统主线"></a>训练系统主线</h3><p>基础模型训练是适合我的主战场，因为它同时满足五个条件：</p>
+<figure markdown>
+  ![小黑在变化模型与昂贵集群之间修复可测瓶颈并产出复用资产](https://pic.shaojiemike.top/shaojiemike/2026/07/488498c2cccc05aafc3f0bb253a234cf.png){ width=95% }
+  <figcaption>自绘示意图：技术所有权不是站在某一层写最难的代码，而是跨过模型与集群边界，对可测的昂贵结果负责，并把一次修复变成可复用资产。</figcaption>
+</figure>
+
+<ol>
+<li><strong>痛点昂贵</strong>：一次长时间重跑、1% 大集群利用率或故障恢复差异都有明确成本。</li>
+<li><strong>问题持续变化</strong>：MoE、长序列、多模态、线性注意力、强化学习和新精度不断改变系统路径。</li>
+<li><strong>效果可测</strong>：MFU、tokens&#x2F;s、step time、显存峰值、故障恢复时间和收敛一致性可以受控比较。</li>
+<li><strong>需要跨层能力</strong>：单靠算法、框架或算子中的任意一层都难以完成端到端判断。</li>
+<li><strong>能够沉淀资产</strong>：性能模型、Profiler、并行策略、算子、Checkpoint 和验证流程可以复用。</li>
+</ol>
+<p>个人定位可以写成三层，而不是一个含糊的“AI Infra 架构师”：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>我负责什么</th>
+<th>核心产物</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>工作负载理解</strong></td>
+<td>读懂模型结构、训练目标、数据形状和收敛语义</td>
+<td>计算&#x2F;显存&#x2F;通信&#x2F;状态账本</td>
+</tr>
+<tr>
+<td><strong>系统诊断与设计</strong></td>
+<td>找到端到端瓶颈，选择并行、调度、容错和 I&#x2F;O 方案</td>
+<td>可复现实验、设计文档、性能模型</td>
+</tr>
+<tr>
+<td><strong>软硬协同落地</strong></td>
+<td>修改框架、算子、编译或运行时，完成 NPU&#x2F;GPU 验证</td>
+<td>上游补丁、工具、基准、回滚方案</td>
+</tr>
+</tbody></table>
+<p>这条路线也保留了面向应用的出口：当训练和部署能力成熟后，可以把低成本、可靠、可定制的基础模型能力交给制造、金融、医疗、科研和内容等行业。<strong>赋能千行万业不是从行业口号开始，而是从把一个昂贵、不稳定的模型系统做成可交付能力开始。</strong></p>
+<h3 id="不做一次性适配工"><a href="#不做一次性适配工" class="headerlink" title="不做一次性适配工"></a>不做一次性适配工</h3><p>最大的职业风险不是技术太底层，而是长期停留在“别人模型变了，我修一下私有分支”的位置。下面三种任务需要主动设退出条件：</p>
+<ul>
+<li><strong>覆盖面太小</strong>：只服务一个模型、一个版本、一个客户 Case，且无法抽象。</li>
+<li><strong>指标链断裂</strong>：局部优化看似漂亮，端到端吞吐、成本或稳定性没有变化。</li>
+<li><strong>所有权缺失</strong>：代码不能进入上游，工具不能复用，结果不能公开或进入正式版本。</li>
+</ul>
+<p>遇到这类工作时，应至少争取一种转化：</p>
+<ol>
+<li>抽象成框架接口或通用算子；</li>
+<li>变成自动检测、迁移或性能建模工具；</li>
+<li>用失败证据形成明确的适用边界；</li>
+<li>进入上游版本，减少后续维护；</li>
+<li>与客户成本或产品指标建立验收关系。</li>
+</ol>
+<p>如果五种转化都做不到，就应该把它视为短期交付，而不是个人长期研究方向。</p>
+<h2 id="两年行动路线"><a href="#两年行动路线" class="headerlink" title="两年行动路线"></a>两年行动路线</h2><p>路线应从最难场景出发，但每一步都留下可验证资产：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>主要任务</th>
+<th>必须留下的证据</th>
+<th>退出条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>0–3 个月：建立基线</strong></td>
+<td>选择一个公开基础模型训练任务，建立计算、显存、通信、I&#x2F;O 和故障账本</td>
+<td>可复现脚本、性能基线、Trace、成本估算</td>
+<td>口径不可复现时先修测量体系</td>
+</tr>
+<tr>
+<td><strong>3–6 个月：攻一个贵痛点</strong></td>
+<td>选择 OOM、低 MFU、通信长尾、数据阻塞或恢复慢中的一个</td>
+<td>同语义 A&#x2F;B、端到端收益、回归与回滚</td>
+<td>只改善局部指标时停止扩张</td>
+</tr>
+<tr>
+<td><strong>6–12 个月：做成复用能力</strong></td>
+<td>把补丁抽象成上游接口、工具、算子或诊断规则</td>
+<td>第二个模型或第二个后端复用</td>
+<td>无法跨第二个 Case 时降低长期优先级</td>
+</tr>
+<tr>
+<td><strong>12–24 个月：拥有完整路径</strong></td>
+<td>从新模型结构分析到集群训练验收，独立承担技术闭环</td>
+<td>设计、实现、性能、稳定性和成本全套证据</td>
+<td>只剩协调、没有技术所有权时调整角色</td>
+</tr>
+</tbody></table>
+<p>每个项目结束时，至少沉淀四件东西：</p>
+<ul>
+<li><strong>模型账本</strong>：结构、Tensor、状态、精度和训练语义；</li>
+<li><strong>系统账本</strong>：计算、显存、通信、I&#x2F;O、调度和故障；</li>
+<li><strong>证据包</strong>：Baseline、A&#x2F;B、Profiler、收敛、稳定性和适用边界；</li>
+<li><strong>复用资产</strong>：代码、工具、文档、测试、基准或上游提交。</li>
+</ul>
+<p>这样，开源不是无偿终点，而是经验入口；客户问题不是一次性交付，而是能力验证；芯片差异不是知识牢笼，而是训练跨层判断的真实约束。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>最关键和最赚钱不是同一个问题。</strong> 最底层的晶圆厂、光刻机和加速器拥有最强资本壁垒，但个人工资还取决于岗位稀缺性与责任；最上层应用最接近客户付费，但竞争、分发和产品能力可能比底层技术更重要；中间层框架大量开源，直接许可证价格低，却能通过支持、云服务、硬件和定制方案间接捕获价值。</p>
+<p>对个人工程师，最值得长期投入的是：<strong>昂贵、重复出现、可测量、可复用、能形成技术所有权的瓶颈。</strong></p>
+<p>我的方向可以收束为：</p>
+<blockquote>
+<p><strong>挑战基础模型训练这一最难、最昂贵的场景，理解真实痛点，学习并参与开源，完成模型到 NPU&#x2F;GPU 的跨层诊断和定制优化，把每次交付沉淀为可复用的训练系统能力，最终让可靠、低成本的 AI 能力进入千行万业。</strong></p>
+</blockquote>
+<p>这条路不要求我成为人员管理者，但要求我从“写某一层代码的人”成长为“对一个昂贵技术结果负责的人”。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>[^copilot-price]: GitHub Docs, <a target="_blank" rel="noopener" href="https://docs.github.com/en/copilot/concepts/billing/organizations-and-enterprises">About billing for GitHub Copilot in organizations and enterprises</a>, accessed 2026-07-29.<br>[^chatgpt-price]: OpenAI, <a target="_blank" rel="noopener" href="https://openai.com/business/pricing/">Business Pricing</a>, accessed 2026-07-29.<br>[^openai-price]: OpenAI, <a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/models/gpt-5.4">GPT-5.4 Model</a>, accessed 2026-07-29.<br>[^aws-price]: AWS, <a target="_blank" rel="noopener" href="https://aws.amazon.com/ec2/capacityblocks/pricing/">Amazon EC2 Capacity Blocks for ML pricing</a>, accessed 2026-07-29. Capacity-block prices vary by region and reservation date.<br>[^llama-card]: Meta, <a target="_blank" rel="noopener" href="https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md">Llama 3.1 Model Card</a>, released 2024-07-23.<br>[^pytorch-license]: PyTorch, <a target="_blank" rel="noopener" href="https://github.com/pytorch/pytorch/blob/main/LICENSE">LICENSE</a>, accessed 2026-07-29.<br>[^nvaie-price]: NVIDIA, <a target="_blank" rel="noopener" href="https://docs.nvidia.com/ai-enterprise/planning-resource/licensing-guide/latest/pricing.html">NVIDIA Enterprise Licensing Guide — Pricing</a>, accessed 2026-07-29.<br>[^cuda-eula]: NVIDIA, <a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/eula/index.html">CUDA Toolkit End User License Agreement</a>, updated 2026-01-26, accessed 2026-07-29.<br>[^cann-community]: Huawei Ascend, <a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/en/CANNCommunityEdition/900/softwareinst/instg/instg_0050.html">CANN Community Edition — Quick Installation FAQ</a>, accessed 2026-07-29.<br>[^linux-license]: Linux Kernel Documentation, <a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/process/license-rules.html">Linux kernel licensing rules</a>, accessed 2026-07-29.<br>[^rhel-price]: Red Hat, <a target="_blank" rel="noopener" href="https://www.redhat.com/en/store/red-hat-enterprise-linux-server">Red Hat Enterprise Linux Server</a>, accessed 2026-07-29.<br>[^nvidia-results]: NVIDIA, <a target="_blank" rel="noopener" href="https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-fourth-quarter-and-fiscal-2026">Financial Results for Fourth Quarter and Fiscal 2026</a>, 2026-02-25.<br>[^asml-results]: ASML, <a target="_blank" rel="noopener" href="https://www.asml.com/en/news/press-releases/2026/q4-2025-financial-results">2025 Financial Results</a>, 2026-01-28; EUV system revenue detail comes from its FY2025 investor presentation.<br>[^tsmc-report]: TSMC, <a target="_blank" rel="noopener" href="https://investor.tsmc.com/static/annualReports/2025/english/index.html">2025 Annual Report</a>, 2026.<br>[^tsmc-arizona]: TSMC, <a target="_blank" rel="noopener" href="https://pr.tsmc.com/english/news/3210">TSMC Intends to Expand Its Investment in the United States to US$165 Billion</a>, 2025-03-04.<br>[^nbs-wage]: 国家统计局, <a target="_blank" rel="noopener" href="https://www.stats.gov.cn/sj/zxfbhjd/202605/t20260515_1963707.html">2025 年城镇单位就业人员年平均工资情况</a>, 2026-05-15. 表中工资为税前全部劳动报酬，不含股权激励兑现收益。<br>[^bls-hardware]: U.S. Bureau of Labor Statistics, <a target="_blank" rel="noopener" href="https://www.bls.gov/ooh/architecture-and-engineering/computer-hardware-engineers.htm">Computer Hardware Engineers</a>, May 2024 wage data.<br>[^bls-research]: U.S. Bureau of Labor Statistics, <a target="_blank" rel="noopener" href="https://www.bls.gov/ooh/computer-and-information-technology/computer-and-information-research-scientists.htm">Computer and Information Research Scientists</a>, May 2024 wage data.<br>[^bls-software]: U.S. Bureau of Labor Statistics, <a target="_blank" rel="noopener" href="https://www.bls.gov/ooh/computer-and-information-technology/software-developers.htm">Software Developers, Quality Assurance Analysts, and Testers</a>, May 2024 wage data.<br>[^bls-electronics]: U.S. Bureau of Labor Statistics, <a target="_blank" rel="noopener" href="https://www.bls.gov/ooh/architecture-and-engineering/electrical-and-electronics-engineers.htm">Electrical and Electronics Engineers</a>, May 2024 wage data.<br>[^bls-technician]: U.S. Bureau of Labor Statistics, <a target="_blank" rel="noopener" href="https://www.bls.gov/ooh/production/semiconductor-processing-technicians.htm">Semiconductor Processing Technicians</a>, May 2024 wage data.<br>[^hf-scale]: Hugging Face, <a target="_blank" rel="noopener" href="https://huggingface.co/blog/huggingface-hub-v1">huggingface_hub v1.0: Five Years of Building the Foundation of Open Machine Learning</a>, 2025-10-27.<br>[^redis-license]: Redis, <a target="_blank" rel="noopener" href="https://redis.io/legal/licenses/">Licenses</a>, accessed 2026-07-29. The cloud-provider explanation is Redis Ltd.’s stated rationale, not an independent causal audit.</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>AI Technology Value Stack</p><p><a href="http://icarus.shaojiemike.top/2026/07/29/Thinking/1-target2chase/career/AI-Technology-Value-Stack/">http://icarus.shaojiemike.top/2026/07/29/Thinking/1-target2chase/career/AI-Technology-Value-Stack/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-07-29</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-29</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/AI-Infrastructure/">AI Infrastructure</a><a class="link-muted mr-2" rel="tag" href="/tags/Value-Capture/">Value Capture</a><a class="link-muted mr-2" rel="tag" href="/tags/Foundation-Model-Training/">Foundation Model Training</a><a class="link-muted mr-2" rel="tag" href="/tags/Open-Source/">Open Source</a><a class="link-muted mr-2" rel="tag" href="/tags/Career-Strategy/">Career Strategy</a><a class="link-muted mr-2" rel="tag" href="/tags/Performance-Engineering/">Performance Engineering</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/29/Thinking/3-EfficientLife/Multi-Objective-Decision-Making/"><span class="level-item">Multi-Objective Decision Making</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">572</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">44</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">769</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#先说结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">先说结论</span></span></a></li><li><a class="level is-mobile" href="#四种价格"><span class="level-left"><span class="level-item">2</span><span class="level-item">四种价格</span></span></a></li><li><a class="level is-mobile" href="#逐层看价格"><span class="level-left"><span class="level-item">3</span><span class="level-item">逐层看价格</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#应用与模型"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">应用与模型</span></span></a></li><li><a class="level is-mobile" href="#集群与软件栈"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">集群与软件栈</span></span></a></li><li><a class="level is-mobile" href="#芯片与制造"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">芯片与制造</span></span></a></li></ul></li><li><a class="level is-mobile" href="#工资在给什么定价"><span class="level-left"><span class="level-item">4</span><span class="level-item">工资在给什么定价</span></span></a></li><li><a class="level is-mobile" href="#开源的价值断层"><span class="level-left"><span class="level-item">5</span><span class="level-item">开源的价值断层</span></span></a></li><li><a class="level is-mobile" href="#AI-Infra-是否无止境"><span class="level-left"><span class="level-item">6</span><span class="level-item">AI Infra 是否无止境</span></span></a></li><li><a class="level is-mobile" href="#适合我的技术位置"><span class="level-left"><span class="level-item">7</span><span class="level-item">适合我的技术位置</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#技术所有权"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">技术所有权</span></span></a></li><li><a class="level is-mobile" href="#训练系统主线"><span class="level-left"><span class="level-item">7.2</span><span class="level-item">训练系统主线</span></span></a></li><li><a class="level is-mobile" href="#不做一次性适配工"><span class="level-left"><span class="level-item">7.3</span><span class="level-item">不做一次性适配工</span></span></a></li></ul></li><li><a class="level is-mobile" href="#两年行动路线"><span class="level-left"><span class="level-item">8</span><span class="level-item">两年行动路线</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">9</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">10</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">15</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-29T04:25:00.000Z">2026-07-29</time></p><p class="title"><a href="/2026/07/29/Thinking/1-target2chase/career/AI-Technology-Value-Stack/">AI Technology Value Stack</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-29T02:47:38.000Z">2026-07-29</time></p><p class="title"><a href="/2026/07/29/Thinking/3-EfficientLife/Multi-Objective-Decision-Making/">Multi-Objective Decision Making</a></p><p class="categories"><a href="/categories/Thinking/">Thinking</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-28T08:47:00.000Z">2026-07-28</time></p><p class="title"><a href="/2026/07/28/Work/Artificial%20Intelligence/Model/Kimi-K3-Report/">Kimi K3 Report</a></p><p class="categories"><a href="/categories/1-AI-Model-Architecture/">1-AI Model Architecture</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-28T07:30:00.000Z">2026-07-28</time></p><p class="title"><a href="/2026/07/28/Work/Artificial%20Intelligence/AIInfra/Inference-Quantization-Formats/">Inference Quantization Formats</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">34</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Infrastructure/"><span class="tag">AI Infrastructure</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/APR/"><span class="tag">APR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ASPLOS/"><span class="tag">ASPLOS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATI/"><span class="tag">ATI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ATTENTION-RESIDUALS/"><span class="tag">ATTENTION RESIDUALS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AVX/"><span class="tag">AVX</span><span class="tag">2</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
