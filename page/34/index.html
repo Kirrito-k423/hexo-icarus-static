@@ -29,149 +29,7 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-05T16:00:00.000Z" title="9/5/2023, 4:00:00 PM">2023-09-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:42:15.996Z" title="7/29/2026, 4:42:15 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">9 minutes read (About 1328 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/05/Work/Programming/1-env/terminal/terminal/">Linux Terminal</a></p><div class="content"><article class="message is-info">
-        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
-</div>
-        <div class="message-body">
-            <p>对程序员来说，一个好用、易用的terminal，就是和军人手上有把顺手的好枪一样。</p>
-
-        </div>
-    </article>
-
-<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><article class="message is-success">
-        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>用户的环境变量和配置文件</p>
-</div>
-        <div class="message-body">
-            <p>在Linux系统中，用户的环境变量和配置文件可以在不同的节点生效。以下是这些文件的功能和它们生效的时机：</p>
-<ol>
-<li><p><strong><code>/etc/environment</code></strong>:</p>
-<ul>
-<li><strong>功能</strong>: 设置系统范围的环境变量。</li>
-<li><strong>生效时机</strong>: 在用户登录时读取，但不会执行shell命令。它主要用于设置变量，如PATH、LANG等。</li>
-</ul>
-</li>
-<li><p><strong><code>/etc/profile</code></strong>:</p>
-<ul>
-<li><strong>功能</strong>: 为系统的每个用户设置环境信息。</li>
-<li><strong>生效时机</strong>: 当用户登录时，会读取并执行该文件中的配置。它是针对登录shell（例如，通过终端登录或ssh登录）的。</li>
-</ul>
-</li>
-<li><p><strong><code>/etc/profile.d/</code></strong>:</p>
-<ul>
-<li><strong>功能</strong>: 存放多个脚本，这些脚本会被<code>/etc/profile</code>读取和执行。</li>
-<li><strong>生效时机</strong>: 与<code>/etc/profile</code>相同，登录shell时执行。它使得系统管理员可以将不同的配置分散到多个文件中管理。</li>
-</ul>
-</li>
-<li><p><strong><code>/etc/bash.bashrc</code></strong>:</p>
-<ul>
-<li><strong>功能</strong>: 为所有用户设置bash shell的配置。</li>
-<li><strong>生效时机</strong>: 对于非登录shell（例如，打开一个新的终端窗口）时会读取并执行。</li>
-</ul>
-</li>
-<li><p><strong><code>~/.profile</code></strong>:</p>
-<ul>
-<li><strong>功能</strong>: 为单个用户设置环境信息。</li>
-<li><strong>生效时机</strong>: 用户登录时读取并执行，主要针对登录shell。</li>
-</ul>
-</li>
-<li><p><strong><code>~/.bashrc</code></strong>:</p>
-<ul>
-<li><strong>功能</strong>: 为单个用户配置bash shell的设置。</li>
-<li><strong>生效时机</strong>: 用户打开一个新的bash shell（非登录shell）时读取并执行。</li>
-</ul>
-</li>
-</ol>
-<p><strong>总结</strong>：</p>
-<ul>
-<li><code>/etc/environment</code> 和 <code>/etc/profile</code> 主要用于系统范围的环境变量设置，前者不会执行shell命令，后者会执行。</li>
-<li><code>/etc/profile.d/</code> 中的脚本作为 <code>/etc/profile</code> 的扩展，用于更灵活的管理配置。</li>
-<li><code>/etc/bash.bashrc</code> 适用于所有用户的bash配置，但只针对非登录shell。</li>
-<li><code>~/.profile</code> 和 <code>~/.bashrc</code> 适用于单个用户，前者用于登录shell，后者用于非登录shell。</li>
-</ul>
-<p>通过这些文件，系统和用户可以灵活地设置和管理环境变量和shell配置，以满足不同的需求和使用场景。</p>
-
-        </div>
-    </article>
-
-<article class="message is-primary">
-        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i></p>
-<p> 回车 换行</p>
-</div>
-        <div class="message-body">
-            <table>
-<thead>
-<tr>
-<th>符号</th>
-<th>ASCII码</th>
-<th>意义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>\n</td>
-<td>10</td>
-<td>换行NL： 本义是光标往下一行（不一定到下一行行首），n的英文newline，控制字符可以写成LF，即Line Feed</td>
-</tr>
-<tr>
-<td>\r</td>
-<td>13</td>
-<td>回车CR： 本义是光标重新回到本行开头，r的英文return，控制字符可以写成CR，即Carriage Return</td>
-</tr>
-</tbody></table>
-<p>  在不同的操作系统这几个字符表现不同：</p>
-<ol>
-<li>在WIN系统下，这两个字符就是表现的本义，</li>
-<li>在UNIX类系统，换行\n就表现为光标下一行并回到行首，</li>
-<li>在MAC上，\r就表现为回到本行开头并往下一行，至于ENTER键的定义是与操作系统有关的。通常用的Enter是两个加起来。</li>
-</ol>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">\n: UNIX 系统行末结束符</span><br><span class="line">\n\r: window 系统行末结束符</span><br><span class="line">\r: MAC OS 系统行末结束符</span><br></pre></td></tr></table></figure>
-        </div>
-    </article>
-
-<h3 id="终端命令行代理"><a href="#终端命令行代理" class="headerlink" title="终端命令行代理"></a>终端命令行代理</h3><p>在任意层级的SHELL配置文件里添加</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> http_proxy=http://yourproxy:port</span><br><span class="line"><span class="built_in">export</span> https_proxy=http://yourproxy:port</span><br></pre></td></tr></table></figure>
-
-<article class="message is-success">
-        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>写成bashrc的脚本命令</p>
-</div>
-        <div class="message-body">
-            <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#YJH proxy</span></span><br><span class="line"><span class="built_in">export</span> proxy_addr=localhost</span><br><span class="line"><span class="built_in">export</span> proxy_http_port=7890</span><br><span class="line"><span class="built_in">export</span> proxy_socks_port=7890</span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">set_proxy</span></span>() &#123;</span><br><span class="line">   <span class="built_in">export</span> http_proxy=http://<span class="variable">$proxy_addr</span>:<span class="variable">$proxy_http_port</span> <span class="comment">#如果使用git 不行，这两个http和https改成socks5就行</span></span><br><span class="line">   <span class="built_in">export</span> https_proxy=http://<span class="variable">$proxy_addr</span>:<span class="variable">$proxy_http_port</span></span><br><span class="line">   <span class="built_in">export</span> all_proxy=socks5://<span class="variable">$proxy_addr</span>:<span class="variable">$proxy_socks_port</span></span><br><span class="line">   <span class="built_in">export</span> no_proxy=127.0.0.1,.huawei.com,localhost,<span class="built_in">local</span>,.<span class="built_in">local</span> </span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">unset_proxy</span></span>() &#123;</span><br><span class="line">   <span class="built_in">unset</span> http_proxy</span><br><span class="line">   <span class="built_in">unset</span> https_proxy</span><br><span class="line">   <span class="built_in">unset</span> all_proxy</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">test_proxy</span></span>() &#123;</span><br><span class="line">   curl -v -x http://<span class="variable">$proxy_addr</span>:<span class="variable">$proxy_http_port</span> https://www.google.com | egrep <span class="string">&#x27;HTTP/(2|1.1) 200&#x27;</span></span><br><span class="line">   <span class="comment"># socks5h://$proxy_addr:$proxy_socks_port</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># set_proxy # 如果要登陆时默认启用代理则取消注释这句</span></span><br></pre></td></tr></table></figure>
-        </div>
-    </article>
-
-<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="check-process-create-time"><a href="#check-process-create-time" class="headerlink" title="check process create time"></a>check process create time</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps -eo pid,lstart,cmd |grep bhive</span><br><span class="line"><span class="built_in">date</span></span><br></pre></td></tr></table></figure>
-<h3 id="kill-all-process-by-name"><a href="#kill-all-process-by-name" class="headerlink" title="kill all process by name"></a>kill all process by name</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> ps -ef | grep <span class="string">&#x27;bhive-re&#x27;</span> | grep -v grep | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span> | <span class="built_in">sudo</span> xargs -r <span class="built_in">kill</span> -9</span><br></pre></td></tr></table></figure>
-
-<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><article class="message is-blue">
-        <div class="message-header"><p><i class="fa-solid fa-bars mr-2"></i>鼠标滚轮输出乱码</p>
-</div>
-        <div class="message-body">
-            <p>滚轮乱码，是tmux <code>set mouse on</code>的原因</p>
-<p>  进入tmux后退出，并运行<code>reset</code>即可</p>
-
-        </div>
-    </article>
-
-<article class="message is-blue">
-        <div class="message-header"><p><i class="fa-solid fa-bars mr-2"></i>sudo后找不到命令</p>
-</div>
-        <div class="message-body">
-            <p>当你使用sudo去执行一个程序时，处于安全的考虑，这个程序将在一个新的、最小化的环境中执行，也就是说，诸如PATH这样的环境变量，在sudo命令下已经被重置成默认状态了。</p>
-<p>  添加所需要的路径(如 <code>/usr/local/bin</code>）到<code>/etc/sudoers</code>文件”secure_path”下</p>
-  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin</span><br></pre></td></tr></table></figure>
-        </div>
-    </article>
-
-<article class="message is-blue">
-        <div class="message-header"><p><i class="fa-solid fa-bars mr-2"></i>在用python使用curses写多进程进度条的时候，混乱输出</p>
-</div>
-        <div class="message-body">
-            <p><img src="https://pic.shaojiemike.top/img/20220325222152.png"></p>
-<p>  解决办法如下：<br>  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">stdscr = curses.initscr() <span class="comment"># 不要设置为全局变量</span></span><br><span class="line"><span class="comment"># 而且 使用set_win unset_win 保持区域换行的行为</span></span><br></pre></td></tr></table></figure></p>
-
-        </div>
-    </article>
-
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2></div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-05T16:00:00.000Z" title="9/5/2023, 4:00:00 PM">2023-09-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:42:15.999Z" title="7/29/2026, 4:42:15 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">18 minutes read (About 2700 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/05/Work/Programming/1-env/c/conda/">Conda</a></p><div class="content"><h2 id="conda"><a href="#conda" class="headerlink" title="conda"></a>conda</h2><p>Anaconda和Miniconda都是针对数据科学和机器学习领域的Python发行版本，它们包含了许多常用的数据科学包和工具，使得安装和管理这些包变得更加简单。</p>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-05T16:00:00.000Z" title="9/5/2023, 4:00:00 PM">2023-09-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:43:41.577Z" title="7/29/2026, 4:43:41 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">18 minutes read (About 2700 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/05/Work/Programming/1-env/c/conda/">Conda</a></p><div class="content"><h2 id="conda"><a href="#conda" class="headerlink" title="conda"></a>conda</h2><p>Anaconda和Miniconda都是针对数据科学和机器学习领域的Python发行版本，它们包含了许多常用的数据科学包和工具，使得安装和管理这些包变得更加简单。</p>
 <p>解决了几个痛点：</p>
 <ol>
 <li>不同python环境的切换(类似VirtualEnv)</li>
@@ -340,7 +198,149 @@
     </article>
 
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Mao_Jonah/article/details/89502380">https://blog.csdn.net/Mao_Jonah/article/details/89502380</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-01T16:00:00.000Z" title="9/1/2023, 4:00:00 PM">2023-09-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:42:15.913Z" title="7/29/2026, 4:42:15 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/diary/">diary</a></span><span class="level-item">8 minutes read (About 1131 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/01/Thinking/4-viewOnOthers/4.1-Love4AnimeCharacter/">Diary 230827: 上海二次元之旅</a></p><div class="content"><h2 id="缘由"><a href="#缘由" class="headerlink" title="缘由"></a>缘由</h2><p>华为实习要结束了，作为二次元，在中国秋叶原怎么能不好好逛逛呢？</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-05T16:00:00.000Z" title="9/5/2023, 4:00:00 PM">2023-09-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:43:41.575Z" title="7/29/2026, 4:43:41 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">9 minutes read (About 1328 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/05/Work/Programming/1-env/terminal/terminal/">Linux Terminal</a></p><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>对程序员来说，一个好用、易用的terminal，就是和军人手上有把顺手的好枪一样。</p>
+
+        </div>
+    </article>
+
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>用户的环境变量和配置文件</p>
+</div>
+        <div class="message-body">
+            <p>在Linux系统中，用户的环境变量和配置文件可以在不同的节点生效。以下是这些文件的功能和它们生效的时机：</p>
+<ol>
+<li><p><strong><code>/etc/environment</code></strong>:</p>
+<ul>
+<li><strong>功能</strong>: 设置系统范围的环境变量。</li>
+<li><strong>生效时机</strong>: 在用户登录时读取，但不会执行shell命令。它主要用于设置变量，如PATH、LANG等。</li>
+</ul>
+</li>
+<li><p><strong><code>/etc/profile</code></strong>:</p>
+<ul>
+<li><strong>功能</strong>: 为系统的每个用户设置环境信息。</li>
+<li><strong>生效时机</strong>: 当用户登录时，会读取并执行该文件中的配置。它是针对登录shell（例如，通过终端登录或ssh登录）的。</li>
+</ul>
+</li>
+<li><p><strong><code>/etc/profile.d/</code></strong>:</p>
+<ul>
+<li><strong>功能</strong>: 存放多个脚本，这些脚本会被<code>/etc/profile</code>读取和执行。</li>
+<li><strong>生效时机</strong>: 与<code>/etc/profile</code>相同，登录shell时执行。它使得系统管理员可以将不同的配置分散到多个文件中管理。</li>
+</ul>
+</li>
+<li><p><strong><code>/etc/bash.bashrc</code></strong>:</p>
+<ul>
+<li><strong>功能</strong>: 为所有用户设置bash shell的配置。</li>
+<li><strong>生效时机</strong>: 对于非登录shell（例如，打开一个新的终端窗口）时会读取并执行。</li>
+</ul>
+</li>
+<li><p><strong><code>~/.profile</code></strong>:</p>
+<ul>
+<li><strong>功能</strong>: 为单个用户设置环境信息。</li>
+<li><strong>生效时机</strong>: 用户登录时读取并执行，主要针对登录shell。</li>
+</ul>
+</li>
+<li><p><strong><code>~/.bashrc</code></strong>:</p>
+<ul>
+<li><strong>功能</strong>: 为单个用户配置bash shell的设置。</li>
+<li><strong>生效时机</strong>: 用户打开一个新的bash shell（非登录shell）时读取并执行。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：</p>
+<ul>
+<li><code>/etc/environment</code> 和 <code>/etc/profile</code> 主要用于系统范围的环境变量设置，前者不会执行shell命令，后者会执行。</li>
+<li><code>/etc/profile.d/</code> 中的脚本作为 <code>/etc/profile</code> 的扩展，用于更灵活的管理配置。</li>
+<li><code>/etc/bash.bashrc</code> 适用于所有用户的bash配置，但只针对非登录shell。</li>
+<li><code>~/.profile</code> 和 <code>~/.bashrc</code> 适用于单个用户，前者用于登录shell，后者用于非登录shell。</li>
+</ul>
+<p>通过这些文件，系统和用户可以灵活地设置和管理环境变量和shell配置，以满足不同的需求和使用场景。</p>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i></p>
+<p> 回车 换行</p>
+</div>
+        <div class="message-body">
+            <table>
+<thead>
+<tr>
+<th>符号</th>
+<th>ASCII码</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>\n</td>
+<td>10</td>
+<td>换行NL： 本义是光标往下一行（不一定到下一行行首），n的英文newline，控制字符可以写成LF，即Line Feed</td>
+</tr>
+<tr>
+<td>\r</td>
+<td>13</td>
+<td>回车CR： 本义是光标重新回到本行开头，r的英文return，控制字符可以写成CR，即Carriage Return</td>
+</tr>
+</tbody></table>
+<p>  在不同的操作系统这几个字符表现不同：</p>
+<ol>
+<li>在WIN系统下，这两个字符就是表现的本义，</li>
+<li>在UNIX类系统，换行\n就表现为光标下一行并回到行首，</li>
+<li>在MAC上，\r就表现为回到本行开头并往下一行，至于ENTER键的定义是与操作系统有关的。通常用的Enter是两个加起来。</li>
+</ol>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">\n: UNIX 系统行末结束符</span><br><span class="line">\n\r: window 系统行末结束符</span><br><span class="line">\r: MAC OS 系统行末结束符</span><br></pre></td></tr></table></figure>
+        </div>
+    </article>
+
+<h3 id="终端命令行代理"><a href="#终端命令行代理" class="headerlink" title="终端命令行代理"></a>终端命令行代理</h3><p>在任意层级的SHELL配置文件里添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> http_proxy=http://yourproxy:port</span><br><span class="line"><span class="built_in">export</span> https_proxy=http://yourproxy:port</span><br></pre></td></tr></table></figure>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>写成bashrc的脚本命令</p>
+</div>
+        <div class="message-body">
+            <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#YJH proxy</span></span><br><span class="line"><span class="built_in">export</span> proxy_addr=localhost</span><br><span class="line"><span class="built_in">export</span> proxy_http_port=7890</span><br><span class="line"><span class="built_in">export</span> proxy_socks_port=7890</span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">set_proxy</span></span>() &#123;</span><br><span class="line">   <span class="built_in">export</span> http_proxy=http://<span class="variable">$proxy_addr</span>:<span class="variable">$proxy_http_port</span> <span class="comment">#如果使用git 不行，这两个http和https改成socks5就行</span></span><br><span class="line">   <span class="built_in">export</span> https_proxy=http://<span class="variable">$proxy_addr</span>:<span class="variable">$proxy_http_port</span></span><br><span class="line">   <span class="built_in">export</span> all_proxy=socks5://<span class="variable">$proxy_addr</span>:<span class="variable">$proxy_socks_port</span></span><br><span class="line">   <span class="built_in">export</span> no_proxy=127.0.0.1,.huawei.com,localhost,<span class="built_in">local</span>,.<span class="built_in">local</span> </span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">unset_proxy</span></span>() &#123;</span><br><span class="line">   <span class="built_in">unset</span> http_proxy</span><br><span class="line">   <span class="built_in">unset</span> https_proxy</span><br><span class="line">   <span class="built_in">unset</span> all_proxy</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">test_proxy</span></span>() &#123;</span><br><span class="line">   curl -v -x http://<span class="variable">$proxy_addr</span>:<span class="variable">$proxy_http_port</span> https://www.google.com | egrep <span class="string">&#x27;HTTP/(2|1.1) 200&#x27;</span></span><br><span class="line">   <span class="comment"># socks5h://$proxy_addr:$proxy_socks_port</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># set_proxy # 如果要登陆时默认启用代理则取消注释这句</span></span><br></pre></td></tr></table></figure>
+        </div>
+    </article>
+
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="check-process-create-time"><a href="#check-process-create-time" class="headerlink" title="check process create time"></a>check process create time</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps -eo pid,lstart,cmd |grep bhive</span><br><span class="line"><span class="built_in">date</span></span><br></pre></td></tr></table></figure>
+<h3 id="kill-all-process-by-name"><a href="#kill-all-process-by-name" class="headerlink" title="kill all process by name"></a>kill all process by name</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> ps -ef | grep <span class="string">&#x27;bhive-re&#x27;</span> | grep -v grep | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span> | <span class="built_in">sudo</span> xargs -r <span class="built_in">kill</span> -9</span><br></pre></td></tr></table></figure>
+
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><article class="message is-blue">
+        <div class="message-header"><p><i class="fa-solid fa-bars mr-2"></i>鼠标滚轮输出乱码</p>
+</div>
+        <div class="message-body">
+            <p>滚轮乱码，是tmux <code>set mouse on</code>的原因</p>
+<p>  进入tmux后退出，并运行<code>reset</code>即可</p>
+
+        </div>
+    </article>
+
+<article class="message is-blue">
+        <div class="message-header"><p><i class="fa-solid fa-bars mr-2"></i>sudo后找不到命令</p>
+</div>
+        <div class="message-body">
+            <p>当你使用sudo去执行一个程序时，处于安全的考虑，这个程序将在一个新的、最小化的环境中执行，也就是说，诸如PATH这样的环境变量，在sudo命令下已经被重置成默认状态了。</p>
+<p>  添加所需要的路径(如 <code>/usr/local/bin</code>）到<code>/etc/sudoers</code>文件”secure_path”下</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin</span><br></pre></td></tr></table></figure>
+        </div>
+    </article>
+
+<article class="message is-blue">
+        <div class="message-header"><p><i class="fa-solid fa-bars mr-2"></i>在用python使用curses写多进程进度条的时候，混乱输出</p>
+</div>
+        <div class="message-body">
+            <p><img src="https://pic.shaojiemike.top/img/20220325222152.png"></p>
+<p>  解决办法如下：<br>  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">stdscr = curses.initscr() <span class="comment"># 不要设置为全局变量</span></span><br><span class="line"><span class="comment"># 而且 使用set_win unset_win 保持区域换行的行为</span></span><br></pre></td></tr></table></figure></p>
+
+        </div>
+    </article>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2></div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-01T16:00:00.000Z" title="9/1/2023, 4:00:00 PM">2023-09-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:43:41.494Z" title="7/29/2026, 4:43:41 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/diary/">diary</a></span><span class="level-item">8 minutes read (About 1131 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/01/Thinking/4-viewOnOthers/4.1-Love4AnimeCharacter/">Diary 230827: 上海二次元之旅</a></p><div class="content"><h2 id="缘由"><a href="#缘由" class="headerlink" title="缘由"></a>缘由</h2><p>华为实习要结束了，作为二次元，在中国秋叶原怎么能不好好逛逛呢？</p>
 <h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><ol>
 <li>百联zx，外文书店，</li>
 <li>百米香榭</li>
@@ -386,7 +386,7 @@
 <div id='refer-anchor'></div>
 
 <p>无</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-01T16:00:00.000Z" title="9/1/2023, 4:00:00 PM">2023-09-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:42:15.913Z" title="7/29/2026, 4:42:15 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/diary/">diary</a></span><span class="level-item">3 minutes read (About 503 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/01/Thinking/4-viewOnOthers/4.1-anime/">UnimportantView: Anime Recommendation</a></p><div class="content"><h2 id="起源与目标"><a href="#起源与目标" class="headerlink" title="起源与目标"></a>起源与目标</h2><ol>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-01T16:00:00.000Z" title="9/1/2023, 4:00:00 PM">2023-09-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:43:41.494Z" title="7/29/2026, 4:43:41 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/diary/">diary</a></span><span class="level-item">3 minutes read (About 503 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/01/Thinking/4-viewOnOthers/4.1-anime/">UnimportantView: Anime Recommendation</a></p><div class="content"><h2 id="起源与目标"><a href="#起源与目标" class="headerlink" title="起源与目标"></a>起源与目标</h2><ol>
 <li>看番没有形成自己的喜好，导致看到不对的，反而有副作用，</li>
 <li>什么番可以成为精神支柱，而不是看了之后。反而精神内耗更严重了。（看了happy sugar life后，直接抑郁了）</li>
 </ol>
@@ -451,7 +451,7 @@
 <div id='refer-anchor'></div>
 
 <p>无</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-30T16:00:00.000Z" title="8/30/2023, 4:00:00 PM">2023-08-30</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:42:16.080Z" title="7/29/2026, 4:42:16 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Operating-system/">Operating system</a></span><span class="level-item">6 minutes read (About 886 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/30/Work/Architecture/microHardware/tlb/">TLB: real pagewalk overhead</a></p><div class="content"><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>TLB的介绍，请看</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-30T16:00:00.000Z" title="8/30/2023, 4:00:00 PM">2023-08-30</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:43:41.631Z" title="7/29/2026, 4:43:41 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Operating-system/">Operating system</a></span><span class="level-item">6 minutes read (About 886 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/30/Work/Architecture/microHardware/tlb/">TLB: real pagewalk overhead</a></p><div class="content"><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>TLB的介绍，请看</p>
 <h2 id="页表相关"><a href="#页表相关" class="headerlink" title="页表相关"></a>页表相关</h2><h2 id="理论基础"><a href="#理论基础" class="headerlink" title="理论基础"></a>理论基础</h2><p>大体上是应用访问越随机， 数据量越大，pgw开销越大。</p>
 <p>ISCA 2013 shows the pgw overhead in big memory servers.</p>
 <p><img src="https://pic.shaojiemike.top/img/20230818104019.png" alt="Basu 等 - Efficient Virtual Memory for Big Memory Servers.pdf"></p>
@@ -525,7 +525,7 @@
 <div id='refer-anchor'></div>
 
 <p>无</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-28T16:00:00.000Z" title="8/28/2023, 4:00:00 PM">2023-08-28</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:42:16.040Z" title="7/29/2026, 4:42:16 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">4 minutes read (About 578 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/28/Work/Artificial%20Intelligence/AIInfra/AICompiler/">AI Compiler</a></p><div class="content"><h2 id="百度"><a href="#百度" class="headerlink" title="百度"></a>百度</h2><p>秋招面试时遇到高铁柱前辈。问了相关的问题（对AI专业的人可能是基础知识）</p>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-28T16:00:00.000Z" title="8/28/2023, 4:00:00 PM">2023-08-28</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:43:41.605Z" title="7/29/2026, 4:43:41 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Artificial-Intelligence/">Artificial Intelligence</a></span><span class="level-item">4 minutes read (About 578 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/28/Work/Artificial%20Intelligence/AIInfra/AICompiler/">AI Compiler</a></p><div class="content"><h2 id="百度"><a href="#百度" class="headerlink" title="百度"></a>百度</h2><p>秋招面试时遇到高铁柱前辈。问了相关的问题（对AI专业的人可能是基础知识）</p>
 <ol>
 <li>nvcc编译器不好用吗？为什么要开发tvm之类的编译器？<ol start="2">
 <li>答：首先，nvcc是类似与gcc, msvc(Microsoft Visual C++) 之类的传统的编译器，支持的是CUDA C&#x2F;C++ 代码。</li>
@@ -594,7 +594,7 @@
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><div id='refer-anchor'></div>
 无
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-27T16:00:00.000Z" title="8/27/2023, 4:00:00 PM">2023-08-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:42:16.120Z" title="7/29/2026, 4:42:16 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Algorithms/">Algorithms</a></span><span class="level-item">a few seconds read (About 99 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/27/Work/Algorithms/pagerank/">Graph Algorithms: Pagerank</a></p><div class="content"><h2 id="Pagerank"><a href="#Pagerank" class="headerlink" title="Pagerank"></a>Pagerank</h2><ol>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-27T16:00:00.000Z" title="8/27/2023, 4:00:00 PM">2023-08-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:43:41.658Z" title="7/29/2026, 4:43:41 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Algorithms/">Algorithms</a></span><span class="level-item">a few seconds read (About 99 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/27/Work/Algorithms/pagerank/">Graph Algorithms: Pagerank</a></p><div class="content"><h2 id="Pagerank"><a href="#Pagerank" class="headerlink" title="Pagerank"></a>Pagerank</h2><ol>
 <li>Network and social network can be identified as a weighted graph</li>
 <li>How to do the important ranking is Pagerank</li>
 </ol>
@@ -603,14 +603,14 @@
 <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>暂无</p>
 <h2 id="开题缘由、总结、反思、吐槽"><a href="#开题缘由、总结、反思、吐槽" class="headerlink" title="开题缘由、总结、反思、吐槽~~"></a>开题缘由、总结、反思、吐槽~~</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>上面回答部分<strong>来自ChatGPT-3.5</strong>，没有进行正确性的交叉校验。</p>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/137561088">https://zhuanlan.zhihu.com/p/137561088</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-27T16:00:00.000Z" title="8/27/2023, 4:00:00 PM">2023-08-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:42:16.111Z" title="7/29/2026, 4:42:16 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/toLearn/">toLearn</a></span><span class="level-item">17 minutes read (About 2510 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/27/Work/software/benchmark/benchmark/">Benchmark</a></p><div class="content"><article class="message is-info">
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-27T16:00:00.000Z" title="8/27/2023, 4:00:00 PM">2023-08-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:43:41.652Z" title="7/29/2026, 4:43:41 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/toLearn/">toLearn</a></span><span class="level-item">17 minutes read (About 2510 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/27/Work/software/benchmark/benchmark/">Benchmark</a></p><div class="content"><article class="message is-info">
         <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
 </div>
         <div class="message-body">
             <p>以现实中实际使用的应用为基础，根据其领域和应用计算特点来分类。</p>
 
         </div>
-    </article></div><a class="article-more button is-small is-size-7" href="/2023/08/27/Work/software/benchmark/benchmark/#more">Read more</a></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-27T16:00:00.000Z" title="8/27/2023, 4:00:00 PM">2023-08-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:42:15.987Z" title="7/29/2026, 4:42:15 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">15 minutes read (About 2314 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/27/Work/Programming/2-languageGrammar/python/pythonDataStructure/">Python: DataStructure</a></p><div class="content"><h2 id="开发基础"><a href="#开发基础" class="headerlink" title="开发基础"></a>开发基础</h2><h3 id="size-大小"><a href="#size-大小" class="headerlink" title="size 大小"></a>size 大小</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">len</span>(day)</span><br></pre></td></tr></table></figure>
+    </article></div><a class="article-more button is-small is-size-7" href="/2023/08/27/Work/software/benchmark/benchmark/#more">Read more</a></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-27T16:00:00.000Z" title="8/27/2023, 4:00:00 PM">2023-08-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:43:41.566Z" title="7/29/2026, 4:43:41 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Programming/">Programming</a></span><span class="level-item">15 minutes read (About 2314 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/27/Work/Programming/2-languageGrammar/python/pythonDataStructure/">Python: DataStructure</a></p><div class="content"><h2 id="开发基础"><a href="#开发基础" class="headerlink" title="开发基础"></a>开发基础</h2><h3 id="size-大小"><a href="#size-大小" class="headerlink" title="size 大小"></a>size 大小</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">len</span>(day)</span><br></pre></td></tr></table></figure>
 
 <h3 id="空值判断"><a href="#空值判断" class="headerlink" title="空值判断"></a>空值判断</h3><p>strings, lists, tuples</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Correct:</span></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> seq:</span><br><span class="line"><span class="keyword">if</span> seq:</span><br><span class="line"></span><br><span class="line"><span class="comment"># Wrong:</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(seq):</span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">len</span>(seq):</span><br></pre></td></tr></table></figure>
@@ -821,7 +821,7 @@
 <h4 id="set2list"><a href="#set2list" class="headerlink" title="set2list"></a>set2list</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">my_set = &#123;<span class="string">&#x27;Geeks&#x27;</span>, <span class="string">&#x27;for&#x27;</span>, <span class="string">&#x27;geeks&#x27;</span>&#125;</span><br><span class="line">  </span><br><span class="line">s = <span class="built_in">list</span>(my_set)</span><br><span class="line"><span class="built_in">print</span>(s)</span><br><span class="line"><span class="comment"># [&#x27;Geeks&#x27;, &#x27;for&#x27;, &#x27;geeks&#x27;]</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_63719049/article/details/125680242">https://blog.csdn.net/weixin_63719049/article/details/125680242</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-24T16:00:00.000Z" title="8/24/2023, 4:00:00 PM">2023-08-24</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:42:16.114Z" title="7/29/2026, 4:42:16 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">28 minutes read (About 4228 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/24/Work/software/perf/perf/">Perf</a></p><div class="content"><article class="message is-info">
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-24T16:00:00.000Z" title="8/24/2023, 4:00:00 PM">2023-08-24</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-29T04:43:41.654Z" title="7/29/2026, 4:43:41 AM">2026-07-29</time></span><span class="level-item"><a class="link-muted" href="/categories/Tutorials/">Tutorials</a></span><span class="level-item">28 minutes read (About 4228 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/08/24/Work/software/perf/perf/">Perf</a></p><div class="content"><article class="message is-info">
         <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>简介</p>
 </div>
         <div class="message-body">
