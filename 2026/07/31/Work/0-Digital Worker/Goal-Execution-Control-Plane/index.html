@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Evidence-Driven Goal Loop - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       我曾把一个看起来很明确的任务交给 AI：阅读 verl 代码，参考已有 GRPO 脚本适配 Kimi3 的减层训练，并在 NPU 上跑通第一个强化学习优化步。两天后，AI 仍在换软件版本、调整层数和重跑 OOM。真正棘手的不是“还没成功”，而是我无法回答领导接下来一定会问的问题：卡在哪里、解决过什么、时间花在哪里、还能不能解决、还"><meta property="og:type" content="blog"><meta property="og:title" content="Evidence-Driven Goal Loop"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/07/31/Work/0-Digital%20Worker/Goal-Execution-Control-Plane/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       我曾把一个看起来很明确的任务交给 AI：阅读 verl 代码，参考已有 GRPO 脚本适配 Kimi3 的减层训练，并在 NPU 上跑通第一个强化学习优化步。两天后，AI 仍在换软件版本、调整层数和重跑 OOM。真正棘手的不是“还没成功”，而是我无法回答领导接下来一定会问的问题：卡在哪里、解决过什么、时间花在哪里、还能不能解决、还"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-07-31T09:26:00.000Z"><meta property="article:modified_time" content="2026-07-31T09:49:17.776Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="AI Agent"><meta property="article:tag" content="Goal"><meta property="article:tag" content="Agent Loop"><meta property="article:tag" content="Evidence"><meta property="article:tag" content="Observability"><meta property="article:tag" content="Skill"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/07/31/Work/0-Digital%20Worker/Goal-Execution-Control-Plane/"},"headline":"Evidence-Driven Goal Loop","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-07-31T09:26:00.000Z","dateModified":"2026-07-31T09:49:17.776Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       我曾把一个看起来很明确的任务交给 AI：阅读 verl 代码，参考已有 GRPO 脚本适配 Kimi3 的减层训练，并在 NPU 上跑通第一个强化学习优化步。两天后，AI 仍在换软件版本、调整层数和重跑 OOM。真正棘手的不是“还没成功”，而是我无法回答领导接下来一定会问的问题：卡在哪里、解决过什么、时间花在哪里、还能不能解决、还"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/07/31/Work/0-Digital%20Worker/Goal-Execution-Control-Plane/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-07-31T09:26:00.000Z" title="7/31/2026, 9:26:00 AM">2026-07-31</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-07-31T09:49:17.776Z" title="7/31/2026, 9:49:17 AM">2026-07-31</time></span><span class="level-item"><a class="link-muted" href="/categories/1-Agent-Workflow/">1-Agent Workflow</a><span> / </span><a class="link-muted" href="/categories/1-Agent-Workflow/0-TOP/">0-TOP</a></span><span class="level-item">37 minutes read (About 5580 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Evidence-Driven Goal Loop</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>我曾把一个看起来很明确的任务交给 AI：阅读 <code>verl</code> 代码，参考已有 GRPO 脚本适配 Kimi3 的减层训练，并在 NPU 上跑通第一个强化学习优化步。两天后，AI 仍在换软件版本、调整层数和重跑 OOM。真正棘手的不是“还没成功”，而是我无法回答领导接下来一定会问的问题：<strong>卡在哪里、解决过什么、时间花在哪里、还能不能解决、还要多久、代码是否上仓、中文设计文档在哪里？</strong></p>
+<p>这促使我把 Goal 从一句终点描述改造成一个工程控制面：用 <code>goal-definition</code> 先与用户签订任务合同，再让每个 Goal 强制携带 <code>goal-execution</code>，按证据等级执行有界循环。最终目标仍然重要，但每一轮都必须留下新的事实、排除一个原因，或形成一个可交付成果。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="先说结论"><a href="#先说结论" class="headerlink" title="先说结论"></a>先说结论</h2><p><strong>长期 AI 任务最缺的不是坚持，而是控制面。</strong> “没有完成就继续尝试”只定义了循环条件，<br>没有定义下一次尝试凭什么比上一次更有价值。当模型既没有中间状态，也没有实验门禁和<br>停止条件时，最容易选择那些看起来在推进、实际信息量很低的动作：换版本、减配置、重跑。</p>
+<p>我的设计把原来的一条 Goal 拆成四层：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>回答的问题</th>
+<th>持久产物</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Goal Definition</strong></td>
+<td>这次究竟要完成什么</td>
+<td>Goal 合同</td>
+</tr>
+<tr>
+<td><strong>Goal Execution</strong></td>
+<td>遇到未知和失败时怎样工作</td>
+<td>状态机与执行纪律</td>
+</tr>
+<tr>
+<td><strong>Process Record</strong></td>
+<td>实际做了什么、得到什么证据</td>
+<td>过程账本与运行日志</td>
+</tr>
+<tr>
+<td><strong>Deliverables</strong></td>
+<td>截止当前已经能交付什么</td>
+<td>代码、文档、测试与决策包</td>
+</tr>
+</tbody></table>
+<p>OpenAI Agents SDK 的 tracing 已经能记录 run、generation、function tool、<br>handoff 和自定义 span，这解决的是“执行轨迹能否被看到”。[^openai-tracing]<br>我的 Goal 控制面再向上补一层：<strong>为什么要执行这次动作、它对应哪个验收项、失败后何时<br>停止、到期时必须交付什么。</strong> Trace 是证据来源之一，不是任务合同本身。</p>
+<figure markdown>
+  ![从原地打滑的重试轮变成每轮前进一步的证据棘轮](https://pic.shaojiemike.top/shaojiemike/2026/07/2068c36cb1f5287a6755ca5bccb02fac.png){ width=100% }
+  <figcaption>自绘小黑示意图：左侧循环不断消耗时间但回到同一错误；右侧只有加入新证据，棘轮才允许交付物前进一步。</figcaption>
+</figure>
+
+<h2 id="为什么-Goal-会空转"><a href="#为什么-Goal-会空转" class="headerlink" title="为什么 Goal 会空转"></a>为什么 Goal 会空转</h2><p>“把 Kimi3 的 GRPO 在 NPU 上跑通第一步”是一句业务终点，却压缩了至少五类性质不同的<br>问题：</p>
+<table>
+<thead>
+<tr>
+<th>问题层</th>
+<th>典型未知量</th>
+<th>无控制面时的错误动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>模型研究</td>
+<td>Kimi3 的结构、配置和加载方式与参考模型有何差异</td>
+<td>直接复制脚本</td>
+</tr>
+<tr>
+<td>框架适配</td>
+<td><code>verl</code> 的注册、rollout、logprob、loss 路径要改哪里</td>
+<td>报一处错改一处</td>
+</tr>
+<tr>
+<td>环境兼容</td>
+<td>Python、PyTorch、CANN、NPU 插件和推理后端能否共存</td>
+<td>轮盘式升降级</td>
+</tr>
+<tr>
+<td>资源可行性</td>
+<td>权重、KV cache、activation、梯度和 optimizer state 能否放下</td>
+<td>不定位阶段就减层</td>
+</tr>
+<tr>
+<td>工程交付</td>
+<td>代码、脚本、日志、测试和中文设计文档放在哪里</td>
+<td>等全部成功后再整理</td>
+</tr>
+</tbody></table>
+<p>原始 Goal 只有一个二元刻度：成功或失败。于是“整体 OOM”和“已经定位为 backward<br>前的 activation 峰值”都显示为失败；“没找到版本”和“确认两个官方版本组合均不兼容”<br>也没有区别。Agent 只能通过更多动作表达努力，却不能用<strong>未知量减少了多少</strong>表达进展。</p>
+<p>真正的进展至少满足一项：</p>
+<ul>
+<li>一个验收项有了可复核证据；</li>
+<li>一个未知量变成了有来源的事实；</li>
+<li>一个假设被增强、削弱或排除；</li>
+<li>故障被缩小到具体阶段、函数、rank、tensor 或依赖；</li>
+<li>形成了可复现脚本、日志、测试、提交或中文文档；</li>
+<li>不可继续的问题被转换成领导可以选择的资源、范围或时间决策。</li>
+</ul>
+<p>Google SRE 把排障描述为假设—演绎过程：从系统知识、遥测和日志形成候选原因，再用<br>观察或受控改变寻找支持和反证；它还特别强调保存测试记录，避免复杂长时问题重复走过<br>同一条路。[^google-sre] 这与我的核心判断一致：<strong>失败可以有价值，但前提是它产生了<br>能改变下一步的证据。</strong></p>
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>忙碌不是进展</p>
+</div>
+        <div class="message-body">
+            <p>运行了二十条命令、切换三个版本、占用八小时 NPU，都只是活动量。如果它们没有完成验收、增加证据、缩小故障或形成交付，就不能成为下一轮继续消耗预算的理由。</p>
+
+        </div>
+    </article>
+
+<h2 id="先把任务写成合同"><a href="#先把任务写成合同" class="headerlink" title="先把任务写成合同"></a>先把任务写成合同</h2><p>第一个 Skill 是<br><a target="_blank" rel="noopener" href="https://github.com/Kirrito-k423/hugoMinos/tree/main/skills/goal-definition"><code>goal-definition</code></a>。<br>它不执行任务，只负责与用户分轮澄清，把自然语言愿望变成可验收的 Goal 合同。</p>
+<p>直观上，它像开工前的施工图：不是要求一开始知道全部答案，而是确保<strong>终点、边界、<br>预算、权限和验收方式已经明确</strong>。可以通过只读调查获得的仓库、提交和环境事实由 AI<br>自己检查；会改变成功定义、风险或成本的问题才交给用户决策。</p>
+<p>一份可执行合同至少包含：</p>
+<table>
+<thead>
+<tr>
+<th>合同部分</th>
+<th>必须回答什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>目标与非目标</td>
+<td>完成什么，明确不做什么</td>
+</tr>
+<tr>
+<td>环境基线</td>
+<td>仓库、提交、机器、软件栈、数据和已有成功基线</td>
+</tr>
+<tr>
+<td>事实与未知</td>
+<td>哪些已经证实，哪些只是假设，最低成本验证是什么</td>
+</tr>
+<tr>
+<td>验收标准</td>
+<td>可观察完成条件、证据位置和验收人</td>
+</tr>
+<tr>
+<td>交付物</td>
+<td>代码、脚本、中文设计文档、运行手册和报告到哪里</td>
+</tr>
+<tr>
+<td>里程碑</td>
+<td>每个阶段的退出条件，不只写日期</td>
+</tr>
+<tr>
+<td>预算</td>
+<td>时间、算力、费用、重试、版本切换和高成本实验上限</td>
+</tr>
+<tr>
+<td>权限</td>
+<td>哪些动作已授权，哪些需要审批，哪些禁止</td>
+</tr>
+<tr>
+<td>停止与升级</td>
+<td>何时 BLOCKED、ESCALATE 或 ROLLBACK</td>
+</tr>
+<tr>
+<td>汇报</td>
+<td>节奏、对象和必须回答的管理问题</td>
+</tr>
+</tbody></table>
+<p>每个验收项都必须同时写<strong>观察条件</strong>和<strong>证据</strong>。例如“跑通第一步”可以拆成：</p>
+<ol>
+<li>Kimi3 配置和模型入口被 <code>verl</code> 正确识别，以单测、加载日志和提交 SHA 证明；</li>
+<li>减层配置可显式指定，层数检查正确，以配置、测试和运行日志证明；</li>
+<li>rollout 与 reward 完成，以分阶段、分 rank 日志证明；</li>
+<li>backward 和首个 optimizer step 完成，以 step 日志和参数更新证据证明；</li>
+<li>代码、脚本、中文设计文档和运行手册到达约定仓库位置。</li>
+</ol>
+<p>合同有 <code>DRAFT</code> 和 <code>READY</code> 两个关键状态。关键验收、预算、权限或升级路径缺失时，只能<br>保持 <code>DRAFT</code>；非阻塞问题可以采用推荐默认值，但必须写进“待确认假设”。只有用户确认<br>关键条款，或明确授权采用列出的默认值，Goal 才能进入 <code>READY</code>。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>Goal 不能在执行中偷偷缩水</p>
+</div>
+        <div class="message-body">
+            <p>如果物理显存不足，只能提出“增加资源”“降低序列长度”“减少模型层数”三类决策及影响，不能自行把 32K 目标改成 4K 后宣布原 Goal 已完成。范围变化必须保留原条款、记录证据并由用户确认。</p>
+
+        </div>
+    </article>
+
+<h2 id="再把执行变成受控搜索"><a href="#再把执行变成受控搜索" class="headerlink" title="再把执行变成受控搜索"></a>再把执行变成受控搜索</h2><p>第二个 Skill 是<br><a target="_blank" rel="noopener" href="https://github.com/Kirrito-k423/hugoMinos/tree/main/skills/goal-execution"><code>goal-execution</code></a>。<br>它是每个 <code>READY</code> Goal 强制携带的执行协议，负责把“继续工作”改成一次次可结束、<br>可归档的控制周期。</p>
+<p>状态机不是为了增加流程感，而是让失败具有位置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">stateDiagram-v2</span><br><span class="line">    [*] --&gt; INIT</span><br><span class="line">    INIT --&gt; BASELINE</span><br><span class="line">    BASELINE --&gt; RECON</span><br><span class="line">    RECON --&gt; HYPOTHESIS</span><br><span class="line">    HYPOTHESIS --&gt; PROBE</span><br><span class="line">    PROBE --&gt; EXPERIMENT: 证据达到门禁</span><br><span class="line">    EXPERIMENT --&gt; VERIFY</span><br><span class="line">    VERIFY --&gt; INTEGRATE: 验收通过</span><br><span class="line">    VERIFY --&gt; RECON: 新证据推翻假设</span><br><span class="line">    INTEGRATE --&gt; DONE</span><br><span class="line">    BASELINE --&gt; BLOCKED</span><br><span class="line">    PROBE --&gt; ESCALATE</span><br><span class="line">    EXPERIMENT --&gt; ROLLBACK</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>RECON</strong> 读取代码、文档、配置和调用链，把未知量变成事实；</li>
+<li><strong>HYPOTHESIS</strong> 写出可证伪原因、支持证据、替代解释和最低成本判别方法；</li>
+<li><strong>PROBE</strong> 运行最小复现或增加维测，只获取区分假设所需的信息；</li>
+<li><strong>EXPERIMENT</strong> 在证据门禁通过后进行受控实验；</li>
+<li><strong>VERIFY</strong> 用独立检查验证结果，不以命令退出码代替业务验收；</li>
+<li><strong>INTEGRATE</strong> 整理代码、测试、中文文档和远端仓库交付。</li>
+</ul>
+<p>每次定时调度只执行一个有界循环：</p>
+<ol>
+<li>读取当前阶段、剩余验收项、预算和最高优先级未知量；</li>
+<li>声明本轮唯一的 <code>micro-goal</code>；</li>
+<li>选择 <code>READ</code>、<code>PROBE</code>、<code>EXPERIMENT</code> 或 <code>INTEGRATE</code>；</li>
+<li>预先登记假设、判别条件、唯一主要变量、成本、风险和回滚；</li>
+<li>执行一个主要动作，保存脱敏命令、配置、日志、指标和代码差异；</li>
+<li>区分观察事实与推断，更新假设和替代解释；</li>
+<li>更新验收、交付、时间、费用和错误签名；</li>
+<li>主动结束本轮，说明信息增量、下一 micro-goal 和所需决策。</li>
+</ol>
+<p>这套循环允许快速迭代，但不允许方向漂移。新证据推翻假设时，应回到 <code>RECON</code> 或<br><code>HYPOTHESIS</code>；不能为了显得连续推进，沿错误路径继续堆叠更大的实验。</p>
+<h2 id="实验之前先过证据门"><a href="#实验之前先过证据门" class="headerlink" title="实验之前先过证据门"></a>实验之前先过证据门</h2><p>“有 70% 信心再做实验”方向正确，但百分比很容易沦为模型的自我授权。我的做法是先给<br>证据分级，再把百分比当作辅助解释：</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>证据基础</th>
+<th>允许动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>E0（0–30%）</strong></td>
+<td>猜测或弱类比</td>
+<td>阅读代码、文档和低成本观测</td>
+</tr>
+<tr>
+<td><strong>E1（40–60%）</strong></td>
+<td>稳定错误栈、代码、配置或官方资料</td>
+<td>最小复现和低成本 Probe</td>
+</tr>
+<tr>
+<td><strong>E2（70–80%）</strong></td>
+<td>最小复现、受控探针或单变量实验</td>
+<td>高成本完整实验</td>
+</tr>
+<tr>
+<td><strong>E3（90%+）</strong></td>
+<td>重复验证，主要替代解释已排除</td>
+<td>集成、固化结论和交付</td>
+</tr>
+</tbody></table>
+<p><strong>高成本实验默认需要 E2。</strong> 如果只有 E1，就先做最小加载、单卡 forward、局部<br>backward 或增加维测；用户可以明确豁免，但豁免、预算和风险也要进入记录。</p>
+<p>同类失败通过错误签名去重：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">错误类型 + 首个稳定堆栈位置 + 执行阶段 + 关键错误码</span><br></pre></td></tr></table></figure>
+
+<p>第一次出现时完整归档；无新增证据时只允许再现一次，以确认稳定性。下一次运行必须<br>增加观测、缩小复现或进行能区分假设的单变量变化。两个循环仍没有信息增量时，停止<br>这条路径，返回代码调查或进入 <code>ESCALATE</code>。</p>
+<p>版本问题也不能靠轮盘解决。切换前先建立 Python、框架、加速器插件、驱动、通信库、<br>模型代码和推理后端的兼容矩阵；候选版本必须来自 lock 文件、Dockerfile、CI、官方<br>兼容表、已知成功环境或已定位的 API&#x2F;ABI 变化。没有新增依据时，最多测试两个候选。</p>
+<p>OOM 则必须先回答“在哪个阶段 OOM”：</p>
+<ul>
+<li>权重加载、rollout、KV cache、logprob、reward；</li>
+<li>backward、optimizer step、通信临时 buffer 或 checkpoint。</li>
+</ul>
+<p>每次记录每 rank 峰值、最后成功阶段、模型层数和 dtype、batch&#x2F;序列长度、并行拓扑、<br>activation checkpoint、optimizer state 与 KV cache。任何减层、减 batch 或缩短序列<br>之前，都要说明它预计减少哪一类内存、为什么与当前阶段相关、预计数量级和验证判据。</p>
+<p>对于隐蔽分布式故障，<code>goal-execution</code> 固化了我原先的 <code>TSJDEBUG</code> 思路：每轮只在报错<br>附近增加 2–4 个观测点；由环境变量控制，默认关闭；日志名包含时间戳、run、rank 和<br>pid；只记录 shape、dtype、device、内存、分支和最后成功点。新日志返回后先更新假设，<br>再决定下一处观测，避免一边改业务逻辑一边改变可观测性。</p>
+<h2 id="把过程写成证据账本"><a href="#把过程写成证据账本" class="headerlink" title="把过程写成证据账本"></a>把过程写成证据账本</h2><p>聊天上下文会压缩，终端会关闭，<code>/tmp</code> 会被清理，因此 Goal 的事实源必须在仓库中。<br>默认目录是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">goal_process/&lt;goal-id&gt;/</span><br><span class="line">├── GOAL.md</span><br><span class="line">├── CURRENT_STATUS.md</span><br><span class="line">├── ACCEPTANCE.md</span><br><span class="line">├── DELIVERABLES.md</span><br><span class="line">├── HYPOTHESES.md</span><br><span class="line">├── DECISIONS.md</span><br><span class="line">├── evidence/</span><br><span class="line">├── runs/&lt;timestamp&gt;-C&lt;cycle-id&gt;/</span><br><span class="line">│   ├── ITERATION.md</span><br><span class="line">│   ├── commands.md</span><br><span class="line">│   ├── stdout.log</span><br><span class="line">│   ├── stderr.log</span><br><span class="line">│   ├── metrics.json</span><br><span class="line">│   └── changes.patch</span><br><span class="line">├── reports/</span><br><span class="line">└── HANDOVER.md</span><br></pre></td></tr></table></figure>
+
+<p><code>CURRENT_STATUS.md</code> 是覆盖更新的一分钟摘要，运行目录则是追加式历史。每轮<br><code>ITERATION.md</code> 都要记录 micro-goal、已有证据、唯一主要变量、预期观察、判别规则、<br>实际结果、错误签名、信息增量和下一步。这样新 Agent 接手时可以从状态和证据恢复，<br>而不是重新猜上一位 Agent 做过什么。</p>
+<p>OpenAI Agents SDK 可以按 run 汇总 request、输入 token、缓存输入、输出 token 和<br>reasoning token；官方文档也提醒，第三方 adapter 的 usage 上报可能不完整。[^openai-usage]<br>因此我的仓库规则要求：预计或实际超过 20 分钟的执行启用 <code>RMB-Cost.md</code>，把缓存未命中<br>输入、缓存命中输入和输出分开计价；价格、汇率或 token 明细未核实时必须标为估算。</p>
+<p>渐进交付意味着最终路径仍未跑通，也不能“两天后什么都没有”。合理的中间成果包括：</p>
+<ul>
+<li>工作分支、WIP 提交和明确的远端状态；</li>
+<li>参考模型与目标模型的调用链差异；</li>
+<li>版本兼容矩阵和最小加载脚本；</li>
+<li>已完成的配置、注册、适配和单测；</li>
+<li>最小失败复现、精确 OOM 阶段和分 rank 日志；</li>
+<li>中文软件设计文档、运行手册和已知限制；</li>
+<li>剩余候选原因、方案 A&#x2F;B、资源需求和交接包。</li>
+</ul>
+<h2 id="给领导一个管理接口"><a href="#给领导一个管理接口" class="headerlink" title="给领导一个管理接口"></a>给领导一个管理接口</h2><p>领导不应该阅读几百 KB 日志来判断任务是否失控。<code>CURRENT_STATUS.md</code> 必须能直接生成<br>一份一分钟汇报：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">状态：黄</span><br><span class="line"></span><br><span class="line">目标：</span><br><span class="line">Kimi3 减层 GRPO 在 NPU 完成首个 optimizer step。</span><br><span class="line"></span><br><span class="line">已完成：</span><br><span class="line">模型注册、减层加载、rollout 和 reward；</span><br><span class="line">代码已推送到 &lt;branch&gt;/&lt;sha&gt;。</span><br><span class="line"></span><br><span class="line">当前主阻塞：</span><br><span class="line">logprob 重算后进入 backward 时 OOM，</span><br><span class="line">问题已从“整体任务 OOM”收敛到具体阶段。</span><br><span class="line"></span><br><span class="line">关键证据：</span><br><span class="line">运行 C006；rank0 峰值；最后成功函数；日志路径。</span><br><span class="line"></span><br><span class="line">时间投入：</span><br><span class="line">环境 / 调研 / 实现 / 实验 / 文档交付 / 资源等待。</span><br><span class="line"></span><br><span class="line">下一步：</span><br><span class="line">C007 单变量验证 H3，一次实验可区分 activation 与通信临时 buffer。</span><br><span class="line"></span><br><span class="line">需要决策：</span><br><span class="line">若证实物理显存不足，选择增加 NPU 或调整验收范围。</span><br></pre></td></tr></table></figure>
+
+<p>“还需要多久”不能给脱离条件的单点数字。更可信的表达是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">若 H3 成立：剩余 X–Y 小时，证据等级 E2。</span><br><span class="line">若 H3 不成立并需要修改推理后端：剩余 A–B 天，证据等级 E1。</span><br><span class="line">最晚在 &lt;时间或预算阈值&gt; 决定扩资源、改范围或停止。</span><br></pre></td></tr></table></figure>
+
+<p>这不是回避承诺，而是把工期的不确定性绑定到一个可验证的技术分叉。领导因此能看到：<br>当前主路径是否可解、哪个假设决定 ETA、什么时候必须做资源或范围决策。</p>
+<h2 id="两个-Skill-如何配合"><a href="#两个-Skill-如何配合" class="headerlink" title="两个 Skill 如何配合"></a>两个 Skill 如何配合</h2><p>两个 Skill 的分工刻意不重叠：</p>
+<ul>
+<li><code>goal-definition</code> 与用户交互，生成并确认 <code>READY</code> Goal；</li>
+<li><code>goal-execution</code> 读取合同，初始化过程目录，并持续执行有界循环；</li>
+<li>Goal 的范围、验收或权限变化重新回到定义环节，不由执行者静默修改；</li>
+<li>执行到期但未 <code>DONE</code> 时，强制生成交接与决策包。</li>
+</ul>
+<p>最短使用入口如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">先使用 $goal-definition 与我澄清下面的任务。</span><br><span class="line">输出 Goal 合同，明确验收标准、交付物、预算、权限、停止条件、</span><br><span class="line">升级对象、汇报节奏和条件化 ETA。关键条款经我确认后再标记 READY。</span><br><span class="line"></span><br><span class="line">任务：</span><br><span class="line">[在这里填写具体任务]</span><br><span class="line"></span><br><span class="line">Goal READY 后，使用 $goal-execution 执行。</span><br><span class="line">每轮只推进一个 micro-goal；高成本实验遵守证据门禁；</span><br><span class="line">所有日志、决策、验收、交付和汇报归档到 goal_process/&lt;goal-id&gt;/。</span><br></pre></td></tr></table></figure>
+
+<p>两个 Skill 的仓库源码通过符号链接安装到 <code>~/.codex/skills/</code>。仓库是唯一可版本化源头，<br>全局目录只暴露入口，避免复制后形成两份漂移的执行规范。Goal 合同模板、过程文件模板<br>以及版本&#x2F;OOM&#x2F;TSJDEBUG 专项协议都随 Skill 一起维护。</p>
+<h2 id="适用边界"><a href="#适用边界" class="headerlink" title="适用边界"></a>适用边界</h2><p>这套设计适合远程开发、复杂调试、训练&#x2F;推理实验、多阶段代码交付和任何需要跨会话继续<br>的长期任务。短小、低风险、几分钟可完成的修改不必创建完整账本，否则流程成本会高于<br>任务本身。</p>
+<p>它能够改善的是：</p>
+<ul>
+<li>更早暴露未知量、权限缺口和物理资源下限；</li>
+<li>减少无新证据的重复实验；</li>
+<li>让失败产生可复用的负结果；</li>
+<li>在最终成功前持续形成代码、文档和决策材料；</li>
+<li>让领导能够看到阻塞、预算、可解性和条件化 ETA。</li>
+</ul>
+<p>它不能保证上游尚未实现的能力凭空出现，也不能让不足的 HBM 容纳任意配置。若证据表明<br>问题在当前资源和期限内不可行，正确结果是进入 <code>BLOCKED/ESCALATE</code>，给出证据、替代<br>路径和所需决策，而不是继续运行来维持“还在努力”的表象。</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>证据边界</p>
+</div>
+        <div class="message-body">
+            <p>E0–E3、同签名重试一次、无依据版本候选最多两个，以及超过 20 分钟启用费用报告，都是我的本地工程规则，不是 OpenAI 或 Google 的标准。它们目前解决的是可管理性和可复核性；是否提高跨任务成功率，还需要在后续 Goal 中统计首次定位时间、重复失败率、验收完成率和交付及时率。</p>
+
+        </div>
+    </article>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我最终把 Goal 理解为一份任务合同，而不是一句循环咒语；把 Skill 理解为执行操作系统，<br>而不是一段领域提示；把过程目录理解为证据账本，而不是日志垃圾场；把 Deliverables<br>理解为渐进形成的成果，而不是最后一刻的二元答案。</p>
+<p><strong>一个好的 Goal Loop 不应保证永远继续，而应保证每次继续都有理由。</strong> 如果下一轮不能<br>完成验收、增加证据、缩小故障或形成交付，就应该改变观测方式、降低实验粒度，或者把<br>问题升级给能够改变资源、范围和期限的人。</p>
+<p>最终成功当然最好；但即使没有完全跑通，系统也必须回答：为什么、卡在哪里、做过什么、<br>时间花在哪里、还能否解决、还要多久，以及现在已经可以交付什么。这才是 AI 长期任务<br>真正需要的工程闭环。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>[^openai-tracing]: OpenAI Agents SDK, <a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/tracing/">Tracing</a>. 文档列出了默认 run、agent、generation、function、guardrail 与 handoff spans，并支持自定义 span 和敏感数据控制。</p>
+<p>[^openai-usage]: OpenAI Agents SDK, <a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/usage/">Usage</a>. 文档说明每次 run 可汇总 request、input、cached input、output 和 reasoning token，同时提醒第三方 adapter 的 usage 上报可能不完整。</p>
+<p>[^google-sre]: Chris Jones, Google SRE Book, <a target="_blank" rel="noopener" href="https://sre.google/sre-book/effective-troubleshooting/">Effective Troubleshooting</a>. 本文借鉴其观测、假设、受控测试、最小复现和记录原则；具体 Goal 阈值是本地设计。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kirrito-k423/hugoMinos/tree/main/skills/goal-definition">Goal Definition Skill</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kirrito-k423/hugoMinos/tree/main/skills/goal-execution">Goal Execution Skill</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Evidence-Driven Goal Loop</p><p><a href="http://icarus.shaojiemike.top/2026/07/31/Work/0-Digital Worker/Goal-Execution-Control-Plane/">http://icarus.shaojiemike.top/2026/07/31/Work/0-Digital Worker/Goal-Execution-Control-Plane/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-07-31</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-07-31</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/AI-Agent/">AI Agent</a><a class="link-muted mr-2" rel="tag" href="/tags/Goal/">Goal</a><a class="link-muted mr-2" rel="tag" href="/tags/Agent-Loop/">Agent Loop</a><a class="link-muted mr-2" rel="tag" href="/tags/Evidence/">Evidence</a><a class="link-muted mr-2" rel="tag" href="/tags/Observability/">Observability</a><a class="link-muted mr-2" rel="tag" href="/tags/Skill/">Skill</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/31/Work/Artificial%20Intelligence/AIInfra/AI-Optimization-Stack/"><span class="level-item">AI Optimization Stack</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">575</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">44</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">787</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#先说结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">先说结论</span></span></a></li><li><a class="level is-mobile" href="#为什么-Goal-会空转"><span class="level-left"><span class="level-item">2</span><span class="level-item">为什么 Goal 会空转</span></span></a></li><li><a class="level is-mobile" href="#先把任务写成合同"><span class="level-left"><span class="level-item">3</span><span class="level-item">先把任务写成合同</span></span></a></li><li><a class="level is-mobile" href="#再把执行变成受控搜索"><span class="level-left"><span class="level-item">4</span><span class="level-item">再把执行变成受控搜索</span></span></a></li><li><a class="level is-mobile" href="#实验之前先过证据门"><span class="level-left"><span class="level-item">5</span><span class="level-item">实验之前先过证据门</span></span></a></li><li><a class="level is-mobile" href="#把过程写成证据账本"><span class="level-left"><span class="level-item">6</span><span class="level-item">把过程写成证据账本</span></span></a></li><li><a class="level is-mobile" href="#给领导一个管理接口"><span class="level-left"><span class="level-item">7</span><span class="level-item">给领导一个管理接口</span></span></a></li><li><a class="level is-mobile" href="#两个-Skill-如何配合"><span class="level-left"><span class="level-item">8</span><span class="level-item">两个 Skill 如何配合</span></span></a></li><li><a class="level is-mobile" href="#适用边界"><span class="level-left"><span class="level-item">9</span><span class="level-item">适用边界</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">10</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">11</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">17</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">4</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">118</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-31T09:26:00.000Z">2026-07-31</time></p><p class="title"><a href="/2026/07/31/Work/0-Digital%20Worker/Goal-Execution-Control-Plane/">Evidence-Driven Goal Loop</a></p><p class="categories"><a href="/categories/1-Agent-Workflow/">1-Agent Workflow</a> / <a href="/categories/1-Agent-Workflow/0-TOP/">0-TOP</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-31T03:30:00.000Z">2026-07-31</time></p><p class="title"><a href="/2026/07/31/Work/Artificial%20Intelligence/AIInfra/AI-Optimization-Stack/">AI Optimization Stack</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-29T04:25:00.000Z">2026-07-29</time></p><p class="title"><a href="/2026/07/29/Thinking/1-target2chase/career/AI-Technology-Value-Stack/">AI Technology Value Stack</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-29T04:00:00.000Z">2026-07-29</time></p><p class="title"><a href="/2026/07/29/Work/Artificial%20Intelligence/Industry/AI-Startup-Career-Risk/">AI Startup Career Risk</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Infrastructure/"><span class="tag">AI Infrastructure</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-STARTUP/"><span class="tag">AI STARTUP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Systems/"><span class="tag">AI Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/APR/"><span class="tag">APR</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
