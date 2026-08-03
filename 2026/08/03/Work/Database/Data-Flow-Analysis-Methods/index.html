@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Data Flow Analysis Methods - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       分析数据平台、训练平台、日志系统或指标系统时，常见错误不是“不会画图”，而是用一张图回答了它不擅长的问题。DFD 解释数据经过哪里，IPO 解释一个处理如何变换，数据血缘解释结果从何而来，ER 模型解释事实如何持久化，领域模型解释业务规则由谁维护。本文用同一个训练与指标示例拆解五种方法，并给出组合顺序、优劣边界和落地检查表。"><meta property="og:type" content="blog"><meta property="og:title" content="Data Flow Analysis Methods"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/03/Work/Database/Data-Flow-Analysis-Methods/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       分析数据平台、训练平台、日志系统或指标系统时，常见错误不是“不会画图”，而是用一张图回答了它不擅长的问题。DFD 解释数据经过哪里，IPO 解释一个处理如何变换，数据血缘解释结果从何而来，ER 模型解释事实如何持久化，领域模型解释业务规则由谁维护。本文用同一个训练与指标示例拆解五种方法，并给出组合顺序、优劣边界和落地检查表。"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-08-03T04:00:00.000Z"><meta property="article:modified_time" content="2026-08-03T04:19:36.492Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="DFD"><meta property="article:tag" content="IPO"><meta property="article:tag" content="Data Lineage"><meta property="article:tag" content="ER Model"><meta property="article:tag" content="Domain Model"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/03/Work/Database/Data-Flow-Analysis-Methods/"},"headline":"Data Flow Analysis Methods","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-08-03T04:00:00.000Z","dateModified":"2026-08-03T04:19:36.492Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       分析数据平台、训练平台、日志系统或指标系统时，常见错误不是“不会画图”，而是用一张图回答了它不擅长的问题。DFD 解释数据经过哪里，IPO 解释一个处理如何变换，数据血缘解释结果从何而来，ER 模型解释事实如何持久化，领域模型解释业务规则由谁维护。本文用同一个训练与指标示例拆解五种方法，并给出组合顺序、优劣边界和落地检查表。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/03/Work/Database/Data-Flow-Analysis-Methods/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-03T04:00:00.000Z" title="8/3/2026, 4:00:00 AM">2026-08-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-03T04:19:36.492Z" title="8/3/2026, 4:19:36 AM">2026-08-03</time></span><span class="level-item"><a class="link-muted" href="/categories/Databases/">Databases</a></span><span class="level-item">an hour read (About 8227 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Data Flow Analysis Methods</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>分析数据平台、训练平台、日志系统或指标系统时，常见错误不是“不会画图”，而是<strong>用一张图回答了它不擅长的问题</strong>。DFD 解释数据经过哪里，IPO 解释一个处理如何变换，数据血缘解释结果从何而来，ER 模型解释事实如何持久化，领域模型解释业务规则由谁维护。本文用同一个训练与指标示例拆解五种方法，并给出组合顺序、优劣边界和落地检查表。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="先按问题选择镜片"><a href="#先按问题选择镜片" class="headerlink" title="先按问题选择镜片"></a>先按问题选择镜片</h2><p>假设一个训练平台完成如下工作：数据集注册表给出 <code>dataset@v17</code>，训练作业生成 <code>model@v42</code>，评估作业把预测结果聚合成 <code>metric@v5</code>，指标系统再把结果展示给用户。面对这条链路，至少有五类不同问题：</p>
+<ol>
+<li><strong>走向</strong>：数据穿过哪些系统边界，在哪些存储落地？</li>
+<li><strong>变换</strong>：评估作业具体接收什么，经过哪些步骤，产出什么？</li>
+<li><strong>来路</strong>：<code>metric@v5</code> 是由哪个代码版本、运行实例和上游数据生成的？</li>
+<li><strong>结构</strong>：数据集、训练运行、模型和指标之间是什么基数关系？</li>
+<li><strong>语义</strong>：训练运行在什么条件下允许启动，谁维护状态转换和一致性？</li>
+</ol>
+<figure markdown>
+  ![小黑转动五镜片观察轮，从走向、变换、来路、结构和语义观察同一个数据系统](https://pic.shaojiemike.top/shaojiemike/2026/08/64ebbd6ef6d709c5e0a2267c61e6a8e9.png){ width=92% }
+  <figcaption>自绘认知锚点：同一个数据系统需要五种互补视角，小黑通过手摇观察轮切换问题，而不是寻找一张“万能图”。</figcaption>
+</figure>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>它们不是性能优化算法</p>
+</div>
+        <div class="message-body">
+            <p>这五种方法改变的是<strong>认知边界、设计质量和可追溯性</strong>，不会直接降低训练显存、查询延迟或存储成本。若要报告效果，应测量建模覆盖率、需求歧义数、根因定位时间、变更影响漏报率、约束缺陷数等指标，不能把“图画出来了”推导成吞吐提升。</p>
+
+        </div>
+    </article>
+
+<h2 id="DFD-数据流图"><a href="#DFD-数据流图" class="headerlink" title="DFD 数据流图"></a>DFD 数据流图</h2><h3 id="机制与对象"><a href="#机制与对象" class="headerlink" title="机制与对象"></a>机制与对象</h3><p><strong>问题快照</strong>：平台通常先按服务、数据库和消息队列罗列组件，结果是“有什么”很清楚，“什么数据为何经过这里”却不清楚。安全评审、接口改造和故障排查都容易遗漏隐含的数据通路。</p>
+<p><strong>一句话直觉</strong>：DFD（Data Flow Diagram，数据流图）把系统看成一组接收、变换、保存和发送数据的节点，只追踪数据，不追踪线程调用顺序。</p>
+<p>英国政府的数据流图指南采用 Gane-Sarson 记法，把 DFD 的核心元素概括为<strong>外部实体、过程、数据存储和数据流</strong>；SAP PowerDesigner 文档进一步说明，数据存储响应读写请求但不会自行发起动作，过程可以向下分解为子图。[^dfd-gov][^dfd-sap]</p>
+<p>三层边界需要分清：</p>
+<ul>
+<li><strong>概念</strong>：用数据流回答系统边界与职责问题。</li>
+<li><strong>可复用机制</strong>：先画上下文图，再分解过程；父图与子图的输入输出要保持平衡。</li>
+<li><strong>具体落地</strong>：训练平台把数据集注册表视为外部实体或上游系统，把训练、评估视为过程，把模型仓和指标仓视为数据存储；这只是本文示例，不是 DFD 的唯一实现。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>标识</th>
+<th>生产者</th>
+<th>结构</th>
+<th>消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>系统边界</td>
+<td><code>boundary</code></td>
+<td>范围定义</td>
+<td><code>Boundary[inside, outside]</code></td>
+<td>上下文图、平衡规则</td>
+<td>随系统范围版本化</td>
+</tr>
+<tr>
+<td>外部实体</td>
+<td><code>external_entities</code></td>
+<td>边界访谈</td>
+<td><code>Set[Entity]</code></td>
+<td>数据流端点</td>
+<td>随系统边界版本化</td>
+</tr>
+<tr>
+<td>过程</td>
+<td><code>processes</code></td>
+<td>功能分解</td>
+<td><code>Set[Process]</code></td>
+<td>子过程、数据流</td>
+<td>随设计版本存在</td>
+</tr>
+<tr>
+<td>数据存储</td>
+<td><code>stores</code></td>
+<td>状态盘点</td>
+<td><code>Set[Store]</code></td>
+<td>读写数据流</td>
+<td>随存储设计存在</td>
+</tr>
+<tr>
+<td>数据流</td>
+<td><code>flows</code></td>
+<td>接口与事件盘点</td>
+<td><code>List[(source, target, payload)]</code></td>
+<td>过程或存储</td>
+<td>随接口契约版本化</td>
+</tr>
+<tr>
+<td>上下文图&#x2F;子图</td>
+<td><code>context_diagram</code> &#x2F; <code>child_diagram</code></td>
+<td><code>connect</code></td>
+<td><code>Graph[Node, Flow]</code></td>
+<td>评审、平衡校验</td>
+<td>随 DFD 版本存在</td>
+</tr>
+<tr>
+<td>平衡规则</td>
+<td><code>balance_rules</code></td>
+<td>DFD 校验器</td>
+<td><code>Set[Constraint]</code></td>
+<td>父子图校验</td>
+<td>建模与评审阶段</td>
+</tr>
+</tbody></table>
+<h3 id="伪代码与五视图"><a href="#伪代码与五视图" class="headerlink" title="伪代码与五视图"></a>伪代码与五视图</h3><p>下面的伪代码描述“如何构造和校验一张 DFD”，而不是平台运行时代码。每个数据流至少一端必须是过程；外部实体和数据存储不能绕过过程直接互连。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">function build_dfd(scope, interviews, interface_catalog, storage_catalog):</span><br><span class="line">    boundary = define_system_boundary(scope)</span><br><span class="line">    external_entities = collect_external_sources_and_sinks(interviews, boundary)</span><br><span class="line">    top_process = create_process(name=scope.name, level=0)</span><br><span class="line">    context_flows = name_payloads_crossing_boundary(interface_catalog)</span><br><span class="line">    context_diagram = connect(external_entities, top_process, context_flows)</span><br><span class="line"></span><br><span class="line">    processes = decompose_top_process(interviews, interface_catalog)</span><br><span class="line">    stores = identify_persistent_state(storage_catalog)</span><br><span class="line">    flows = map_payloads_between(external_entities, processes, stores)</span><br><span class="line"></span><br><span class="line">    for flow in flows:</span><br><span class="line">        assert flow.payload_name is not empty</span><br><span class="line">        assert flow.source is a process or flow.target is a process</span><br><span class="line">        assert not (flow.source is a store and flow.target is a store)</span><br><span class="line">        assert not (flow.source is an external_entity and flow.target is an external_entity)</span><br><span class="line"></span><br><span class="line">    child_diagram = connect(external_entities, processes, stores, flows)</span><br><span class="line">    assert external_inputs(child_diagram) == external_inputs(context_diagram)</span><br><span class="line">    assert external_outputs(child_diagram) == external_outputs(context_diagram)</span><br><span class="line">    return version(boundary, context_diagram, child_diagram)</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![DFD 数据流图的前后对比、因果逻辑、建模流程、组件时序和对象数据流五视图](https://pic.shaojiemike.top/shaojiemike/2026/08/25d18b7b7e68b9f5f6bbad475028e405.png){ width=96% }
+  <figcaption>自绘五视图：重点看 A 的边界变化、B 的因果链、C 的分解与平衡校验、D 的组件交互，以及 E 中注册表—训练—模型仓—评估—指标仓的数据通路。</figcaption>
+</figure>
+
+<h3 id="适用性与边界"><a href="#适用性与边界" class="headerlink" title="适用性与边界"></a>适用性与边界</h3><ul>
+<li><strong>适合</strong>：跨系统接口盘点、隐私与信任边界分析、数据平台总体设计、训练链路和日志采集链路梳理。</li>
+<li><strong>优势</strong>：能快速暴露孤立过程、未命名载荷、重复落地、跨边界复制和无人负责的存储。</li>
+<li><strong>劣势</strong>：不擅长字段级模式、业务对象行为和运行历史；图层级过深时维护成本迅速上升。</li>
+<li><strong>实现归属</strong>：架构师或平台 Owner 维护上下文图，组件 Owner 维护分解图，数据治理团队维护流名称和分类。</li>
+<li><strong>迁移成本</strong>：新组件至少要补边界、输入输出、存储读写和父子图平衡；若接口目录长期失真，DFD 也会失真。</li>
+<li><strong>效果契约</strong>：目标是减少未建模数据通路和边界歧义；代价是持续同步接口、存储与实际部署。应以抽样流量、接口清单和安全审计核验覆盖率。</li>
+</ul>
+<h2 id="IPO-分析"><a href="#IPO-分析" class="headerlink" title="IPO 分析"></a>IPO 分析</h2><h3 id="机制与对象-1"><a href="#机制与对象-1" class="headerlink" title="机制与对象"></a>机制与对象</h3><p><strong>问题快照</strong>：DFD 能说“预测结果进入评估作业”，却未必说清评估作业如何对齐样本、过滤无效值、聚合指标，以及校验失败时输出什么。</p>
+<p><strong>一句话直觉</strong>：IPO（Input-Process-Output，输入—处理—输出）把一个处理单元压缩成“吃什么、怎么变、吐出什么”的最小契约。</p>
+<p>IPO 是系统分析和程序设计中的基础模式：过程从用户或其他来源接收输入，执行计算，再返回输出。[^ipo] 它不是完整架构方法，价值在于把复杂链路中的一个过程变成可测试、可验收的单元。</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>标识</th>
+<th>生产者</th>
+<th>结构</th>
+<th>消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>输入</td>
+<td><code>inputs</code></td>
+<td>调用方&#x2F;上游</td>
+<td><code>List[TypedInput]</code></td>
+<td>处理步骤</td>
+<td>一次执行</td>
+</tr>
+<tr>
+<td>前置条件</td>
+<td><code>preconditions</code></td>
+<td>契约设计</td>
+<td><code>Set[Predicate]</code></td>
+<td>校验器</td>
+<td>契约版本期</td>
+</tr>
+<tr>
+<td>处理步骤</td>
+<td><code>steps</code></td>
+<td>过程 Owner</td>
+<td><code>OrderedList[Operation]</code></td>
+<td>下一步骤</td>
+<td>一次执行</td>
+</tr>
+<tr>
+<td>对齐样本</td>
+<td><code>aligned</code></td>
+<td><code>inner_join</code></td>
+<td><code>Table[prediction, label]</code></td>
+<td>有效样本过滤</td>
+<td>当前执行内临时对象</td>
+</tr>
+<tr>
+<td>有效样本</td>
+<td><code>valid</code></td>
+<td><code>filter</code></td>
+<td><code>Table[valid rows]</code></td>
+<td>覆盖率、分组</td>
+<td>当前执行内临时对象</td>
+</tr>
+<tr>
+<td>覆盖率</td>
+<td><code>coverage</code></td>
+<td><code>count(valid) / count(labels)</code></td>
+<td><code>Float[0,1]</code></td>
+<td>最低覆盖校验</td>
+<td>校验完成后可释放</td>
+</tr>
+<tr>
+<td>分组统计</td>
+<td><code>grouped</code> &#x2F; <code>metric_points</code></td>
+<td><code>group_by</code> &#x2F; <code>reduce</code></td>
+<td><code>Map[dimension, aggregate]</code></td>
+<td>质量校验、输出</td>
+<td>当前执行后转为结果</td>
+</tr>
+<tr>
+<td>质量报告</td>
+<td><code>quality_report</code></td>
+<td><code>validate_ranges</code></td>
+<td><code>Report[issues]</code></td>
+<td>返回值、监控</td>
+<td>随结果持久化</td>
+</tr>
+<tr>
+<td>输出</td>
+<td><code>outputs</code></td>
+<td>最后步骤</td>
+<td><code>Result[value, report]</code></td>
+<td>下游&#x2F;调用方</td>
+<td>一次执行或持久化</td>
+</tr>
+<tr>
+<td>失败输出</td>
+<td><code>rejection</code></td>
+<td>校验步骤</td>
+<td><code>Error[code, reason]</code></td>
+<td>调用方&#x2F;监控</td>
+<td>一次执行</td>
+</tr>
+</tbody></table>
+<h3 id="伪代码与五视图-1"><a href="#伪代码与五视图-1" class="headerlink" title="伪代码与五视图"></a>伪代码与五视图</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">function evaluate_model(predictions, labels, metric_config):</span><br><span class="line">    assert predictions.schema == metric_config.prediction_schema</span><br><span class="line">    assert labels.schema == metric_config.label_schema</span><br><span class="line"></span><br><span class="line">    aligned = inner_join(predictions, labels, key=&quot;sample_id&quot;)</span><br><span class="line">    valid = filter(aligned, metric_config.valid_sample_predicate)</span><br><span class="line">    coverage = count(valid) / max(count(labels), 1)</span><br><span class="line"></span><br><span class="line">    if coverage &lt; metric_config.minimum_coverage:</span><br><span class="line">        rejection = Error(code=&quot;LOW_COVERAGE&quot;, reason=coverage)</span><br><span class="line">        return Result(status=&quot;REJECTED&quot;, value=null, report=rejection)</span><br><span class="line"></span><br><span class="line">    grouped = group_by(valid, metric_config.dimensions)</span><br><span class="line">    metric_points = reduce(grouped, metric_config.aggregation)</span><br><span class="line">    quality_report = validate_ranges(metric_points, metric_config.valid_ranges)</span><br><span class="line"></span><br><span class="line">    if quality_report.has_error:</span><br><span class="line">        return Result(status=&quot;REJECTED&quot;, value=null, report=quality_report)</span><br><span class="line"></span><br><span class="line">    return Result(status=&quot;ACCEPTED&quot;, value=metric_points, report=quality_report)</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![IPO 分析的前后对比、因果逻辑、建模流程、组件时序和对象数据流五视图](https://pic.shaojiemike.top/shaojiemike/2026/08/c79129541a12b95c4ae92dede38f168e.png){ width=96% }
+  <figcaption>自绘五视图：E 图把输入对象、对齐、聚合、质量校验和最终结果逐一展开；D 图同时保留成功写入与拒绝返回的生命周期。</figcaption>
+</figure>
+
+<h3 id="适用性与边界-1"><a href="#适用性与边界-1" class="headerlink" title="适用性与边界"></a>适用性与边界</h3><ul>
+<li><strong>适合</strong>：ETL 算子、日志解析器、指标计算器、训练数据校验器、模型评估步骤和 API 契约。</li>
+<li><strong>优势</strong>：简单、低门槛，容易转成单元测试、数据契约和验收条件。</li>
+<li><strong>劣势</strong>：很容易把缓存、重试、状态更新和副作用藏进“处理”黑盒；也看不到全局依赖与版本历史。</li>
+<li><strong>实现归属</strong>：单个过程的开发 Owner 负责输入、步骤、输出和错误语义；调用方负责确认输出是否可消费。</li>
+<li><strong>迁移成本</strong>：新后端必须重新核验类型、排序、空值、幂等、错误输出和副作用，不能只替换中间计算函数。</li>
+<li><strong>效果契约</strong>：目标是缩小过程契约的歧义面；代价是显式维护错误分支和边界条件。应通过契约测试与异常样本回放验证。</li>
+</ul>
+<h2 id="数据血缘"><a href="#数据血缘" class="headerlink" title="数据血缘"></a>数据血缘</h2><h3 id="机制与对象-2"><a href="#机制与对象-2" class="headerlink" title="机制与对象"></a>机制与对象</h3><p><strong>问题快照</strong>：看到 <code>metric@v5</code> 并不代表知道它如何产生。若没有运行实例、上游版本和代码版本，结果只能“看起来合理”，无法重现或进行可靠的影响分析。</p>
+<p><strong>一句话直觉</strong>：数据血缘把每次运行留下的“使用了谁、生成了谁”串成可查询的家谱。</p>
+<p>OpenLineage 的对象模型以 <code>Dataset</code>、<code>Job</code> 和 <code>Run</code> 为核心：<code>RunEvent</code> 记录作业运行状态及其输入输出数据集，设计态的 <code>JobEvent</code>、<code>DatasetEvent</code> 则不绑定某次运行。[^openlineage] W3C PROV 提供更一般的 <code>Entity</code>、<code>Activity</code>、<code>Agent</code> 及 <code>used</code>、<code>wasGeneratedBy</code>、<code>wasDerivedFrom</code> 等关系，可用于表达来源链与责任。[^prov]</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>标识</th>
+<th>生产者</th>
+<th>结构</th>
+<th>消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据集&#x2F;产物</td>
+<td><code>dataset</code></td>
+<td>数据源或作业</td>
+<td><code>(namespace, name, version)</code></td>
+<td>作业、查询</td>
+<td>跨运行持久化</td>
+</tr>
+<tr>
+<td>作业定义</td>
+<td><code>job</code></td>
+<td>代码&#x2F;编排定义</td>
+<td><code>(namespace, name, code_version)</code></td>
+<td>运行实例</td>
+<td>随定义版本存在</td>
+</tr>
+<tr>
+<td>运行实例</td>
+<td><code>run</code></td>
+<td>编排器</td>
+<td><code>(run_id, state, time)</code></td>
+<td>血缘后端</td>
+<td>单次执行后持久化</td>
+</tr>
+<tr>
+<td>运行事件</td>
+<td><code>run_event</code></td>
+<td>作业或集成器</td>
+<td><code>START/COMPLETE/FAIL</code></td>
+<td>采集 API</td>
+<td>追加写入</td>
+</tr>
+<tr>
+<td>Facet 元数据</td>
+<td><code>facets</code></td>
+<td>插件&#x2F;作业</td>
+<td><code>Map[type, payload]</code></td>
+<td>治理与调试</td>
+<td>随事件或对象版本化</td>
+</tr>
+<tr>
+<td>生成&#x2F;使用边</td>
+<td><code>lineage_edges</code></td>
+<td>血缘后端</td>
+<td><code>Graph[Dataset ↔ Run/Job]</code></td>
+<td>上下游查询</td>
+<td>持续累积</td>
+</tr>
+</tbody></table>
+<h3 id="伪代码与五视图-2"><a href="#伪代码与五视图-2" class="headerlink" title="伪代码与五视图"></a>伪代码与五视图</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">function execute_training_with_lineage(job, run_id, input_datasets, config):</span><br><span class="line">    start_event = RunEvent(</span><br><span class="line">        state=&quot;START&quot;,</span><br><span class="line">        run_id=run_id,</span><br><span class="line">        job=job,</span><br><span class="line">        inputs=input_datasets,</span><br><span class="line">        outputs=[],</span><br><span class="line">        facets=&#123;&quot;config_hash&quot;: hash(config), &quot;code_version&quot;: job.code_version&#125;</span><br><span class="line">    )</span><br><span class="line">    emit(start_event)</span><br><span class="line"></span><br><span class="line">    result = train(input_datasets, config)</span><br><span class="line"></span><br><span class="line">    if result.failed:</span><br><span class="line">        fail_event = RunEvent(</span><br><span class="line">            state=&quot;FAIL&quot;,</span><br><span class="line">            run_id=run_id,</span><br><span class="line">            job=job,</span><br><span class="line">            inputs=input_datasets,</span><br><span class="line">            outputs=[],</span><br><span class="line">            facets=&#123;&quot;error&quot;: result.error, &quot;code_version&quot;: job.code_version&#125;</span><br><span class="line">        )</span><br><span class="line">        emit(fail_event)</span><br><span class="line">        return Failure(result.error)</span><br><span class="line"></span><br><span class="line">    output_datasets = register_versions(result.model, result.checkpoint)</span><br><span class="line">    complete_event = RunEvent(</span><br><span class="line">        state=&quot;COMPLETE&quot;,</span><br><span class="line">        run_id=run_id,</span><br><span class="line">        job=job,</span><br><span class="line">        inputs=input_datasets,</span><br><span class="line">        outputs=output_datasets,</span><br><span class="line">        facets=&#123;&quot;code_version&quot;: job.code_version, &quot;schema&quot;: result.schema&#125;</span><br><span class="line">    )</span><br><span class="line">    emit(complete_event)</span><br><span class="line">    return Success(output_datasets)</span><br><span class="line"></span><br><span class="line">function upstream_of(target_dataset):</span><br><span class="line">    return breadth_first_search(lineage_graph, target_dataset, edge=&quot;generated_from&quot;)</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![数据血缘的前后对比、因果逻辑、建模流程、组件时序和对象数据流五视图](https://pic.shaojiemike.top/shaojiemike/2026/08/7bd905c72aa276a97e376322f7ee5bc7.png){ width=96% }
+  <figcaption>自绘五视图：注意 D 图区分作业执行与血缘事件，E 图区分 Dataset/Artifact 数据对象和 Job + Run 处理对象。</figcaption>
+</figure>
+
+<h3 id="适用性与边界-2"><a href="#适用性与边界-2" class="headerlink" title="适用性与边界"></a>适用性与边界</h3><ul>
+<li><strong>适合</strong>：数据平台表级&#x2F;列级依赖、训练数据到模型的来源追踪、指标定义变更影响分析、日志加工链回溯。</li>
+<li><strong>优势</strong>：支持根因定位、下游影响评估、审计、复现和废弃资产识别。</li>
+<li><strong>劣势</strong>：<strong>采集缺口会产生“假完整”</strong>；同名异物、异名同物和版本粒度不一致会污染整张图。</li>
+<li><strong>实现归属</strong>：平台团队维护事件协议与后端，作业&#x2F;连接器 Owner 负责发出完整事件，治理团队维护命名与身份规则。</li>
+<li><strong>迁移成本</strong>：新引擎要适配作业、运行、输入输出和失败事件；只解析静态 SQL 不能证明某次运行实际读写了什么。</li>
+<li><strong>效果契约</strong>：目标是提高可追溯覆盖率并缩短根因定位时间；代价是事件写入、身份解析、图存储和数据保留成本。应抽样对比运行日志、存储审计与血缘图。</li>
+</ul>
+<p>训练平台已有成熟的同类对象模型。TensorFlow ML Metadata（MLMD）记录 <code>Artifact</code>、<code>Execution</code>、<code>Event</code> 和上下文，可回答“模型使用了哪个数据集、哪次运行产生模型、使用了什么超参数”等问题。[^mlmd]</p>
+<h2 id="ER-模型"><a href="#ER-模型" class="headerlink" title="ER 模型"></a>ER 模型</h2><h3 id="机制与对象-3"><a href="#机制与对象-3" class="headerlink" title="机制与对象"></a>机制与对象</h3><p><strong>问题快照</strong>：直接从查询需求创建表，容易把“对象身份”“关系事实”和“展示字段”混在一起，最后通过重复列、自由文本或隐含约定维护基数。</p>
+<p><strong>一句话直觉</strong>：ER（Entity-Relationship，实体—关系）模型先描述现实世界中有哪些可区分对象、它们有哪些属性、如何关联，再决定如何映射到数据库。</p>
+<p>Chen 1976 原始论文把 ER 模型作为统一多种数据视图的概念模型，强调实体、实体集、关系、关系集、属性、值和值集，并用图形记法支持数据库设计。[^chen] 现代实践常进一步明确主键、外键、弱实体和 <code>1:1</code>、<code>1:N</code>、<code>M:N</code> 基数。</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>标识</th>
+<th>生产者</th>
+<th>结构</th>
+<th>消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实体类型</td>
+<td><code>entity_types</code></td>
+<td>业务事实盘点</td>
+<td><code>Set[EntityType]</code></td>
+<td>关系、逻辑模式</td>
+<td>概念模式版本期</td>
+</tr>
+<tr>
+<td>属性</td>
+<td><code>attributes</code></td>
+<td>数据定义</td>
+<td><code>(name, value_domain, nullable)</code></td>
+<td>实体或关系</td>
+<td>概念&#x2F;逻辑模式版本期</td>
+</tr>
+<tr>
+<td>键</td>
+<td><code>keys</code></td>
+<td>身份规则</td>
+<td><code>CandidateKey / PrimaryKey</code></td>
+<td>唯一性约束</td>
+<td>逻辑模式版本期</td>
+</tr>
+<tr>
+<td>关系类型</td>
+<td><code>relationships</code></td>
+<td>事实分析</td>
+<td><code>Relation[roles]</code></td>
+<td>实体类型</td>
+<td>概念模式版本期</td>
+</tr>
+<tr>
+<td>基数</td>
+<td><code>cardinalities</code></td>
+<td>业务规则</td>
+<td><code>0..1 / 1 / 0..N / 1..N</code></td>
+<td>完整性校验</td>
+<td>规则版本期</td>
+</tr>
+<tr>
+<td>关联实体</td>
+<td><code>associative_entity</code></td>
+<td>多对多关系或带属性关系</td>
+<td><code>EntityType[relation facts]</code></td>
+<td>逻辑模式映射</td>
+<td>概念&#x2F;逻辑模式版本期</td>
+</tr>
+<tr>
+<td>逻辑模式</td>
+<td><code>logical_schema</code></td>
+<td>ER 映射</td>
+<td><code>Tables + FK + Constraints</code></td>
+<td>数据库实现</td>
+<td>部署版本期</td>
+</tr>
+</tbody></table>
+<h3 id="伪代码与五视图-3"><a href="#伪代码与五视图-3" class="headerlink" title="伪代码与五视图"></a>伪代码与五视图</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">function build_er_model(domain_statements):</span><br><span class="line">    candidate_nouns = extract_business_nouns(domain_statements)</span><br><span class="line">    entity_types = identify_objects_with_stable_identity(candidate_nouns)</span><br><span class="line"></span><br><span class="line">    for entity in entity_types:</span><br><span class="line">        entity.attributes = define_atomic_attributes(entity, domain_statements)</span><br><span class="line">        entity.candidate_keys = discover_candidate_keys(entity)</span><br><span class="line">        entity.primary_key = choose_stable_key(entity.candidate_keys)</span><br><span class="line">        assert entity.primary_key is not mutable_business_description</span><br><span class="line"></span><br><span class="line">    relationships = identify_business_facts_between(entity_types, domain_statements)</span><br><span class="line">    for relationship in relationships:</span><br><span class="line">        relationship.roles = name_participant_roles(relationship)</span><br><span class="line">        relationship.cardinality = determine_min_max_cardinality(relationship)</span><br><span class="line">        if relationship.has_attributes or relationship.is_many_to_many:</span><br><span class="line">            relationship.associative_entity = materialize_associative_entity(relationship)</span><br><span class="line"></span><br><span class="line">    logical_schema = map_entities_and_relationships(entity_types, relationships)</span><br><span class="line">    assert every_foreign_key_targets_candidate_key(logical_schema)</span><br><span class="line">    assert declared_cardinalities_have_enforcement_plan(logical_schema)</span><br><span class="line">    return version(entity_types, relationships, logical_schema)</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![ER 模型的前后对比、因果逻辑、建模流程、组件时序和对象数据流五视图](https://pic.shaojiemike.top/shaojiemike/2026/08/07e59d7e5970b14cece253358714c1fc.png){ width=96% }
+  <figcaption>自绘五视图：E 图用 Dataset—used_by—TrainingRun—produces—Model 展示关系实例与持久化关联；它不是领域对象的行为调用图。</figcaption>
+</figure>
+
+<p>下面补充两张 Chen 论文原图。第一张说明 ER 处在多个逻辑视图与存储结构层次之间；第二张展示实体、关系、角色、基数和弱实体如何共同描述制造企业。</p>
+<figure markdown>
+  ![Chen 1976 Figure 1：不同逻辑视图层次与 ER、关系、网络和实体集模型之间的关系](https://pic.shaojiemike.top/shaojiemike/2026/08/378bf93484bbf153df3a9ed7618111f1.png){ width=82% }
+  <figcaption>来自 Chen 1976 Figure 1。它支持“ER 模型连接语义视图与逻辑结构”的方法定位，不证明 ER 在所有数据库设计任务中更优。</figcaption>
+</figure>
+
+<figure markdown>
+  ![Chen 1976 Figure 11：制造企业实体关系图的完整案例](https://pic.shaojiemike.top/shaojiemike/2026/08/97b6433a9b9dbd6c882d80a81c658967.png){ width=82% }
+  <figcaption>来自 Chen 1976 Figure 11。它是表示能力的原始案例证据，展示多元关系、基数和弱实体；论文没有提供性能基准，因此不能据此推导查询速度或开发效率。</figcaption>
+</figure>
+
+<h3 id="适用性与边界-3"><a href="#适用性与边界-3" class="headerlink" title="适用性与边界"></a>适用性与边界</h3><ul>
+<li><strong>适合</strong>：元数据目录、训练运行&#x2F;模型注册表、日志索引模式、指标定义与维度表、交易型数据库概念设计。</li>
+<li><strong>优势</strong>：实体身份、关系角色、键和基数清晰，便于讨论完整性与逻辑模式映射。</li>
+<li><strong>劣势</strong>：复杂状态机、跨对象策略、时序和副作用表达能力弱；ER 图也不等于已经完成物理分区、索引和查询优化。</li>
+<li><strong>实现归属</strong>：数据建模者维护概念&#x2F;逻辑模式，数据库 Owner 负责物理实现，业务专家确认实体与基数含义。</li>
+<li><strong>迁移成本</strong>：新存储引擎要重新映射键、关系、事务与约束能力，但不应改变业务事实的语义。</li>
+<li><strong>效果契约</strong>：目标是减少结构重复、孤儿关系和完整性歧义；代价是前期建模与迁移治理。应通过约束测试、孤儿记录扫描和基数异常监控验证。</li>
+</ul>
+<h2 id="领域模型"><a href="#领域模型" class="headerlink" title="领域模型"></a>领域模型</h2><h3 id="机制与对象-4"><a href="#机制与对象-4" class="headerlink" title="机制与对象"></a>机制与对象</h3><p><strong>问题快照</strong>：当“训练能否启动”“模型能否发布”“指标是否有效”等规则散落在 SQL、API Handler 和定时任务里时，ER 图能描述表关系，却说不出谁有权改变状态、必须同时满足哪些条件。</p>
+<p><strong>一句话直觉</strong>：领域模型把业务中的对象、行为和不变量放在一起，让规则由最了解自身状态的对象守护。</p>
+<p>Martin Fowler 把 Domain Model 定义为<strong>同时包含行为和数据的领域对象模型</strong>；每个对象代表业务中有意义的个体，并通过对象网络承载复杂业务逻辑。[^fowler]</p>
+<p>三层边界是：</p>
+<ul>
+<li><strong>概念</strong>：以统一语言描述业务能力和规则。</li>
+<li><strong>可复用机制</strong>：实体维护身份，值对象表达不可变概念，聚合维护一致性边界，领域服务处理不自然属于单一对象的规则，领域事件表达已经发生的业务事实。</li>
+<li><strong>具体落地</strong>：本文让 <code>TrainingRun</code> 聚合维护状态跃迁，<code>DatasetSnapshot</code> 值对象固定数据版本，策略服务检查配额与合规；具体类名不是领域模型的通用标准。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>标识</th>
+<th>生产者</th>
+<th>结构</th>
+<th>消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>命令</td>
+<td><code>StartTraining</code></td>
+<td>应用服务</td>
+<td><code>(run_id, dataset_snapshot, config)</code></td>
+<td>聚合根</td>
+<td>单次调用</td>
+</tr>
+<tr>
+<td>值对象</td>
+<td><code>DatasetSnapshot</code></td>
+<td>数据集注册表</td>
+<td><code>(dataset_id, version, schema_hash)</code></td>
+<td><code>TrainingRun</code></td>
+<td>不可变、可跨运行引用</td>
+</tr>
+<tr>
+<td>聚合根</td>
+<td><code>TrainingRun</code></td>
+<td>领域层</td>
+<td><code>(id, state, snapshot, events)</code></td>
+<td>仓储、应用服务</td>
+<td>跨请求持久化</td>
+</tr>
+<tr>
+<td>不变量</td>
+<td><code>invariants</code></td>
+<td>领域规则</td>
+<td><code>Set[Predicate]</code></td>
+<td>聚合行为</td>
+<td>规则版本期</td>
+</tr>
+<tr>
+<td>领域服务</td>
+<td><code>TrainingPolicy</code></td>
+<td>领域层</td>
+<td><code>allow(run, quota, compliance)</code></td>
+<td>聚合&#x2F;应用服务</td>
+<td>请求期或无状态</td>
+</tr>
+<tr>
+<td>策略判定</td>
+<td><code>decision</code></td>
+<td><code>TrainingPolicy.allow</code></td>
+<td><code>Allowed / Rejected(reason)</code></td>
+<td>应用服务</td>
+<td>单次请求</td>
+</tr>
+<tr>
+<td>领域事件</td>
+<td><code>TrainingStarted</code></td>
+<td>聚合行为</td>
+<td><code>(run_id, dataset_version, time)</code></td>
+<td>事件处理器&#x2F;血缘采集</td>
+<td>追加持久化</td>
+</tr>
+</tbody></table>
+<h3 id="伪代码与五视图-4"><a href="#伪代码与五视图-4" class="headerlink" title="伪代码与五视图"></a>伪代码与五视图</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">function handle_start_training(command, run_repository, policy_service, event_bus):</span><br><span class="line">    snapshot = DatasetSnapshot(</span><br><span class="line">        dataset_id=command.dataset_id,</span><br><span class="line">        version=command.dataset_version,</span><br><span class="line">        schema_hash=command.schema_hash</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    run = run_repository.get(command.run_id)</span><br><span class="line">    assert run.state == &quot;CREATED&quot;</span><br><span class="line">    assert run.dataset_snapshot == snapshot</span><br><span class="line"></span><br><span class="line">    decision = policy_service.allow(</span><br><span class="line">        run=run,</span><br><span class="line">        quota=command.quota,</span><br><span class="line">        compliance_context=command.compliance_context</span><br><span class="line">    )</span><br><span class="line">    if not decision.allowed:</span><br><span class="line">        return Rejected(reason=decision.reason)</span><br><span class="line"></span><br><span class="line">    event = run.start(started_at=command.request_time)</span><br><span class="line">    assert run.state == &quot;RUNNING&quot;</span><br><span class="line">    run_repository.save(run)</span><br><span class="line">    event_bus.publish(event)</span><br><span class="line">    return Accepted(run_id=run.id, state=run.state)</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![领域模型的前后对比、因果逻辑、建模流程、组件时序和对象数据流五视图](https://pic.shaojiemike.top/shaojiemike/2026/08/38179f6b704d4fc227e04d18eeb25f53.png){ width=96% }
+  <figcaption>自绘五视图：E 图显示命令经过聚合行为和不变量校验后改变持久状态并产生领域事件；ER 模型只会描述这些对象如何存储。</figcaption>
+</figure>
+
+<h3 id="适用性与边界-4"><a href="#适用性与边界-4" class="headerlink" title="适用性与边界"></a>适用性与边界</h3><ul>
+<li><strong>适合</strong>：训练生命周期、数据产品发布、指标定义审批、日志保留与脱敏策略等规则复杂且持续演化的领域。</li>
+<li><strong>优势</strong>：统一业务语言，把状态转换和不变量集中到明确所有者，降低规则散落带来的不一致。</li>
+<li><strong>劣势</strong>：成本最高；简单 CRUD 或纯搬运链路使用复杂聚合会造成过度设计。对象模型与数据库模式不一致时还需要映射层。</li>
+<li><strong>实现归属</strong>：领域专家与领域开发共同维护语言和规则，应用服务负责编排，仓储负责持久化，基础设施层不能绕过聚合直接改状态。</li>
+<li><strong>迁移成本</strong>：新模型、后端或流程若改变业务概念、聚合边界或不变量，需要重新设计；仅替换数据库通常只改仓储适配。</li>
+<li><strong>效果契约</strong>：目标是减少非法状态和重复规则；代价是建模、测试、映射和团队学习成本。应通过状态机测试、属性测试和生产非法跃迁监控验证。</li>
+</ul>
+<h2 id="异同与优劣"><a href="#异同与优劣" class="headerlink" title="异同与优劣"></a>异同与优劣</h2><h3 id="共同点"><a href="#共同点" class="headerlink" title="共同点"></a>共同点</h3><p>五种方法都在做同一件基础工作：<strong>把隐含假设变成可审查对象</strong>。它们都依赖稳定命名、明确边界、版本管理和实际系统校验；任何一张图若长期不与代码、事件、数据库和运行记录对照，都会退化成过期文档。</p>
+<p>不同点不在“图长什么样”，而在<strong>主要观察维度</strong>：</p>
+<ul>
+<li>DFD 的主轴是<strong>空间与边界</strong>。</li>
+<li>IPO 的主轴是<strong>局部变换</strong>。</li>
+<li>数据血缘的主轴是<strong>时间与因果来源</strong>。</li>
+<li>ER 模型的主轴是<strong>静态事实结构</strong>。</li>
+<li>领域模型的主轴是<strong>业务行为与一致性</strong>。</li>
+</ul>
+<figure markdown>
+  ![DFD、IPO、数据血缘、ER 模型和领域模型的核心问题、时间视角、粒度、优势、盲区与推荐组合](https://pic.shaojiemike.top/shaojiemike/2026/08/d5c3ab352b7f1caf6d8f6d2deed09185.png){ width=96% }
+  <figcaption>自绘对比图：箭头给出一种常用收敛顺序，不是强制瀑布流程；运行血缘应持续反证并修正前面的设计模型。</figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>最擅长回答</th>
+<th>主要产物</th>
+<th>优势</th>
+<th>主要盲区</th>
+<th>最直接验证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DFD</td>
+<td>数据经过哪里？</td>
+<td>上下文图、分层 DFD、数据流字典</td>
+<td>系统边界与跨组件流向直观</td>
+<td>字段结构、行为、运行历史</td>
+<td>接口清单、流量与存储审计</td>
+</tr>
+<tr>
+<td>IPO</td>
+<td>一个过程如何变换？</td>
+<td>输入&#x2F;处理&#x2F;输出契约</td>
+<td>简洁、可测试、可验收</td>
+<td>全局依赖、持久状态、副作用</td>
+<td>契约测试、异常样本回放</td>
+</tr>
+<tr>
+<td>数据血缘</td>
+<td>结果从何而来、变更影响谁？</td>
+<td>数据集—作业—运行图</td>
+<td>追溯、复现、影响分析</td>
+<td>采集缺口、身份污染</td>
+<td>运行日志、审计日志、抽样回放</td>
+</tr>
+<tr>
+<td>ER 模型</td>
+<td>事实如何组织和持久化？</td>
+<td>概念&#x2F;逻辑模式、键与基数</td>
+<td>完整性与结构清晰</td>
+<td>行为、时序、复杂策略</td>
+<td>约束测试、孤儿与基数扫描</td>
+</tr>
+<tr>
+<td>领域模型</td>
+<td>业务规则由谁维护？</td>
+<td>聚合、值对象、服务、事件</td>
+<td>语义统一、不变量集中</td>
+<td>建模成本、过度设计风险</td>
+<td>状态机与属性测试、非法跃迁监控</td>
+</tr>
+</tbody></table>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>最小组合</p>
+</div>
+        <div class="message-body">
+            <p>若时间有限，至少保留三层：用 <strong>DFD</strong> 画系统级通路，用 <strong>IPO</strong> 写关键过程契约，用<strong>数据血缘</strong>记录运行事实。只要系统中存在复杂对象关系，再补 <strong>ER 模型</strong>；只要规则开始跨表、跨服务散落，再补<strong>领域模型</strong>。</p>
+
+        </div>
+    </article>
+
+<h2 id="四类平台如何组合"><a href="#四类平台如何组合" class="headerlink" title="四类平台如何组合"></a>四类平台如何组合</h2><h3 id="数据平台"><a href="#数据平台" class="headerlink" title="数据平台"></a>数据平台</h3><p>数据平台首先需要 DFD 盘点数据源、采集、计算、存储、服务和跨域复制，再用 ER 模型定义目录、表、字段、数据产品、Owner 与策略之间的结构。关键 ETL&#x2F;ELT 过程用 IPO 写清输入、变换、输出和失败语义，运行后由数据血缘记录实际的表级或列级依赖。</p>
+<p>领域模型适合数据产品发布、质量门禁、权限申请和生命周期治理；如果平台只是搬运文件，不必为每个算子构造复杂聚合。</p>
+<h3 id="训练平台"><a href="#训练平台" class="headerlink" title="训练平台"></a>训练平台</h3><p>训练平台的 DFD 应覆盖数据集注册表、缓存、训练任务、检查点、模型仓、评估器和部署门禁；IPO 用于数据校验、样本混合、训练启动、评估与模型打包等关键步骤。数据血缘必须绑定<strong>数据版本、代码版本、配置、运行实例、模型和指标</strong>，否则“可复现”只是口号。</p>
+<p>ER 模型负责元数据存储结构，领域模型负责 <code>TrainingRun</code>、<code>ModelVersion</code>、<code>Evaluation</code> 和 <code>ReleaseDecision</code> 的状态与不变量。MLMD 的 Artifact&#x2F;Execution&#x2F;Event 设计说明，训练平台的来源追踪本质上也是对象、执行和关系的组合。[^mlmd]</p>
+<h3 id="日志系统"><a href="#日志系统" class="headerlink" title="日志系统"></a>日志系统</h3><p>日志系统用 DFD 描述 Agent、Collector、队列、解析器、索引与归档的通路，用 IPO 细化解析、脱敏、采样、路由和索引写入。ER 模型用于日志记录、资源、索引、保留策略和租户关系；领域模型只在审计日志、合规删除、保留策略等规则复杂处重点使用。</p>
+<p>OpenTelemetry 日志数据模型把时间、观测时间、TraceId、SpanId、严重级别、正文、资源和属性等字段统一起来，说明“日志是什么”属于数据&#x2F;领域语义问题；这些字段如何经过 Collector 才属于 DFD 与 IPO 问题。[^otel-logs]</p>
+<h3 id="指标系统"><a href="#指标系统" class="headerlink" title="指标系统"></a>指标系统</h3><p>指标系统首先用领域模型定义指标名称、单位、维度、聚合语义、时间窗口、有效范围和 Owner，再用 IPO 固化从事件到指标点的计算契约。DFD 描述 SDK、Collector、流处理、时序库和查询服务，数据血缘记录指标定义、输入事件、处理版本和输出时序之间的关系，ER 模型则支撑定义、维度和权限元数据。</p>
+<p>OpenTelemetry 指标规范区分 Event、Metric Stream 和 Timeseries，并明确时间重聚合、空间重聚合和 Delta-to-Cumulative 等转换。这正好说明：<strong>同一指标系统同时需要语义模型、处理契约和数据流模型</strong>。[^otel-metrics]</p>
+<h2 id="一套可执行的分析顺序"><a href="#一套可执行的分析顺序" class="headerlink" title="一套可执行的分析顺序"></a>一套可执行的分析顺序</h2><ol>
+<li><strong>用领域语言定问题</strong>：列出关键业务名词、状态、规则和不能被破坏的不变量；复杂度低时只保留词汇表。</li>
+<li><strong>用 DFD 划边界</strong>：画一张上下文图，再只对高风险过程向下分解；所有箭头都用数据名而不是“调用”“同步”。</li>
+<li><strong>用 ER 固化事实结构</strong>：识别身份、属性、关系、角色和基数；不要从现有表名直接反推业务实体。</li>
+<li><strong>用 IPO 关闭关键过程</strong>：为高风险变换写输入类型、处理步骤、输出、拒绝条件和副作用。</li>
+<li><strong>用血缘记录运行事实</strong>：统一 Dataset&#x2F;Job&#x2F;Run 身份，覆盖 START、COMPLETE、FAIL 及代码、模式、质量等元数据。</li>
+<li><strong>反向校验设计</strong>：定期用真实事件、接口流量、数据库约束和生产异常修正 DFD、IPO、ER 与领域模型。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>常见误区</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><strong>把 DFD 画成调用图</strong>：箭头应命名数据，不是 <code>HTTP</code>、<code>RPC</code> 或“调用”。协议可作为数据流属性。</li>
+<li><strong>把 IPO 的处理写成黑盒</strong>：若处理包含校验、排序、分支、重试或状态写入，应显式展开。</li>
+<li><strong>把静态 SQL 解析当完整血缘</strong>：它能推断设计依赖，不能证明某次运行的真实输入、动态分支和失败输出。</li>
+<li><strong>把 ER 实体当 DFD 外部实体</strong>：DFD 外部实体是系统边界外的数据源&#x2F;汇；ER 实体是需要保存信息的业务对象。</li>
+<li><strong>把领域模型等同数据库表</strong>：领域对象必须承载行为或不变量；纯表映射只是数据模型。</li>
+</ul>
+
+        </div>
+    </article>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>DFD、IPO、数据血缘、ER 模型和领域模型不是五种互斥画法，而是五个不同问题的答案。</strong> DFD 给全局通路，IPO 给局部契约，血缘给运行证据，ER 给持久结构，领域模型给业务行为。对数据平台、训练平台、日志系统和指标系统，最稳妥的做法是让设计模型与运行证据形成闭环：先用模型消除歧义，再让真实数据反证模型。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>[^dfd-gov]: UK Health Security Agency, <a target="_blank" rel="noopener" href="https://www.gov.uk/government/publications/accessing-ukhsa-protected-data/approval-standards-and-guidelines-data-flow-diagram">Approval standards and guidelines: data flow diagram</a>, accessed 2026-08-03.<br>[^dfd-sap]: SAP Help Portal, <a target="_blank" rel="noopener" href="https://help.sap.com/docs/SAP_POWERDESIGNER/d7f65e920f60441db0508baff61c0bd7/c7e74f746e1b101498cfa4cdbed1ba7b.html">Data Flow Diagram (DFD)</a>, accessed 2026-08-03.<br>[^ipo]: Engineering LibreTexts, <a target="_blank" rel="noopener" href="https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_%28Busbee_and_Braunschweig%29/02%3A_Data_and_Operators/2.20%3A_Input-Process-Output_Model">Input-Process-Output Model</a>, accessed 2026-08-03.<br>[^openlineage]: OpenLineage, <a target="_blank" rel="noopener" href="https://openlineage.io/docs/spec/object-model">Object Model</a>, accessed 2026-08-03.<br>[^prov]: W3C Recommendation, <a target="_blank" rel="noopener" href="https://www.w3.org/TR/prov-o/">PROV-O: The PROV Ontology</a>, 2013-04-30.<br>[^chen]: Peter Pin-Shan Chen, <a target="_blank" rel="noopener" href="https://doi.org/10.1145/320434.320440">The Entity-Relationship Model—Toward a Unified View of Data</a>, <em>ACM Transactions on Database Systems</em>, 1(1), 1976, pp. 9–36.<br>[^fowler]: Martin Fowler, <a target="_blank" rel="noopener" href="https://martinfowler.com/eaaCatalog/domainModel.html">Domain Model</a>, 2003-03-05.<br>[^mlmd]: TensorFlow, <a target="_blank" rel="noopener" href="https://www.tensorflow.org/tfx/guide/mlmd">ML Metadata</a>, accessed 2026-08-03.<br>[^otel-logs]: OpenTelemetry, <a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/otel/logs/data-model/">Logs Data Model</a>, accessed 2026-08-03.<br>[^otel-metrics]: OpenTelemetry, <a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/otel/metrics/data-model/">Metrics Data Model</a>, accessed 2026-08-03.</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Data Flow Analysis Methods</p><p><a href="http://icarus.shaojiemike.top/2026/08/03/Work/Database/Data-Flow-Analysis-Methods/">http://icarus.shaojiemike.top/2026/08/03/Work/Database/Data-Flow-Analysis-Methods/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-03</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/DFD/">DFD</a><a class="link-muted mr-2" rel="tag" href="/tags/IPO/">IPO</a><a class="link-muted mr-2" rel="tag" href="/tags/Data-Lineage/">Data Lineage</a><a class="link-muted mr-2" rel="tag" href="/tags/ER-Model/">ER Model</a><a class="link-muted mr-2" rel="tag" href="/tags/Domain-Model/">Domain Model</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/03/Work/software/visualization/Business-Process-Diagrams/"><span class="level-item">Business Process Diagrams</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">578</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">44</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">802</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#先按问题选择镜片"><span class="level-left"><span class="level-item">1</span><span class="level-item">先按问题选择镜片</span></span></a></li><li><a class="level is-mobile" href="#DFD-数据流图"><span class="level-left"><span class="level-item">2</span><span class="level-item">DFD 数据流图</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#机制与对象"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">机制与对象</span></span></a></li><li><a class="level is-mobile" href="#伪代码与五视图"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">伪代码与五视图</span></span></a></li><li><a class="level is-mobile" href="#适用性与边界"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">适用性与边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#IPO-分析"><span class="level-left"><span class="level-item">3</span><span class="level-item">IPO 分析</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#机制与对象-1"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">机制与对象</span></span></a></li><li><a class="level is-mobile" href="#伪代码与五视图-1"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">伪代码与五视图</span></span></a></li><li><a class="level is-mobile" href="#适用性与边界-1"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">适用性与边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#数据血缘"><span class="level-left"><span class="level-item">4</span><span class="level-item">数据血缘</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#机制与对象-2"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">机制与对象</span></span></a></li><li><a class="level is-mobile" href="#伪代码与五视图-2"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">伪代码与五视图</span></span></a></li><li><a class="level is-mobile" href="#适用性与边界-2"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">适用性与边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#ER-模型"><span class="level-left"><span class="level-item">5</span><span class="level-item">ER 模型</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#机制与对象-3"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">机制与对象</span></span></a></li><li><a class="level is-mobile" href="#伪代码与五视图-3"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">伪代码与五视图</span></span></a></li><li><a class="level is-mobile" href="#适用性与边界-3"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">适用性与边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#领域模型"><span class="level-left"><span class="level-item">6</span><span class="level-item">领域模型</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#机制与对象-4"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">机制与对象</span></span></a></li><li><a class="level is-mobile" href="#伪代码与五视图-4"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">伪代码与五视图</span></span></a></li><li><a class="level is-mobile" href="#适用性与边界-4"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">适用性与边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#异同与优劣"><span class="level-left"><span class="level-item">7</span><span class="level-item">异同与优劣</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#共同点"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">共同点</span></span></a></li></ul></li><li><a class="level is-mobile" href="#四类平台如何组合"><span class="level-left"><span class="level-item">8</span><span class="level-item">四类平台如何组合</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#数据平台"><span class="level-left"><span class="level-item">8.1</span><span class="level-item">数据平台</span></span></a></li><li><a class="level is-mobile" href="#训练平台"><span class="level-left"><span class="level-item">8.2</span><span class="level-item">训练平台</span></span></a></li><li><a class="level is-mobile" href="#日志系统"><span class="level-left"><span class="level-item">8.3</span><span class="level-item">日志系统</span></span></a></li><li><a class="level is-mobile" href="#指标系统"><span class="level-left"><span class="level-item">8.4</span><span class="level-item">指标系统</span></span></a></li></ul></li><li><a class="level is-mobile" href="#一套可执行的分析顺序"><span class="level-left"><span class="level-item">9</span><span class="level-item">一套可执行的分析顺序</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">10</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">11</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">18</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">4</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T04:00:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/Database/Data-Flow-Analysis-Methods/">Data Flow Analysis Methods</a></p><p class="categories"><a href="/categories/Databases/">Databases</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T03:40:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/software/visualization/Business-Process-Diagrams/">Business Process Diagrams</a></p><p class="categories"><a href="/categories/Tutorials/">Tutorials</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-31T09:30:00.000Z">2026-07-31</time></p><p class="title"><a href="/2026/07/31/Thinking/1-target2chase/career/Computing-Systems-Optimization/">Computing Systems Optimization</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a> / <a href="/categories/1-AI-Systems/0-TOP/">0-TOP</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-07-31T09:26:00.000Z">2026-07-31</time></p><p class="title"><a href="/2026/07/31/Work/0-Digital%20Worker/Goal-Execution-Control-Plane/">Evidence-Driven Goal Loop</a></p><p class="categories"><a href="/categories/1-Agent-Workflow/">1-Agent Workflow</a> / <a href="/categories/1-Agent-Workflow/0-TOP/">0-TOP</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Infrastructure/"><span class="tag">AI Infrastructure</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-STARTUP/"><span class="tag">AI STARTUP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Systems/"><span class="tag">AI Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/APR/"><span class="tag">APR</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
