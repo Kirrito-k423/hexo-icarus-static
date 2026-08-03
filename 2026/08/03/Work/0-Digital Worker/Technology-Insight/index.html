@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Technology Insight - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       AI 技术更新很快，日常知道“最近出现了什么”并不难，真正困难的是判断：新技术到底解决了旧方案的哪个瓶颈，会替代什么、保留什么、把成本转移到哪里，以及它是否适合自己的用户、硬件和组织。 技术洞察因此不能止于论文、新闻、功能和融资信息的汇总。它要从一个具体决策出发，建立现有技术基线，读标准和代码，设计最小 Demo 与受控基准，"><meta property="og:type" content="blog"><meta property="og:title" content="Technology Insight"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/03/Work/0-Digital%20Worker/Technology-Insight/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       AI 技术更新很快，日常知道“最近出现了什么”并不难，真正困难的是判断：新技术到底解决了旧方案的哪个瓶颈，会替代什么、保留什么、把成本转移到哪里，以及它是否适合自己的用户、硬件和组织。 技术洞察因此不能止于论文、新闻、功能和融资信息的汇总。它要从一个具体决策出发，建立现有技术基线，读标准和代码，设计最小 Demo 与受控基准，"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-08-03T08:52:58.000Z"><meta property="article:modified_time" content="2026-08-03T09:24:53.389Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Technology Strategy"><meta property="article:tag" content="Technical Due Diligence"><meta property="article:tag" content="Benchmarking"><meta property="article:tag" content="Architecture Analysis"><meta property="article:tag" content="Technology Radar"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/03/Work/0-Digital%20Worker/Technology-Insight/"},"headline":"Technology Insight","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-08-03T08:52:58.000Z","dateModified":"2026-08-03T09:24:53.389Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       AI 技术更新很快，日常知道“最近出现了什么”并不难，真正困难的是判断：新技术到底解决了旧方案的哪个瓶颈，会替代什么、保留什么、把成本转移到哪里，以及它是否适合自己的用户、硬件和组织。 技术洞察因此不能止于论文、新闻、功能和融资信息的汇总。它要从一个具体决策出发，建立现有技术基线，读标准和代码，设计最小 Demo 与受控基准，"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/03/Work/0-Digital%20Worker/Technology-Insight/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-03T08:52:58.000Z" title="8/3/2026, 8:52:58 AM">2026-08-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-03T09:24:53.389Z" title="8/3/2026, 9:24:53 AM">2026-08-03</time></span><span class="level-item"><a class="link-muted" href="/categories/1-Agent-Workflow/">1-Agent Workflow</a></span><span class="level-item">an hour read (About 7958 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Technology Insight</h1><div class="content"><!-- 博客内容主要是实践，测试记录，辅助知识整理。不会只是为了整理知识而写，至少是为了全面了解当前工作涉及知识点而写。 -->
+
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>AI 技术更新很快，日常知道“最近出现了什么”并不难，真正困难的是判断：<strong>新技术到底解决了旧方案的哪个瓶颈，会替代什么、保留什么、把成本转移到哪里，以及它是否适合自己的用户、硬件和组织。</strong></p>
+<p>技术洞察因此不能止于论文、新闻、功能和融资信息的汇总。它要从一个具体决策出发，建立现有技术基线，读标准和代码，设计最小 Demo 与受控基准，量化瓶颈，评估技术演进、成熟度、全生命周期成本和风险，最后给出带适用边界、证据等级和退出条件的行动建议。</p>
+<p>本文把技术全景扫描、竞品与标杆、代码与架构逆向、实验与基准、瓶颈、演进、成熟度、成本收益和风险九类方法组织成一个闭环，并沉淀为可复用的 <code>$technology-insight</code> Skill。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="技术洞察不是资料汇总"><a href="#技术洞察不是资料汇总" class="headerlink" title="技术洞察不是资料汇总"></a>技术洞察不是资料汇总</h2><p><a target="_blank" rel="noopener" href="https://www.iso.org/standard/72621.html">ISO 56006:2021</a> 将战略情报放在创新管理和决策行动中理解：收集信息只是输入，目的在于支持战略与运营层面的创新活动。落实到工程工作，技术洞察的交付物不是“我读了多少”，而是<strong>在什么条件下应该采取什么行动，以及这个判断由什么证据支持</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>产物</th>
+<th>核心问题</th>
+<th>主要证据</th>
+<th>不能替代</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>技术资料汇总</strong></td>
+<td>有哪些论文、产品、框架和观点</td>
+<td>搜索结果、文档、新闻、论文</td>
+<td>适配判断与选型结论</td>
+</tr>
+<tr>
+<td><strong>技术洞察</strong></td>
+<td>新技术改变了什么，是否值得在目标场景行动</td>
+<td>标准、论文、固定版本代码、Demo、基准、Profiler、生产证据</td>
+<td>详细实现设计和正式验收</td>
+</tr>
+<tr>
+<td><strong>技术设计</strong></td>
+<td>选定路线如何落到系统</td>
+<td>架构、接口、数据流、部署与任务分解</td>
+<td>候选路线为何值得选择</td>
+</tr>
+<tr>
+<td><strong>测试与验收</strong></td>
+<td>交付结果是否满足事先合同</td>
+<td>测试、指标、故障和验收结果</td>
+<td>开发前的技术机会判断</td>
+</tr>
+</tbody></table>
+<p>技术洞察与需求分析相邻，但职责不同。<strong>需求分析从用户问题和业务结果出发，技术洞察从现有技术缺口与候选机制出发。</strong>新模型、框架或硬件是机会信号，不会因为“先进”就自动成为需求；它必须连接到真实场景、可观察目标和约束。</p>
+<figure markdown>
+  ![小黑测量新技术对旧技术栈冲击的示意图](https://pic.shaojiemike.top/shaojiemike/2026/08/627456f7d17c53663ecf6ddc1586c8dd.png){ width=90% }
+  <figcaption>自绘小黑认知锚点：新技术落下后，先测量它对旧栈、关键路径和约束的真实冲击，再形成判断；宣传材料不能直接越过证据环节。</figcaption>
+</figure>
+
+<h2 id="从问题到判断的闭环"><a href="#从问题到判断的闭环" class="headerlink" title="从问题到判断的闭环"></a>从问题到判断的闭环</h2><p>完整流程不是“先搜很多资料，再努力总结”，而是让每一步消除一个会改变决策的不确定性。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">  A[&quot;决策问题与场景&quot;] --&gt; B[&quot;Baseline 与候选&quot;]</span><br><span class="line">  B --&gt; C[&quot;全景与演进扫描&quot;]</span><br><span class="line">  C --&gt; D[&quot;机制、代码与架构&quot;]</span><br><span class="line">  D --&gt; E&#123;&quot;关键未知会改变决策吗&quot;&#125;</span><br><span class="line">  E --&gt;|&quot;会&quot;| F[&quot;Demo / PoC / Benchmark&quot;]</span><br><span class="line">  E --&gt;|&quot;不会&quot;| G[&quot;成熟度、成本与风险&quot;]</span><br><span class="line">  F --&gt; H[&quot;Profiling 与瓶颈迁移&quot;]</span><br><span class="line">  H --&gt; G</span><br><span class="line">  G --&gt; I[&quot;横向比较与条件式结论&quot;]</span><br><span class="line">  I -. &quot;新版本、事故或新证据&quot; .-&gt; A</span><br></pre></td></tr></table></figure>
+
+<p>开始前先冻结一份<strong>决策合同</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>必须回答</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>决策</td>
+<td>是采用、试点、迁移、集成、投资、观望还是淘汰？</td>
+</tr>
+<tr>
+<td>Baseline</td>
+<td>当前方案是什么；如果不采用新技术，还能怎样改善？</td>
+</tr>
+<tr>
+<td>场景</td>
+<td>用户、工作负载、数据、SLA、失败后果是什么？</td>
+</tr>
+<tr>
+<td>约束</td>
+<td>硬件、预算、期限、接口、合规、人才和供应链有哪些硬限制？</td>
+</tr>
+<tr>
+<td>时间窗</td>
+<td>判断针对现在、未来一年还是长期？</td>
+</tr>
+<tr>
+<td>停止条件</td>
+<td>哪些证据足够做决定，哪些未知不值得继续研究？</td>
+</tr>
+</tbody></table>
+<p>证据则按距离目标事实的远近分层。等级不表示来源“好坏”：一篇优秀论文仍可能只是机制证据，而不是目标环境的实测证据。</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>证据</th>
+<th>能支持</th>
+<th>不能自动支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>E0</code></td>
+<td>新闻、演讲、厂商宣传、社区讨论</td>
+<td>发现线索与候选</td>
+<td>实现、效果与成熟度结论</td>
+</tr>
+<tr>
+<td><code>E1</code></td>
+<td>标准、官方文档、论文、设计提案</td>
+<td>设计意图、接口与机制</td>
+<td>某版本已实现、在本环境有效</td>
+</tr>
+<tr>
+<td><code>E2</code></td>
+<td>固定提交的代码、配置与测试</td>
+<td>某版本存在具体路径和断言</td>
+<td>生产稳定与性能领先</td>
+</tr>
+<tr>
+<td><code>E3</code></td>
+<td>可复现 Demo、PoC、Benchmark、Profiler</td>
+<td>指定环境中的运行与测量结果</td>
+<td>跨硬件、跨负载普适结论</td>
+</tr>
+<tr>
+<td><code>E4</code></td>
+<td>边界明确的生产数据、事故与长稳记录</td>
+<td>指定生产场景的真实行为</td>
+<td>其他组织和未来版本的结果</td>
+</tr>
+</tbody></table>
+<p>技术洞察的核心纪律是：<strong>事实、推论、建议和未知分开写。</strong>例如“提交 X 存在异步路径”是代码事实，“它可能降低通信暴露”是机制推论，“在本项目试点”是建议，“是否改善 p99 时延”仍是待测未知。</p>
+<h2 id="技术全景扫描"><a href="#技术全景扫描" class="headerlink" title="技术全景扫描"></a>技术全景扫描</h2><p>全景扫描先确定版图边界，再寻找路线，不从熟悉产品名单反推世界。一个 AI 技术方向通常至少有八条扫描轴：</p>
+<ul>
+<li><strong>问题与路线</strong>：不同方案解决的是同一问题，还是相邻问题？</li>
+<li><strong>框架与厂商</strong>：谁拥有核心实现、服务、数据、硬件和客户入口？</li>
+<li><strong>开源生态</strong>：治理、许可证、维护者集中度、发布和响应如何？</li>
+<li><strong>论文趋势</strong>：方法是否被独立复现，研究问题是否正在转向？</li>
+<li><strong>标准规范</strong>：接口、格式、安全和互操作是否稳定？</li>
+<li><strong>硬件演进</strong>：收益是否依赖尚未普及的指令、内存或网络？</li>
+<li><strong>采用证据</strong>：谁在什么规模、什么约束下使用？</li>
+<li><strong>能力供给</strong>：文档、工具链、人才、集成商和长期维护是否存在？</li>
+</ul>
+<p>常见输出分别回答不同问题：</p>
+<table>
+<thead>
+<tr>
+<th>输出</th>
+<th>主要用途</th>
+<th>必须保留的边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>技术地图</td>
+<td>看层级、依赖、替代和互补</td>
+<td>不把同层竞品与上下游依赖混在一起</td>
+</tr>
+<tr>
+<td>技术雷达</td>
+<td>给出 Assess、Trial、Adopt、Hold 等行动</td>
+<td>是本组织建议，不是全行业成熟度</td>
+</tr>
+<tr>
+<td>生态矩阵</td>
+<td>比较治理、采用、工具链、安全与服务</td>
+<td>单一 Star、融资或厂商数量不能代表健康</td>
+</tr>
+<tr>
+<td>演进时间线</td>
+<td>看旧瓶颈、路线转折和未解决问题</td>
+<td>发布日期不等于生产可用日期</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://www.thoughtworks.com/en-us/insights/blog/build-your-own-technology-radar">Thoughtworks 自建 Technology Radar 指南</a> 强调：Assess 是值得投入探索，Trial 要在真实问题上使用，Adopt 才接近默认选择。本文借用的是这种<strong>从信息到行动的升级门槛</strong>，不照搬 Thoughtworks 对具体技术的结论。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>扫描不是投票</p>
+</div>
+        <div class="message-body">
+            <p>论文数量、GitHub Star、招聘量、融资和厂商宣传都可以是信号，但它们的分母、时间窗和激励不同。任何一个信号都不能单独证明目标场景的功能、性能、成熟度或长期价值。</p>
+
+        </div>
+    </article>
+
+<h2 id="竞品与标杆分析"><a href="#竞品与标杆分析" class="headerlink" title="竞品与标杆分析"></a>竞品与标杆分析</h2><p>竞品比较最容易退化成功能清单。功能表只能回答“对方声称有什么”，不能回答三个更重要的问题：</p>
+<ol>
+<li><strong>为什么这样设计？</strong>它在优化时延、吞吐、兼容、可靠性、交付速度还是商业控制？</li>
+<li><strong>设计依赖什么前提？</strong>模型、数据、硬件、拓扑、流量、组织与供应链是否满足？</li>
+<li><strong>是否适合我们？</strong>优势是否落在目标用户和工作负载上，迁移代价是否可接受？</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://www.iso.org/standard/78176.html">ISO&#x2F;IEC 25010:2023</a> 为 ICT 产品质量定义了九类特征，可作为防漏检查清单，但它不替具体场景分配权重。<a target="_blank" rel="noopener" href="https://www.sei.cmu.edu/library/architecture-tradeoff-analysis-method-collection/">CMU SEI 的 ATAM</a> 则把架构放回业务驱动和质量场景，寻找风险、敏感点与权衡点。二者共同提醒：<strong>“功能更多”与“更适合”不是同一结论。</strong></p>
+<p>先比较机制，再比较指标：</p>
+<table>
+<thead>
+<tr>
+<th>候选</th>
+<th>目标瓶颈</th>
+<th>核心机制</th>
+<th>保留对象</th>
+<th>替代对象</th>
+<th>新增对象</th>
+<th>新瓶颈&#x2F;代价</th>
+<th>成立前提</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Baseline</td>
+<td>当前问题</td>
+<td>当前路径</td>
+<td>当前稳定资产</td>
+<td>无</td>
+<td>无</td>
+<td>当前主要约束</td>
+<td>当前环境</td>
+</tr>
+<tr>
+<td>新技术 A</td>
+<td>待核验</td>
+<td>待核验</td>
+<td>接口&#x2F;数据&#x2F;团队</td>
+<td>组件&#x2F;路径&#x2F;角色</td>
+<td>状态&#x2F;服务&#x2F;依赖</td>
+<td>算力&#x2F;迁移&#x2F;锁定等</td>
+<td>模型&#x2F;硬件&#x2F;组织条件</td>
+</tr>
+</tbody></table>
+<p>然后比较功能、架构、质量、性能、易用性、生态、成本、限制和商业模式。表格中每个“支持”都要注明语义：实验性还是稳定、默认还是可选、单机还是分布式、只支持推理还是覆盖训练、需要自定义 Patch 还是上游原生。</p>
+<h2 id="代码与架构逆向"><a href="#代码与架构逆向" class="headerlink" title="代码与架构逆向"></a>代码与架构逆向</h2><p>对于开源框架，代码是确认具体版本实现行为的关键证据，但“代码比宣传可靠”不等于“读到代码就得到真相”。必须固定仓库提交、依赖和构建条件，再追踪真实入口。</p>
+<p>建议按四条流读取：</p>
+<ul>
+<li><strong>数据流</strong>：输入、状态、缓存、中间对象和输出怎样生成、转换和释放；</li>
+<li><strong>控制流</strong>：配置、分支、调度、重试、超时和回滚怎样决定运行路径；</li>
+<li><strong>资源流</strong>：CPU、GPU&#x2F;NPU、内存、网络、存储和线程&#x2F;进程由谁拥有；</li>
+<li><strong>错误流</strong>：异常在哪里检测、传播、降级、恢复或被吞掉。</li>
+</ul>
+<p>在这四条流上再标记核心抽象、数据结构、生命周期、并发模型、容错机制、扩展点和性能关键路径。必要时运行最小测试，确认 README 中的能力是否真的进入目标调用链。</p>
+<table>
+<thead>
+<tr>
+<th>证据</th>
+<th>可以证明</th>
+<th>不能自动证明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>代码存在</td>
+<td>某提交包含一条实现路径</td>
+<td>默认启用、完整可用或高性能</td>
+</tr>
+<tr>
+<td>测试存在</td>
+<td>某些输入与断言被覆盖</td>
+<td>生产负载、异常和长稳全部正确</td>
+</tr>
+<tr>
+<td>Demo 跑通</td>
+<td>指定环境的最小路径可执行</td>
+<td>性能、稳定性、扩展性和可维护性</td>
+</tr>
+<tr>
+<td>基准结果</td>
+<td>受控条件下的指标差异</td>
+<td>不同硬件、负载和版本的普适结论</td>
+</tr>
+<tr>
+<td>生产记录</td>
+<td>指定业务边界内的长期行为</td>
+<td>其他组织与未来版本的结果</td>
+</tr>
+</tbody></table>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>记录默认值与兼容分支</p>
+</div>
+        <div class="message-body">
+            <p>很多技术差异并不在主算法，而在默认配置、回退路径、精度策略、缓存、并发限制和版本兼容层。逆向分析如果只读“核心类”，很容易漏掉真正决定生产行为的边界代码。</p>
+
+        </div>
+    </article>
+
+<h2 id="Demo-与基准实验"><a href="#Demo-与基准实验" class="headerlink" title="Demo 与基准实验"></a>Demo 与基准实验</h2><p>“做个 Demo”至少有四种不同目的，证据强度也不同：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>主问题</th>
+<th>最小交付</th>
+<th>常见误用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Demo</td>
+<td>最小路径能否运行？</td>
+<td>环境、命令、输入、输出、日志</td>
+<td>用跑通证明性能和成熟度</td>
+</tr>
+<tr>
+<td>PoC</td>
+<td>关键假设是否成立？</td>
+<td>对照、阈值、失败条件</td>
+<td>同时改太多变量，无法归因</td>
+</tr>
+<tr>
+<td>Benchmark</td>
+<td>同口径下谁更好？</td>
+<td>统一合同、重复测量、原始数据</td>
+<td>混用模型、硬件、精度和质量</td>
+</tr>
+<tr>
+<td>Stress&#x2F;Failure</td>
+<td>容量和恢复边界在哪？</td>
+<td>压力曲线、失败样本、恢复证据</td>
+<td>只报告最佳点，隐藏退化</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://www.itl.nist.gov/div898/handbook/pri/section1/pri11.htm">NIST 工程统计手册</a> 将实验设计描述为在执行前确定目标、因素和详细计划，以在有限投入下获得有效、客观的结论；重复、随机化和区组设计用于估计误差并隔离干扰因素。对技术比较而言，最实用的翻译是：<strong>先写实验合同，再运行命令。</strong></p>
+<table>
+<thead>
+<tr>
+<th>合同项</th>
+<th>AI&#x2F;系统实验需要固定的内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>语义与质量</td>
+<td>模型&#x2F;权重、数据、Tokenizer、解码、质量指标与容差</td>
+</tr>
+<tr>
+<td>硬件</td>
+<td>型号、数量、内存、互联、NUMA、频率&#x2F;功耗模式</td>
+</tr>
+<tr>
+<td>软件</td>
+<td>OS、驱动、固件、编译器、Runtime、框架和 Kernel 版本</td>
+</tr>
+<tr>
+<td>并行与负载</td>
+<td>DP&#x2F;TP&#x2F;PP&#x2F;EP&#x2F;CP&#x2F;SP、Batch、并发、长度分布、缓存命中</td>
+</tr>
+<tr>
+<td>测量</td>
+<td>预热、重复、随机顺序、计时边界、同步、统计量和异常规则</td>
+</tr>
+<tr>
+<td>退出</td>
+<td>超时、OOM、质量不达标、资源预算和回滚方式</td>
+</tr>
+</tbody></table>
+<p>版本固定的 <a target="_blank" rel="noopener" href="https://github.com/mlcommons/inference_policies/blob/8cc76346614ca7d2d86bd53eff691a328491c183/inference_rules.adoc">MLPerf Inference Rules</a> 明确要求公平、一致、可复制，限制非确定性，并要求披露软件、硬件和设置。这些规则不必原样套进每个内部实验，但“<strong>质量先过门槛，系统定义一致，结果必须可复制</strong>”应成为最低纪律。</p>
+<p>指标不应只有吞吐：</p>
+<ul>
+<li>p50、p95、p99 时延，首结果时间和稳态吞吐；</li>
+<li>峰值&#x2F;稳态内存、通信、I&#x2F;O、利用率和能耗；</li>
+<li>精度、任务质量、数值误差和失败率；</li>
+<li>冷启动、抖动、扩展效率、恢复时间和长稳；</li>
+<li>集成工时、代码改动、学习与运维成本。</li>
+</ul>
+<p>每组结果后写三层说明：<strong>观察</strong>是原始数据直接显示什么，<strong>解释</strong>是哪条代码路径或资源约束可能导致差异，<strong>边界</strong>是条件怎样变化后结果可能不成立。实验失败也要保存：安装冲突、文档缺口和不可复现本身就是工程成熟度证据。</p>
+<h2 id="瓶颈分析"><a href="#瓶颈分析" class="headerlink" title="瓶颈分析"></a>瓶颈分析</h2><p>技术洞察关心的不是“某个指标能不能更快”，而是<strong>当前端到端瓶颈在哪里，新技术是否直接改变它，以及改变后瓶颈会迁移到哪里</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>方法</th>
+<th>适用边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>时间耗在哪里</td>
+<td>Trace、Profiler、火焰图、关键路径</td>
+<td>先确定端到端计时边界</td>
+</tr>
+<tr>
+<td>内核受计算还是带宽约束</td>
+<td>Roofline、硬件计数器</td>
+<td>不能直接外推服务级收益</td>
+</tr>
+<tr>
+<td>局部加速的整体上限</td>
+<td>Amdahl 风格分解</td>
+<td>依赖负载占比且优化后会变化</td>
+</tr>
+<tr>
+<td>并发等待为何增长</td>
+<td>排队模型、到达&#x2F;服务&#x2F;队列指标</td>
+<td>不能替代请求内部关键路径</td>
+</tr>
+<tr>
+<td>通信能否隐藏</td>
+<td>通信—计算时间线、依赖与同步事件</td>
+<td>有独立性、引擎和缓冲才可重叠</td>
+</tr>
+<tr>
+<td>内存为何达到峰值</td>
+<td>对象大小与分配—最后使用—释放生命周期</td>
+<td>同时区分活对象、分配器保留与碎片</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://escholarship.org/uc/item/5tz795vq">Roofline 原始论文</a> 用运算强度、计算上限和内存带宽上限解释浮点内核的资源约束；<a target="_blank" rel="noopener" href="https://doi.org/10.1145/1465482.1465560">Amdahl 1967</a> 则提醒局部改进的整体收益受未改进部分约束。前者回答“内核为什么上不去”，后者回答“这个局部即使变快，对整体能有多大影响”，二者都不能替代真实端到端测量。</p>
+<p>以训练为例，可先拆成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">数据加载 -&gt; Host 处理 -&gt; H2D -&gt; 前向计算 -&gt; 通信</span><br><span class="line">        -&gt; 反向计算 -&gt; 优化器 -&gt; Checkpoint/日志 -&gt; 下一步调度</span><br></pre></td></tr></table></figure>
+
+<p>为每段记录时长、重叠、关键依赖、设备利用率、内存峰值和异常。优化后重新 Profiling；如果主瓶颈已经从计算迁到输入、通信、调度或稳定性，继续堆内核优化不会形成同等端到端收益。</p>
+<h2 id="技术演进与替代冲击"><a href="#技术演进与替代冲击" class="headerlink" title="技术演进与替代冲击"></a>技术演进与替代冲击</h2><p>演进分析不是按发布日期排列名词，而是追踪“问题—机制—代价”的变化：过去方案解决了什么，当时依赖什么条件；当前主流为何形成；新方案解除什么旧瓶颈，又引入什么新状态、接口、资源或组织负担。</p>
+<p>一条完整冲击链应写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">旧瓶颈或机会</span><br><span class="line">  -&gt; 新机制改变的对象与边界</span><br><span class="line">  -&gt; 直接效果</span><br><span class="line">  -&gt; 被替代、保留和新增的对象</span><br><span class="line">  -&gt; 新瓶颈与新成本</span><br><span class="line">  -&gt; 成立前提、迁移路径和退出条件</span><br><span class="line">  -&gt; 受益方、受损方与价值重新分配</span><br></pre></td></tr></table></figure>
+
+<p>新旧技术关系至少有六种，不应预设“全面替代”：</p>
+<table>
+<thead>
+<tr>
+<th>关系</th>
+<th>判断标准</th>
+<th>常见结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>直接替代</td>
+<td>同一职责由新路径承担，旧组件可退出关键路径</td>
+<td>迁移与兼容是主要成本</td>
+</tr>
+<tr>
+<td>互补增强</td>
+<td>旧系统保留，新技术只增强局部能力</td>
+<td>双栈、接口和观测复杂度上升</td>
+</tr>
+<tr>
+<td>重新封装</td>
+<td>底层能力相近，交付、接口或运维边界改变</td>
+<td>价值从实现转向平台或服务</td>
+</tr>
+<tr>
+<td>基础设施化</td>
+<td>原有差异化能力成为普遍底座</td>
+<td>上层创新加快，底层利润可能压缩</td>
+</tr>
+<tr>
+<td>瓶颈迁移</td>
+<td>旧约束解除，其他资源成为主约束</td>
+<td>局部优势随负载变化衰减</td>
+</tr>
+<tr>
+<td>生态重分配</td>
+<td>人才、控制权、利润或标准迁往新层级</td>
+<td>技术收益与商业收益可能分离</td>
+</tr>
+</tbody></table>
+<p>每个“会替代”都要有反事实：<strong>不采用新技术，Baseline 通过升级、调参、硬件更新或流程优化能否达到目标？</strong>如果能，新技术的价值可能主要来自易用性、交付速度或商业模式，而不是不可替代的技术能力。</p>
+<h2 id="成熟度与生态"><a href="#成熟度与生态" class="headerlink" title="成熟度与生态"></a>成熟度与生态</h2><p><a target="_blank" rel="noopener" href="https://www.nasa.gov/directorates/somd/space-communications-navigation-program/technology-readiness-levels/">NASA Technology Readiness Level</a> 从基本原理到运行环境证明技术成熟证据；它适合回答“原理、概念验证、相关环境和实际运行走到哪一步”，但不能单独表示软件质量、社区、供应链、人才和成本。</p>
+<p>软件与 AI 技术至少需要多轴成熟度矩阵：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>要找的证据</th>
+<th>典型误判</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>理论与原理</td>
+<td>机制、假设、反例、独立研究</td>
+<td>论文发表等于工程可用</td>
+</tr>
+<tr>
+<td>原型与环境</td>
+<td>Demo、PoC、相关环境和规模</td>
+<td>单机跑通等于生产就绪</td>
+</tr>
+<tr>
+<td>工程完整性</td>
+<td>安装、升级、兼容、测试、观测、回滚</td>
+<td>功能存在等于路径完整</td>
+</tr>
+<tr>
+<td>性能稳定性</td>
+<td>受控基准、波动、失败和长稳</td>
+<td>峰值吞吐等于 SLA</td>
+</tr>
+<tr>
+<td>社区与治理</td>
+<td>维护者分布、响应、发布、治理和资金</td>
+<td>Star 多等于可持续</td>
+</tr>
+<tr>
+<td>采用与供给</td>
+<td>生产案例、文档、工具、服务与人才</td>
+<td>大厂使用等于适合自己</td>
+</tr>
+<tr>
+<td>安全与合规</td>
+<td>漏洞、供应链、许可证、审计和责任</td>
+<td>自动评分等于风险已消除</td>
+</tr>
+<tr>
+<td>长期维护</td>
+<td>路线图、兼容承诺、退出与替代路径</td>
+<td>当前活跃等于长期存在</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://contribute.cncf.io/projects/lifecycle/">CNCF Project Lifecycle</a> 把项目分为 Sandbox、Incubating 和 Graduated，并用采用、稳定、成熟、安全和生产就绪证据推动升级；<a target="_blank" rel="noopener" href="https://chaoss.community/kb-metrics-and-metrics-models/">CHAOSS</a> 强调用指标模型回答具体社区健康问题；<a target="_blank" rel="noopener" href="https://openssf.org/scorecard/">OpenSSF Scorecard</a> 则提供开源安全实践的自动化启发式。这些都是有用的局部证据，但<strong>任何单一阶段、指标或总分都不能代表整体成熟度。</strong></p>
+<h2 id="全生命周期成本与风险"><a href="#全生命周期成本与风险" class="headerlink" title="全生命周期成本与风险"></a>全生命周期成本与风险</h2><p>技术成本不能只估“开发几人月”。选型决定会在整个生命周期持续产生费用：</p>
+<table>
+<thead>
+<tr>
+<th>成本项</th>
+<th>一次性问题</th>
+<th>持续问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>研发与迁移</td>
+<td>集成、数据迁移、兼容、双栈和回滚</td>
+<td>版本跟随、Patch 与技术债</td>
+</tr>
+<tr>
+<td>人才</td>
+<td>学习、招聘、关键人员投入</td>
+<td>人才稀缺、交接和知识维护</td>
+</tr>
+<tr>
+<td>基础设施</td>
+<td>新硬件、云资源、许可证和采购</td>
+<td>资源利用、弹性、能耗和续费</td>
+</tr>
+<tr>
+<td>质量与运维</td>
+<td>测试、观测、预案和上线</td>
+<td>告警、故障、恢复和长稳维护</td>
+</tr>
+<tr>
+<td>生态与锁定</td>
+<td>接口改造、数据格式和供应商接入</td>
+<td>价格权、兼容、退出和机会成本</td>
+</tr>
+</tbody></table>
+<p>收益也要分层：直接性能或资源收益、开发与交付效率、可靠性、产品能力、风险降低和战略选择权。<strong>不同层的收益不能重复计算。</strong>例如吞吐提升已经反映在单位服务成本中，就不能再把两者完整相加。</p>
+<p><a target="_blank" rel="noopener" href="https://www.iso.org/standard/65694.html">ISO 31000:2018</a> 将风险管理组织为识别、分析、评价、处置、监测和沟通，并要求风险连接组织目标。<a target="_blank" rel="noopener" href="https://webstore.iec.ch/en/publication/26359">IEC 60812:2018</a> 则用 FMEA&#x2F;FMECA 系统识别失效模式、影响和原因，且明确包含替代 RPN 计算与临界度矩阵方法。因此 FMEA 不应只剩下一个乘积总分。</p>
+<table>
+<thead>
+<tr>
+<th>风险字段</th>
+<th>训练框架示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>触发&#x2F;失效模式</td>
+<td>OOM、死锁、精度异常、Checkpoint 损坏、通信超时</td>
+</tr>
+<tr>
+<td>局部与全局影响</td>
+<td>单 Rank 失败、全任务退出、错误模型进入下游</td>
+</tr>
+<tr>
+<td>现有控制</td>
+<td>容量门禁、Watchdog、精度对照、校验和、重试与回滚</td>
+</tr>
+<tr>
+<td>可探测性</td>
+<td>是否在损害发生前被日志、指标或校验发现</td>
+</tr>
+<tr>
+<td>处置与 Owner</td>
+<td>规避、降低、转移、接受；谁负责验证与关闭</td>
+</tr>
+</tbody></table>
+<p>AI 技术还应参考 <a target="_blank" rel="noopener" href="https://doi.org/10.6028/NIST.AI.100-1">NIST AI RMF 1.0</a> 的 Govern、Map、Measure、Manage：数据代表性、质量漂移、隐私、安全、透明度、滥用和人机责任要贯穿生命周期。NIST 官方页面在本文访问时注明 1.0 正在修订，因此这里把它作为当前基线，而不是永远固定的终版清单。</p>
+<h2 id="把证据收束成结论"><a href="#把证据收束成结论" class="headerlink" title="把证据收束成结论"></a>把证据收束成结论</h2><p>横向表必须放在各方案机制、实验与边界解释之后。最少需要三张：</p>
+<ol>
+<li><strong>冲击表</strong>：替代、保留、新增、新瓶颈和迁移条件；</li>
+<li><strong>实验表</strong>：统一环境中的质量、性能、资源、稳定性和成本；</li>
+<li><strong>决策表</strong>：场景适配、成熟度、TCO、风险、证据等级和行动建议。</li>
+</ol>
+<p>综合表可以采用下面的结构：</p>
+<table>
+<thead>
+<tr>
+<th>候选</th>
+<th>目标场景适配</th>
+<th>机制优势</th>
+<th>主要代价</th>
+<th>成熟度</th>
+<th>TCO</th>
+<th>风险</th>
+<th>证据等级</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Baseline</td>
+<td>当前已知边界</td>
+<td>稳定与兼容</td>
+<td>现有瓶颈</td>
+<td>已知</td>
+<td>已知</td>
+<td>已知</td>
+<td><code>E3/E4</code> 或实际等级</td>
+<td>保留&#x2F;优化</td>
+</tr>
+<tr>
+<td>新技术 A</td>
+<td>写明条件</td>
+<td>写明改变对象</td>
+<td>写明新瓶颈</td>
+<td>多轴证据</td>
+<td>区间</td>
+<td>Top 风险</td>
+<td><code>E1-E4</code></td>
+<td>Assess&#x2F;Trial 等</td>
+</tr>
+<tr>
+<td>新技术 B</td>
+<td>写明条件</td>
+<td>写明改变对象</td>
+<td>写明新瓶颈</td>
+<td>多轴证据</td>
+<td>区间</td>
+<td>Top 风险</td>
+<td><code>E1-E4</code></td>
+<td>条件式建议</td>
+</tr>
+</tbody></table>
+<p>用户没有提供偏好权重时，不应用一个加权总分制造精确排名。优先给出硬约束、被支配方案、优势前沿和条件式选择；确需加权时，说明权重来自谁，并测试权重小幅变化是否会翻转结论。</p>
+<p>最终建议使用带门槛的行动状态：</p>
+<ul>
+<li><strong>Adopt</strong>：目标场景证据充分，可作为默认选项；</li>
+<li><strong>Trial</strong>：关键假设已通过 PoC，进入有范围和退出条件的试点；</li>
+<li><strong>Assess</strong>：方向相关，但指定证据仍不足；</li>
+<li><strong>Hold</strong>：当前不新增采用，保留旧系统或等待触发条件；</li>
+<li><strong>Reject</strong>：违反明确硬约束；</li>
+<li><strong>Coexist</strong>：新旧技术在不同场景或层级长期互补。</li>
+</ul>
+<p>每个结论必须同时给出适用场景、反例、置信度、下一步 Owner、退出条件和复审触发器。这样结论才能随新版本、硬件、标准、事故和组织条件更新，而不是变成一次性观点。</p>
+<h2 id="一个最小实例"><a href="#一个最小实例" class="headerlink" title="一个最小实例"></a>一个最小实例</h2><p>假设要判断“新推理后端 N 是否值得替换当前后端 B”。第一轮不应直接跑一个最大吞吐数字，而应按信息价值安排：</p>
+<ol>
+<li><strong>冻结场景</strong>：同一模型、权重、数据长度分布、硬件、精度、并发和质量门槛；</li>
+<li><strong>逆向机制</strong>：确认 N 改变的是调度、Kernel、缓存、并行还是服务接口；</li>
+<li><strong>最小 Demo</strong>：验证目标模型、量化格式和流式输出路径能运行；</li>
+<li><strong>关键 PoC</strong>：只验证最可能改变选型的假设，例如 p99 或峰值内存；</li>
+<li><strong>受控基准</strong>：质量达标后再测冷启动、稳态、时延、吞吐、内存、错误和长稳；</li>
+<li><strong>冲击分析</strong>：列出 B 的哪些组件退出、哪些仍保留、N 引入哪些依赖和回滚成本。</li>
+</ol>
+<p>下面是测量模板，不是实验结果：</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th align="right">后端 B</th>
+<th align="right">后端 N</th>
+<th>门槛&#x2F;判定</th>
+<th>证据路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>质量指标</td>
+<td align="right">未测</td>
+<td align="right">未测</td>
+<td>不低于业务容差</td>
+<td>评测原始 JSON</td>
+</tr>
+<tr>
+<td>p50 &#x2F; p99</td>
+<td align="right">未测</td>
+<td align="right">未测</td>
+<td>p99 满足 SLA</td>
+<td>每请求 Trace&#x2F;CSV</td>
+</tr>
+<tr>
+<td>稳态吞吐</td>
+<td align="right">未测</td>
+<td align="right">未测</td>
+<td>质量达标后比较</td>
+<td>运行日志</td>
+</tr>
+<tr>
+<td>峰值内存</td>
+<td align="right">未测</td>
+<td align="right">未测</td>
+<td>无 OOM 且留出安全余量</td>
+<td>设备监控&#x2F;Profiler</td>
+</tr>
+<tr>
+<td>1 小时失败率</td>
+<td align="right">未测</td>
+<td align="right">未测</td>
+<td>无错误结果与死锁</td>
+<td>错误与恢复日志</td>
+</tr>
+<tr>
+<td>集成与运维成本</td>
+<td align="right">现状</td>
+<td align="right">未估</td>
+<td>有升级、观测和回滚路径</td>
+<td>代码 Diff&#x2F;工时记录</td>
+</tr>
+</tbody></table>
+<p>如果 N 只在长输入、高并发时改善 p99，而 B 在短请求、旧硬件和运维工具上更稳，正确结论很可能是 <strong>Coexist</strong>，而不是“全面替代”。</p>
+<h2 id="可复用-Skill"><a href="#可复用-Skill" class="headerlink" title="可复用 Skill"></a>可复用 Skill</h2><p>本文方法已沉淀为仓库 Skill：<code>skills/technology-insight/</code>。它包含决策与证据合同、Demo&#x2F;PoC&#x2F;Benchmark 实验合同和完整报告模板，默认从 Baseline 与关键未知出发，再决定是否需要运行实验。</p>
+<p>可直接复用下面的 Prompt：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">使用 $technology-insight 对 &lt;技术/领域&gt; 做技术洞察。</span><br><span class="line"></span><br><span class="line">决策：&lt;采用 / 试点 / 迁移 / 集成 / 投资 / 观望 / 淘汰&gt;</span><br><span class="line">Baseline：&lt;当前方案或不采用的反事实&gt;</span><br><span class="line">候选：&lt;候选 A、B、C；如未给出则先扫描&gt;</span><br><span class="line">场景：&lt;用户、工作负载、数据、SLA、失败后果&gt;</span><br><span class="line">约束：&lt;硬件、预算、时间、接口、合规、人才&gt;</span><br><span class="line">时间窗：&lt;当前 / 6-12 个月 / 长期&gt;</span><br><span class="line"></span><br><span class="line">要求：</span><br><span class="line">1. 先给技术地图、演进时间线、生态矩阵和证据账本；</span><br><span class="line">2. 分析新技术的旧瓶颈、核心机制、保留/替代/新增对象、新瓶颈和迁移条件；</span><br><span class="line">3. 固定代码版本，逆向入口、数据/控制/资源/错误流和关键路径；</span><br><span class="line">4. 只为会改变决策的未知设计最小 Demo 或 PoC；需要性能结论时再做同口径 Benchmark；</span><br><span class="line">5. 比较质量、时延、吞吐、内存、通信、稳定性、开发/运维和全生命周期成本；</span><br><span class="line">6. 评估理论、原型、工程、生态、采用、供应链、人才和长期维护成熟度；</span><br><span class="line">7. 输出冲击表、实验表、横向决策表、Top 风险、证据边界和 Adopt/Trial/Assess/Hold/Reject/Coexist 建议；</span><br><span class="line">8. 不可比数字明确标注，禁止用功能表、Star、单一评分或厂商宣传代替判断。</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>技术洞察的核心不是预测哪项新技术会赢，而是<strong>把不确定性变成可验证的问题，把技术差异变成对象和约束的变化，把证据收束成带边界的行动。</strong>技术扫描负责发现版图，代码与架构负责理解机制，Demo 与基准负责验证关键未知，瓶颈分析解释收益为何出现，成熟度、成本和风险决定它能否长期成立。</p>
+<p>真正可靠的结论往往不是“新技术全面领先”，而是更具体的条件句：在某种模型、数据、硬件、规模和组织能力下，它解除某个旧瓶颈，但会把成本转移到新的层级；因此现在适合一个有指标、有 Owner、有回滚和退出条件的 Trial。这样的判断才能经得住版本和时间变化。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.iso.org/standard/72621.html">ISO 56006:2021 — Strategic intelligence management</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.thoughtworks.com/en-us/insights/blog/build-your-own-technology-radar">Thoughtworks — Build Your Own Technology Radar</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.iso.org/standard/78176.html">ISO&#x2F;IEC 25010:2023 — Product quality model</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.sei.cmu.edu/library/architecture-tradeoff-analysis-method-collection/">CMU SEI — Architecture Tradeoff Analysis Method</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.itl.nist.gov/div898/handbook/pri/section1/pri11.htm">NIST — Engineering Statistics Handbook: Design of Experiments</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/mlcommons/inference_policies/blob/8cc76346614ca7d2d86bd53eff691a328491c183/inference_rules.adoc">MLCommons — MLPerf Inference Rules，固定提交 <code>8cc7634</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://escholarship.org/uc/item/5tz795vq">Williams, Waterman, Patterson — Roofline，2009</a></li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/1465482.1465560">Gene Amdahl — Validity of the Single Processor Approach，1967</a></li>
+<li><a target="_blank" rel="noopener" href="https://ntrs.nasa.gov/citations/20205003605">NASA — Technology Readiness Assessment Best Practices Guide</a></li>
+<li><a target="_blank" rel="noopener" href="https://contribute.cncf.io/projects/lifecycle/">CNCF — Project Lifecycle</a></li>
+<li><a target="_blank" rel="noopener" href="https://chaoss.community/kb-metrics-and-metrics-models/">CHAOSS — Metrics and Metrics Models</a></li>
+<li><a target="_blank" rel="noopener" href="https://openssf.org/scorecard/">OpenSSF — Scorecard</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.iso.org/standard/65694.html">ISO 31000:2018 — Risk management</a></li>
+<li><a target="_blank" rel="noopener" href="https://webstore.iec.ch/en/publication/26359">IEC 60812:2018 — FMEA and FMECA</a></li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.6028/NIST.AI.100-1">NIST AI RMF 1.0</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Technology Insight</p><p><a href="http://icarus.shaojiemike.top/2026/08/03/Work/0-Digital Worker/Technology-Insight/">http://icarus.shaojiemike.top/2026/08/03/Work/0-Digital Worker/Technology-Insight/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-03</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Technology-Strategy/">Technology Strategy</a><a class="link-muted mr-2" rel="tag" href="/tags/Technical-Due-Diligence/">Technical Due Diligence</a><a class="link-muted mr-2" rel="tag" href="/tags/Benchmarking/">Benchmarking</a><a class="link-muted mr-2" rel="tag" href="/tags/Architecture-Analysis/">Architecture Analysis</a><a class="link-muted mr-2" rel="tag" href="/tags/Technology-Radar/">Technology Radar</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/08/03/Work/0-Digital%20Worker/Software-Design-Evidence/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Software Design Evidence</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/03/Work/software/Function-Decomposition-Methods/"><span class="level-item">Function Decomposition Methods</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">582</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">45</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">824</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#技术洞察不是资料汇总"><span class="level-left"><span class="level-item">1</span><span class="level-item">技术洞察不是资料汇总</span></span></a></li><li><a class="level is-mobile" href="#从问题到判断的闭环"><span class="level-left"><span class="level-item">2</span><span class="level-item">从问题到判断的闭环</span></span></a></li><li><a class="level is-mobile" href="#技术全景扫描"><span class="level-left"><span class="level-item">3</span><span class="level-item">技术全景扫描</span></span></a></li><li><a class="level is-mobile" href="#竞品与标杆分析"><span class="level-left"><span class="level-item">4</span><span class="level-item">竞品与标杆分析</span></span></a></li><li><a class="level is-mobile" href="#代码与架构逆向"><span class="level-left"><span class="level-item">5</span><span class="level-item">代码与架构逆向</span></span></a></li><li><a class="level is-mobile" href="#Demo-与基准实验"><span class="level-left"><span class="level-item">6</span><span class="level-item">Demo 与基准实验</span></span></a></li><li><a class="level is-mobile" href="#瓶颈分析"><span class="level-left"><span class="level-item">7</span><span class="level-item">瓶颈分析</span></span></a></li><li><a class="level is-mobile" href="#技术演进与替代冲击"><span class="level-left"><span class="level-item">8</span><span class="level-item">技术演进与替代冲击</span></span></a></li><li><a class="level is-mobile" href="#成熟度与生态"><span class="level-left"><span class="level-item">9</span><span class="level-item">成熟度与生态</span></span></a></li><li><a class="level is-mobile" href="#全生命周期成本与风险"><span class="level-left"><span class="level-item">10</span><span class="level-item">全生命周期成本与风险</span></span></a></li><li><a class="level is-mobile" href="#把证据收束成结论"><span class="level-left"><span class="level-item">11</span><span class="level-item">把证据收束成结论</span></span></a></li><li><a class="level is-mobile" href="#一个最小实例"><span class="level-left"><span class="level-item">12</span><span class="level-item">一个最小实例</span></span></a></li><li><a class="level is-mobile" href="#可复用-Skill"><span class="level-left"><span class="level-item">13</span><span class="level-item">可复用 Skill</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">14</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">15</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">18</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">7</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T09:30:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/0-Digital%20Worker/Software-Design-Evidence/">Software Design Evidence</a></p><p class="categories"><a href="/categories/1-Agent-Workflow/">1-Agent Workflow</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T08:52:58.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/0-Digital%20Worker/Technology-Insight/">Technology Insight</a></p><p class="categories"><a href="/categories/1-Agent-Workflow/">1-Agent Workflow</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T08:10:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/software/Function-Decomposition-Methods/">Function Decomposition Methods</a></p><p class="categories"><a href="/categories/1-GeneralSkills/">1-GeneralSkills</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T04:20:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/0-Digital%20Worker/Requirements-Analysis/">Requirements Analysis</a></p><p class="categories"><a href="/categories/1-Agent-Workflow/">1-Agent Workflow</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Infrastructure/"><span class="tag">AI Infrastructure</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-STARTUP/"><span class="tag">AI STARTUP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Systems/"><span class="tag">AI Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
