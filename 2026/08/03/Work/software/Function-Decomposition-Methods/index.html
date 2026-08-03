@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Function Decomposition Methods - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       功能分解的目标，是把“提升训练问题定位效率”这类高层目标，逐层转成可以独立实现、独立验证、能够追溯业务价值的子功能。真正困难的不是把一个大框画成很多小框，而是保持三种关系清楚：功能树表达“由什么组成”，依赖图表达“先有谁、后有谁”，验收契约表达“怎样证明做到了”。 本文用同一条训练诊断链路比较五种常用方法：功能树、WBS、FAST"><meta property="og:type" content="blog"><meta property="og:title" content="Function Decomposition Methods"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/03/Work/software/Function-Decomposition-Methods/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       功能分解的目标，是把“提升训练问题定位效率”这类高层目标，逐层转成可以独立实现、独立验证、能够追溯业务价值的子功能。真正困难的不是把一个大框画成很多小框，而是保持三种关系清楚：功能树表达“由什么组成”，依赖图表达“先有谁、后有谁”，验收契约表达“怎样证明做到了”。 本文用同一条训练诊断链路比较五种常用方法：功能树、WBS、FAST"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-08-03T08:10:00.000Z"><meta property="article:modified_time" content="2026-08-03T08:36:23.614Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Functional Decomposition"><meta property="article:tag" content="Function Tree"><meta property="article:tag" content="WBS"><meta property="article:tag" content="FAST"><meta property="article:tag" content="Capability Map"><meta property="article:tag" content="FBS"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/03/Work/software/Function-Decomposition-Methods/"},"headline":"Function Decomposition Methods","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-08-03T08:10:00.000Z","dateModified":"2026-08-03T08:36:23.614Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       功能分解的目标，是把“提升训练问题定位效率”这类高层目标，逐层转成可以独立实现、独立验证、能够追溯业务价值的子功能。真正困难的不是把一个大框画成很多小框，而是保持三种关系清楚：功能树表达“由什么组成”，依赖图表达“先有谁、后有谁”，验收契约表达“怎样证明做到了”。 本文用同一条训练诊断链路比较五种常用方法：功能树、WBS、FAST"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/03/Work/software/Function-Decomposition-Methods/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-03T08:10:00.000Z" title="8/3/2026, 8:10:00 AM">2026-08-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-03T08:36:23.614Z" title="8/3/2026, 8:36:23 AM">2026-08-03</time></span><span class="level-item"><a class="link-muted" href="/categories/1-GeneralSkills/">1-GeneralSkills</a></span><span class="level-item">an hour read (About 9707 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Function Decomposition Methods</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>功能分解的目标，是把“提升训练问题定位效率”这类高层目标，逐层转成<strong>可以独立实现、独立验证、能够追溯业务价值的子功能</strong>。真正困难的不是把一个大框画成很多小框，而是保持三种关系清楚：功能树表达“由什么组成”，依赖图表达“先有谁、后有谁”，验收契约表达“怎样证明做到了”。</p>
+<p>本文用同一条训练诊断链路比较五种常用方法：功能树、WBS、FAST 功能分析、能力地图和 Feature Breakdown Structure。核心原则是：<strong>先按用户能力和业务价值拆“做什么”，再按架构与代码模块分配“由谁实现”。</strong></p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="先把目标改写成能力"><a href="#先把目标改写成能力" class="headerlink" title="先把目标改写成能力"></a>先把目标改写成能力</h2><p>NASA 将功能分解定义为：检查一个功能，识别完成它所必需的子功能，以及这些功能之间的关系与接口。其逻辑分解过程首先识别系统在每一层“应该实现什么”，再把父级需求下推成更详细的功能要求。[^nasa-logical][^nasa-handbook]</p>
+<p>因此，<strong>“提升训练问题定位效率”仍然是结果目标，不是叶子功能</strong>。它至少还缺少用户、触发条件、输入、行为、输出和验收证据。功能分解就是把这块难以直接交付的目标，切成团队可以拿起来实现和验证的能力块。</p>
+<figure markdown>
+  ![小黑把高层目标切成采集、聚合、对齐、首错和报告等可验证能力块](https://pic.shaojiemike.top/shaojiemike/2026/08/8a69cc2165947a384b0745723fa53fa4.png){ width=96% }
+  <figcaption>自绘认知锚点：拆分的终点不是“文件更小”，而是每一块能力都有明确边界，并能用证据判断是否完成。</figcaption>
+</figure>
+
+<p>用户给出的链路可以先改写成两张不同的图。第一张是<strong>包含关系</strong>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">目标：提升训练问题定位效率</span><br><span class="line">├── 证据获取能力</span><br><span class="line">│   ├── 完整采集各 Rank 日志</span><br><span class="line">│   ├── 保存训练配置快照</span><br><span class="line">│   └── 关联关键监控指标</span><br><span class="line">├── 证据标准化能力</span><br><span class="line">│   ├── 聚合多 Rank 日志</span><br><span class="line">│   └── 对齐异常时间线</span><br><span class="line">├── 问题诊断能力</span><br><span class="line">│   ├── 识别首错</span><br><span class="line">│   ├── 区分首错与连锁报错</span><br><span class="line">│   └── 分类候选根因</span><br><span class="line">└── 诊断交付能力</span><br><span class="line">    ├── 生成诊断报告</span><br><span class="line">    └── 提供证据链接与处置建议</span><br></pre></td></tr></table></figure>
+
+<p>第二张才是<strong>依赖关系</strong>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">完整采集 -&gt; 多 Rank 聚合 -&gt; 时间线对齐 -&gt; 首错识别 -&gt; 根因分类 -&gt; 诊断报告</span><br></pre></td></tr></table></figure>
+
+<p>两张图可以包含相同节点，但不能混为一谈。树回答“整体由哪些能力组成”；箭头链回答“一个功能依赖哪个上游产物”。如果把所有父子边都画成先后箭头，读者会误以为“采集、聚合、报告”只是顺序步骤，看不到配置快照、指标关联、异常分支等并列能力。</p>
+<p>一个可交付的叶子功能，至少应写成下面的契约：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用户与场景</td>
+<td>训练工程师在分布式作业失败后发起诊断</td>
+</tr>
+<tr>
+<td>输入</td>
+<td><code>job_id</code>、Rank 列表、日志 URI、时钟偏移元数据</td>
+</tr>
+<tr>
+<td>行为</td>
+<td>采集所有可达 Rank 的 stdout、stderr 与结构化事件</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>带 Rank、节点、时间戳和来源的标准日志记录集</td>
+</tr>
+<tr>
+<td>验收</td>
+<td>所有存活 Rank 均有日志；缺失 Rank 被显式列出；重复上传可幂等处理</td>
+</tr>
+<tr>
+<td>异常</td>
+<td>日志源不可达时返回来源、重试次数和最终状态</td>
+</tr>
+<tr>
+<td>依赖</td>
+<td>作业元数据服务、对象存储、身份认证</td>
+</tr>
+<tr>
+<td>Owner</td>
+<td>可观测性团队负责能力契约，采集代理只是一个实现分配</td>
+</tr>
+</tbody></table>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>代码结构不是第一分解轴</p>
+</div>
+        <div class="message-body">
+            <p>按 <code>collector/</code>、<code>aggregator/</code>、<code>timeline/</code>、<code>reporter/</code> 拆代码，最多说明实现被放在哪里，不能证明用户已经获得完整诊断能力。一个用户功能可能跨多个服务，一个服务也可能支撑多个功能。正确顺序是<strong>目标 -&gt; 能力 -&gt; 功能 -&gt; 特性 -&gt; 工作包 -&gt; 模块分配</strong>。</p>
+
+        </div>
+    </article>
+
+<h2 id="功能树"><a href="#功能树" class="headerlink" title="功能树"></a>功能树</h2><h3 id="机制与对象"><a href="#机制与对象" class="headerlink" title="机制与对象"></a>机制与对象</h3><p><strong>问题快照</strong>：目标只有一句话，团队便直接开始列服务、页面和算法，导致同级节点混入“能力、组件、动作、团队和里程碑”，既无法检查漏项，也无法向上解释价值。</p>
+<p><strong>一句话直觉</strong>：功能树像一张“做什么”的目录，把父功能递归分成同一抽象层级的子功能，直到叶子能够写出独立验收契约。</p>
+<p>本文所说的功能树，是 NASA 式功能分解的<strong>树形表达</strong>，不是声称存在一套独立且统一的国际图形标准。三层边界如下：</p>
+<ul>
+<li><strong>概念</strong>：为完成父目标，系统必须具备哪些功能？</li>
+<li><strong>可复用机制</strong>：建立父子包含关系，保持兄弟节点同一分解口径，并另行记录接口与依赖。</li>
+<li><strong>本文落地</strong>：把训练诊断分成证据获取、标准化、诊断和交付四个能力域，再继续分到可验证叶子。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>标识</th>
+<th>生产者</th>
+<th>结构</th>
+<th>消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结果目标</td>
+<td><code>goal</code></td>
+<td>Stakeholder</td>
+<td><code>Goal[metric, target, timebox]</code></td>
+<td>根功能、追溯矩阵</td>
+<td>随目标版本存在</td>
+</tr>
+<tr>
+<td>父功能</td>
+<td><code>parent_function</code></td>
+<td>功能分析</td>
+<td><code>Function[verb, object, purpose]</code></td>
+<td>子功能分解</td>
+<td>设计基线</td>
+</tr>
+<tr>
+<td>子功能</td>
+<td><code>child_functions</code></td>
+<td>递归分解</td>
+<td><code>Set[Function]</code></td>
+<td>覆盖检查、叶子契约</td>
+<td>设计基线</td>
+</tr>
+<tr>
+<td>功能接口</td>
+<td><code>interfaces</code></td>
+<td>兄弟关系分析</td>
+<td><code>Set[producer, artifact, consumer]</code></td>
+<td>依赖图、集成测试</td>
+<td>随接口版本存在</td>
+</tr>
+<tr>
+<td>叶子契约</td>
+<td><code>leaf_contract</code></td>
+<td>产品、研发、测试</td>
+<td><code>Contract[input, behavior, output, acceptance]</code></td>
+<td>实现与验收</td>
+<td>发布基线</td>
+</tr>
+<tr>
+<td>追溯关系</td>
+<td><code>traceability</code></td>
+<td>对账步骤</td>
+<td><code>goal -&gt; function -&gt; test</code></td>
+<td>变更影响分析</td>
+<td>持续维护</td>
+</tr>
+</tbody></table>
+<h3 id="伪代码与五视图"><a href="#伪代码与五视图" class="headerlink" title="伪代码与五视图"></a>伪代码与五视图</h3><p>下面的伪代码是建模过程，不是运行时代码。<code>decompose_by_user_outcome</code> 必须使用用户结果作为主轴；代码模块只能在叶子功能稳定后进入 <code>allocate_implementation</code>。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">function build_function_tree(goal, scenarios, constraints):</span><br><span class="line">    root = Function(verb=&quot;提供&quot;, object=goal.user_outcome, trace_to=goal)</span><br><span class="line">    queue = [root]</span><br><span class="line">    tree = Tree(root)</span><br><span class="line">    dependency_edges = Set()</span><br><span class="line"></span><br><span class="line">    while queue is not empty:</span><br><span class="line">        parent_function = queue.pop_front()</span><br><span class="line">        child_functions = decompose_by_user_outcome(</span><br><span class="line">            parent_function,</span><br><span class="line">            scenarios,</span><br><span class="line">            constraints</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        assert same_abstraction_axis(child_functions)</span><br><span class="line">        assert each_child_contributes_to(child_functions, parent_function)</span><br><span class="line">        assert combined_children_cover_parent(child_functions, parent_function)</span><br><span class="line"></span><br><span class="line">        for child_function in child_functions:</span><br><span class="line">            tree.add_child(parent_function, child_function)</span><br><span class="line">            interfaces = identify_inputs_outputs_and_exceptions(child_function)</span><br><span class="line">            dependency_edges.add_all(derive_dependencies(interfaces))</span><br><span class="line"></span><br><span class="line">            if can_define_independent_acceptance(child_function, interfaces):</span><br><span class="line">                leaf_contract = attach_leaf_contract(</span><br><span class="line">                    function=child_function,</span><br><span class="line">                    interfaces=interfaces,</span><br><span class="line">                    acceptance=derive_acceptance_from_scenario(child_function, scenarios),</span><br><span class="line">                    owner=assign_capability_owner(child_function)</span><br><span class="line">                )</span><br><span class="line">                tree.attach(child_function, leaf_contract)</span><br><span class="line">            else:</span><br><span class="line">                queue.push_back(child_function)</span><br><span class="line"></span><br><span class="line">    assert no_code_module_is_primary_function(tree)</span><br><span class="line">    assert every_leaf_traces_to_goal(tree, goal)</span><br><span class="line">    assert every_dependency_has_named_artifact(dependency_edges)</span><br><span class="line">    return tree, dependency_edges</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![功能树的前后对比、因果逻辑、建模流程、角色时序和对象追溯五视图](https://pic.shaojiemike.top/shaojiemike/2026/08/05476b38fe624840034e842c9899c97a.png){ width=96% }
+  <figcaption>自绘五视图：重点看 A 中混杂列表如何变成同口径父子功能，C 中何时停止递归，D 中谁确认边界，以及 E 中目标如何流向可验证叶子契约。</figcaption>
+</figure>
+
+<h3 id="适用性与边界"><a href="#适用性与边界" class="headerlink" title="适用性与边界"></a>适用性与边界</h3><ul>
+<li><strong>适合</strong>：系统功能架构、需求分解、复杂产品范围梳理、测试覆盖设计。</li>
+<li><strong>优势</strong>：向上能解释业务价值，向下能连接接口、特性、工作包和测试。</li>
+<li><strong>劣势</strong>：树只能自然表达一个主包含轴；跨分支依赖、时序和共享能力必须另建关系图。</li>
+<li><strong>实现归属</strong>：产品或系统分析 Owner 维护父子语义，能力 Owner 维护叶子契约，架构师再把功能分配给组件。</li>
+<li><strong>迁移成本</strong>：换技术栈时功能树通常可以保留，但组件分配、接口约束和非功能指标需要重新校验。</li>
+<li><strong>效果契约</strong>：它减少的是功能范围与验收歧义，新增成本是模型、追溯和变更同步；应以漏项率、返工原因和验收争议衡量，不应直接声称缩短训练时间。</li>
+</ul>
+<h2 id="WBS"><a href="#WBS" class="headerlink" title="WBS"></a>WBS</h2><h3 id="机制与对象-1"><a href="#机制与对象-1" class="headerlink" title="机制与对象"></a>机制与对象</h3><p><strong>问题快照</strong>：功能已经明确，但项目仍以零散任务清单管理。设计、开发、测试、文档和上线工作互相重叠，成本、进度和责任无法汇总到一个稳定交付物。</p>
+<p><strong>一句话直觉</strong>：WBS（Work Breakdown Structure，工作分解结构）把已批准的总范围按产品和交付物逐层拆成可计划、可授权、可跟踪的工作包。</p>
+<p>美国能源部 WBS 手册明确采用<strong>产品导向</strong>结构来组织和细分项目总范围；不同层级应汇总回项目总范围，并用 WBS Dictionary 说明每个元素的范围。手册还把“按职能经理、专业或跨多个产品的活动建立 WBS 元素”列为常见错误。[^doe-wbs]</p>
+<p>这意味着 WBS 与功能树不是竞争关系：</p>
+<ul>
+<li><strong>功能树</strong>先回答“系统必须做什么”。</li>
+<li><strong>WBS</strong>再回答“为了交付这些能力，完整项目范围包含哪些交付物和工作包”。</li>
+<li>“日志聚合能力”可以映射到采集代理、聚合服务、契约测试、迁移文档和上线演练等多个 WBS 元素。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>标识</th>
+<th>生产者</th>
+<th>结构</th>
+<th>消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>授权范围</td>
+<td><code>authorized_scope</code></td>
+<td>项目章程、功能基线</td>
+<td><code>Scope[deliverables, exclusions]</code></td>
+<td>顶层 WBS</td>
+<td>项目基线</td>
+</tr>
+<tr>
+<td>交付物</td>
+<td><code>deliverable</code></td>
+<td>产品与工程规划</td>
+<td><code>Deliverable[outcome, acceptance]</code></td>
+<td>子元素分解</td>
+<td>项目阶段</td>
+</tr>
+<tr>
+<td>WBS 元素</td>
+<td><code>wbs_element</code></td>
+<td>交付物分解</td>
+<td><code>Element[id, parent, scope]</code></td>
+<td>计划、成本、进度</td>
+<td>项目生命周期</td>
+</tr>
+<tr>
+<td>工作包</td>
+<td><code>work_package</code></td>
+<td>控制粒度判断</td>
+<td><code>Package[owner, output, estimate]</code></td>
+<td>执行与跟踪</td>
+<td>执行周期</td>
+</tr>
+<tr>
+<td>WBS 字典</td>
+<td><code>dictionary_entry</code></td>
+<td>范围定义</td>
+<td><code>Entry[content, boundary, acceptance]</code></td>
+<td>授权、变更控制</td>
+<td>持续更新</td>
+</tr>
+<tr>
+<td>范围校验</td>
+<td><code>coverage_check</code></td>
+<td>WBS 评审</td>
+<td><code>Set[missing, overlap, orphan]</code></td>
+<td>基线决策</td>
+<td>评审周期</td>
+</tr>
+</tbody></table>
+<h3 id="伪代码与五视图-1"><a href="#伪代码与五视图-1" class="headerlink" title="伪代码与五视图"></a>伪代码与五视图</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">function build_wbs(authorized_scope, deliverables, reporting_constraints):</span><br><span class="line">    root = WbsElement(id=&quot;1&quot;, scope=authorized_scope)</span><br><span class="line">    queue = [root]</span><br><span class="line">    dictionary = Map()</span><br><span class="line"></span><br><span class="line">    while queue is not empty:</span><br><span class="line">        parent = queue.pop_front()</span><br><span class="line">        children = decompose_by_product_or_deliverable(parent, deliverables)</span><br><span class="line"></span><br><span class="line">        assert children_are_product_or_deliverable_oriented(children)</span><br><span class="line">        assert children_sum_to_parent_scope(children, parent)</span><br><span class="line">        assert no_child_is_only_department_or_cost_category(children)</span><br><span class="line"></span><br><span class="line">        for child in children:</span><br><span class="line">            root.attach(parent, child)</span><br><span class="line">            dictionary[child.id] = define_scope_entry(</span><br><span class="line">                content=child.scope,</span><br><span class="line">                exclusions=derive_exclusions(child, authorized_scope),</span><br><span class="line">                acceptance=derive_deliverable_acceptance(child),</span><br><span class="line">                trace_to=map_to_functions(child, deliverables)</span><br><span class="line">            )</span><br><span class="line"></span><br><span class="line">            if requires_lower_control_level(child, reporting_constraints):</span><br><span class="line">                queue.push_back(child)</span><br><span class="line">            else:</span><br><span class="line">                work_package = assign_work_package(</span><br><span class="line">                    element=child,</span><br><span class="line">                    owner=single_accountable_owner(child),</span><br><span class="line">                    estimate=estimate_cost_and_schedule(child),</span><br><span class="line">                    risks=identify_delivery_risks(child)</span><br><span class="line">                )</span><br><span class="line">                dictionary[child.id].attach(work_package)</span><br><span class="line"></span><br><span class="line">    assert covers_authorized_scope(root, authorized_scope)</span><br><span class="line">    assert no_scope_overlap_without_explicit_allocation(root)</span><br><span class="line">    return root, dictionary</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![WBS 的前后对比、因果逻辑、建模流程、角色时序和对象追溯五视图](https://pic.shaojiemike.top/shaojiemike/2026/08/488c4aaa3e6175804c444ee5fbe86b30.png){ width=96% }
+  <figcaption>自绘五视图：A 与 E 展示总范围如何变成工作包和 WBS 字典；D 强调 Sponsor、计划者和交付团队围绕范围、基线、成本与变更协作。</figcaption>
+</figure>
+
+<h3 id="适用性与边界-1"><a href="#适用性与边界-1" class="headerlink" title="适用性与边界"></a>适用性与边界</h3><ul>
+<li><strong>适合</strong>：范围基线、成本与进度控制、采购交付、跨团队大型项目。</li>
+<li><strong>优势</strong>：容易连接预算、进度、责任和风险，能检查授权范围是否完整落地。</li>
+<li><strong>劣势</strong>：如果在理解用户能力之前使用，团队很容易得到一棵“开发活动树”，却交付不了完整用户结果。</li>
+<li><strong>实现归属</strong>：项目经理维护 WBS 与字典，产品&#x2F;系统 Owner 确认其与功能和交付物的映射。</li>
+<li><strong>迁移成本</strong>：范围或采购边界改变会重构 WBS；单纯更换内部算法未必改变顶层交付物。</li>
+<li><strong>效果契约</strong>：它减少的是范围、责任、成本和进度的失配；新增成本是控制粒度、字典和变更审批。效果应由范围漏项、计划偏差和未授权工作衡量。</li>
+</ul>
+<h2 id="FAST-功能分析"><a href="#FAST-功能分析" class="headerlink" title="FAST 功能分析"></a>FAST 功能分析</h2><h3 id="机制与对象-2"><a href="#机制与对象-2" class="headerlink" title="机制与对象"></a>机制与对象</h3><p><strong>问题快照</strong>：团队把“ELK 日志平台”“时间线数据库”“LLM 根因模型”写成功能，讨论很快被当前方案锁死；当方案变化时，整个功能结构也随之失效。</p>
+<p><strong>一句话直觉</strong>：FAST（Function Analysis System Technique）先用简洁的“动词—名词”描述功能，再持续追问“怎样做到”和“为什么需要”，把方案名还原成功能逻辑。</p>
+<p>SAVE International 将功能描述为项目、产品或过程为了满足客户需要<strong>必须做的事</strong>，强调“做什么”独立于“它是什么”和“如何实现”；FAST 则用 HOW-WHY 逻辑组织功能的依赖关系。[^save-guide][^save-glossary]</p>
+<p>在训练诊断案例中，可以把方案词改写成功能词：</p>
+<table>
+<thead>
+<tr>
+<th>不推荐</th>
+<th>推荐</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ELK 平台</td>
+<td>聚合日志</td>
+<td>平台只是候选实现</td>
+</tr>
+<tr>
+<td>时间线数据库</td>
+<td>对齐事件</td>
+<td>数据库不能说明用户获得什么结果</td>
+</tr>
+<tr>
+<td>LLM 诊断</td>
+<td>分类根因</td>
+<td>算法类型不等于功能边界</td>
+</tr>
+<tr>
+<td>提升效率</td>
+<td>缩短定位时间</td>
+<td>前者是笼统目标，后者才可连接度量</td>
+</tr>
+</tbody></table>
+<p>FAST 横向链可以这样读：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">WHY &lt;----------------------------------------------------------&gt; HOW</span><br><span class="line">缩短定位时间 &lt;- 识别首个因果信号 &lt;- 对齐异常时间线 &lt;- 聚合多 Rank 日志</span><br></pre></td></tr></table></figure>
+
+<p>从右向左问“为什么聚合日志”，答案是为了对齐异常时间线；从左向右问“怎样缩短定位时间”，答案之一是识别首个因果信号。<strong>这是一条功能逻辑，不是运行时序保证</strong>；并行、等待、异常和循环仍应由流程图、状态机或时序图表达。</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>标识</th>
+<th>生产者</th>
+<th>结构</th>
+<th>消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>研究边界</td>
+<td><code>study_scope</code></td>
+<td>客户与引导师</td>
+<td><code>Scope[object, start, end]</code></td>
+<td>功能发现</td>
+<td>研讨基线</td>
+</tr>
+<tr>
+<td>功能语句</td>
+<td><code>function_statement</code></td>
+<td>跨职能团队</td>
+<td><code>Function[active_verb, measurable_noun]</code></td>
+<td>分类与连接</td>
+<td>随图版本存在</td>
+</tr>
+<tr>
+<td>基本功能</td>
+<td><code>basic_function</code></td>
+<td>价值判断</td>
+<td><code>Function</code></td>
+<td>价值改进重点</td>
+<td>研究周期</td>
+</tr>
+<tr>
+<td>次级功能</td>
+<td><code>secondary_function</code></td>
+<td>功能发现</td>
+<td><code>Function[classification]</code></td>
+<td>HOW-WHY 图</td>
+<td>研究周期</td>
+</tr>
+<tr>
+<td>HOW-WHY 边</td>
+<td><code>how_why_edge</code></td>
+<td>追问与验证</td>
+<td><code>Edge[source, relation, target]</code></td>
+<td>逻辑走查</td>
+<td>随图版本存在</td>
+</tr>
+<tr>
+<td>评价指标</td>
+<td><code>function_measure</code></td>
+<td>客户与团队</td>
+<td><code>Measure[cost, performance]</code></td>
+<td>方案比较</td>
+<td>决策周期</td>
+</tr>
+</tbody></table>
+<h3 id="伪代码与五视图-2"><a href="#伪代码与五视图-2" class="headerlink" title="伪代码与五视图"></a>伪代码与五视图</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">function build_fast(study_scope, customer_needs, candidate_elements):</span><br><span class="line">    function_statements = Set()</span><br><span class="line"></span><br><span class="line">    for element in candidate_elements:</span><br><span class="line">        statement = rewrite_as_active_verb_and_measurable_noun(</span><br><span class="line">            element,</span><br><span class="line">            independent_of_current_solution=true</span><br><span class="line">        )</span><br><span class="line">        assert statement.verb_is_active</span><br><span class="line">        assert statement.noun_can_receive_a_measure</span><br><span class="line">        function_statements.add(statement)</span><br><span class="line"></span><br><span class="line">    basic_function = select_basic_function(</span><br><span class="line">        function_statements,</span><br><span class="line">        customer_needs,</span><br><span class="line">        study_scope</span><br><span class="line">    )</span><br><span class="line">    classified_functions = classify_functions(</span><br><span class="line">        function_statements,</span><br><span class="line">        basic_function,</span><br><span class="line">        study_scope</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    graph = DirectedGraph()</span><br><span class="line">    for function in classified_functions:</span><br><span class="line">        how_answers = ask_how_is_this_function_achieved(function, classified_functions)</span><br><span class="line">        for how_function in how_answers:</span><br><span class="line">            graph.add_edge(function, relation=&quot;HOW&quot;, target=how_function)</span><br><span class="line"></span><br><span class="line">        why_answers = ask_why_is_this_function_needed(function, classified_functions)</span><br><span class="line">        for why_function in why_answers:</span><br><span class="line">            graph.add_edge(function, relation=&quot;WHY&quot;, target=why_function)</span><br><span class="line"></span><br><span class="line">    assert every_how_edge_has_consistent_inverse_why(graph)</span><br><span class="line">    assert boundary_functions_match_study_scope(graph, study_scope)</span><br><span class="line">    assert no_solution_name_is_unexamined_function(graph)</span><br><span class="line">    return graph, attach_cost_and_performance_measures(graph)</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![FAST 的前后对比、因果逻辑、建模流程、角色时序和对象追溯五视图](https://pic.shaojiemike.top/shaojiemike/2026/08/62753eac6c8f802e8b8fad1cac07e270.png){ width=96% }
+  <figcaption>自绘五视图：B 展示“方案限制创新”如何通过动词—名词和 HOW-WHY 逻辑被解除；E 展示从需求与对象到经验证 FAST 逻辑的制品路径。</figcaption>
+</figure>
+
+<h3 id="适用性与边界-2"><a href="#适用性与边界-2" class="headerlink" title="适用性与边界"></a>适用性与边界</h3><ul>
+<li><strong>适合</strong>：方案替代、价值工程、成本优化、复杂系统功能关系梳理、跨专业研讨。</li>
+<li><strong>优势</strong>：迫使团队暂时放下当前组件和技术名，暴露真正功能、缺失关系与替代实现空间。</li>
+<li><strong>劣势</strong>：依赖高质量引导和跨职能知识；大图容易出现一词多义、循环和伪因果。</li>
+<li><strong>实现归属</strong>：FAST 引导师维护规则，客户确认基本功能与边界，跨职能团队共同验证 HOW-WHY 关系。</li>
+<li><strong>迁移成本</strong>：实现方案改变时功能逻辑可以保留，但函数度量、成本分配和边界条件需要重评。</li>
+<li><strong>效果契约</strong>：它减少的是方案锁定和功能逻辑歧义，代价是研讨与模型校验；价值提升必须用受控方案比较证明，不能从图本身推导。</li>
+</ul>
+<h2 id="能力地图"><a href="#能力地图" class="headerlink" title="能力地图"></a>能力地图</h2><h3 id="机制与对象-3"><a href="#机制与对象-3" class="headerlink" title="机制与对象"></a>机制与对象</h3><p><strong>问题快照</strong>：路线图按项目、团队和系统列清单。同一种日志诊断能力在多个平台重复建设，另一些战略能力却没有任何项目支撑。</p>
+<p><strong>一句话直觉</strong>：能力地图先稳定描述“组织或产品必须有能力做什么”，再把当前系统、流程、人员和投资映射到这些能力上。</p>
+<p>The Open Group 的架构工具箱把业务能力描述为执行某项业务功能的能力，强调用“必须做什么”命名，并记录层级、定义、责任和上级对象。[^open-group-capability] 能力地图通常比项目和系统稳定，因为项目会结束、系统会替换，而“训练证据管理”“异常诊断”“诊断交付”等能力仍然存在。</p>
+<p>三层边界如下：</p>
+<ul>
+<li><strong>概念</strong>：一个组织或产品必须稳定具备哪些能力？</li>
+<li><strong>可复用机制</strong>：建立能力域和层级，去重命名，评估当前&#x2F;目标成熟度，再映射系统、Owner 与投资。</li>
+<li><strong>本文落地</strong>：用证据获取、证据标准化、问题诊断、诊断交付覆盖训练问题定位，而不是先列日志服务和报告页面。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>标识</th>
+<th>生产者</th>
+<th>结构</th>
+<th>消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>战略结果</td>
+<td><code>strategic_outcomes</code></td>
+<td>业务负责人</td>
+<td><code>Set[Outcome, Measure]</code></td>
+<td>能力识别</td>
+<td>战略周期</td>
+</tr>
+<tr>
+<td>能力</td>
+<td><code>capability</code></td>
+<td>业务架构&#x2F;产品</td>
+<td><code>Capability[name, definition, level]</code></td>
+<td>能力地图</td>
+<td>稳定版本化</td>
+</tr>
+<tr>
+<td>支撑关系</td>
+<td><code>support_map</code></td>
+<td>架构与组织盘点</td>
+<td><code>Map[capability -&gt; people/process/system]</code></td>
+<td>差距分析</td>
+<td>盘点周期</td>
+</tr>
+<tr>
+<td>当前成熟度</td>
+<td><code>current_level</code></td>
+<td>证据评估</td>
+<td><code>Assessment[level, evidence]</code></td>
+<td>差距计算</td>
+<td>评估窗口</td>
+</tr>
+<tr>
+<td>目标成熟度</td>
+<td><code>target_level</code></td>
+<td>战略决策</td>
+<td><code>Target[level, deadline]</code></td>
+<td>投资规划</td>
+<td>规划周期</td>
+</tr>
+<tr>
+<td>能力差距</td>
+<td><code>capability_gap</code></td>
+<td>当前&#x2F;目标对比</td>
+<td><code>Gap[delta, evidence, risk]</code></td>
+<td>优先级决策</td>
+<td>规划周期</td>
+</tr>
+</tbody></table>
+<h3 id="伪代码与五视图-3"><a href="#伪代码与五视图-3" class="headerlink" title="伪代码与五视图"></a>伪代码与五视图</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">function build_capability_map(strategic_outcomes, scenarios, current_landscape):</span><br><span class="line">    capability_candidates = Set()</span><br><span class="line"></span><br><span class="line">    for scenario in scenarios:</span><br><span class="line">        required_abilities = extract_stable_abilities(</span><br><span class="line">            actor=scenario.actor,</span><br><span class="line">            outcome=scenario.outcome,</span><br><span class="line">            independent_of=scenario.current_system</span><br><span class="line">        )</span><br><span class="line">        capability_candidates.add_all(required_abilities)</span><br><span class="line"></span><br><span class="line">    capabilities = normalize_names_and_remove_duplicates(capability_candidates)</span><br><span class="line">    hierarchy = group_by_stable_business_meaning(capabilities)</span><br><span class="line"></span><br><span class="line">    for capability in hierarchy:</span><br><span class="line">        capability.definition = define_without_project_or_system_name(capability)</span><br><span class="line">        capability.owner = assign_business_or_product_owner(capability)</span><br><span class="line">        capability.support = map_people_process_information_and_systems(</span><br><span class="line">            capability,</span><br><span class="line">            current_landscape</span><br><span class="line">        )</span><br><span class="line">        capability.current_level = assess_current_level(capability.support)</span><br><span class="line">        capability.target_level = derive_target_level(capability, strategic_outcomes)</span><br><span class="line">        capability.gap = compare_with_evidence(</span><br><span class="line">            capability.current_level,</span><br><span class="line">            capability.target_level</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    assert sibling_capabilities_use_same_granularity(hierarchy)</span><br><span class="line">    assert every_strategic_outcome_has_capability_support(hierarchy, strategic_outcomes)</span><br><span class="line">    return hierarchy, prioritize_gaps_by_value_risk_and_evidence(hierarchy)</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![能力地图的前后对比、因果逻辑、建模流程、角色时序和对象追溯五视图](https://pic.shaojiemike.top/shaojiemike/2026/08/d077178e482b56348760d053023b3b82.png){ width=96% }
+  <figcaption>自绘五视图：A 展示项目/系统清单如何转成稳定能力版图；D 与 E 展示业务、架构、投资和交付如何围绕能力差距形成闭环。</figcaption>
+</figure>
+
+<h3 id="适用性与边界-3"><a href="#适用性与边界-3" class="headerlink" title="适用性与边界"></a>适用性与边界</h3><ul>
+<li><strong>适合</strong>：战略到技术对齐、产品线规划、重复建设识别、能力成熟度与投资组合讨论。</li>
+<li><strong>优势</strong>：对组织调整和技术替换不敏感，适合建立长期导航入口。</li>
+<li><strong>劣势</strong>：过度抽象后会停留在“具备某能力”的名词墙，无法直接指导接口、异常处理和验收。</li>
+<li><strong>实现归属</strong>：业务或产品 Owner 负责定义能力价值，架构团队维护支撑关系，投资与交付负责人维护差距证据。</li>
+<li><strong>迁移成本</strong>：系统更换主要改变支撑映射；战略结果变化才更可能改变顶层能力边界。</li>
+<li><strong>效果契约</strong>：它减少的是战略、投资与系统之间的错位，代价是统一词汇、成熟度证据和治理；应以重复投资、未支撑能力和差距关闭情况衡量。</li>
+</ul>
+<h2 id="Feature-Breakdown-Structure"><a href="#Feature-Breakdown-Structure" class="headerlink" title="Feature Breakdown Structure"></a>Feature Breakdown Structure</h2><h3 id="机制与对象-4"><a href="#机制与对象-4" class="headerlink" title="机制与对象"></a>机制与对象</h3><p><strong>问题快照</strong>：能力地图已经指出“需要训练问题诊断能力”，但这仍然无法直接进入迭代。若 Backlog 继续按后端、前端、数据库和算法组件堆放，用户价值与验收会再次断开。</p>
+<p><strong>一句话直觉</strong>：FBS（Feature Breakdown Structure，特性分解结构）把产品能力拆成用户可感知、可独立验收、可进入发布计划的特性和子特性。</p>
+<p>Highsmith 在 <em>Agile Project Management</em> 中用 FBS 表达软硬件产品架构，强调它在客户和开发团队之间沟通，并形成用于发布与迭代计划的特性 Backlog。[^highsmith-fbs] 例如训练诊断产品可以拆成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">训练诊断工作台</span><br><span class="line">├── 全 Rank 日志视图</span><br><span class="line">│   ├── 缺失 Rank 提示</span><br><span class="line">│   └── 按 Rank/节点筛选</span><br><span class="line">├── 异常时间线</span><br><span class="line">│   ├── 跨节点时钟校正</span><br><span class="line">│   └── 异常区间折叠</span><br><span class="line">├── 首错面板</span><br><span class="line">│   ├── 首错与连锁错误区分</span><br><span class="line">│   └── 原始证据跳转</span><br><span class="line">├── 根因建议</span><br><span class="line">│   ├── 分类与置信边界</span><br><span class="line">│   └── 处置建议链接</span><br><span class="line">└── 诊断报告</span><br><span class="line">    ├── 一键生成</span><br><span class="line">    └── 导出与分享</span><br></pre></td></tr></table></figure>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>FBS 的证据边界</p>
+</div>
+        <div class="message-body">
+            <p>FBS 的行业层级命名并不统一。本文采用 Highsmith 的“产品架构 + 特性待办”含义，不把 FBS 宣称为 Scrum 的正式工件，也不要求所有团队固定使用 Epic -&gt; Feature -&gt; Story -&gt; Task。真正需要稳定的是<strong>用户、行为、价值和验收条件</strong>。</p>
+
+        </div>
+    </article>
+
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>标识</th>
+<th>生产者</th>
+<th>结构</th>
+<th>消费者</th>
+<th>生命周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用户结果</td>
+<td><code>user_outcome</code></td>
+<td>用户研究、能力地图</td>
+<td><code>Outcome[user, context, value]</code></td>
+<td>顶层特性</td>
+<td>产品周期</td>
+</tr>
+<tr>
+<td>特性</td>
+<td><code>feature</code></td>
+<td>产品分解</td>
+<td><code>Feature[user, behavior, value]</code></td>
+<td>子特性、发布规划</td>
+<td>Backlog 生命周期</td>
+</tr>
+<tr>
+<td>子特性</td>
+<td><code>subfeature</code></td>
+<td>行为切片</td>
+<td><code>Feature[bounded behavior]</code></td>
+<td>验收与实现</td>
+<td>迭代周期</td>
+</tr>
+<tr>
+<td>验收条件</td>
+<td><code>acceptance</code></td>
+<td>Product、QA、研发</td>
+<td><code>Set[precondition, action, result]</code></td>
+<td>测试与发布门禁</td>
+<td>随特性版本存在</td>
+</tr>
+<tr>
+<td>依赖</td>
+<td><code>dependency</code></td>
+<td>跨特性分析</td>
+<td><code>Edge[predecessor, artifact, successor]</code></td>
+<td>排序、风险</td>
+<td>持续维护</td>
+</tr>
+<tr>
+<td>发布候选</td>
+<td><code>release_candidate</code></td>
+<td>优先级与可行性决策</td>
+<td><code>Set[Feature]</code></td>
+<td>迭代计划</td>
+<td>发布周期</td>
+</tr>
+</tbody></table>
+<h3 id="伪代码与五视图-4"><a href="#伪代码与五视图-4" class="headerlink" title="伪代码与五视图"></a>伪代码与五视图</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">function build_fbs(user_outcomes, capability_map, constraints):</span><br><span class="line">    root_features = derive_user_visible_features(user_outcomes, capability_map)</span><br><span class="line">    fbs = Forest(root_features)</span><br><span class="line">    dependencies = Set()</span><br><span class="line"></span><br><span class="line">    for root_feature in root_features:</span><br><span class="line">        queue = [root_feature]</span><br><span class="line"></span><br><span class="line">        while queue is not empty:</span><br><span class="line">            feature = queue.pop_front()</span><br><span class="line">            slices = split_by_user_behavior_and_independent_value(feature, constraints)</span><br><span class="line"></span><br><span class="line">            if slices is empty:</span><br><span class="line">                acceptance = define_acceptance(</span><br><span class="line">                    user=feature.user,</span><br><span class="line">                    preconditions=feature.preconditions,</span><br><span class="line">                    behavior=feature.behavior,</span><br><span class="line">                    observable_result=feature.user_value,</span><br><span class="line">                    exceptions=feature.exceptions</span><br><span class="line">                )</span><br><span class="line">                feature.attach(acceptance)</span><br><span class="line">                dependencies.add_all(derive_feature_dependencies(feature))</span><br><span class="line">            else:</span><br><span class="line">                assert every_slice_preserves_user_value(slices, feature)</span><br><span class="line">                assert sibling_slices_use_same_behavior_axis(slices)</span><br><span class="line">                for slice in slices:</span><br><span class="line">                    fbs.add_child(feature, slice)</span><br><span class="line">                    queue.push_back(slice)</span><br><span class="line"></span><br><span class="line">    assert every_leaf_has_acceptance(fbs)</span><br><span class="line">    assert no_leaf_is_only_component_or_team_name(fbs)</span><br><span class="line">    release_candidates = prioritize_by_value_risk_dependency_and_effort(</span><br><span class="line">        fbs,</span><br><span class="line">        dependencies</span><br><span class="line">    )</span><br><span class="line">    return fbs, dependencies, release_candidates</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![FBS 的前后对比、因果逻辑、建模流程、角色时序和对象追溯五视图](https://pic.shaojiemike.top/shaojiemike/2026/08/ed84d9c162c55e616bc32b7d26dd700b.png){ width=96% }
+  <figcaption>自绘五视图：C 展示从用户结果到发布候选的分解步骤；D 强调用户、Product、开发与 QA 之间围绕价值、验收、依赖和结果反复校准。</figcaption>
+</figure>
+
+<h3 id="适用性与边界-4"><a href="#适用性与边界-4" class="headerlink" title="适用性与边界"></a>适用性与边界</h3><ul>
+<li><strong>适合</strong>：产品特性架构、Backlog 整理、发布切片、客户—研发沟通。</li>
+<li><strong>优势</strong>：把抽象能力变成用户能看见、能使用、能验收的增量，便于排序与发布。</li>
+<li><strong>劣势</strong>：若特性只按界面页面或组件命名，仍会失去跨端到端行为；依赖过多时树结构也会失真。</li>
+<li><strong>实现归属</strong>：Product Owner 维护用户价值和特性层级，研发与 QA 共同确认可行性、依赖和验收条件。</li>
+<li><strong>迁移成本</strong>：后端替换通常不应改写用户特性；交互、能力边界或发布策略改变时需要重新切片。</li>
+<li><strong>效果契约</strong>：它减少的是 Backlog 与用户价值、验收之间的断裂，代价是持续切片和依赖维护；应以特性验收通过率、跨迭代返工和价值交付周期衡量。</li>
+</ul>
+<h2 id="五种方法如何选择"><a href="#五种方法如何选择" class="headerlink" title="五种方法如何选择"></a>五种方法如何选择</h2><p>五种方法都可以画成树，但<strong>被分解的对象不同</strong>。先问当前最缺哪一种确定性，再选工具：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>核心问题</th>
+<th>主分解轴</th>
+<th>主要产物</th>
+<th>合适的停止点</th>
+<th>最常见误用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>功能树</strong></td>
+<td>系统必须做什么</td>
+<td>父功能 -&gt; 子功能</td>
+<td>功能层级、接口、叶子契约</td>
+<td>叶子可独立实现和验证</td>
+<td>用代码目录当功能树</td>
+</tr>
+<tr>
+<td><strong>WBS</strong></td>
+<td>完整项目范围怎样交付与控制</td>
+<td>交付物 -&gt; 工作包</td>
+<td>WBS、WBS 字典</td>
+<td>可授权、估算和跟踪</td>
+<td>在需求未清时先列开发任务</td>
+</tr>
+<tr>
+<td><strong>FAST</strong></td>
+<td>功能之间怎样&#x2F;为什么关联</td>
+<td>HOW-WHY 逻辑</td>
+<td>功能语句、逻辑图、度量</td>
+<td>逻辑边界可双向走查</td>
+<td>把 HOW-WHY 当运行时序</td>
+</tr>
+<tr>
+<td><strong>能力地图</strong></td>
+<td>长期需要具备什么能力</td>
+<td>能力域 -&gt; 能力层级</td>
+<td>能力版图、成熟度、差距</td>
+<td>能支持战略与投资决策</td>
+<td>只做稳定名词墙，不落支撑证据</td>
+</tr>
+<tr>
+<td><strong>FBS</strong></td>
+<td>哪些用户特性进入产品和发布</td>
+<td>产品特性 -&gt; 子特性</td>
+<td>特性树、验收、发布候选</td>
+<td>叶子能独立验收和排序</td>
+<td>固定套 Epic&#x2F;Story 层级或按组件拆</td>
+</tr>
+</tbody></table>
+<p>它们最常见的组合不是“五选一”，而是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">结果目标</span><br><span class="line">-&gt; 能力地图：确认长期能力范围与差距</span><br><span class="line">-&gt; 功能树：定义系统必须做什么</span><br><span class="line">-&gt; FAST：检查关键功能的 HOW-WHY 关系与替代空间</span><br><span class="line">-&gt; FBS：转成用户可感知、可验收的产品特性</span><br><span class="line">-&gt; WBS：转成完整交付物、工作包、成本与进度控制</span><br></pre></td></tr></table></figure>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>同一节点允许出现在多张图</p>
+</div>
+        <div class="message-body">
+            <p>“首错识别”可以同时是能力地图中的能力、功能树中的子功能、FAST 中的功能语句、FBS 中的用户特性，也可以映射到 WBS 的多个交付物。关键不是强迫每张图节点唯一，而是为每个节点注明<strong>它此刻扮演的模型角色</strong>，并维护可追溯关系。</p>
+
+        </div>
+    </article>
+
+<h2 id="从目标到可验证子功能"><a href="#从目标到可验证子功能" class="headerlink" title="从目标到可验证子功能"></a>从目标到可验证子功能</h2><p>一套可执行的功能分解流程可以按下面七步进行。</p>
+<ol>
+<li><strong>定义结果而不是方案。</strong> 写清用户、问题、基线、目标值和时间窗。例如把“提升定位效率”改成“将 P50 可用诊断结论时间从 45 分钟缩短到 10 分钟以内”，同时保留 P95 和误诊率约束。</li>
+<li><strong>固定场景与边界。</strong> 列出触发、输入、期望结果、异常和不做事项。区分训练失败、性能劣化、精度异常和基础设施告警，避免一个目标吞掉所有诊断场景。</li>
+<li><strong>画能力地图。</strong> 先识别证据获取、标准化、诊断、交付等稳定能力域，并标记当前&#x2F;目标差距和 Owner。</li>
+<li><strong>建立功能树。</strong> 对每个能力域按用户结果向下拆，保持兄弟节点同一抽象层级；把包含关系放进树，把先后依赖放进单独的依赖图。</li>
+<li><strong>用 FAST 追问关键链。</strong> 对方案味很重或关系含糊的节点改写“动词—名词”，用 HOW-WHY 双向检查是否缺功能、伪因果或过早绑定实现。</li>
+<li><strong>生成 FBS 与 WBS。</strong> 把功能映射成用户可感知特性和验收条件，再把已批准范围映射成交付物、工作包、成本、进度和责任。</li>
+<li><strong>建立追溯并反向走查。</strong> 从每个测试向上找到特性、功能、能力和结果目标；再从目标向下检查是否存在没有实现、没有测试或没有 Owner 的孤儿节点。</li>
+</ol>
+<p>训练诊断案例的最小追溯表可以是：</p>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>能力</th>
+<th>功能</th>
+<th>特性</th>
+<th>工作包</th>
+<th>验收证据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>G-01</code> 缩短可用诊断时间</td>
+<td><code>C-02</code> 证据标准化</td>
+<td><code>F-07</code> 对齐异常时间线</td>
+<td><code>FE-04</code> 跨节点时间线</td>
+<td><code>WP-12</code> 时钟校正与排序交付</td>
+<td>受控时钟漂移数据集上的顺序正确率</td>
+</tr>
+<tr>
+<td><code>G-01</code></td>
+<td><code>C-03</code> 问题诊断</td>
+<td><code>F-09</code> 识别首错</td>
+<td><code>FE-06</code> 首错面板</td>
+<td><code>WP-16</code> 规则&#x2F;模型与证据跳转</td>
+<td>标注故障集上的首错命中率、误报率</td>
+</tr>
+<tr>
+<td><code>G-01</code></td>
+<td><code>C-04</code> 诊断交付</td>
+<td><code>F-12</code> 生成报告</td>
+<td><code>FE-10</code> 一键诊断报告</td>
+<td><code>WP-21</code> 报告模板、导出与权限</td>
+<td>报告完整性、生成时延、权限测试</td>
+</tr>
+</tbody></table>
+<p>依赖图必须为箭头命名。例如 <code>F-07 -&gt; F-09</code> 的边不是模糊的“依赖”，而是“输出经校正的事件序列，供首错识别消费”。只有命名了中间产物，接口测试和失败定位才有落点。</p>
+<article class="message is-dark">
+        <div class="message-header"><p><i class="fa-solid fa-flask mr-2"></i>可复用分解提示词</p>
+</div>
+        <div class="message-body">
+            <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">你是一名产品与系统分析师。请把下面的高层目标分解为可实现、可验证的子功能。</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">- 高层目标：&lt;目标&gt;</span><br><span class="line">- 用户与场景：&lt;用户、触发、期望结果&gt;</span><br><span class="line">- 约束：&lt;范围、性能、合规、资源、不做事项&gt;</span><br><span class="line"></span><br><span class="line">要求：</span><br><span class="line">1. 先判断输入是结果目标、能力、功能、特性、工作包还是代码模块。</span><br><span class="line">2. 先按用户能力和业务价值画能力地图，再画功能树；不要按服务、包、类或团队拆分。</span><br><span class="line">3. 功能树只表达包含关系；另列依赖边，并为每条边命名传递的产物。</span><br><span class="line">4. 对关键链使用 FAST 的 HOW-WHY 追问，并把方案名改写为“动词 + 名词”的功能语句。</span><br><span class="line">5. 为每个叶子功能写明：用户、触发、输入、行为、输出、异常、验收、依赖、Owner。</span><br><span class="line">6. 把叶子功能映射成 FBS 特性与验收，再映射成 WBS 交付物和工作包。</span><br><span class="line">7. 输出目标 -&gt; 能力 -&gt; 功能 -&gt; 特性 -&gt; 工作包 -&gt; 测试的追溯表。</span><br><span class="line">8. 标出漏项、重叠、抽象层级混杂、代码模块化拆分和不可独立验证的节点。</span><br><span class="line"></span><br><span class="line">输出顺序：结论、能力地图、功能树、FAST 关键链、依赖图、叶子契约、FBS、WBS、追溯表、风险与待确认项。</span><br></pre></td></tr></table></figure>
+        </div>
+    </article>
+
+<h2 id="拆到什么粒度"><a href="#拆到什么粒度" class="headerlink" title="拆到什么粒度"></a>拆到什么粒度</h2><p>功能分解不是越细越好。拆得太粗，叶子仍不可实现；拆得太细，树会退化成函数调用和工单列表。<strong>合适的停止点，是团队能在不猜业务含义的情况下给出实现方案，并由测试或运营证据独立判断是否满足契约。</strong></p>
+<p>叶子功能通过下面七项检查时，通常可以停止：</p>
+<ol>
+<li><strong>单一结果</strong>：它只承诺一个明确用户或系统结果，而不是“采集、分析并展示一切”。</li>
+<li><strong>输入输出明确</strong>：关键对象、来源、格式和消费者可以命名。</li>
+<li><strong>异常可描述</strong>：缺失、重复、乱序、超时、权限失败等边界有明确行为。</li>
+<li><strong>验收可观察</strong>：成功、失败和质量阈值都有证据，不依赖“感觉可用”。</li>
+<li><strong>主责唯一</strong>：允许多人参与，但只有一个能力契约 Owner。</li>
+<li><strong>依赖显式</strong>：上游功能、传递产物和阻塞条件可追踪。</li>
+<li><strong>实现中立</strong>：替换数据库、模型或服务时，用户结果与验收通常仍然成立。</li>
+</ol>
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>一个典型的伪叶子</p>
+</div>
+        <div class="message-body">
+            <p>“实现日志聚合服务”看起来已经很具体，实际上只写了技术方案。它没有说明支持哪些日志源、如何处理缺失 Rank、时间戳冲突怎样解决、输出由谁消费、怎样验收。更好的叶子是“在一个 <code>job_id</code> 下输出所有可达 Rank 的标准事件流，并显式报告缺失来源、重复记录和时钟校正状态”。</p>
+
+        </div>
+    </article>
+
+<p>功能不要求都能<strong>独立部署</strong>，但必须能<strong>独立说明和验证</strong>。如果一个叶子只能通过另一个叶子的私有实现细节才能解释，说明边界或接口仍需调整。</p>
+<h2 id="质量检查"><a href="#质量检查" class="headerlink" title="质量检查"></a>质量检查</h2><p>提交功能分解结果前，可以做七类走查：</p>
+<ul>
+<li><strong>价值检查</strong>：每个节点能否向上回答“它为哪个用户结果服务”？</li>
+<li><strong>同层检查</strong>：兄弟节点是否混入能力、组件、活动、角色和里程碑？</li>
+<li><strong>覆盖检查</strong>：所有场景、异常、数据入口、输出和运营动作是否都有归属？</li>
+<li><strong>重叠检查</strong>：两个节点是否承诺同一行为，却没有主从或共享能力关系？</li>
+<li><strong>依赖检查</strong>：树外依赖是否单独记录，并为箭头命名了传递产物？</li>
+<li><strong>验收检查</strong>：每个叶子是否存在可执行测试、审计记录、监控指标或人工评审证据？</li>
+<li><strong>变更检查</strong>：目标、能力、功能、特性、工作包和测试之间是否能双向追溯？</li>
+</ul>
+<p>衡量功能分解效果时，应观察它直接改变的工作结果：</p>
+<ul>
+<li>需求评审发现的漏项数与抽象层级错误数；</li>
+<li>叶子功能具备完整验收契约的比例；</li>
+<li>变更影响分析中漏报的下游特性、工作包和测试数；</li>
+<li>因范围或接口歧义造成的返工次数；</li>
+<li>从提出目标到形成可批准功能基线的周期；</li>
+<li>训练诊断产品上线后的 P50&#x2F;P95 可用诊断时间、首错命中率和报告完整率。</li>
+</ul>
+<p>前五项主要评价<strong>分解质量</strong>，最后一组才评价<strong>产品效果</strong>。二者相关，但不能用“图画得完整”直接推导“定位效率一定提高”。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>功能分解的本质，是在高层目标和工程实现之间建立一条可验证的语义链。<strong>能力地图定范围，功能树定组成，FAST 查逻辑，FBS 定用户特性，WBS 定交付控制</strong>；依赖图和追溯表把这些视图连接起来。</p>
+<p>最重要的纪律只有两条：第一，先按用户能力和业务价值拆“做什么”，不要先照着代码目录拆；第二，只有当叶子功能的输入、行为、输出、异常、验收、依赖和 Owner 都清楚时，才算真正拆到了可以实现和验证的粒度。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>NASA, <a target="_blank" rel="noopener" href="https://www.nasa.gov/reference/4-3-logical-decomposition/">Logical Decomposition</a>.</li>
+<li>NASA, <a target="_blank" rel="noopener" href="https://ntrs.nasa.gov/api/citations/20170001761/downloads/20170001761.pdf">Systems Engineering Handbook, Revision 2</a>, Section 4.3.</li>
+<li>U.S. Department of Energy, <a target="_blank" rel="noopener" href="https://www.energy.gov/sites/default/files/2017/08/f35/DOE%20WBS%20Handbook%20%202012-08-16.pdf">Work Breakdown Structure Handbook</a>, 2012.</li>
+<li>SAVE International, <a target="_blank" rel="noopener" href="https://www.value-eng.org/page/functionanalysisguide">Function Analysis Guide</a>.</li>
+<li>SAVE International, <a target="_blank" rel="noopener" href="https://www.value-eng.org/resource/collection/5691B39A-F10F-480A-885F-B44AAB59F2E7/SAVE-VM-Glossary_Copyright_2017-10-16.pdf">Value Methodology Glossary</a>.</li>
+<li>The Open Group, <a target="_blank" rel="noopener" href="https://blog.opengroup.org/wp-content/uploads/2018/03/blog_architecture_toolbox.pdf">Toolbox for Architecture Framework</a>, p.95.</li>
+<li>Jim Highsmith, <a target="_blank" rel="noopener" href="https://www.pearson.de/media/muster/ext/9780321659224.pdf">Agile Project Management sample chapter</a>, printed p.102.</li>
+</ul>
+<p>[^nasa-logical]: NASA 的在线《Systems Engineering Handbook》4.3 节说明，逻辑分解用于识别各层级“应该实现什么”，并把父级需求分解、分配到更低层级。<br>[^nasa-handbook]: NASA <em>Systems Engineering Handbook</em>, Rev 2, Section 4.3 与术语表 “Functional Decomposition”。<br>[^doe-wbs]: U.S. Department of Energy, <em>Work Breakdown Structure Handbook</em>, 2012，尤其是 pp.1, 7-15；其中将按组织职能建立 WBS 列为常见错误。<br>[^save-guide]: SAVE International, <em>Function Analysis Guide</em>，公开介绍页说明该指南覆盖功能识别、分类、FAST 图和逻辑验证。<br>[^save-glossary]: SAVE International, <em>Value Methodology Glossary</em>，词条 “Function” 与 “Function Analysis System Technique (FAST)”。<br>[^open-group-capability]: The Open Group, <em>Toolbox for Architecture Framework</em>, p.95。该材料是架构实践工具箱，不应被扩大解释为全部 TOGAF 标准的强制元模型。<br>[^highsmith-fbs]: Jim Highsmith, <em>Agile Project Management</em>, Pearson sample, printed p.102。本文采用其产品架构与特性 Backlog 语义，并明确不把 FBS 表述为 Scrum 官方工件。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Function Decomposition Methods</p><p><a href="http://icarus.shaojiemike.top/2026/08/03/Work/software/Function-Decomposition-Methods/">http://icarus.shaojiemike.top/2026/08/03/Work/software/Function-Decomposition-Methods/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-03</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-03</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Functional-Decomposition/">Functional Decomposition</a><a class="link-muted mr-2" rel="tag" href="/tags/Function-Tree/">Function Tree</a><a class="link-muted mr-2" rel="tag" href="/tags/WBS/">WBS</a><a class="link-muted mr-2" rel="tag" href="/tags/FAST/">FAST</a><a class="link-muted mr-2" rel="tag" href="/tags/Capability-Map/">Capability Map</a><a class="link-muted mr-2" rel="tag" href="/tags/FBS/">FBS</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/03/Work/0-Digital%20Worker/Requirements-Analysis/"><span class="level-item">Requirements Analysis</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">580</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">45</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">812</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#先把目标改写成能力"><span class="level-left"><span class="level-item">1</span><span class="level-item">先把目标改写成能力</span></span></a></li><li><a class="level is-mobile" href="#功能树"><span class="level-left"><span class="level-item">2</span><span class="level-item">功能树</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#机制与对象"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">机制与对象</span></span></a></li><li><a class="level is-mobile" href="#伪代码与五视图"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">伪代码与五视图</span></span></a></li><li><a class="level is-mobile" href="#适用性与边界"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">适用性与边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#WBS"><span class="level-left"><span class="level-item">3</span><span class="level-item">WBS</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#机制与对象-1"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">机制与对象</span></span></a></li><li><a class="level is-mobile" href="#伪代码与五视图-1"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">伪代码与五视图</span></span></a></li><li><a class="level is-mobile" href="#适用性与边界-1"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">适用性与边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#FAST-功能分析"><span class="level-left"><span class="level-item">4</span><span class="level-item">FAST 功能分析</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#机制与对象-2"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">机制与对象</span></span></a></li><li><a class="level is-mobile" href="#伪代码与五视图-2"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">伪代码与五视图</span></span></a></li><li><a class="level is-mobile" href="#适用性与边界-2"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">适用性与边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#能力地图"><span class="level-left"><span class="level-item">5</span><span class="level-item">能力地图</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#机制与对象-3"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">机制与对象</span></span></a></li><li><a class="level is-mobile" href="#伪代码与五视图-3"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">伪代码与五视图</span></span></a></li><li><a class="level is-mobile" href="#适用性与边界-3"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">适用性与边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Feature-Breakdown-Structure"><span class="level-left"><span class="level-item">6</span><span class="level-item">Feature Breakdown Structure</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#机制与对象-4"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">机制与对象</span></span></a></li><li><a class="level is-mobile" href="#伪代码与五视图-4"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">伪代码与五视图</span></span></a></li><li><a class="level is-mobile" href="#适用性与边界-4"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">适用性与边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#五种方法如何选择"><span class="level-left"><span class="level-item">7</span><span class="level-item">五种方法如何选择</span></span></a></li><li><a class="level is-mobile" href="#从目标到可验证子功能"><span class="level-left"><span class="level-item">8</span><span class="level-item">从目标到可验证子功能</span></span></a></li><li><a class="level is-mobile" href="#拆到什么粒度"><span class="level-left"><span class="level-item">9</span><span class="level-item">拆到什么粒度</span></span></a></li><li><a class="level is-mobile" href="#质量检查"><span class="level-left"><span class="level-item">10</span><span class="level-item">质量检查</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">11</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">12</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">18</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">5</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T08:10:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/software/Function-Decomposition-Methods/">Function Decomposition Methods</a></p><p class="categories"><a href="/categories/1-GeneralSkills/">1-GeneralSkills</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T04:20:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/0-Digital%20Worker/Requirements-Analysis/">Requirements Analysis</a></p><p class="categories"><a href="/categories/1-Agent-Workflow/">1-Agent Workflow</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T04:00:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/Database/Data-Flow-Analysis-Methods/">Data Flow Analysis Methods</a></p><p class="categories"><a href="/categories/1-GeneralSkills/">1-GeneralSkills</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T03:40:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/software/visualization/Business-Process-Diagrams/">Business Process Diagrams</a></p><p class="categories"><a href="/categories/Tutorials/">Tutorials</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Infrastructure/"><span class="tag">AI Infrastructure</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-STARTUP/"><span class="tag">AI STARTUP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Systems/"><span class="tag">AI Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMD/"><span class="tag">AMD</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/APR/"><span class="tag">APR</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
