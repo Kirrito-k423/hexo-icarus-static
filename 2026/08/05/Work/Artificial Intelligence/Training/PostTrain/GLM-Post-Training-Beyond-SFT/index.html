@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>GLM Post-Training Beyond SFT - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       部门要突破 GLM 模型的 NPU 原生训练，真正困难的不是把一个 GRPO loss 搬到 NPU，而是让 Actor 训练、推理 Rollout、Teacher Prefill、Verifier、权重同步和低精度数值形成闭环。 本文以 GLM-5 技术报告为主线，并补充 GLM-5.2 已公开的 SAO、CompactionR"><meta property="og:type" content="blog"><meta property="og:title" content="GLM Post-Training Beyond SFT"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/05/Work/Artificial%20Intelligence/Training/PostTrain/GLM-Post-Training-Beyond-SFT/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       部门要突破 GLM 模型的 NPU 原生训练，真正困难的不是把一个 GRPO loss 搬到 NPU，而是让 Actor 训练、推理 Rollout、Teacher Prefill、Verifier、权重同步和低精度数值形成闭环。 本文以 GLM-5 技术报告为主线，并补充 GLM-5.2 已公开的 SAO、CompactionR"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-08-05T10:00:00.000Z"><meta property="article:modified_time" content="2026-08-05T10:21:15.081Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Quantization"><meta property="article:tag" content="GLM-5.2"><meta property="article:tag" content="Reinforcement Learning"><meta property="article:tag" content="GLM-5"><meta property="article:tag" content="OPD"><meta property="article:tag" content="MOPD"><meta property="article:tag" content="QAT"><meta property="article:tag" content="Ascend NPU"><meta property="article:tag" content="slime"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/05/Work/Artificial%20Intelligence/Training/PostTrain/GLM-Post-Training-Beyond-SFT/"},"headline":"GLM Post-Training Beyond SFT","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-08-05T10:00:00.000Z","dateModified":"2026-08-05T10:21:15.081Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       部门要突破 GLM 模型的 NPU 原生训练，真正困难的不是把一个 GRPO loss 搬到 NPU，而是让 Actor 训练、推理 Rollout、Teacher Prefill、Verifier、权重同步和低精度数值形成闭环。 本文以 GLM-5 技术报告为主线，并补充 GLM-5.2 已公开的 SAO、CompactionR"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/05/Work/Artificial%20Intelligence/Training/PostTrain/GLM-Post-Training-Beyond-SFT/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-05T10:00:00.000Z" title="8/5/2026, 10:00:00 AM">2026-08-05</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-05T10:21:15.081Z" title="8/5/2026, 10:21:15 AM">2026-08-05</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">an hour read (About 7614 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">GLM Post-Training Beyond SFT</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>部门要突破 GLM 模型的 <strong>NPU 原生训练</strong>，真正困难的不是把一个 GRPO loss 搬到 NPU，而是让 Actor 训练、推理 Rollout、Teacher Prefill、Verifier、权重同步和低精度数值形成闭环。</p>
+<p>本文以 GLM-5 技术报告为主线，并补充 GLM-5.2 已公开的 SAO、CompactionRL 和十多个专家的并行 OPD。重点解释非 SFT 后训练中的 RL、OPD&#x2F;MOPD，同时单独澄清 QAT 与量化：<strong>GLM-5 明确把 INT4 QAT 放在 SFT 阶段，它对 NPU 后训练很重要，但不是非 SFT RL 的一个阶段。</strong></p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="先给结论：什么才是-NPU-原生"><a href="#先给结论：什么才是-NPU-原生" class="headerlink" title="先给结论：什么才是 NPU 原生"></a>先给结论：什么才是 NPU 原生</h2><p>截至 2026 年 8 月，GLM-5 有完整技术报告；更新的 GLM-5.2 有官方博客，并由 SAO 与 CompactionRL 两篇论文补充后训练方法，但还没有一份同等完整的新技术报告。公开证据可以还原出下面这条演化线：</p>
+<ol>
+<li><strong>GLM-5</strong>：SFT 之后依次执行 Reasoning RL、Agentic RL、General RL，最后用 Cross-Stage OPD 合并各阶段能力。[^glm5]</li>
+<li><strong>GLM-5.2</strong>：继续用 slime 承载更大规模、更复杂的 Agentic RL；官方披露并行 OPD 合并了十多个专家模型，整个 OPD 约两天完成。[^glm52]</li>
+<li><strong>GLM-5.2 的方法补充</strong>：SAO 用单轨迹异步优化消除组采样屏障；CompactionRL 把上下文摘要变成可训练动作，两篇论文都称方法用于 GLM-5.2 的 RL pipeline。[^sao][^compaction]</li>
+</ol>
+<p>这意味着“原生”至少有三层含义：</p>
+<ul>
+<li><strong>算子原生</strong>：Attention、DSA Top-k、MoE、log-softmax、fake quant、collective 等核心算子运行在 NPU 上。</li>
+<li><strong>框架原生</strong>：训练、rollout、teacher、reward、权重同步不依赖 GPU 侧的隐藏补丁或中转。</li>
+<li><strong>数值闭环原生</strong>：同一 token、同一前缀、同一量化规则下，训练策略、rollout 策略和教师策略的概率可比较；偏差能被观测、校正和回归测试。</li>
+</ul>
+<p><strong>第三层才是 RL&#x2F;OPD 是否真的成立的分界线。</strong>如果 NPU rollout 重新分词、DSA 选中了另一组 token、低精度 GEMM 改变了采样分布，训练端即使成功反向传播，也是在优化另一个行为策略。</p>
+<figure markdown>
+  ![NPU 原生后训练的认知锚点](https://pic.shaojiemike.top/shaojiemike/2026/08/a76214f85c4513cd60bf2bd6e5e0ed9f.png){ width=88% }
+  <figcaption>NPU 原生不是“单个 loss 已运行”，而是训练、采样、教师、验证和低精度数值共同闭环。此图是认知插图，不作为技术证据。</figcaption>
+</figure>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>本文的范围</p>
+</div>
+        <div class="message-body">
+            <p>本文先解释<strong>为什么这些方法成立、优化了什么对象、可能在哪里失效</strong>。它不是 GLM-5.2 NPU 复现手册，也不把论文方法公开等同于官方训练 recipe 已经开源。</p>
+
+        </div>
+    </article>
+
+<h2 id="一条统一主线"><a href="#一条统一主线" class="headerlink" title="一条统一主线"></a>一条统一主线</h2><p>后面的算法名称很多，但都可以放回四个问题：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>典型对象</th>
+<th>方法如何回答</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>状态从哪里来</strong></td>
+<td>prompt、学生 trajectory、环境 observation、compacted history</td>
+<td>RL&#x2F;OPD 都尽量在当前学生会访问的状态上学习</td>
+</tr>
+<tr>
+<td><strong>信号从哪里来</strong></td>
+<td>rule reward、ORM、LLM judge、Critic value、teacher log-prob</td>
+<td>GRPO 用组内奖励；PPO&#x2F;SAO 用 Critic；OPD 用教师逐 token 信号</td>
+</tr>
+<tr>
+<td><strong>策略是否可比较</strong></td>
+<td><code>π_train</code>、<code>π_rollout</code>、<code>π_old</code>、<code>π_teacher</code></td>
+<td>IcePop&#x2F;DIS 约束概率比；TITO 保存 exact token ID</td>
+</tr>
+<tr>
+<td><strong>数值是否一致</strong></td>
+<td>Top-k index、BF16&#x2F;FP8&#x2F;INT4、scale、zero-point、KV Cache</td>
+<td>确定性 Top-k、bitwise-identical quant kernel、精度分层</td>
+</tr>
+</tbody></table>
+<p>在传统的同步 RL 中，一批 prompt 先完成 rollout，再一起打分和更新。到了长程 Agent 任务，不同 trajectory 的长度可能相差几个数量级，最慢样本会让整批等待；一旦训练与推理解耦，吞吐变高，却又出现 <strong>policy lag</strong>：生成样本时的策略已经落后于当前训练策略。</p>
+<p>因此 GLM 的核心矛盾不是“同步还是异步”二选一，而是：</p>
+<blockquote>
+<p><strong>允许系统异步前进，同时只让仍然可信的 token 产生梯度。</strong></p>
+</blockquote>
+<figure markdown>
+  ![GLM 非 SFT 后训练统一主线](https://pic.shaojiemike.top/shaojiemike/2026/08/763e97d1f3093916e8894fbc8b22b72a.png){ width=96% }
+  <figcaption>统一视图：状态、信号、策略版本和数值格式沿着 Rollout → Reward/Teacher → Train → Weight Sync 循环流动。</figcaption>
+</figure>
+
+<p>GLM-5 报告的原始训练流程图如下。它支持“多阶段后训练 + 最终 OPD”这一流程关系，但不能单独证明其中某一组件带来多少收益。</p>
+<figure markdown>
+  ![GLM-5 原始训练流程图](https://pic.shaojiemike.top/shaojiemike/2026/08/42df15c7d6d95c856a09ad70a5531abf.png){ width=96% }
+  <figcaption>GLM-5 技术报告原始逻辑图。它是流程证据，不是 OPD、RL 或 QAT 的独立消融证据。</figcaption>
+</figure>
+
+<h2 id="Reasoning-RL：相对奖励与可信-token"><a href="#Reasoning-RL：相对奖励与可信-token" class="headerlink" title="Reasoning RL：相对奖励与可信 token"></a>Reasoning RL：相对奖励与可信 token</h2><h3 id="GRPO-在优化什么"><a href="#GRPO-在优化什么" class="headerlink" title="GRPO 在优化什么"></a>GRPO 在优化什么</h3><p>给定一个 prompt $x$，策略为它采样一组 $G$ 个回答 $y_1,\ldots,y_G$，并得到序列级奖励 $R_1,\ldots,R_G$。GRPO 不训练 Critic，而是用组内均值和标准差构造相对优势：</p>
+<p>$$<br>\hat A_i&#x3D;\frac{R_i-\operatorname{mean}(R_1,\ldots,R_G)}<br>{\operatorname{std}(R_1,\ldots,R_G)+\epsilon}.<br>$$</p>
+<p>直觉上，同一个题目中比同伴更好的回答获得正优势，更差的回答获得负优势。它消除了跨题难度尺度差异：一道所有回答都失败的难题，不会仅因为奖励绝对值低就主导梯度。</p>
+<p>若 $r_{i,t}(\theta)&#x3D;\pi_\theta(y_{i,t}\mid s_{i,t})&#x2F;\pi_{\mathrm{old}}(y_{i,t}\mid s_{i,t})$，常见 clipped objective 是：</p>
+<p>$$<br>\mathcal L_{\mathrm{GRPO}}<br>&#x3D;-\mathbb E_{i,t}\left[<br>\min\left(r_{i,t}\hat A_i,\operatorname{clip}(r_{i,t},1-\epsilon_l,1+\epsilon_h)\hat A_i\right)<br>\right].<br>$$</p>
+<p>其中 $s_{i,t}&#x3D;(x,y_{i,&lt;t})$ 是第 $t$ 个 token 的状态。<strong>奖励是序列级的，概率比和梯度却是 token 级的。</strong>因此，一个回答只要通过验证，其中每个生成 token 默认共享同一个方向，真正的 token 级差异来自概率比与 mask。</p>
+<p>GLM-5 的 Reasoning RL 使用 GRPO + IcePop，组大小和 batch size 均为 32，训练数据混合数学、科学、代码和 Tool-Integrated Reasoning，并主要使用可验证的二值结果奖励。[^glm5]</p>
+<h3 id="IcePop-为什么有两层-ratio"><a href="#IcePop-为什么有两层-ratio" class="headerlink" title="IcePop 为什么有两层 ratio"></a>IcePop 为什么有两层 ratio</h3><p>RL 解耦训练和推理后，至少存在两种偏差：</p>
+<ol>
+<li><strong>训练更新偏差</strong>：当前参数 $\theta$ 相对旧训练策略 $\theta_{\mathrm{old}}$ 改了多少，对应 PPO ratio $r_t$。</li>
+<li><strong>训推实现偏差</strong>：训练引擎重算的概率与 rollout 引擎实际生成概率差了多少，对应 mismatch ratio</li>
+</ol>
+<p>$$<br>\rho_t&#x3D;\frac{\pi_{\theta}^{\mathrm{train}}(y_t\mid s_t)}<br>{\pi_{\theta}^{\mathrm{infer}}(y_t\mid s_t)}.<br>$$</p>
+<p>IcePop 的核心不是把离群 ratio 裁到边界，而是将超出可信区间的 token <strong>直接移出梯度</strong>。GLM-5 报告给出的 mismatch 阈值为 $\beta&#x3D;2$，即保留 $\rho_t\in[1&#x2F;2,2]$；PPO 的上下裁剪为 $\epsilon_l&#x3D;0.2,\epsilon_h&#x3D;0.28$。[^glm5]</p>
+<p>$$<br>m_t&#x3D;\mathbf 1!\left[\beta^{-1}\le \rho_t\le\beta\right].<br>$$</p>
+<p>最终可把 $m_t$ 乘到 token loss 上。这样做接受了一个事实：当两个引擎对该 token 的概率意见相差太大时，我们并不知道它还是不是由声明的行为策略产生，继续反向传播比丢掉样本更危险。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># Rollout / forward path</span><br><span class="line">for prompt in batch:</span><br><span class="line">    responses, infer_logp, exact_ids = rollout_policy.sample(prompt, group=32)</span><br><span class="line">    rewards = verifier(responses)</span><br><span class="line">    group_adv = normalize_within_prompt(rewards)</span><br><span class="line"></span><br><span class="line"># Train / backward path</span><br><span class="line">train_logp = actor.logprob(exact_ids)</span><br><span class="line">mismatch = exp(train_logp - infer_logp)</span><br><span class="line">trust_mask = (1 / beta &lt;= mismatch &lt;= beta)</span><br><span class="line">ppo_ratio = exp(train_logp - old_train_logp)</span><br><span class="line">loss = masked_clipped_policy_loss(ppo_ratio, group_adv, trust_mask)</span><br><span class="line">loss.backward()</span><br><span class="line">optimizer.step()</span><br></pre></td></tr></table></figure>
+
+<p><strong>数据形态与所有权</strong>：<code>exact_ids</code>、<code>infer_logp</code>、reward、policy version 属于 rollout record；训练激活和 <code>train_logp</code> 属于 Actor worker；group advantage 由 trainer 生成。Rollout 激活不应跨阶段保存，只有可重放的 token 与最小概率元数据进入训练队列。</p>
+<h3 id="DSA-的确定性为什么是-RL-问题"><a href="#DSA-的确定性为什么是-RL-问题" class="headerlink" title="DSA 的确定性为什么是 RL 问题"></a>DSA 的确定性为什么是 RL 问题</h3><p>GLM-5 使用 DSA indexer 为每个 query 选择 Top-2048 key。报告指出，直接存下所有 replay index 成本太高，因此训练侧重算 Top-k；而非确定性的 CUDA&#x2F;TileLang Top-k 曾导致 RL 明显退化和熵坍缩，最终训练使用确定性的 <code>torch.topk</code>，并默认冻结 indexer。[^glm5]</p>
+<p>这件事很容易被误认为普通算子精度问题。实际上，如果训练与 rollout 选择了不同的稀疏注意力集合，即便参数相同，二者也实现了不同的策略：</p>
+<p>$$<br>\mathcal I_t^{\mathrm{train}}\ne\mathcal I_t^{\mathrm{rollout}}<br>\quad\Rightarrow\quad<br>\pi^{\mathrm{train}}(\cdot\mid s_t)\ne\pi^{\mathrm{rollout}}(\cdot\mid s_t).<br>$$</p>
+<figure markdown>
+  ![GRPO IcePop 与 DSA 确定性](https://pic.shaojiemike.top/shaojiemike/2026/08/e2c7c79534e0b87d8a23faa00fce5232.png){ width=96% }
+  <figcaption>GRPO 提供组内相对方向，IcePop 决定哪些 token 仍可信，确定性 DSA 保证两个引擎看到同一个稀疏状态。</figcaption>
+</figure>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>迁移到 NPU 时</p>
+</div>
+        <div class="message-body">
+            <p>Top-k 只要“集合大致相同”仍不够。相同分数、边界 tie、排序稳定性、NaN 处理和 index dtype 都可能改变选中集合。需要比较 <strong>index 集合、顺序、最终 log-prob 与采样结果</strong>，而不仅是 kernel 输出的平均误差。</p>
+
+        </div>
+    </article>
+
+<h2 id="Agentic-RL：异步之后先处理策略滞后"><a href="#Agentic-RL：异步之后先处理策略滞后" class="headerlink" title="Agentic RL：异步之后先处理策略滞后"></a>Agentic RL：异步之后先处理策略滞后</h2><p>Agentic RL 的 rollout 不再是一段纯文本，而是交替出现模型动作与环境观察：</p>
+<p>$$<br>\tau&#x3D;(a_0,o_0,a_1,o_1,\ldots,a_n,o_n).<br>$$</p>
+<p>其中 observation 由编译器、终端、搜索引擎或浏览器产生，模型不对 observation token 负责。长程 coding&#x2F;search 让不同 trajectory 的耗时非常不均匀，GLM-5 因此将训练和 rollout 完全解耦，并使用中央 Multi-Task Rollout Orchestrator 调度。[^glm5]</p>
+<h3 id="TITO：token-ID-是动作事实"><a href="#TITO：token-ID-是动作事实" class="headerlink" title="TITO：token ID 是动作事实"></a>TITO：token ID 是动作事实</h3><p>若 rollout 先输出文本，训练端再 tokenize，空格、特殊 token、工具协议或 tokenizer 版本的差异会让训练动作与真实动作不一致。TITO 保留 rollout 引擎产生的 exact token IDs，使训练端在<strong>实际被采样的离散动作</strong>上重算概率。</p>
+<p>这不只是避免工程 bug。策略梯度中的动作 $a_t$ 就是 token ID；一旦 ID 改了，公式中的 $\pi(a_t\mid s_t)$ 已经指向另一个事件。</p>
+<h3 id="Direct-Double-Sided-Importance-Sampling"><a href="#Direct-Double-Sided-Importance-Sampling" class="headerlink" title="Direct Double-Sided Importance Sampling"></a>Direct Double-Sided Importance Sampling</h3><p>异步系统中，一个 trajectory 生成期间 rollout 权重可能更新多次，精确维护每个 token 对应的旧训练 checkpoint 代价很高。GLM-5 直接把 rollout 时保存的概率当作行为策略代理：</p>
+<p>$$<br>r_t(\theta)&#x3D;\exp\left(<br>\log\pi_\theta(a_t\mid s_t)-<br>\log\pi_{\mathrm{rollout}}(a_t\mid s_t)<br>\right).<br>$$</p>
+<p>然后使用双边可信区间：</p>
+<p>$$<br>f(r_t)&#x3D;<br>\begin{cases}<br>r_t,&amp;1-\epsilon_l&lt;r_t&lt;1+\epsilon_h,\<br>0,&amp;\text{otherwise}.<br>\end{cases}<br>$$</p>
+<p>这里的“0”表示该 token 不产生梯度。相比只在特定优势方向裁剪的 PPO，它更激进地拒绝不可信 token；相比维护历史模型集合，它用<strong>可控的 off-policy 偏差</strong>换取系统可实现性。</p>
+<p>GLM-5 还用版本差 $v_{\mathrm{train}}-v_{\mathrm{rollout}}&gt;\tau$ 丢弃过旧样本；权重每 $K$ 次更新同步到推理侧，并在推理权重更新后重置 optimizer。环境失败样本也单独过滤：若组内仍有一半以上有效样本则补齐，否则整组丢弃。[^glm5]</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># Asynchronous rollout workers</span><br><span class="line">sample = environment.run(policy_version=v_rollout)</span><br><span class="line">sample.store(exact_ids, rollout_logp, observations, v_rollout)</span><br><span class="line">queue.push(sample)</span><br><span class="line"></span><br><span class="line"># Trainer consumes completed samples without waiting for a whole task batch</span><br><span class="line">sample = queue.pop_ready()</span><br><span class="line">if current_version - sample.v_rollout &gt; tau:</span><br><span class="line">    discard(sample)</span><br><span class="line">train_logp = actor.logprob(sample.exact_ids)</span><br><span class="line">ratio = exp(train_logp - sample.rollout_logp)</span><br><span class="line">token_mask = (1 - eps_l &lt; ratio &lt; 1 + eps_h)</span><br><span class="line">loss = -mean(token_mask * ratio * advantage * train_logp)</span><br><span class="line">loss.backward()</span><br><span class="line">optimizer.step()</span><br><span class="line"></span><br><span class="line">if step % K == 0:</span><br><span class="line">    sync_and_reshard_weights(actor, rollout_engines)</span><br></pre></td></tr></table></figure>
+
+<figure markdown>
+  ![异步 Agentic RL 的概率与版本契约](https://pic.shaojiemike.top/shaojiemike/2026/08/1ad40f5c2e03a489501c0332e87593a3.png){ width=96% }
+  <figcaption>异步吞吐来自“完成即消费”，稳定性来自 exact token、rollout log-prob、policy version 与双边 token mask。</figcaption>
+</figure>
+
+<p><strong>DP-aware routing</strong> 进一步把同一多轮会话稳定路由到同一个 rollout DP rank，以复用 KV Cache。它是性能优化，但同时改变了 KV 的 owner 和生命周期：路由表、会话 version 与 cache eviction 必须一致，否则“复用”可能变成读取错误状态。</p>
+<h2 id="General-RL：奖励不是一个标量来源"><a href="#General-RL：奖励不是一个标量来源" class="headerlink" title="General RL：奖励不是一个标量来源"></a>General RL：奖励不是一个标量来源</h2><p>Reasoning RL 的二值可验证奖励适合数学和代码，但事实性、情商、指令遵循和写作质量难以用同一规则描述。GLM-5 的 General RL 混合三类信号：[^glm5]</p>
+<ul>
+<li><strong>规则奖励</strong>：格式、长度、引用、工具协议等可以确定判断的约束。</li>
+<li><strong>Outcome Reward Model（ORM）</strong>：预测回答最终是否满足目标。</li>
+<li><strong>生成式奖励模型</strong>：读取上下文与回答，生成分析或评分，覆盖开放式质量。</li>
+</ul>
+<p>它们通常都先落成 trajectory-level reward，再进入优势估计。混合奖励的本质不是“把分数相加”这么简单，而是选择一个标量化函数：</p>
+<p>$$<br>R(\tau)&#x3D;\sum_k w_kR_k(\tau)-\sum_j\lambda_jP_j(\tau).<br>$$</p>
+<p>权重 $w_k$ 定义能力之间的交换率，惩罚 $P_j$ 定义不可接受行为。若 Reward Model 学会利用数据偏差，策略会放大这种偏差。因此 GLM-5 还使用人工编写的 anchor 保持目标不漂移，但公开报告没有披露完整奖励权重和数据配比。</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>General RL 与 NPU 的关系</p>
+</div>
+        <div class="message-body">
+            <p>Reward worker 可以不在 NPU 上，但它输出的 sample ID、版本、reward 分量和失败原因必须可追溯。否则训练端只看到一个标量，无法区分模型退化、环境失败、judge 漂移或解析错误。</p>
+
+        </div>
+    </article>
+
+<h2 id="OPD：把教师变成逐-token-优势"><a href="#OPD：把教师变成逐-token-优势" class="headerlink" title="OPD：把教师变成逐 token 优势"></a>OPD：把教师变成逐 token 优势</h2><p>多阶段 RL 会产生一个常见问题：后一阶段强化新能力时，前一阶段能力可能被覆盖。GLM-5 最后使用 <strong>On-Policy Cross-Stage Distillation</strong>：把之前各阶段的最终 checkpoint 当作教师，从各教师原来的 RL 数据中采 prompt 并混合，学生生成自己的轨迹，再由对应教师在这些前缀上打分。[^glm5]</p>
+<h3 id="为什么是-on-policy"><a href="#为什么是-on-policy" class="headerlink" title="为什么是 on-policy"></a>为什么是 on-policy</h3><p>给定 prompt $x$，学生先采样：</p>
+<p>$$<br>y\sim\pi_\theta(\cdot\mid x).<br>$$</p>
+<p>教师不是给一条固定答案，而是在学生已经走到的每个状态 $s_t&#x3D;(x,y_{&lt;t})$ 上计算概率。GLM-5 用下面的 log-ratio 直接替换 RL advantage：</p>
+<p>$$<br>\hat A^{\mathrm{OPD}}_t<br>&#x3D;\operatorname{sg}\left[<br>\log\pi_T^{\mathrm{infer}}(y_t\mid s_t)<br>-\log\pi_\theta^{\mathrm{train}}(y_t\mid s_t)<br>\right].<br>$$</p>
+<p><code>sg</code> 是 stop-gradient。若教师比学生更偏好学生刚采到的 token，优势为正，学生提高该 token 概率；反之为负。它等价于 sampled reverse-KL 的 policy-gradient 形式：只需教师返回学生实际采样 token 的 log-prob，不必传输 <code>[tokens,vocab]</code> 全词表 logits。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># Forward: student owns the state distribution</span><br><span class="line">exact_ids = student_rollout.sample(prompt)</span><br><span class="line">teacher_logp = teacher.prefill_and_score(exact_ids)</span><br><span class="line">student_logp = actor.logprob(exact_ids)</span><br><span class="line"></span><br><span class="line"># Backward: teacher gap becomes dense token advantage</span><br><span class="line">opd_adv = stop_gradient(teacher_logp - student_logp)</span><br><span class="line">loss = -mean(opd_adv * student_logp)</span><br><span class="line">loss.backward()</span><br><span class="line">optimizer.step()</span><br></pre></td></tr></table></figure>
+
+<p>由于教师差值已经提供 token 级方向，不需要同一 prompt 采 32 个回答做组内比较。GLM-5 报告把 OPD 的 group size 设为 1，batch size 提高到 1024。教师 logits 由推理引擎计算；报告也指出后续可切到训练引擎或 MQA mode。[^glm5]</p>
+<h3 id="OPD-和-RL-的关系"><a href="#OPD-和-RL-的关系" class="headerlink" title="OPD 和 RL 的关系"></a>OPD 和 RL 的关系</h3><p>OPD 的核心是<strong>学生 rollout 上的教师信号</strong>，不是某个特定优化器。至少有三种实现维度必须分开：</p>
+<ol>
+<li><strong>分布传输</strong>：full vocab、teacher top-k、或只传 sampled token log-prob。</li>
+<li><strong>损失形式</strong>：直接 KL&#x2F;cross entropy，或把 log-ratio 写成 policy-gradient advantage。</li>
+<li><strong>任务奖励</strong>：可以纯蒸馏，也可以在 OPD advantage 上叠加 task advantage。</li>
+</ol>
+<p>当前 slime 的 OPD 实现已经把 OPD 作为与 advantage estimator 正交的项：读取 teacher log-prob，并把 student-teacher reverse-KL 差加入 advantage。[^slime_opd]</p>
+<h2 id="MOPD：能力整合发生在策略空间"><a href="#MOPD：能力整合发生在策略空间" class="headerlink" title="MOPD：能力整合发生在策略空间"></a>MOPD：能力整合发生在策略空间</h2><p>MOPD（Multi-Teacher On-Policy Distillation）把多领域能力整合拆成三步：[^mopd]</p>
+<ol>
+<li>从同一个通用 SFT checkpoint 出发；</li>
+<li>各领域独立做最适合自己的 RL，得到数学、指令、SWE、工具等教师；</li>
+<li>学生仍从通用 SFT 初始化，自己生成多领域 trajectory，再按领域把每条 trajectory <strong>硬路由到一个对应教师</strong>。</li>
+</ol>
+<p>其完整 reverse KL 是：</p>
+<p>$$<br>\mathcal L_{\mathrm{revKL}}<br>&#x3D;\mathbb E_{x,,y\sim\pi_\theta}<br>\left[<br>\frac1{|y|}\sum_t\sum_v<br>\pi_\theta(v\mid s_t)<br>\log\frac{\pi_\theta(v\mid s_t)}{\pi_{T_{d(x)}}(v\mid s_t)}<br>\right].<br>$$</p>
+<p>其中 $d(x)$ 是 prompt 的领域，$T_{d(x)}$ 是被路由到的教师。工程上可用 sampled-token PG 形式，也可传教师 Top-k。MOPD 的 Top-k 目标额外加入 $\pi_T(v)-\pi_\theta(v)$ 修正截断偏差，使 top-k 区域的最优点仍位于师生分布相等。[^mopd]</p>
+<h3 id="为什么强调同源教师"><a href="#为什么强调同源教师" class="headerlink" title="为什么强调同源教师"></a>为什么强调同源教师</h3><p>同源不是组织关系，而是优化条件：教师与学生从同一个 SFT checkpoint 分叉，初始策略分布接近。MOPD 的受控实验中，Qwen3-30B-A3B 的三领域归一化得分为 <code>0.9373</code>，高于 Mix-RL 的 <code>0.8818</code>；而把数学教师换成更强但异源的 Qwen3-235B-A22B 后，初始 per-token KL 约从 <code>0.04</code> 升到 <code>0.19</code>，训练出现熵收缩甚至 Top-k 版本崩溃。[^mopd]</p>
+<figure markdown>
+  ![MOPD 受控实验证据](https://pic.shaojiemike.top/shaojiemike/2026/08/260f7ffed810199e3b09db240d7b2160.png){ width=94% }
+  <figcaption>MOPD 原论文的受控证据：同源领域教师的整合更均匀；外部大教师实验说明“教师更强”不等于“更可蒸馏”。实验对象与 GLM 不同。</figcaption>
+</figure>
+
+<h3 id="GLM-与-MOPD-的准确关系"><a href="#GLM-与-MOPD-的准确关系" class="headerlink" title="GLM 与 MOPD 的准确关系"></a>GLM 与 MOPD 的准确关系</h3><p>GLM-5 报告称 <strong>Cross-Stage OPD</strong>：上阶段 checkpoint 是教师，教师各自的 RL prompt 被混合。GLM-5.2 官方博客进一步披露并行 OPD 合并了十多个专家。二者都具有“多教师、路由或分源数据、学生 on-policy trajectory、策略空间整合”的结构。</p>
+<p><strong>但 GLM 官方没有把这套方法命名为 MOPD。</strong>因此更准确的说法是：</p>
+<ul>
+<li>GLM-5 的 Cross-Stage OPD 是多阶段教师整合；</li>
+<li>GLM-5.2 的十多个专家并行 OPD 在结构上接近 MOPD；</li>
+<li>MOPD 论文提供了更完整的多领域同源教师原理与消融证据，但不是 GLM recipe 的直接证明。</li>
+</ul>
+<figure markdown>
+  ![OPD MOPD 与 GLM 多阶段整合](https://pic.shaojiemike.top/shaojiemike/2026/08/3aac7d16274261997e2790f36b94b712.png){ width=96% }
+  <figcaption>OPD 选择学生状态分布；MOPD 再增加领域教师路由。GLM 的官方命名与结构性映射在图中分开。</figcaption>
+</figure>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>缩写冲突</p>
+</div>
+        <div class="message-body">
+            <p>文献中 MOPD 也可能指 Multi-Rollout On-Policy Distillation。本文只使用 <strong>Multi-Teacher On-Policy Distillation</strong>，判断时应看全称而不是缩写。</p>
+
+        </div>
+    </article>
+
+<h2 id="GLM-5-2：SAO-与-CompactionRL"><a href="#GLM-5-2：SAO-与-CompactionRL" class="headerlink" title="GLM-5.2：SAO 与 CompactionRL"></a>GLM-5.2：SAO 与 CompactionRL</h2><p>GLM-5.2 没有简单沿用 GLM-5 的全部公开配方。两篇后续论文分别针对长程 Agent RL 的两个结构性瓶颈：<strong>组采样等待</strong>和<strong>上下文耗尽</strong>。</p>
+<h3 id="SAO：一条轨迹完成就训练"><a href="#SAO：一条轨迹完成就训练" class="headerlink" title="SAO：一条轨迹完成就训练"></a>SAO：一条轨迹完成就训练</h3><p>GRPO 的 group baseline 需要同一 prompt 的 $G$ 条轨迹全部完成。长程任务中，最快样本会等待最慢样本；异步系统里，这段等待还会增加 policy staleness。SAO（Single-Rollout Asynchronous Optimization）把 group size 降到 1，每条完成的轨迹立即进入训练。[^sao]</p>
+<figure markdown>
+  ![SAO 单轨迹异步逻辑图](https://pic.shaojiemike.top/shaojiemike/2026/08/cba4702e7b56b42e45fad058a7d14488.png){ width=90% }
+  <figcaption>SAO 原论文逻辑图：单轨迹消除了 prompt 组内的最慢样本 barrier。</figcaption>
+</figure>
+
+<p>但 $G&#x3D;1$ 后无法计算组内相对奖励，SAO 必须重新引入 Value Model $V_\phi$ 来降低 REINFORCE 方差，并使用三个稳定机制：</p>
+<ol>
+<li><strong>DIS</strong>：直接用 rollout log-prob 计算双边 ratio，超出区间的 token 不产生梯度。</li>
+<li><strong>Critic 更快更新</strong>：每次 policy 更新前做 $K&gt;1$ 次 value update，论文设置 $K&#x3D;2$。</li>
+<li><strong>冻结 Critic Attention</strong>：论文观察到 Value Model 的 Full Attention 梯度更不稳定，因此冻结 attention，只更新 MoE 投影。</li>
+</ol>
+<p>对 Agent trajectory，observation 不是模型动作。SAO 的 Skip-Observation GAE 直接把当前动作末尾连接到下一动作开头：</p>
+<p>$$<br>\delta&#x3D;r_t+\gamma V(a_{i+1,0})-V(a_{i,N}),<br>$$</p>
+<p>$$<br>\hat A(a_{i,N})&#x3D;\delta+\gamma\lambda\hat A(a_{i+1,0}).<br>$$</p>
+<p>这样不会强迫 Critic 为外部 observation token 学一个虚假的自回归价值过渡。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">trajectory = async_rollout.one(prompt)</span><br><span class="line">values = critic(trajectory.action_tokens)</span><br><span class="line">adv = skip_observation_gae(values, trajectory.rewards)</span><br><span class="line"></span><br><span class="line">for _ in range(K):</span><br><span class="line">    value_loss(critic, returns).backward()</span><br><span class="line">    critic_optimizer.step()</span><br><span class="line"></span><br><span class="line">ratio = exp(actor.logprob(ids) - trajectory.rollout_logp)</span><br><span class="line">mask = inside_double_sided_trust_region(ratio)</span><br><span class="line">policy_loss(mask, ratio, adv).backward()</span><br><span class="line">actor_optimizer.step()</span><br></pre></td></tr></table></figure>
+
+<p>SAO 论文在 Qwen3-30B-A3B 上报告：SWE-bench Verified 从 GRPO+DIS 的 <code>27.0</code> 提高到 SAO 的 <code>29.8</code>；数学任务也优于对照。这个实验支持 SAO 组件组合，但不是 GLM-5.2 的独立组件消融。[^sao]</p>
+<figure markdown>
+  ![SAO 实验证据](https://pic.shaojiemike.top/shaojiemike/2026/08/2bb48c3f2f9729be6132257bbe88be89.png){ width=92% }
+  <figcaption>SAO 原论文证据图。主实验使用 Qwen3-30B-A3B；论文另称 SAO 已部署到 GLM-5.2 pipeline，二者不能合并成 GLM-5.2 的因果增益。</figcaption>
+</figure>
+
+<h3 id="CompactionRL：摘要也要为任务结果负责"><a href="#CompactionRL：摘要也要为任务结果负责" class="headerlink" title="CompactionRL：摘要也要为任务结果负责"></a>CompactionRL：摘要也要为任务结果负责</h3><p>长程 Agent 即使有 1M context，也会遇到 KV Cache、调度和上下文预算限制。CompactionRL 在剩余预算低于阈值时，让<strong>同一个可训练策略</strong>生成摘要：[^compaction]</p>
+<p>$$<br>C-|h_t|&lt;T_{\mathrm{comp}},<br>\qquad<br>S_t\sim\pi_\theta(\cdot\mid h_t\oplus q_{\mathrm{sum}}).<br>$$</p>
+<p>随后用系统提示、摘要和最近 $k$ 个原子化的 action-observation 对重建上下文：</p>
+<p>$$<br>\bar h_t&#x3D;(s)\oplus u_{\mathrm{resume}}(S_t)<br>\oplus(z_{t-k+1},\ldots,z_t).<br>$$</p>
+<p>摘要不是外部预处理器。它和普通执行 token 一样由 Actor 生成，并共享最终任务奖励 $R(\tau)$。如果摘要漏掉文件路径、失败命令或未解决错误，后续执行失败会反向惩罚摘要行为。</p>
+<figure markdown>
+  ![CompactionRL 原始逻辑图](https://pic.shaojiemike.top/shaojiemike/2026/08/62a21ccb898d36cc0718797298f2d2c8.png){ width=94% }
+  <figcaption>CompactionRL 原论文逻辑图：执行段与摘要段共享终局奖励，重建上下文后继续 rollout。</figcaption>
+</figure>
+
+<p>压缩会把一条 trajectory 切成数量和长度都不固定的 $K$ 个 segment。若按 segment 平均 loss，压缩次数多的轨迹会被重复加权。CompactionRL 因此在全部可训练 token 集合 $\mathcal M$ 上归一化 PPO loss：</p>
+<p>$$<br>\mathcal L_\pi&#x3D;-\frac1{|\mathcal M|}<br>\sum_{(s,i)\in\mathcal M}<br>\min\left(<br>\rho_{s,i}\hat A_{s,i},<br>\operatorname{clip}(\rho_{s,i},1-\epsilon,1+\epsilon)\hat A_{s,i}<br>\right).<br>$$</p>
+<p>第二个问题是信用距离。若每个 segment 独立做 GAE，早期摘要会“看起来”离终局奖励很近。设后续 segment 还有 $N_{&gt;s}$ 个可训练 token，跨轨迹修正为：</p>
+<p>$$<br>\hat A_{s,i}&#x3D;(\gamma\lambda)^{N_{&gt;s}}A^{\mathrm{loc}}_{s,i}.<br>$$</p>
+<p>这恢复了早期 token 到最终结果的大致时间距离，同时保留 segment 独立训练的系统并行性。</p>
+<p>CompactionRL 的 GLM-4.5-Air 实验中，80K 峰值上下文下的压缩推理，SWE-bench Verified 从 base 的 <code>59.8</code>、普通 RL 的 <code>62.5</code> 提高到 <code>66.8</code>；去掉 token-level loss 后降至 <code>60.0</code>，去掉 cross-trajectory GAE 后为 <code>63.0</code>。[^compaction]</p>
+<figure markdown>
+  ![CompactionRL 实验证据](https://pic.shaojiemike.top/shaojiemike/2026/08/520bf3e21dc915608ddaa7fc613066e7.png){ width=94% }
+  <figcaption>CompactionRL 原论文证据：实验支持摘要联合训练、token-level loss 和跨段信用修正；实验模型是 GLM-4.x，不是 GLM-5.2 消融。</figcaption>
+</figure>
+
+<h2 id="QAT：让模型在量化误差里学习"><a href="#QAT：让模型在量化误差里学习" class="headerlink" title="QAT：让模型在量化误差里学习"></a>QAT：让模型在量化误差里学习</h2><p>先纠正阶段归属：GLM-5 报告原文明确写道，<strong>INT4 QAT 应用于 SFT stage</strong>，并开发了同时适用于训练和离线权重量化的 kernel，以保证训练与推理逐比特一致。[^glm5]</p>
+<p>因此它不属于本文的“非 SFT 方法序列”，但它直接决定 NPU 上低精度后训练能否保持分布一致，必须单独理解。</p>
+<h3 id="Fake-quant-的前向"><a href="#Fake-quant-的前向" class="headerlink" title="Fake quant 的前向"></a>Fake quant 的前向</h3><p>对一组浮点值 $x$，仿射量化可写成：</p>
+<p>$$<br>q&#x3D;\operatorname{clip}\left(<br>\operatorname{round}\left(\frac{x}{s}\right)+z,<br>q_{\min},q_{\max}<br>\right),<br>$$</p>
+<p>$$<br>\hat x&#x3D;s(q-z).<br>$$</p>
+<p>$s$ 是 scale，$z$ 是 zero-point。QAT 前向并不一定真的把模型状态长期存成 INT4；它通常执行 <strong>quantize → dequantize</strong>，让后续 GEMM 看到离散化后的 $\hat x$，从而把舍入、截断和动态范围误差暴露给训练。</p>
+<p>量化粒度决定多少元素共享一组 qparam：</p>
+<ul>
+<li><strong>per-tensor</strong>：整个 tensor 共用一组 scale，开销小、误差大；</li>
+<li><strong>per-channel&#x2F;per-row</strong>：一行或一个输出通道一组；</li>
+<li><strong>per-group&#x2F;per-block</strong>：例如每 32 或 128 个权重一组，在误差与元数据间折中；</li>
+<li><strong>per-token activation</strong>：每个 token 的激活独立求 scale。</li>
+</ul>
+<p>torchao 的 INT4 fake quant 代码明确使用 <code>quant_min=-8, quant_max=7</code> 的有符号范围；其通用 fake-quant op 等价于量化再反量化但不做实际 dtype cast。[^torchao]</p>
+<h3 id="STE-的反向"><a href="#STE-的反向" class="headerlink" title="STE 的反向"></a>STE 的反向</h3><p><code>round</code> 几乎处处梯度为 0，直接求导会让训练停止。Straight-Through Estimator 在反向把离散算子近似成恒等映射：</p>
+<p>$$<br>\frac{\partial\operatorname{round}(u)}{\partial u}\approx1.<br>$$</p>
+<p>torchao 的 <code>_Round.backward</code> 直接返回上游梯度 <code>gy</code>，就是最直白的 STE。[^torchao_ste]</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># QAT forward</span><br><span class="line">scale, zero_point = choose_qparams(weight, granularity=group_size)</span><br><span class="line">q = clamp(round(weight / scale) + zero_point, qmin, qmax)</span><br><span class="line">fake_weight = scale * (q - zero_point)</span><br><span class="line">output = matmul(input, fake_weight)</span><br><span class="line">loss = task_loss(output, target)</span><br><span class="line"></span><br><span class="line"># QAT backward</span><br><span class="line"># round is replaced by identity in the gradient path</span><br><span class="line">grad_weight ~= grad_fake_weight</span><br><span class="line">loss.backward()</span><br><span class="line">optimizer.step()  # update the floating master weight</span><br></pre></td></tr></table></figure>
+
+<p><strong>物理对象必须分清</strong>：浮点 master weight 由 optimizer 更新；<code>q</code> 是临时整数语义；<code>fake_weight</code> 仍是浮点 tensor；部署 checkpoint 则可能是实际 packed INT4 加 scale&#x2F;zero-point。只看 Python dtype 很容易误判究竟在哪一步获得了内存收益。</p>
+<h3 id="为什么强调-bitwise-identical"><a href="#为什么强调-bitwise-identical" class="headerlink" title="为什么强调 bitwise-identical"></a>为什么强调 bitwise-identical</h3><p>若 QAT 前向和离线转换使用不同的 rounding mode、group 划分、scale 精度、饱和范围或 packing 顺序，训练适应的是误差 $e_{\mathrm{train}}$，部署面对的却是另一个误差 $e_{\mathrm{deploy}}$：</p>
+<p>$$<br>\hat W_{\mathrm{train}}&#x3D;Q^{-1}<em>{a}(Q_a(W)),<br>\qquad<br>\hat W</em>{\mathrm{deploy}}&#x3D;Q^{-1}_{b}(Q_b(W)).<br>$$</p>
+<p>即使两者平均误差相近，MoE router、DSA indexer 或采样 logits 的边界 token 也可能改变。GLM-5 的“逐比特一致”要求，本质上是在消除这一隐藏的第二量化器。</p>
+<figure markdown>
+  ![QAT 与量化的对象和梯度](https://pic.shaojiemike.top/shaojiemike/2026/08/00e9a40517d4a3aa7e63afa661378153.png){ width=96% }
+  <figcaption>QAT 用浮点 master weight 更新参数，前向模拟低比特误差；真正 packed 权重通常出现在转换或推理阶段。</figcaption>
+</figure>
+
+<p>MindSpeed-LLM 的固定提交已经暴露 <code>w4a16-mxfp4</code>、<code>w4a16-mxfp4-moe-only</code>、<code>w4a4-mxfp4</code>、<code>w4a8-moe-only</code> 等 QAT scheme，并允许 W4A8 使用 32&#x2F;128 block size。[^mindspeed_qat] 这说明昇腾侧已有 QAT 算子积木，但仍不能据此断言 GLM-5.2 的官方 INT4 QAT 配方已复现。</p>
+<h2 id="量化：三件事不要混为一谈"><a href="#量化：三件事不要混为一谈" class="headerlink" title="量化：三件事不要混为一谈"></a>量化：三件事不要混为一谈</h2><p>围绕 GLM 的公开材料，至少存在三条低精度路径：</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>训练参数</th>
+<th>前向数值</th>
+<th>主要目的</th>
+<th>是否产生适应量化误差的梯度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>QAT</strong></td>
+<td>通常保留浮点 master weight</td>
+<td>fake quant 或低精度训练 kernel</td>
+<td>让模型适应目标量化误差</td>
+<td><strong>是</strong></td>
+</tr>
+<tr>
+<td><strong>量化 Rollout</strong></td>
+<td>Actor 可继续 BF16 训练</td>
+<td>推理侧 FP8&#x2F;INT8&#x2F;INT4 权重或 KV</td>
+<td>降低采样显存、带宽和时延</td>
+<td><strong>否，除非同一误差也进入训练前向</strong></td>
+</tr>
+<tr>
+<td><strong>离线部署量化</strong></td>
+<td>训练已结束</td>
+<td>packed W8A8&#x2F;W4A8&#x2F;INT4</td>
+<td>降低部署成本</td>
+<td><strong>否</strong></td>
+</tr>
+</tbody></table>
+<p>slime 当前推荐的大型 MoE 路径是 <strong>Megatron BF16 训练 + SGLang FP8 rollout</strong>：同步时把更新后的 BF16 权重按 rollout checkpoint 的量化配置转换成 FP8 后发送；FP8 KV Cache 是另一个独立开关。固定提交把 INT4 rollout&#x2F;QAT 标为 beta，FP8 训练 + rollout 标为 experimental。[^slime_lowp]</p>
+<p>这条路径最容易产生误解：Actor optimizer 并没有在 FP8 参数上更新，但行为数据由 FP8 rollout 策略产生，所以必须继续测量：</p>
+<p>$$<br>\Delta_t&#x3D;log\pi^{\mathrm{BF16\ train}}(y_t\mid s_t)<br>-\log\pi^{\mathrm{FP8\ rollout}}(y_t\mid s_t).<br>$$</p>
+<p>IcePop&#x2F;DIS 可以屏蔽 $\Delta_t$ 过大的 token，却不能替代量化校准。如果大量 token 被屏蔽，训练虽然不崩，<strong>有效样本率</strong>也会下降。</p>
+<p>另一方面，GLM-5.2 的官方 Ascend 部署文档使用 QuaRot、Flex SmoothQuant 和 SSZ 组合的混合 W8A8；这是部署推理方案，不是 QAT 证据。[^glm52_ascend] MindSpeed-RL 还公开了基于 Flash-RL 的 NPU INT8 online-quantized rollout 示例，通过 BF16&#x2F;INT8 profile 决定更新权重如何在线量化；同样不能把它写成 GLM-5.2 官方 recipe。[^mindspeed_rl_quant]</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>判断一个 low-precision 声明</p>
+</div>
+        <div class="message-body">
+            <p>依次问五件事：<strong>量化谁、在哪个进程、何时量化、以什么粒度、梯度是否穿过量化误差。</strong>只说“支持 INT4&#x2F;FP8”几乎没有技术含义。</p>
+
+        </div>
+    </article>
+
+<h2 id="NPU-原生的数值契约"><a href="#NPU-原生的数值契约" class="headerlink" title="NPU 原生的数值契约"></a>NPU 原生的数值契约</h2><p>把前面的方法压缩成 NPU 研发对象，可以得到六份不能破坏的契约。</p>
+<figure markdown>
+  ![NPU 原生后训练数值契约](https://pic.shaojiemike.top/shaojiemike/2026/08/d2b574e283c632491d4e20ae4ddde5cb.png){ width=96% }
+  <figcaption>六份契约把算法语义落到 token、概率、索引、版本、量化与对象生命周期，而不预设某个框架实现。</figcaption>
+</figure>
+
+<h3 id="动作与概率契约"><a href="#动作与概率契约" class="headerlink" title="动作与概率契约"></a>动作与概率契约</h3><ul>
+<li>rollout 交付 exact token IDs、response mask、rollout log-prob、采样配置和 tokenizer&#x2F;chat-template revision；</li>
+<li>train、rollout、teacher 必须对同一 token ID 和同一前缀计算 log-prob；</li>
+<li>observation、prompt、工具返回和复制的 compacted tail 不进入 policy loss；</li>
+<li>sampled log-prob 的精度、logsumexp 和 vocabulary parallel reduction 必须有对照测试。</li>
+</ul>
+<h3 id="稀疏与版本契约"><a href="#稀疏与版本契约" class="headerlink" title="稀疏与版本契约"></a>稀疏与版本契约</h3><ul>
+<li>DSA Top-k 记录 tie、排序、NaN、index dtype 与跨卡归并规则；</li>
+<li>rollout sample 携带 policy version，trainer 定义可接受的最大 staleness；</li>
+<li>权重同步包含训练分片 → 推理分片 → 量化 → 发送 → 原子切换 → 确认，不把“传输完成”等同于“新策略已生效”；</li>
+<li>多轮会话的 DP routing 与 KV Cache owner 同步迁移或显式失效。</li>
+</ul>
+<h3 id="Teacher-与量化契约"><a href="#Teacher-与量化契约" class="headerlink" title="Teacher 与量化契约"></a>Teacher 与量化契约</h3><ul>
+<li>每个 prompt 的 teacher route 可追溯，教师 tokenizer 和 action space 与学生兼容；</li>
+<li>teacher prefill payload 明确是 sampled log-prob、Top-k IDs&#x2F;logits 还是 full vocab；</li>
+<li>QAT 与离线量化共享 rounding、scale、zero-point、group&#x2F;block、饱和和 packing 语义；</li>
+<li>BF16&#x2F;FP8&#x2F;INT8&#x2F;INT4 分别标注为 model state、GEMM compute、rollout weight、KV Cache 或 checkpoint format。</li>
+</ul>
+<h3 id="内存不是“参数量乘位宽”"><a href="#内存不是“参数量乘位宽”" class="headerlink" title="内存不是“参数量乘位宽”"></a>内存不是“参数量乘位宽”</h3><p>RL&#x2F;OPD 峰值显存至少应写成：</p>
+<p>$$<br>M_{\mathrm{peak}}&#x3D;<br>M_{\mathrm{model\ state}}+<br>M_{\mathrm{saved\ activations}}+<br>M_{\mathrm{operator\ workspace}}+<br>M_{\mathrm{communication\ buffers}}+<br>M_{\mathrm{live\ IO}}+<br>M_{\mathrm{allocator}}+<br>M_{\mathrm{runtime\ margin}}.<br>$$</p>
+<p>其中 Actor、Reference、Teacher、Critic、rollout KV、DSA index、teacher logits、weight-reshard buffer 可能在不同 NPU、不同进程或不同时间段驻留。必须为每个对象记录：</p>
+<ul>
+<li><strong>逻辑形状与物理布局</strong>；</li>
+<li><strong>producer、consumer 与 owner</strong>；</li>
+<li><strong>创建、跨进程传输、复用和释放时间</strong>；</li>
+<li><strong>属于持久模型状态、保存激活、算子 workspace、通信 buffer 还是 live IO</strong>。</li>
+</ul>
+<h2 id="现有昇腾栈到了哪里"><a href="#现有昇腾栈到了哪里" class="headerlink" title="现有昇腾栈到了哪里"></a>现有昇腾栈到了哪里</h2><p>固定到本文核验的提交，开源状态可以概括为：</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>已有证据</th>
+<th>仍缺的 GLM-5.2 闭环证据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GLM-5.2 模型训练</td>
+<td>MindSpeed-LLM 有 744B-A40B、32 节点、每节点 16 NPU 的预训练脚本，含 DSA&#x2F;MoE&#x2F;MTP</td>
+<td>GLM-5.2 SFT&#x2F;RL&#x2F;OPD 的公开 NPU recipe</td>
+</tr>
+<tr>
+<td>通用 RL</td>
+<td>MindSpeed-RL 支持 GRPO&#x2F;PPO&#x2F;DAPO、异步队列、训推重分片、vLLM-Ascend</td>
+<td>IcePop、GLM TITO&#x2F;DIS、Cross-Stage OPD 的 E2E 示例</td>
+</tr>
+<tr>
+<td>量化训练</td>
+<td>MindSpeed-LLM 有多种 W4&#x2F;A4&#x2F;A8 QAT scheme</td>
+<td>与 GLM 报告逐比特一致要求对应的公开验证</td>
+</tr>
+<tr>
+<td>量化 rollout</td>
+<td>MindSpeed-RL 有 Qwen INT8 online-quantized rollout 示例</td>
+<td>GLM-5.2 DSA&#x2F;MoE 的概率 mismatch、吞吐和收敛证据</td>
+</tr>
+<tr>
+<td>昇腾推理</td>
+<td>GLM-5.2 官方文档支持 vLLM-Ascend&#x2F;SGLang&#x2F;xLLM 与混合 W8A8</td>
+<td>训练 Actor、Teacher Prefill、Verifier、权重原子切换的统一 recipe</td>
+</tr>
+</tbody></table>
+<p>因此当前最准确的判断不是“昇腾不支持 GLM RL”，而是：<strong>模型、通用 RL、QAT 与推理积木已经存在；等价于官方 GLM-5.2 的端到端 NPU 原生后训练配方仍是公开缺口。</strong></p>
+<h2 id="证据能说明什么"><a href="#证据能说明什么" class="headerlink" title="证据能说明什么"></a>证据能说明什么</h2><p>本文把证据分成四层，避免把模型级结果误写成算法因果：</p>
+<ol>
+<li><strong>流程证据</strong>：GLM-5 报告和 GLM-5.2 博客说明哪些阶段、框架和方法被使用。</li>
+<li><strong>方法证据</strong>：MOPD、SAO、CompactionRL 在各自受控模型和任务上的结果，说明机制有实验支持。</li>
+<li><strong>代码证据</strong>：固定提交证明某个 flag、loss、QAT scheme、backend 或示例存在。</li>
+<li><strong>缺口证据</strong>：没有找到 GLM-5.2 NPU E2E recipe，只能表述为“截至固定版本未找到”，不能推断内部或未来一定不存在。</li>
+</ol>
+<p>尤其要保留三个边界：</p>
+<ul>
+<li>GLM-5&#x2F;5.2 的总体 benchmark 不能隔离某个 RL、OPD 或 QAT 组件的收益；</li>
+<li>SAO 的主实验是 Qwen3-30B-A3B，CompactionRL 的主实验是 GLM-4.x；“用于 GLM-5.2 pipeline”是部署陈述，不是 GLM-5.2 消融；</li>
+<li>GLM-5 报告没有给 INT4 QAT 的独立精度&#x2F;吞吐消融，不能编造“QAT 提升了多少”。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>GLM 的非 SFT 后训练可以记成一条清晰主线：</p>
+<ol>
+<li><strong>Reasoning RL</strong> 用 GRPO 获得组内相对方向，用 IcePop 和确定性 DSA 只保留可信 token；</li>
+<li><strong>Agentic RL</strong> 用异步 rollout 提升吞吐，再用 exact token、rollout log-prob、双边 IS 和 policy version 控制滞后；</li>
+<li><strong>General RL</strong> 把规则、ORM 和生成式 judge 组合成开放任务的目标；</li>
+<li><strong>Cross-Stage OPD</strong> 用教师 token 分布恢复前序阶段能力，GLM-5.2 的十多个专家并行 OPD 在结构上接近多教师 MOPD；</li>
+<li><strong>SAO</strong> 消除组内等待，但以 Critic 和 Value Model 稳定机制换取单轨迹更新；</li>
+<li><strong>CompactionRL</strong> 把摘要纳入策略，让上下文压缩也对最终任务负责；</li>
+<li><strong>QAT</strong> 用 fake quant + STE 让模型适应低比特误差，但 GLM-5 明确把它放在 SFT，而 FP8&#x2F;INT8 rollout 与 W8A8 部署是另外两条量化路径。</li>
+</ol>
+<p>对 NPU 团队而言，最需要掌握的不是更多算法缩写，而是<strong>动作、概率、索引、版本、量化和对象生命周期</strong>。这些契约守住以后，RL、OPD、SAO 或 QAT 才能在 NPU 上保持它们原本的数学含义。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[^glm5]: GLM Team, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2602.15763">GLM-5: from Vibe Coding to Agentic Engineering</a>, 2026。后训练方法见 Section 3；INT4 QAT 的 SFT 阶段归属见 Section 2.5.4。<br>[^glm52]: Z.ai, <a target="_blank" rel="noopener" href="https://z.ai/blog/glm-5.2">GLM-5.2: Built for Long-Horizon Tasks</a>, 2026-06-16。官方披露 slime、十多个专家并行 OPD 与约两天训练时间。<br>[^sao]: Hou et al., <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.07508">Single-Rollout Asynchronous Optimization for Agentic Reinforcement Learning</a>, 2026。<br>[^compaction]: Li et al., <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.05378">CompactionRL: Reinforcement Learning with Context Compaction for Long-Horizon Agents</a>, 2026。<br>[^mopd]: Ma et al., <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2606.30406">MOPD: Multi-Teacher On-Policy Distillation for Capability Integration in LLM Post-Training</a>, 2026。<br>[^slime_opd]: THUDM, <a target="_blank" rel="noopener" href="https://github.com/THUDM/slime/blob/f655e13d9b262748441e836983deaddfe4715e22/docs/en/advanced/on-policy-distillation.md">slime on-policy distillation documentation</a> 与 <a target="_blank" rel="noopener" href="https://github.com/THUDM/slime/blob/f655e13d9b262748441e836983deaddfe4715e22/slime/backends/megatron_utils/loss.py#L626">loss implementation</a>, 固定提交 <code>f655e13</code>。<br>[^torchao]: PyTorch AO, <a target="_blank" rel="noopener" href="https://github.com/pytorch/ao/blob/623c4633de61f095d126982c26286ce5e38f227b/torchao/quantization/qat/fake_quantizer.py#L101">fake_quantizer.py</a>, 固定提交 <code>623c463</code>。<br>[^torchao_ste]: PyTorch AO, <a target="_blank" rel="noopener" href="https://github.com/pytorch/ao/blob/623c4633de61f095d126982c26286ce5e38f227b/torchao/quantization/quant_primitives.py#L225-L236"><code>_Round</code> with STE backward</a>, 固定提交 <code>623c463</code>。<br>[^mindspeed_qat]: Ascend, <a target="_blank" rel="noopener" href="https://github.com/Ascend/MindSpeed-LLM/blob/79afbee24168aae3c30dedbec9ca04504a3204e4/mindspeed_llm/features_manager/qat/qat_quant_engine.py#L9-L28">MindSpeed-LLM QAT quant engine</a>, 固定提交 <code>79afbee</code>。<br>[^slime_lowp]: THUDM, <a target="_blank" rel="noopener" href="https://github.com/THUDM/slime/blob/f655e13d9b262748441e836983deaddfe4715e22/docs/en/advanced/low-precision.md">slime low-precision training and rollout</a>, 固定提交 <code>f655e13</code>。<br>[^glm52_ascend]: Z.ai, <a target="_blank" rel="noopener" href="https://github.com/zai-org/GLM-5/blob/436efa09bc868a6922e307624189e7018406beb9/example/ascend.md">Using Ascend NPU to Deploy GLM-5.2</a>, 固定提交 <code>436efa0</code>。<br>[^mindspeed_rl_quant]: Ascend, <a target="_blank" rel="noopener" href="https://github.com/Ascend/MindSpeed-RL/blob/26c21e64f84ae8cd26de9483292349a1850099cf/verl_npu/docs/quantized_rollout.md">MindSpeed-RL Online Quantized Rollout</a>, 固定提交 <code>26c21e6</code>。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>GLM Post-Training Beyond SFT</p><p><a href="http://icarus.shaojiemike.top/2026/08/05/Work/Artificial Intelligence/Training/PostTrain/GLM-Post-Training-Beyond-SFT/">http://icarus.shaojiemike.top/2026/08/05/Work/Artificial Intelligence/Training/PostTrain/GLM-Post-Training-Beyond-SFT/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-05</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-05</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Quantization/">Quantization</a><a class="link-muted mr-2" rel="tag" href="/tags/GLM-5-2/">GLM-5.2</a><a class="link-muted mr-2" rel="tag" href="/tags/Reinforcement-Learning/">Reinforcement Learning</a><a class="link-muted mr-2" rel="tag" href="/tags/GLM-5/">GLM-5</a><a class="link-muted mr-2" rel="tag" href="/tags/OPD/">OPD</a><a class="link-muted mr-2" rel="tag" href="/tags/MOPD/">MOPD</a><a class="link-muted mr-2" rel="tag" href="/tags/QAT/">QAT</a><a class="link-muted mr-2" rel="tag" href="/tags/Ascend-NPU/">Ascend NPU</a><a class="link-muted mr-2" rel="tag" href="/tags/slime/">slime</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/03/Work/0-Digital%20Worker/Software-Design-Evidence/"><span class="level-item">Software Design Evidence</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">583</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">45</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">828</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#先给结论：什么才是-NPU-原生"><span class="level-left"><span class="level-item">1</span><span class="level-item">先给结论：什么才是 NPU 原生</span></span></a></li><li><a class="level is-mobile" href="#一条统一主线"><span class="level-left"><span class="level-item">2</span><span class="level-item">一条统一主线</span></span></a></li><li><a class="level is-mobile" href="#Reasoning-RL：相对奖励与可信-token"><span class="level-left"><span class="level-item">3</span><span class="level-item">Reasoning RL：相对奖励与可信 token</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#GRPO-在优化什么"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">GRPO 在优化什么</span></span></a></li><li><a class="level is-mobile" href="#IcePop-为什么有两层-ratio"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">IcePop 为什么有两层 ratio</span></span></a></li><li><a class="level is-mobile" href="#DSA-的确定性为什么是-RL-问题"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">DSA 的确定性为什么是 RL 问题</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Agentic-RL：异步之后先处理策略滞后"><span class="level-left"><span class="level-item">4</span><span class="level-item">Agentic RL：异步之后先处理策略滞后</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#TITO：token-ID-是动作事实"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">TITO：token ID 是动作事实</span></span></a></li><li><a class="level is-mobile" href="#Direct-Double-Sided-Importance-Sampling"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">Direct Double-Sided Importance Sampling</span></span></a></li></ul></li><li><a class="level is-mobile" href="#General-RL：奖励不是一个标量来源"><span class="level-left"><span class="level-item">5</span><span class="level-item">General RL：奖励不是一个标量来源</span></span></a></li><li><a class="level is-mobile" href="#OPD：把教师变成逐-token-优势"><span class="level-left"><span class="level-item">6</span><span class="level-item">OPD：把教师变成逐 token 优势</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#为什么是-on-policy"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">为什么是 on-policy</span></span></a></li><li><a class="level is-mobile" href="#OPD-和-RL-的关系"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">OPD 和 RL 的关系</span></span></a></li></ul></li><li><a class="level is-mobile" href="#MOPD：能力整合发生在策略空间"><span class="level-left"><span class="level-item">7</span><span class="level-item">MOPD：能力整合发生在策略空间</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#为什么强调同源教师"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">为什么强调同源教师</span></span></a></li><li><a class="level is-mobile" href="#GLM-与-MOPD-的准确关系"><span class="level-left"><span class="level-item">7.2</span><span class="level-item">GLM 与 MOPD 的准确关系</span></span></a></li></ul></li><li><a class="level is-mobile" href="#GLM-5-2：SAO-与-CompactionRL"><span class="level-left"><span class="level-item">8</span><span class="level-item">GLM-5.2：SAO 与 CompactionRL</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#SAO：一条轨迹完成就训练"><span class="level-left"><span class="level-item">8.1</span><span class="level-item">SAO：一条轨迹完成就训练</span></span></a></li><li><a class="level is-mobile" href="#CompactionRL：摘要也要为任务结果负责"><span class="level-left"><span class="level-item">8.2</span><span class="level-item">CompactionRL：摘要也要为任务结果负责</span></span></a></li></ul></li><li><a class="level is-mobile" href="#QAT：让模型在量化误差里学习"><span class="level-left"><span class="level-item">9</span><span class="level-item">QAT：让模型在量化误差里学习</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Fake-quant-的前向"><span class="level-left"><span class="level-item">9.1</span><span class="level-item">Fake quant 的前向</span></span></a></li><li><a class="level is-mobile" href="#STE-的反向"><span class="level-left"><span class="level-item">9.2</span><span class="level-item">STE 的反向</span></span></a></li><li><a class="level is-mobile" href="#为什么强调-bitwise-identical"><span class="level-left"><span class="level-item">9.3</span><span class="level-item">为什么强调 bitwise-identical</span></span></a></li></ul></li><li><a class="level is-mobile" href="#量化：三件事不要混为一谈"><span class="level-left"><span class="level-item">10</span><span class="level-item">量化：三件事不要混为一谈</span></span></a></li><li><a class="level is-mobile" href="#NPU-原生的数值契约"><span class="level-left"><span class="level-item">11</span><span class="level-item">NPU 原生的数值契约</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#动作与概率契约"><span class="level-left"><span class="level-item">11.1</span><span class="level-item">动作与概率契约</span></span></a></li><li><a class="level is-mobile" href="#稀疏与版本契约"><span class="level-left"><span class="level-item">11.2</span><span class="level-item">稀疏与版本契约</span></span></a></li><li><a class="level is-mobile" href="#Teacher-与量化契约"><span class="level-left"><span class="level-item">11.3</span><span class="level-item">Teacher 与量化契约</span></span></a></li><li><a class="level is-mobile" href="#内存不是“参数量乘位宽”"><span class="level-left"><span class="level-item">11.4</span><span class="level-item">内存不是“参数量乘位宽”</span></span></a></li></ul></li><li><a class="level is-mobile" href="#现有昇腾栈到了哪里"><span class="level-left"><span class="level-item">12</span><span class="level-item">现有昇腾栈到了哪里</span></span></a></li><li><a class="level is-mobile" href="#证据能说明什么"><span class="level-left"><span class="level-item">13</span><span class="level-item">证据能说明什么</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">14</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">15</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">19</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">7</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-05T10:00:00.000Z">2026-08-05</time></p><p class="title"><a href="/2026/08/05/Work/Artificial%20Intelligence/Training/PostTrain/GLM-Post-Training-Beyond-SFT/">GLM Post-Training Beyond SFT</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T09:30:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/0-Digital%20Worker/Software-Design-Evidence/">Software Design Evidence</a></p><p class="categories"><a href="/categories/1-Agent-Workflow/">1-Agent Workflow</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T08:52:58.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/0-Digital%20Worker/Technology-Insight/">Technology Insight</a></p><p class="categories"><a href="/categories/1-Agent-Workflow/">1-Agent Workflow</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T08:10:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/software/Function-Decomposition-Methods/">Function Decomposition Methods</a></p><p class="categories"><a href="/categories/1-GeneralSkills/">1-GeneralSkills</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Infrastructure/"><span class="tag">AI Infrastructure</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-STARTUP/"><span class="tag">AI STARTUP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Systems/"><span class="tag">AI Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
