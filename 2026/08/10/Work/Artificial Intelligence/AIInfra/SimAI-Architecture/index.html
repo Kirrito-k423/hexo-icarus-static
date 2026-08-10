@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>SimAI Architecture - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       SimAI 不是把上千张 GPU 在软件里逐晶体管复刻一遍，也不是实际训练一个没有数据的模型。它把训练框架、算子耗时、集合通信和网络拆成不同精度的模型，再用事件依赖重建一次迭代的时间线。本文基于 NSDI 2025 论文与固定版本源码，回答五个问题：它是什么、架构如何组织、是不是仿真、精度证据有多强，以及公开版是否支持 Ascen"><meta property="og:type" content="blog"><meta property="og:title" content="SimAI Architecture"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/10/Work/Artificial%20Intelligence/AIInfra/SimAI-Architecture/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       SimAI 不是把上千张 GPU 在软件里逐晶体管复刻一遍，也不是实际训练一个没有数据的模型。它把训练框架、算子耗时、集合通信和网络拆成不同精度的模型，再用事件依赖重建一次迭代的时间线。本文基于 NSDI 2025 论文与固定版本源码，回答五个问题：它是什么、架构如何组织、是不是仿真、精度证据有多强，以及公开版是否支持 Ascen"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-08-10T08:36:00.000Z"><meta property="article:modified_time" content="2026-08-10T08:59:56.271Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Ascend"><meta property="article:tag" content="SimAI"><meta property="article:tag" content="Performance Simulation"><meta property="article:tag" content="Distributed Training"><meta property="article:tag" content="ASTRA-Sim"><meta property="article:tag" content="NCCL"><meta property="article:tag" content="HCCL"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/10/Work/Artificial%20Intelligence/AIInfra/SimAI-Architecture/"},"headline":"SimAI Architecture","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-08-10T08:36:00.000Z","dateModified":"2026-08-10T08:59:56.271Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       SimAI 不是把上千张 GPU 在软件里逐晶体管复刻一遍，也不是实际训练一个没有数据的模型。它把训练框架、算子耗时、集合通信和网络拆成不同精度的模型，再用事件依赖重建一次迭代的时间线。本文基于 NSDI 2025 论文与固定版本源码，回答五个问题：它是什么、架构如何组织、是不是仿真、精度证据有多强，以及公开版是否支持 Ascen"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/10/Work/Artificial%20Intelligence/AIInfra/SimAI-Architecture/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-10T08:36:00.000Z" title="8/10/2026, 8:36:00 AM">2026-08-10</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-10T08:59:56.271Z" title="8/10/2026, 8:59:56 AM">2026-08-10</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">37 minutes read (About 5591 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">SimAI Architecture</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>SimAI 不是把上千张 GPU 在软件里逐晶体管复刻一遍，也不是实际训练一个没有数据的模型。它把训练框架、算子耗时、集合通信和网络拆成不同精度的模型，再用事件依赖重建一次迭代的时间线。本文基于 NSDI 2025 论文与固定版本源码，回答五个问题：它是什么、架构如何组织、是不是仿真、精度证据有多强，以及公开版是否支持 Ascend。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>先给边界</p>
+</div>
+        <div class="message-body">
+            <p>本文核验的 SimAI 主仓库版本为 <code>f5efb5a</code>。结论是：<strong>公开版没有端到端 Ascend&#x2F;CANN&#x2F;HCCL 支持，也没有 Ascend 精度数据</strong>。论文报告的高精度来自 NVIDIA A100&#x2F;H100 训练实验；不能因为代码里出现通用单词 <code>NPU</code>，就把结果外推到昇腾。</p>
+
+        </div>
+    </article>
+
+<h2 id="先给结论"><a href="#先给结论" class="headerlink" title="先给结论"></a>先给结论</h2><p>SimAI 是阿里云开源的<strong>大规模 AI 集群性能仿真器</strong>。它关注的不是模型输出是否正确，而是：给定模型、并行策略、集合通信算法和网络拓扑，一次迭代大约要多久，时间花在计算还是通信，换卡、换网或换并行配置后会怎样。</p>
+<p>它确实是仿真，但属于<strong>混合建模</strong>：</p>
+<ul>
+<li><strong>训练结构</strong>由 AICB 模拟框架调用并生成工作负载，不搬真实激活值，也不计算 loss。</li>
+<li><strong>计算时间</strong>主要来自真机 profiling、算子时间库或同架构外推，不做 GPU 指令级&#x2F;周期级模拟。</li>
+<li><strong>集合通信</strong>由 NCCL-like 模型拆成点到点流量。</li>
+<li><strong>网络时间</strong>可以用快速的带宽解析模型，也可以交给 ns-3 做包与队列级离散事件仿真。</li>
+<li><strong>整体时间</strong>由事件依赖的关键路径得出，而不是把几个峰值带宽公式简单相加。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>核验结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>是仿真吗</td>
+<td>是，准确说是“画像&#x2F;外推 + 行为模拟 + 离散事件”的混合性能仿真</td>
+</tr>
+<tr>
+<td>会真正训练模型吗</td>
+<td>不会；目标是时间、流量和利用率，不是张量数值、loss 或收敛</td>
+</tr>
+<tr>
+<td>解析模式是什么</td>
+<td>用有效总线带宽和固定延迟近似通信，快，但看不到交换机排队等细节</td>
+</tr>
+<tr>
+<td>Simulation 模式是什么</td>
+<td>把通信流交给 ns-3，模拟包、链路与网络事件，更慢但更细</td>
+</tr>
+<tr>
+<td>论文精度如何</td>
+<td>选定 A100&#x2F;H100、模型和规模内，端到端偏差小于 3.9%，平均对齐度 98.1%</td>
+</tr>
+<tr>
+<td>支持 Ascend 吗</td>
+<td>固定版本公开树没有 <code>torch_npu</code>、CANN、HCCL 或 Ascend 设备模型</td>
+</tr>
+</tbody></table>
+<figure markdown>
+  ![SimAI 仿真认知插图](https://pic.shaojiemike.top/shaojiemike/2026/08/ab4472a2e1f22cad59fc0ffb063c2f4d.png){ width=92% }
+  <figcaption>原创认知插图：真机秒表只负责提供少量标定，工作负载卡片和事件齿轮在普通机器上重建“何时完成”；模拟器估算的是时间，不是在训练模型。</figcaption>
+</figure>
+
+<h2 id="项目与论文"><a href="#项目与论文" class="headerlink" title="项目与论文"></a>项目与论文</h2><p><a target="_blank" rel="noopener" href="https://github.com/aliyun/SimAI">SimAI 仓库</a>把系统拆成多个可替换组件。论文中的名字和当前目录并不完全一致，理解时可以用下面的映射：</p>
+<table>
+<thead>
+<tr>
+<th>论文概念</th>
+<th>当前公开实现</th>
+<th>责任</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SimAI-WG</td>
+<td>AICB</td>
+<td>生成训练工作负载，记录计算和通信操作</td>
+</tr>
+<tr>
+<td>SimAI-CP</td>
+<td>AIOB&#x2F;算子时间与工作负载字段</td>
+<td>测量或估算计算核耗时</td>
+</tr>
+<tr>
+<td>SimAI-CM</td>
+<td>SimCCL&#x2F;MockNccl</td>
+<td>把集合通信算法和拓扑展开成 P2P 流</td>
+</tr>
+<tr>
+<td>Execution Engine</td>
+<td><code>astra-sim-alibabacloud</code></td>
+<td>解析工作负载，调度计算、通信和完成事件</td>
+</tr>
+<tr>
+<td>Packet Network</td>
+<td><code>ns-3-alibabacloud</code></td>
+<td>对链路、包、队列和网络完成进行离散事件模拟</td>
+</tr>
+<tr>
+<td>Inference Simulator</td>
+<td><code>vidur-alibabacloud</code></td>
+<td>论文后新增的多请求推理调度与执行时间模型</td>
+</tr>
+</tbody></table>
+<p>论文全名是 <strong>SimAI: Unifying Architecture Design and Performance Tuning for Large-Scale Large Language Model Training with Scalability and Precision</strong>，发表于 <a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi25/presentation/wang-xizheng-simai">USENIX NSDI 2025</a>。它的中心问题是：传统解析模型太粗，包级仿真又太慢；如何在上千 GPU 规模保持可扩展性，同时保留集合通信和网络拓扑对性能的影响。</p>
+<p>论文的主要内容可归纳为四点：</p>
+<ol>
+<li><strong>工作负载生成。</strong> 截获或模拟 Megatron-LM 等框架的训练结构，把计算时间、通信类型、通信域和字节数写成可回放记录。</li>
+<li><strong>计算预测。</strong> 优先使用真机核函数画像；缺硬件时再基于计算能力与内存带宽做外推。</li>
+<li><strong>通信预测。</strong> 不把 AllReduce 当成一个不可分的公式，而是结合 NCCL 算法、协议和拓扑拆成 P2P 流，再模拟网络完成。</li>
+<li><strong>可扩展执行。</strong> 用无锁多线程事件执行加速大规模仿真；论文报告相对单线程最高 23 倍加速，并比带锁多线程方案再快 15%。</li>
+</ol>
+<p>仓库后来继续演进：1.5 加入多请求推理、DeepSeek&#x2F;Qwen MoE 和 Vidur 调度，1.6 又增加推理显存预算、decode 线性插值与 PD 分离内存预算。这些是<strong>论文之后的工程能力</strong>，不能直接继承论文的训练精度数字。</p>
+<h2 id="架构与对象"><a href="#架构与对象" class="headerlink" title="架构与对象"></a>架构与对象</h2><p>论文 Figure 1 给出系统总图：输入模型、框架、xCCL 参数和拓扑后，工作负载生成器构造操作序列；执行引擎一边查询计算模型，一边调用通信与网络模型，最终输出端到端指标。</p>
+<figure markdown>
+  ![SimAI 论文架构图](https://pic.shaojiemike.top/shaojiemike/2026/08/a07516c16ceef69b0f71ed035d43b133.png){ width=100% }
+  <figcaption>论文 Figure 1（逻辑证据）：证明作者定义了工作负载、计算、通信、网络和执行引擎之间的模块边界；这张图本身不证明预测精度，也不证明公开版支持 Ascend。</figcaption>
+</figure>
+
+<p>对初学者来说，最容易混淆的是“配置、张量、操作、事件和网络包”。SimAI 真正沿主路径传递的是<strong>元数据与时间事件</strong>，而不是训练张量的数值：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>物理表示</th>
+<th>生产者 → 消费者</th>
+<th>结束条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>模型与并行配置</td>
+<td>参数和拓扑文本</td>
+<td>用户 → AICB</td>
+<td>工作负载生成完成</td>
+</tr>
+<tr>
+<td>层记录</td>
+<td>计算时间、通信类型、通信组、字节数</td>
+<td>AICB → 执行引擎</td>
+<td>对应层事件完成</td>
+</tr>
+<tr>
+<td>集合通信请求</td>
+<td>类型、rank 组、负载大小</td>
+<td>Layer → SimCCL</td>
+<td>所有组成流完成</td>
+</tr>
+<tr>
+<td>P2P 流</td>
+<td>源、目的、字节数、通道&#x2F;协议元数据</td>
+<td>SimCCL → 网络后端</td>
+<td>发送与接收完成回调触发</td>
+</tr>
+<tr>
+<td>计算&#x2F;网络事件</td>
+<td>时间戳、回调、依赖关系</td>
+<td>调度器 → 事件队列</td>
+<td>事件出队并执行</td>
+</tr>
+<tr>
+<td>结果指标</td>
+<td>迭代时间、通信时间、计数器</td>
+<td>执行引擎 → 分析者</td>
+<td>仿真结束后持久化</td>
+</tr>
+</tbody></table>
+<figure markdown>
+  ![SimAI 五视图技术图](https://pic.shaojiemike.top/shaojiemike/2026/08/ed05ac91661b9643a52167c24b420772.png){ width=100% }
+  <figcaption>原创五视图技术图：用物理、因果、流程、时序/生命周期和数据对象五种视角解释 Analytical 与 ns-3 两条共同主链；右下角单独标出 Ascend 所缺的计算画像和 HCCL 行为层。</figcaption>
+</figure>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>不是周期级 GPU 模拟</p>
+</div>
+        <div class="message-body">
+            <p>SimAI 不模拟 SM 中每条指令、cache line 和流水线周期。它把一个计算操作折叠成“经过多少时间后完成”的事件。这样牺牲微架构解释力，换来 1024 GPU 乃至更大规模的仿真速度。</p>
+
+        </div>
+    </article>
+
+<h2 id="建模方式"><a href="#建模方式" class="headerlink" title="建模方式"></a>建模方式</h2><h3 id="工作负载不是训练数据"><a href="#工作负载不是训练数据" class="headerlink" title="工作负载不是训练数据"></a>工作负载不是训练数据</h3><p>AICB 的 <a target="_blank" rel="noopener" href="https://github.com/aliyun/aicb/blob/23eec3c48ca2d2d93dd888a4c7b22ab4421e782f/workload_generator/SimAI_training_workload_generator.py#L841-L868">SimAI workload generator</a>会写入并行配置和逐操作记录。它“跑”的是模型结构和通信语义，不是训练数据。可以把它理解成剧院彩排：演员走位、灯光切换和换景时刻都保留，但不用真的演完整剧情。</p>
+<p>下面是与源码对象对应的<strong>语义伪代码</strong>，不是项目公开 API：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">build_workload</span>(<span class="params">model, parallel, compute_profile</span>):</span><br><span class="line">    records = []</span><br><span class="line">    header = &#123;</span><br><span class="line">        <span class="string">&quot;tensor_parallel&quot;</span>: parallel.tp,</span><br><span class="line">        <span class="string">&quot;pipeline_parallel&quot;</span>: parallel.pp,</span><br><span class="line">        <span class="string">&quot;expert_parallel&quot;</span>: parallel.ep,</span><br><span class="line">        <span class="string">&quot;world_size&quot;</span>: parallel.world_size,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> layer <span class="keyword">in</span> model.layers:</span><br><span class="line">        compute_key = (</span><br><span class="line">            layer.kind,</span><br><span class="line">            layer.input_shape,</span><br><span class="line">            layer.dtype,</span><br><span class="line">            parallel.tp,</span><br><span class="line">            parallel.ep,</span><br><span class="line">        )</span><br><span class="line">        compute_time = compute_profile.lookup(compute_key)</span><br><span class="line">        records.append(&#123;</span><br><span class="line">            <span class="string">&quot;kind&quot;</span>: <span class="string">&quot;compute&quot;</span>,</span><br><span class="line">            <span class="string">&quot;layer&quot;</span>: layer.name,</span><br><span class="line">            <span class="string">&quot;duration_ns&quot;</span>: compute_time,</span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> collective <span class="keyword">in</span> layer.collectives(parallel):</span><br><span class="line">            records.append(&#123;</span><br><span class="line">                <span class="string">&quot;kind&quot;</span>: <span class="string">&quot;communication&quot;</span>,</span><br><span class="line">                <span class="string">&quot;layer&quot;</span>: layer.name,</span><br><span class="line">                <span class="string">&quot;collective&quot;</span>: collective.kind,</span><br><span class="line">                <span class="string">&quot;group&quot;</span>: collective.ranks,</span><br><span class="line">                <span class="string">&quot;bytes&quot;</span>: collective.payload_bytes,</span><br><span class="line">            &#125;)</span><br><span class="line"></span><br><span class="line">    write_header(header)</span><br><span class="line">    <span class="keyword">for</span> record <span class="keyword">in</span> records:</span><br><span class="line">        write_record(record)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">len</span>(records)</span><br></pre></td></tr></table></figure>
+
+<p>工作负载文本可以在 CPU 上生成；但 AICB 当前物理回放路径的 <a target="_blank" rel="noopener" href="https://github.com/aliyun/aicb/blob/23eec3c48ca2d2d93dd888a4c7b22ab4421e782f/aicb.py#L29-L79">初始化</a>和 <a target="_blank" rel="noopener" href="https://github.com/aliyun/aicb/blob/23eec3c48ca2d2d93dd888a4c7b22ab4421e782f/workload_applyer.py#L22-L86">workload applier</a>明确使用 CUDA&#x2F;NCCL。这也是 Ascend 不能“改一个设备名就能跑”的第一处证据。</p>
+<h3 id="计算时间来自画像"><a href="#计算时间来自画像" class="headerlink" title="计算时间来自画像"></a>计算时间来自画像</h3><p>对计算操作，最可靠的输入是在目标机器上测得的核函数或算子组合时间。论文的 SimAI-CP 还讨论了缺少目标 GPU 时的跨硬件外推：在计算受限区参考 FLOPS，在内存受限区参考带宽，再乘已知硬件的时间。</p>
+<p>设：</p>
+<ul>
+<li><code>T_known</code> 是已知硬件上测得的操作时间。</li>
+<li><code>P_known</code>、<code>P_new</code> 是已知&#x2F;目标硬件的有效计算吞吐。</li>
+<li><code>B_known</code>、<code>B_new</code> 是已知&#x2F;目标硬件的有效内存带宽。</li>
+<li><code>T_new</code> 是目标硬件预测时间。</li>
+</ul>
+<p>从物理量直觉出发，若工作量不变，计算受限时间应随有效吞吐的倒数变化：</p>
+<p>$$<br>T_{new} \approx T_{known}\frac{P_{known}}{P_{new}}<br>$$</p>
+<p>内存受限时同理：</p>
+<p>$$<br>T_{new} \approx T_{known}\frac{B_{known}}{B_{new}}<br>$$</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>论文公式的印刷&#x2F;定义歧义</p>
+</div>
+        <div class="message-body">
+            <p>论文正文展示的比例方向与上述量纲直觉相反；当前公开树中也没有找到可核对的 CP-Model 公式实现。因此本文不把印刷式直接当成可执行规范。论文实验本身也显示：直接测量的 SimAI-CP 总计算偏差为 0.5%-3.1%，而外推 CP-Model 约为 13%-15%。<strong>跨厂商 Ascend 建模更不应从 A100 峰值参数直接缩放。</strong></p>
+
+        </div>
+    </article>
+
+<h3 id="通信是两级模型"><a href="#通信是两级模型" class="headerlink" title="通信是两级模型"></a>通信是两级模型</h3><p>集合通信首先经过 SimCCL&#x2F;MockNccl。它根据算法和拓扑把一次 AllReduce、AllGather、AllToAll 等请求拆成多个 P2P 流。随后有两条执行路径：</p>
+<ul>
+<li><strong>Analytical。</strong> 使用经标定的有效总线带宽与延迟，快速估计完成时间。概念上可以写成 <code>T_comm = L_fixed + S / B_bus</code>，其中 <code>S</code> 是字节数，<code>B_bus</code> 是有效带宽而非产品峰值，<code>L_fixed</code> 是启动&#x2F;短消息项。源码中的 <a target="_blank" rel="noopener" href="https://github.com/aliyun/SimAI/blob/f5efb5a93ea9be7db25a8843f9f7ff54044f6062/astra-sim-alibabacloud/astra-sim/system/Layer.cc#L899-L1050">Analytical path</a>还包含短消息经验分支，因此它是校准模型，不是纯理论公式。</li>
+<li><strong>Simulation。</strong> 将流交给 <a target="_blank" rel="noopener" href="https://github.com/aliyun/SimAI/blob/f5efb5a93ea9be7db25a8843f9f7ff54044f6062/astra-sim-alibabacloud/astra-sim/network_frontend/ns3/AstraSimNetwork.cc#L92-L208">ns-3 frontend</a>，由离散事件网络模型处理发送、接收、链路和回调。它能观察拥塞和拓扑影响，但运行更慢，也更依赖正确的交换机、队列和链路参数。</li>
+</ul>
+<p>完整事件循环可以抽象为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">run_simulation</span>(<span class="params">workload, topology, mode, compute_model, collective_model</span>):</span><br><span class="line">    queue = EventQueue()</span><br><span class="line">    state = SimulationState(workload)</span><br><span class="line">    queue.push(time=<span class="number">0</span>, event=state.first_ready_operation())</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> queue.empty():</span><br><span class="line">        now, operation = queue.pop()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> operation.kind == <span class="string">&quot;compute&quot;</span>:</span><br><span class="line">            duration = compute_model.duration(operation)</span><br><span class="line">            queue.push(</span><br><span class="line">                time=now + duration,</span><br><span class="line">                event=state.completion_of(operation),</span><br><span class="line">            )</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        flows = collective_model.expand(</span><br><span class="line">            collective=operation.collective,</span><br><span class="line">            ranks=operation.group,</span><br><span class="line">            payload_bytes=operation.<span class="built_in">bytes</span>,</span><br><span class="line">            topology=topology,</span><br><span class="line">        )</span><br><span class="line">        completion_events = []</span><br><span class="line">        <span class="keyword">for</span> flow <span class="keyword">in</span> flows:</span><br><span class="line">            <span class="keyword">if</span> mode == <span class="string">&quot;analytical&quot;</span>:</span><br><span class="line">                done_at = now + analytical_time(flow, topology)</span><br><span class="line">            <span class="keyword">elif</span> mode == <span class="string">&quot;ns3&quot;</span>:</span><br><span class="line">                done_at = ns3_schedule_and_return_completion(flow, topology, now)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">raise</span> ValueError(<span class="string">&quot;mode must be analytical or ns3&quot;</span>)</span><br><span class="line">            completion_events.append(done_at)</span><br><span class="line"></span><br><span class="line">        collective_done = <span class="built_in">max</span>(completion_events, default=now)</span><br><span class="line">        queue.push(</span><br><span class="line">            time=collective_done,</span><br><span class="line">            event=state.completion_of(operation),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> ready <span class="keyword">in</span> state.operations_unblocked_by(operation):</span><br><span class="line">            queue.push(time=collective_done, event=ready)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> state.iteration_finish_time()</span><br></pre></td></tr></table></figure>
+
+<p>这里最重要的不是代码语法，而是<strong>完成条件</strong>：集合通信只有在其组成流全部完成后才能解除下游依赖；层对象和流对象也必须保留到回调结束。解析模式与 ns-3 模式改变的是网络事件如何计算，不改变上层工作负载语义。</p>
+<h3 id="Physical-与推理模式"><a href="#Physical-与推理模式" class="headerlink" title="Physical 与推理模式"></a>Physical 与推理模式</h3><p>README 还列出 beta 的 Physical mode。它用 CPU&#x2F;RDMA 生成 NCCL-like 物理流量，适合在真实网络上压流或验证通信行为；它仍不是在加速卡上执行完整训练计算。</p>
+<p>当前推理模块基于 Vidur 的请求级离散事件调度，加入多请求、MoE 模型、PD 分离和显存预算。其思路与训练仿真相通，但对象从“训练层和一次迭代”变成“请求、prefill&#x2F;decode batch、KV Cache 和调度事件”。因此评估它要用在线吞吐、TTFT、TPOT、显存预算与请求分布，不能拿论文训练 Figure 9 直接背书。</p>
+<h2 id="精度到底怎么样"><a href="#精度到底怎么样" class="headerlink" title="精度到底怎么样"></a>精度到底怎么样</h2><p>论文在两个各 128 台主机、每台 8 GPU 的集群上验证，规模最高 1024 GPU：</p>
+<ul>
+<li>A100 集群使用主机内 600 GB&#x2F;s NVLink 和 4 张 ConnectX-6 网卡，每张双 100 Gbps。</li>
+<li>H100 集群使用主机内 900 GB&#x2F;s NVLink 和 8 张 ConnectX-7 网卡，每张双 200 Gbps。</li>
+<li>模型覆盖 GPT-3 13B、LLaMA 65B 和 GPT-3 175B，规模为 128、512、1024 GPU 的选定组合。</li>
+</ul>
+<figure markdown>
+  ![SimAI 论文端到端精度结果](https://pic.shaojiemike.top/shaojiemike/2026/08/01496e85458191a7c6414266130a9eea.png){ width=82% }
+  <figcaption>论文 Figure 9（结果证据）：在图中选定的 A100/H100、模型和 GPU 规模下，SimAI 端到端预测与真机结果接近；它不证明任意模型、任意网络、Ascend 或当前推理模块也有同样误差。</figcaption>
+</figure>
+
+<p>论文报告的关键数字如下：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th align="right">结果</th>
+<th>应如何理解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主机内集合通信</td>
+<td align="right">SimAI 平均偏差 A100 3.9%、H100 2.3%</td>
+<td>NCCL 行为模型显著优于把集合通信粗化成带宽公式</td>
+</tr>
+<tr>
+<td>直接测量的计算模型</td>
+<td align="right">总计算偏差 0.5%-3.1%</td>
+<td>同类硬件、正确 kernel 画像是高精度基础</td>
+</tr>
+<tr>
+<td>跨硬件 CP-Model</td>
+<td align="right">偏差约 13%-15%</td>
+<td>外推明显弱于直接测量</td>
+</tr>
+<tr>
+<td>端到端训练</td>
+<td align="right">所测配置均小于 3.9%</td>
+<td>是 Figure 9 测试矩阵内的上界，不是全局 SLA</td>
+</tr>
+<tr>
+<td>平均对齐度</td>
+<td align="right">98.1%</td>
+<td>是论文汇总指标，不应简写成“普遍误差 1.9%”</td>
+</tr>
+</tbody></table>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>精度不是模拟器常数</p>
+</div>
+        <div class="message-body">
+            <p>模拟器精度取决于 <code>模型 × 并行策略 × kernel 版本 × 集合通信算法 × 拓扑 × 链路参数 × 负载窗口</code>。只要其中一个对象变化，原来的误差数字就需要重新验证。小消息还会受到软件栈、NIC 流水线和同步开销影响；论文也忽略小于 1 KB 的元数据&#x2F;屏障通信，并在 EP 分析中假设 token 负载均衡。</p>
+
+        </div>
+    </article>
+
+<p>当前推理模块还有更直接的源码边界：<a target="_blank" rel="noopener" href="https://github.com/aliyun/SimAI/blob/f5efb5a93ea9be7db25a8843f9f7ff54044f6062/vidur-alibabacloud/vidur/scheduler/utils/memory_planner.py#L74-L108"><code>memory_planner.py</code></a> 的 TODO 明确写到，DeepSeek&#x2F;Qwen3 的 KV Cache 序列长度当前硬编码为 1，会显著低估单请求 KV 占用，MLA 在 TP 下如何切分也待核验。它不否定训练论文，但说明“v1.6 已支持显存建模”不等于“推理显存预测已经完成同等级验证”。</p>
+<h2 id="Ascend-支持审计"><a href="#Ascend-支持审计" class="headerlink" title="Ascend 支持审计"></a>Ascend 支持审计</h2><h3 id="当前公开版：不支持"><a href="#当前公开版：不支持" class="headerlink" title="当前公开版：不支持"></a>当前公开版：不支持</h3><p>对固定版本做源码审计后，没有发现 <code>Ascend</code>、<code>CANN</code>、<code>HCCL</code> 或 <code>torch_npu</code> 实现。相反，证据明确指向 NVIDIA 栈：</p>
+<ul>
+<li>公共 <a target="_blank" rel="noopener" href="https://github.com/aliyun/SimAI/blob/f5efb5a93ea9be7db25a8843f9f7ff54044f6062/astra-sim-alibabacloud/astra-sim/system/Common.hh#L14-L29"><code>GPUType</code></a>枚举只有 A100、A800、H100、H800、H20 等 NVIDIA 型号。</li>
+<li>AICB 的物理执行路径初始化 <code>torch.cuda</code> 与 NCCL。</li>
+<li>Mock collective 接口直接以 <a target="_blank" rel="noopener" href="https://github.com/aliyun/SimAI/blob/f5efb5a93ea9be7db25a8843f9f7ff54044f6062/astra-sim-alibabacloud/astra-sim/system/MockNccl.h#L19-L103"><code>MockNccl</code></a>命名并建模 NCCL-like 行为。</li>
+<li>当前推理计算预测依赖 Hopper&#x2F;Blackwell 侧的 DeepGEMM、FlashMLA 等实现。</li>
+</ul>
+<p>代码和论文里出现的 <code>NPU</code> 是 ASTRA-Sim 沿用的<strong>通用神经网络加速器术语</strong>，类似把 GPU&#x2F;NPU&#x2F;TPU 都统称为 accelerator。它不代表 Huawei Ascend 产品适配。</p>
+<h3 id="哪些部分可以复用"><a href="#哪些部分可以复用" class="headerlink" title="哪些部分可以复用"></a>哪些部分可以复用</h3><p>不是所有代码都要推倒重来。工作负载文本、事件队列、依赖调度、统计输出，以及很大一部分 ns-3 网络执行框架，本质上是 CPU 侧和设备无关的。真正需要重做或校准的是“设备行为注入点”：</p>
+<ol>
+<li><strong>计算画像层。</strong> 用 <a target="_blank" rel="noopener" href="https://github.com/Ascend/pytorch">Ascend PyTorch</a> 的 <code>torch_npu</code>&#x2F;CANN 在目标 910B、910C 等 SoC 上测量算子或层时间，键至少包含 SoC、CANN&#x2F;驱动、dtype、shape、并行度和算子实现。</li>
+<li><strong>工作负载层。</strong> 让 AICB 能使用 HCCL backend 或导入真实 Ascend trace；同时保留 TP&#x2F;PP&#x2F;EP&#x2F;CP、字节数和同步点语义。</li>
+<li><strong>集合通信层。</strong> 实现 SimHCCL。官方 <a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/en/canncommercial/850/commlib/hcclug/hcclug_000115.html">HCCL 算法说明</a>包含 Mesh、Ring、Recursive Halving-Doubling、Pairwise、Pipeline 等选择；其 rank 映射、分片、并发流和拓扑条件不能照搬 NCCL。</li>
+<li><strong>拓扑层。</strong> 表达 HCCS、PCIe、RoCE、Scale-Up&#x2F;Scale-Out 链路、交换层次、有效带宽和拥塞参数。</li>
+<li><strong>验证层。</strong> 在同一个模型、batch、精度、并行计划、HCCL 配置、拓扑和统计窗口下，对比真机与仿真，分别报告计算、集合通信和端到端误差。</li>
+</ol>
+<p>可以把 Ascend 适配的最小接口写成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">calibrate_ascend</span>(<span class="params">simulator, ascend_cluster, workload</span>):</span><br><span class="line">    compute_db = profile_with_torch_npu(</span><br><span class="line">        cluster=ascend_cluster,</span><br><span class="line">        operators=workload.operator_shapes(),</span><br><span class="line">        warmup=<span class="number">20</span>,</span><br><span class="line">        repeats=<span class="number">100</span>,</span><br><span class="line">    )</span><br><span class="line">    hccl_model = build_hccl_flow_model(</span><br><span class="line">        algorithms=ascend_cluster.supported_hccl_algorithms,</span><br><span class="line">        rank_table=ascend_cluster.rank_table,</span><br><span class="line">        topology=ascend_cluster.topology,</span><br><span class="line">    )</span><br><span class="line">    simulator.install_compute_profile(compute_db)</span><br><span class="line">    simulator.install_collective_model(hccl_model)</span><br><span class="line"></span><br><span class="line">    measured = run_real_workload(ascend_cluster, workload)</span><br><span class="line">    predicted = simulator.run(workload, ascend_cluster.topology)</span><br><span class="line">    <span class="keyword">return</span> compare_by_scope(</span><br><span class="line">        measured=measured,</span><br><span class="line">        predicted=predicted,</span><br><span class="line">        scopes=[<span class="string">&quot;compute&quot;</span>, <span class="string">&quot;collective&quot;</span>, <span class="string">&quot;iteration&quot;</span>],</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+
+<article class="message is-danger">
+        <div class="message-header"><p><i class="fa-solid fa-xmark mr-2"></i>不能接受的 Ascend 精度论证</p>
+</div>
+        <div class="message-body">
+            <p>“解析引擎是通用 C++，所以天然支持 Ascend”“把 A100 的 FLOPS&#x2F;带宽替换成 910B 参数就能达到 3.9%”“代码出现 NPU 字样”都不构成支持证据。<strong>没有 HCCL 行为、目标卡计算画像和真机同配置对照，就没有可报告的 Ascend 精度。</strong></p>
+
+        </div>
+    </article>
+
+<h2 id="如何选择模式"><a href="#如何选择模式" class="headerlink" title="如何选择模式"></a>如何选择模式</h2><p>如果只是做早期架构空间搜索，可以先用 Analytical mode 快速筛掉明显差的 TP&#x2F;PP&#x2F;EP、链路带宽和拓扑组合；进入候选收敛阶段，再用 ns-3 Simulation mode 检查拥塞、流竞争和拓扑敏感性。最后必须用少量真机测量闭环校准。</p>
+<p>一个务实流程是：</p>
+<ol>
+<li><strong>固定问题。</strong> 明确是在比较硬件、网络、并行策略还是调度器，避免一次改多个变量。</li>
+<li><strong>生成工作负载。</strong> 先检查每层计算、通信类型、rank 组和字节数是否符合框架语义。</li>
+<li><strong>跑解析基线。</strong> 用小规模真机点标定 <code>T_compute</code>、<code>B_bus</code> 和短消息项。</li>
+<li><strong>跑包级候选。</strong> 只对对拥塞敏感的少量候选启用 ns-3。</li>
+<li><strong>分层验证。</strong> 先核计算，再核集合通信，最后核端到端；不要只看一个总时间“碰巧接近”。</li>
+<li><strong>记录适用域。</strong> 把版本、硬件、模型、精度、拓扑和统计窗口与误差数字一起保存。</li>
+</ol>
+<p>仓库 README 给出了 Analytical 和 Simulation 的 Docker&#x2F;脚本入口；实际使用时应从<a target="_blank" rel="noopener" href="https://github.com/aliyun/SimAI/blob/f5efb5a93ea9be7db25a8843f9f7ff54044f6062/README.md">固定提交的说明</a>开始，而不是从论文图猜配置。Physical mode 是 beta，推理模块又有独立依赖和参数，两者都应单独验证。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>SimAI 的价值不在“用一个公式替代千卡集群”，而在把大模型系统拆成可校准的五类对象：<strong>框架工作负载、计算时间、集合通信行为、网络事件和依赖关键路径</strong>。解析模式负责速度，ns-3 模式负责网络细节，少量真机 profiling 负责把模型锚定到现实。</p>
+<p>论文在所测 NVIDIA 训练配置中给出了很强的结果：端到端偏差小于 3.9%，平均对齐度 98.1%。但这组数字有清晰边界，不能覆盖论文后的推理模块，更不能覆盖尚未实现的 Ascend 后端。</p>
+<p>对 Ascend，正确结论不是“完全不能用”，而是：<strong>通用事件执行骨架有复用价值，设备相关的计算画像、HCCL 行为和拓扑模型尚缺，精度必须从零校准。</strong> 在完成这三层适配和真机对照之前，任何具体 Ascend 误差数字都只是猜测。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/aliyun/SimAI">SimAI GitHub repository</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi25/presentation/wang-xizheng-simai">SimAI, USENIX NSDI 2025</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/aliyun/aicb">AICB GitHub repository</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Ascend/pytorch">Ascend PyTorch adaptation</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/en/canncommercial/850/commlib/hcclug/hcclug_000115.html">HCCL communication algorithm guide</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>SimAI Architecture</p><p><a href="http://icarus.shaojiemike.top/2026/08/10/Work/Artificial Intelligence/AIInfra/SimAI-Architecture/">http://icarus.shaojiemike.top/2026/08/10/Work/Artificial Intelligence/AIInfra/SimAI-Architecture/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-10</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-10</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Ascend/">Ascend</a><a class="link-muted mr-2" rel="tag" href="/tags/SimAI/">SimAI</a><a class="link-muted mr-2" rel="tag" href="/tags/Performance-Simulation/">Performance Simulation</a><a class="link-muted mr-2" rel="tag" href="/tags/Distributed-Training/">Distributed Training</a><a class="link-muted mr-2" rel="tag" href="/tags/ASTRA-Sim/">ASTRA-Sim</a><a class="link-muted mr-2" rel="tag" href="/tags/NCCL/">NCCL</a><a class="link-muted mr-2" rel="tag" href="/tags/HCCL/">HCCL</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/06/Work/Artificial%20Intelligence/Training/PostTrain/GLM-Post-Training-Open-Source-Map/"><span class="level-item">GLM Post-Training Open-Source Map</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">585</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">45</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">834</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#先给结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">先给结论</span></span></a></li><li><a class="level is-mobile" href="#项目与论文"><span class="level-left"><span class="level-item">2</span><span class="level-item">项目与论文</span></span></a></li><li><a class="level is-mobile" href="#架构与对象"><span class="level-left"><span class="level-item">3</span><span class="level-item">架构与对象</span></span></a></li><li><a class="level is-mobile" href="#建模方式"><span class="level-left"><span class="level-item">4</span><span class="level-item">建模方式</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#工作负载不是训练数据"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">工作负载不是训练数据</span></span></a></li><li><a class="level is-mobile" href="#计算时间来自画像"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">计算时间来自画像</span></span></a></li><li><a class="level is-mobile" href="#通信是两级模型"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">通信是两级模型</span></span></a></li><li><a class="level is-mobile" href="#Physical-与推理模式"><span class="level-left"><span class="level-item">4.4</span><span class="level-item">Physical 与推理模式</span></span></a></li></ul></li><li><a class="level is-mobile" href="#精度到底怎么样"><span class="level-left"><span class="level-item">5</span><span class="level-item">精度到底怎么样</span></span></a></li><li><a class="level is-mobile" href="#Ascend-支持审计"><span class="level-left"><span class="level-item">6</span><span class="level-item">Ascend 支持审计</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#当前公开版：不支持"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">当前公开版：不支持</span></span></a></li><li><a class="level is-mobile" href="#哪些部分可以复用"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">哪些部分可以复用</span></span></a></li></ul></li><li><a class="level is-mobile" href="#如何选择模式"><span class="level-left"><span class="level-item">7</span><span class="level-item">如何选择模式</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">8</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">9</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">21</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">7</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">35</span></span></a></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-10T08:36:00.000Z">2026-08-10</time></p><p class="title"><a href="/2026/08/10/Work/Artificial%20Intelligence/AIInfra/SimAI-Architecture/">SimAI Architecture</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-06T02:40:00.000Z">2026-08-06</time></p><p class="title"><a href="/2026/08/06/Work/Artificial%20Intelligence/Training/PostTrain/GLM-Post-Training-Open-Source-Map/">GLM Post-Training Open-Source Map</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-05T10:00:00.000Z">2026-08-05</time></p><p class="title"><a href="/2026/08/05/Work/Artificial%20Intelligence/Training/PostTrain/GLM-Post-Training-Beyond-SFT/">GLM Post-Training Beyond SFT</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T09:30:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/Work/0-Digital%20Worker/Software-Design-Evidence/">Software Design Evidence</a></p><p class="categories"><a href="/categories/1-Agent-Workflow/">1-Agent Workflow</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Infrastructure/"><span class="tag">AI Infrastructure</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-STARTUP/"><span class="tag">AI STARTUP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Systems/"><span class="tag">AI Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ALST/"><span class="tag">ALST</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AMAT/"><span class="tag">AMAT</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
