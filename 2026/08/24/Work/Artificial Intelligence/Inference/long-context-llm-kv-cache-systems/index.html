@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Long-Context KV Cache Systems - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       本文调研 2021—2026 年 SIGCOMM、NSDI、OSDI、SOSP、EuroSys、USENIX ATC、FAST、MLSys、ISCA、HPCA、ICML 和 NeurIPS 中与长序列、大规模 LLM 推理及 KV cache 管理直接相关的工作，重点关注分页、压缩、稀疏选择、复用、分层存储、卸载、Prefill&amp;amp;"><meta property="og:type" content="blog"><meta property="og:title" content="Long-Context KV Cache Systems"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/24/Work/Artificial%20Intelligence/Inference/long-context-llm-kv-cache-systems/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       本文调研 2021—2026 年 SIGCOMM、NSDI、OSDI、SOSP、EuroSys、USENIX ATC、FAST、MLSys、ISCA、HPCA、ICML 和 NeurIPS 中与长序列、大规模 LLM 推理及 KV cache 管理直接相关的工作，重点关注分页、压缩、稀疏选择、复用、分层存储、卸载、Prefill&amp;amp;"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-08-24T04:00:00.000Z"><meta property="article:modified_time" content="2026-08-24T11:49:36.413Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="KV CACHE"><meta property="article:tag" content="LLM"><meta property="article:tag" content="LONG CONTEXT"><meta property="article:tag" content="INFERENCE"><meta property="article:tag" content="DISAGGREGATION"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/24/Work/Artificial%20Intelligence/Inference/long-context-llm-kv-cache-systems/"},"headline":"Long-Context KV Cache Systems","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-08-24T04:00:00.000Z","dateModified":"2026-08-24T11:49:36.413Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       本文调研 2021—2026 年 SIGCOMM、NSDI、OSDI、SOSP、EuroSys、USENIX ATC、FAST、MLSys、ISCA、HPCA、ICML 和 NeurIPS 中与长序列、大规模 LLM 推理及 KV cache 管理直接相关的工作，重点关注分页、压缩、稀疏选择、复用、分层存储、卸载、Prefill&amp;"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/24/Work/Artificial%20Intelligence/Inference/long-context-llm-kv-cache-systems/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-24T04:00:00.000Z" title="8/24/2026, 4:00:00 AM">2026-08-24</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-24T11:49:36.413Z" title="8/24/2026, 11:49:36 AM">2026-08-24</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">30 minutes read (About 4504 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Long-Context KV Cache Systems</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>本文调研 2021—2026 年 SIGCOMM、NSDI、OSDI、SOSP、EuroSys、USENIX ATC、FAST、MLSys、ISCA、HPCA、ICML 和 NeurIPS 中与<strong>长序列、大规模 LLM 推理及 KV cache 管理</strong>直接相关的工作，重点关注分页、压缩、稀疏选择、复用、分层存储、卸载、Prefill&#x2F;Decode 解耦、远程传输、GPU Direct Storage、CXL 和网络内计算。</p>
+<p>检索截至 <strong>2026-08-24</strong>。会议归属以官方 proceedings 或会议程序为准；仅有 arXiv 或项目技术报告的工作被单独列出，不能与正式顶会论文混为一谈。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ol>
+<li><strong>2023 年是系统化 KV cache 管理的起点。</strong> SOSP 2023 的 PagedAttention 把操作系统分页思想引入 KV cache，之后研究迅速分成内存管理、压缩&#x2F;稀疏、跨请求复用、分层存储和跨节点传输几条路线。2021—2022 年的顶会工作更多是 Transformer&#x2F;LLM serving 基础设施，例如 OSDI 2022 的 Orca，不是专门的 KV cache 管理方案。</li>
+<li><strong>长上下文使问题从“显存分配”演化成“分布式数据系统”。</strong> Mooncake、Strata、SYMPHONY、LMCache 等工作把 KV cache 放进 GPU HBM、CPU DRAM、SSD、远程内存和网络构成的层级中，并联合设计缓存、I&#x2F;O 和调度。</li>
+<li><strong>P&#x2F;D 解耦把 KV cache 变成网络负载。</strong> DistServe、Splitwise 先建立 Prefill&#x2F;Decode 分离范式，CacheGen、HACK、KVDirect、KVServe、DualPath 和 KVCodec 则直接优化 KV 的压缩或传输路径。</li>
+<li><strong>“直驱”有多种不同语义。</strong> 需要区分 GPU Direct Storage、GPU RDMA、GPU 直接访问 CPU&#x2F;CXL 内存、网络内聚合，以及华为 CloudMatrix384 的 AIV-Direct；它们旁路的组件和服务的数据类型并不相同。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>AIV-Direct 不是 KV cache 直传名称</p>
+</div>
+        <div class="message-body">
+            <p>在 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2506.12708">Serving Large Language Models on Huawei CloudMatrix384</a> 原文中，<strong>AIV-Direct</strong> 指 AI Vector Core 经 UB 互连直接写远端 NPU 内存、绕过 SDMA 启动开销的机制，主要用于 MoE 的 FusedDispatch&#x2F;FusedCombine 小消息通信。论文中的 Prefill→Decode <strong>KV cache 传输走独立 RDMA plane</strong>；历史 KV 的 Context Caching 则基于 UB 连接的分布式 DRAM&#x2F;SSD 池。因此，“AIV-Direct 本身是 KV cache 直驱”这一说法不准确，但该论文整体确实包含与远程、分层 KV cache 密切相关的系统设计。</p>
+
+        </div>
+    </article>
+
+<h2 id="核心必读"><a href="#核心必读" class="headerlink" title="核心必读"></a>核心必读</h2><p>以下清单优先覆盖“设计范式发生变化”的工作，而不是把所有 KV 压缩算法都纳入主线。</p>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>会议</th>
+<th align="right">年份</th>
+<th>主题关系</th>
+<th>直接研究 KV cache</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3600006.3613165">Efficient Memory Management for Large Language Model Serving with PagedAttention</a></td>
+<td>SOSP</td>
+<td align="right">2023</td>
+<td>用分页和块映射消除 KV cache 碎片与冗余复制，是 vLLM 的基础。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2024/program/">CacheGen: KV Cache Compression and Streaming for Fast Large Language Model Serving</a></td>
+<td>SIGCOMM</td>
+<td align="right">2024</td>
+<td>为远程复用 KV cache 设计张量编码和带宽自适应流式传输。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi24/presentation/lee">InfiniGen: Efficient Generative Inference of Large Language Models with Dynamic KV Cache Management</a></td>
+<td>OSDI</td>
+<td align="right">2024</td>
+<td>将 KV 主体卸载到 CPU，只预取查询相关的重要 KV 项。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi24/presentation/zhong-yinmin">DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving</a></td>
+<td>OSDI</td>
+<td align="right">2024</td>
+<td>分离 Prefill 与 Decode，并按带宽约束放置两阶段；KV 传输是解耦代价。</td>
+<td>部分</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3694715.3695948">LoongServe: Efficiently Serving Long-Context Large Language Models with Elastic Sequence Parallelism</a></td>
+<td>SOSP</td>
+<td align="right">2024</td>
+<td>用弹性序列并行动态伸缩单请求所占 GPU，减少长上下文 KV 迁移与内存碎片。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/atc24/presentation/gao-bin-cost">Cost-Efficient Large Language Model Serving for Multi-turn Conversations with CachedAttention</a></td>
+<td>USENIX ATC</td>
+<td align="right">2024</td>
+<td>用 GPU&#x2F;CPU&#x2F;SSD 分层 AttentionStore 保存多轮会话 KV，并重叠载入与计算。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v235/strati24a.html">DéjàVu: KV-cache Streaming for Fast, Fault-tolerant Generative LLM Serving</a></td>
+<td>ICML</td>
+<td align="right">2024</td>
+<td>以 KV streaming 支撑 P&#x2F;D 解耦、微批交换和故障恢复。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.iscaconf.org/isca2024/program/">Splitwise: Efficient Generative LLM Inference Using Phase Splitting</a></td>
+<td>ISCA</td>
+<td align="right">2024</td>
+<td>按 Prefill&#x2F;Decode 特性分配异构资源，是 KV 跨阶段移动的重要基线。</td>
+<td>部分</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3689031.3696098">CacheBlend: Fast Large Language Model Serving for RAG with Cached Knowledge Fusion</a></td>
+<td>EuroSys</td>
+<td align="right">2025</td>
+<td>选择性重算并融合非前缀文本块的历史 KV，面向 RAG。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3669940.3707256">vAttention: Dynamic Memory Management for Serving LLMs without PagedAttention</a></td>
+<td>ASPLOS</td>
+<td align="right">2025</td>
+<td>用 CUDA 虚拟内存维护连续 KV 地址空间，是 PagedAttention 之外的内存管理路线。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast25/presentation/qin">Mooncake: Trading More Storage for Less Computation — A KVCache-centric Architecture for Serving LLM Chatbot</a></td>
+<td>FAST</td>
+<td align="right">2025</td>
+<td>在生产集群中构建 CPU&#x2F;DRAM&#x2F;SSD&#x2F;NIC 组成的分布式 KV cache 与全局调度器。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast25/presentation/chen-weijian-impress">IMPRESS: An Importance-Informed Multi-Tier Prefix KV Storage System for Large Language Model Inference</a></td>
+<td>FAST</td>
+<td align="right">2025</td>
+<td>在 GPU、CPU、磁盘层级中只加载重要 Prefix KV，降低磁盘 I&#x2F;O。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://hpca-conf.org/2025/main-program/">InstAttention: In-Storage Attention Offloading for Cost-Effective Long-Context LLM Inference</a></td>
+<td>HPCA</td>
+<td align="right">2025</td>
+<td>把 KV cache 和 Decode Attention 下沉到计算存储设备，并优化 GPU↔CSD P2P。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2025/program/papers-info/">HACK: Homomorphic Acceleration via Compression of the Key-Value Cache for Disaggregated LLM Inference</a></td>
+<td>SIGCOMM</td>
+<td align="right">2025</td>
+<td>压缩 P&#x2F;D 间 KV，且直接在量化 KV 上计算以避免重反量化。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/atc25/presentation/wang-jiahao">KVCache Cache in the Wild: Characterizing and Optimizing KVCache Cache at a Large Cloud Provider</a></td>
+<td>USENIX ATC</td>
+<td align="right">2025</td>
+<td>基于真实云服务轨迹刻画 KV 复用，并设计 workload-aware 淘汰策略。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://sigops.org/s/conferences/sosp/2025/accepted.html">Jenga: Effective Memory Management for Serving LLM with Heterogeneity</a></td>
+<td>SOSP</td>
+<td align="right">2025</td>
+<td>针对层间 KV&#x2F;embedding 异质性设计两级分配器和逐层缓存、淘汰策略。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://sigops.org/s/conferences/sosp/2025/accepted.html">DiffKV: Differentiated Memory Management for Large Language Models with Parallel KV Compaction</a></td>
+<td>SOSP</td>
+<td align="right">2025</td>
+<td>按层和 Token 差异化压缩 KV，并在 GPU 上并行整理压缩后的内存。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://papers.neurips.cc/paper_files/paper/2025/hash/4431224d3762aa655f0aee4eaf04ff16-Abstract-Conference.html">HiFC: High-efficiency Flash-based KV Cache Swapping for Scaling LLM Inference</a></td>
+<td>NeurIPS</td>
+<td align="right">2025</td>
+<td>使用 GPU Direct Storage 在 GPU 与 NVMe SSD 间直接交换 KV，绕过 Host DRAM。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang">Strata: Hierarchical Context Caching for Long Context Language Model Serving</a></td>
+<td>OSDI</td>
+<td align="right">2026</td>
+<td>面向 HBM&#x2F;DRAM&#x2F;SSD 层级缓存，联合优化 GPU-assisted I&#x2F;O、布局与 cache-aware 调度。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/luo">No Buffer, No Bottleneck: Efficient Zero-Copy KV Cache Offloading for Long-Context LLMs</a></td>
+<td>OSDI</td>
+<td align="right">2026</td>
+<td>DirectKV 让 GPU kernel 经 NVLink-C2C 直接访问 CPU 驻留 KV，去掉 GPU staging buffer。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/liu-guangda">ECHO: Efficient KV Cache Offloading with Lossless Prefetching for Serving Native Sparse Attention LLMs</a></td>
+<td>OSDI</td>
+<td align="right">2026</td>
+<td>为原生稀疏注意力设计无损 KV 预取和融合流水线。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/presentation/agarwal">SYMPHONY: Enabling Compute-Memory Disaggregation in LLM Serving Systems</a></td>
+<td>NSDI</td>
+<td align="right">2026</td>
+<td>将计算与 KV 存储解耦，并用提示预取、优先级与协同内存管理控制远程缓存。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">KVServe: Service-Aware KV Cache Compression for Communication-Efficient Disaggregated LLM Serving</a></td>
+<td>SIGCOMM</td>
+<td align="right">2026</td>
+<td>按网络、SLO 和质量预算在线选择 KV 压缩方案。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">DualPath: Accelerating Agentic LLM Inference by Harvesting Disaggregated KV-Cache Storage I&#x2F;O</a></td>
+<td>SIGCOMM</td>
+<td align="right">2026</td>
+<td>同时利用 Prefill 与 Decode 节点的存储 NIC，以双路径加载并通过 RDMA 回传 KV。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">Efficient Remote KV Cache Reuse with GPU-native Video Codec</a></td>
+<td>SIGCOMM</td>
+<td align="right">2026</td>
+<td>KVCodec 使用 GPU 原生视频编解码压缩远程 KV，并流水化传输与恢复。</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<h2 id="与-AIV-Direct-相近的数据路径"><a href="#与-AIV-Direct-相近的数据路径" class="headerlink" title="与 AIV-Direct 相近的数据路径"></a>与 AIV-Direct 相近的数据路径</h2><p>这些工作未必都以 KV cache 为唯一对象，但都在尝试让加速器、网络或存储设备直接发起&#x2F;完成数据移动或近数据计算，是理解“直驱”设计空间的关键对照。</p>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>会议或状态</th>
+<th>直通语义</th>
+<th>与 KV cache 的关系</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2506.12708">Serving Large Language Models on Huawei CloudMatrix384</a></td>
+<td>技术报告，2025</td>
+<td>AIV Core 经 UB 直接写远端 NPU 内存，绕过高启动开销的 SDMA。</td>
+<td>报告另有 RDMA KV 传输和 UB 分离式缓存池；AIV-Direct 本身主要服务 MoE 通信。</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2203.04910">GPU-Initiated On-Demand High-Throughput Storage Access in the BaM System Architecture</a></td>
+<td>ASPLOS 2023</td>
+<td>GPU 直接管理 NVMe 访问的控制与数据路径，降低 CPU 参与。</td>
+<td>不是 LLM&#x2F;KV 专用，但属于 GPU 直驱存储的基础架构。</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast25/presentation/qiu">GeminiFS: A Companion File System for GPUs</a></td>
+<td>FAST 2025</td>
+<td>GPU 直接以文件语义访问 NVMe，旁路 CPU 数据路径。</td>
+<td>不是 KV 专用，可作为 SSD-backed KV 系统的底层对照。</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3676641.3715983">Aqua: Network-Accelerated Memory Offloading for LLMs in Scale-Up GPU Domains</a></td>
+<td>ASPLOS 2025</td>
+<td>借助网络和空闲 Peer GPU 内存加速 LLM 状态卸载。</td>
+<td>面向 LLM 内存压力，覆盖 KV 等请求状态，但范围不只 KV。</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://hpca-conf.org/2025/main-program/">InstAttention: In-Storage Attention Offloading for Cost-Effective Long-Context LLM Inference</a></td>
+<td>HPCA 2025</td>
+<td>通过 GPU↔计算存储设备 P2P，在存储侧执行 Decode Attention。</td>
+<td>KV cache 与 Attention 都下沉到计算存储。</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/luo">No Buffer, No Bottleneck: Efficient Zero-Copy KV Cache Offloading for Long-Context LLMs</a></td>
+<td>OSDI 2026</td>
+<td>GPU kernel 经 NVLink-C2C 直接访问 CPU 驻留 KV，取消 HBM staging buffer。</td>
+<td>最接近“KV cache 直访远端层级”的正式顶会工作。</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">DualPath: Accelerating Agentic LLM Inference by Harvesting Disaggregated KV-Cache Storage I&#x2F;O</a></td>
+<td>SIGCOMM 2026</td>
+<td>同时利用 Prefill&#x2F;Decode 两侧存储路径，并经 RDMA 回传。</td>
+<td>直接优化分离式 KV cache 的存储与网络 I&#x2F;O。</td>
+</tr>
+</tbody></table>
+<h2 id="扩展正式论文"><a href="#扩展正式论文" class="headerlink" title="扩展正式论文"></a>扩展正式论文</h2><h3 id="内存、稀疏与量化"><a href="#内存、稀疏与量化" class="headerlink" title="内存、稀疏与量化"></a>内存、稀疏与量化</h3><table>
+<thead>
+<tr>
+<th>论文</th>
+<th>会议</th>
+<th align="right">年份</th>
+<th>主题关系</th>
+<th>直接研究 KV cache</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2024/hash/a66caa1703fe34705a4368c3014c1966-Abstract-Conference.html">Prompt Cache: Modular Attention Reuse for Low-Latency Inference</a></td>
+<td>MLSys</td>
+<td align="right">2024</td>
+<td>用显式 schema 复用可组合 Prompt 模块的 KV state。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2024/hash/48fecef47b19fe501d27d338b6d52582-Abstract-Conference.html">Keyformer: KV Cache reduction through key tokens selection for Efficient Generative Inference</a></td>
+<td>MLSys</td>
+<td align="right">2024</td>
+<td>仅保留高注意力的 key tokens。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2024/hash/bbb7506579431a85861a05fff048d3e1-Abstract-Conference.html">Q-Hitter: A Better Token Oracle for Efficient LLM Inference via Sparse-Quantized KV Cache</a></td>
+<td>MLSys</td>
+<td align="right">2024</td>
+<td>联合稀疏与量化 KV。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v235/liu24bz.html">KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache</a></td>
+<td>ICML</td>
+<td align="right">2024</td>
+<td>针对 Key&#x2F;Value 不同分布采用 2-bit 非对称量化。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v235/tang24l.html">QUEST: Query-Aware Sparsity for Efficient Long-Context LLM Inference</a></td>
+<td>ICML</td>
+<td align="right">2024</td>
+<td>以 Query 选择要加载的 Top-K KV pages。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.iscaconf.org/isca2024/program/">ALISA: Accelerating Large Language Model Inference via Sparsity-Aware KV Caching</a></td>
+<td>ISCA</td>
+<td align="right">2024</td>
+<td>结合稀疏窗口注意力与 GPU&#x2F;CPU 动态 KV 调度。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2025/hash/66a026c0d17040889b50f0dfa650e5e0-Abstract-Conference.html">NEO: Saving GPU Memory Crisis with CPU Offloading for Online LLM Inference</a></td>
+<td>MLSys</td>
+<td align="right">2025</td>
+<td>将部分 Attention 计算与 KV state 卸载到 CPU。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2025/hash/cc8c6b9d89f7a898a29f58869b238e46-Abstract-Conference.html">LServe: Efficient Long-sequence LLM Serving with Unified Sparse Attention</a></td>
+<td>MLSys</td>
+<td align="right">2025</td>
+<td>分层选择 KV pages，统一 Prefill&#x2F;Decode 稀疏注意力。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2025/hash/f4f55846501f3336f293fd8b6de10770-Abstract-Conference.html">TurboAttention: Efficient attention approximation for high throughputs llm</a></td>
+<td>MLSys</td>
+<td align="right">2025</td>
+<td>量化 KV 并直接执行低精度 Attention。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2025/file/26289c647c6828e862e271ca3c490486-Paper-Conference.pdf">Rethinking Key-Value Cache Compression Techniques for Large Language Model Serving</a></td>
+<td>MLSys</td>
+<td align="right">2025</td>
+<td>从生产实现角度重新评估 KV 压缩的吞吐、延迟和质量。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2026/hash/94bcb01789fccf15afe2764d8fe0f40e-Abstract-Conference.html">FlexiCache: Leveraging Temporal Stability of Attention Heads for Efficient KV Cache Management</a></td>
+<td>MLSys</td>
+<td align="right">2026</td>
+<td>按 Attention Head 稳定性在 GPU&#x2F;CPU 间分层放置 KV pages。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2026/hash/71381211d0abef73ed1887b83c4547b1-Abstract-Conference.html">OPKV: A High-Throughput Plugin-Driven Framework for Recallable Sparsity in Paged KV Cache Systems</a></td>
+<td>MLSys</td>
+<td align="right">2026</td>
+<td>将可召回稀疏策略以插件形式接入分页 KV 系统。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2026/hash/07fd64f9316f40193c6a4d87d8afa011-Abstract-Conference.html">SuperInfer: SLO-Aware Rotary Scheduling and Memory Management for LLM Inference on Superchips</a></td>
+<td>MLSys</td>
+<td align="right">2026</td>
+<td>在 GH200 上通过 NVLink-C2C 双向搬运 KV 并联合 SLO 调度。</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<h3 id="复用、存储与跨节点移动"><a href="#复用、存储与跨节点移动" class="headerlink" title="复用、存储与跨节点移动"></a>复用、存储与跨节点移动</h3><table>
+<thead>
+<tr>
+<th>论文</th>
+<th>会议</th>
+<th align="right">年份</th>
+<th>主题关系</th>
+<th>直接研究 KV cache</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v235/">InferCept: Efficient Intercept Support for Augmented Large Language Model Inference</a></td>
+<td>ICML</td>
+<td align="right">2024</td>
+<td>工具调用暂停期间在保留、CPU swap 和丢弃 KV 之间自适应选择。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/presentation/liu-yuhan">DroidSpeak: KV Cache Sharing Across Fine-tuned Model Variants</a></td>
+<td>NSDI</td>
+<td align="right">2026</td>
+<td>跨同架构微调模型与节点复用 KV，并流水化选择性重算。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/presentation/ruan-libra">Libra: Flexible Request Partitioning and Scheduling for Serving Unbalanced and Dynamic LLM Workloads</a></td>
+<td>NSDI</td>
+<td align="right">2026</td>
+<td>用分块 KV 传输支持跨实例 micro-request。</td>
+<td>部分</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast26/presentation/zheng">SolidAttention: Low-Latency SSD-based Serving on Memory-Constrained PCs</a></td>
+<td>FAST</td>
+<td align="right">2026</td>
+<td>在 SSD 上存放 KV，并以块聚合和推测预取支持 128K 上下文。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast26/presentation/liu-yang">CacheSlide: Unlocking Cross Position-Aware KV Cache Reuse for Accelerating LLM Serving</a></td>
+<td>FAST</td>
+<td align="right">2026</td>
+<td>支持相对位置相关的 KV 复用和 spill-aware 管理。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast26/presentation/hu-shipeng">Bidaw: Enhancing Key-Value Caching for Interactive LLM Serving via Bidirectional Computation–Storage Awareness</a></td>
+<td>FAST</td>
+<td align="right">2026</td>
+<td>联合计算调度与 DRAM&#x2F;SSD 两层 KV 淘汰。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2026/hash/b0131b6ee02a00b03fc3320176fec8f5-Abstract-Conference.html">ContextPilot: Fast Long-Context Inference via Context Reuse</a></td>
+<td>MLSys</td>
+<td align="right">2026</td>
+<td>对跨交互上下文对齐、去重，扩大 KV reuse。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/accepted/">Turbo: Efficiently Serving Long-Context Large Language Models with In-Network Aggregation</a></td>
+<td>SIGCOMM</td>
+<td align="right">2026</td>
+<td>将长上下文推理中的聚合放入网络数据面，属于 KV&#x2F;Attention 数据路径邻近工作。</td>
+<td>部分</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">TurboBus: Pooling PCIe Bandwidth for LLM Workloads via Scale-Up Fabrics</a></td>
+<td>SIGCOMM</td>
+<td align="right">2026</td>
+<td>池化 PCIe 带宽，并加速 KV-offloaded inference。</td>
+<td>部分</td>
+</tr>
+</tbody></table>
+<h3 id="其他正式出版"><a href="#其他正式出版" class="headerlink" title="其他正式出版"></a>其他正式出版</h3><p>以下论文已经正式出版，但不属于本文重点列举的顶级会议，因技术相关而保留。</p>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>出版物</th>
+<th align="right">年份</th>
+<th>主题关系</th>
+<th>直接研究 KV cache</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2605.18071">KVDrive: A Holistic Multi-Tier KV Cache Management System for Long-Context LLM Inference</a></td>
+<td>Proc. ACM Manag. Data</td>
+<td align="right">2026</td>
+<td>联合管理 GPU、Host DRAM、SSD 上的 KV 放置与流水线。</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<h2 id="预印本与技术报告"><a href="#预印本与技术报告" class="headerlink" title="预印本与技术报告"></a>预印本与技术报告</h2><p>以下工作与主题高度相关，但截至检索日期不能标为已在上述顶会正式发表。</p>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>状态</th>
+<th>主题关系</th>
+<th>直接研究 KV cache</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2501.14743">KVDirect: Distributed Disaggregated LLM Inference</a></td>
+<td>arXiv，2025</td>
+<td>以 Tensor-centric metadata、GPU RDMA 和 pull-mode 直接跨节点获取 Prefill KV。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2406.17565">MemServe: Context Caching for Disaggregated LLM Serving with Elastic Memory Pool</a></td>
+<td>arXiv，2024</td>
+<td>用分布式弹性 MemPool 统一 Context Caching 与 P&#x2F;D 解耦。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2510.09665">LMCache: An Efficient KV Cache Layer for Enterprise-Scale LLM Inference</a></td>
+<td>arXiv&#x2F;项目技术报告，2025</td>
+<td>在 GPU、CPU、磁盘、对象存储和网络间提供独立 KV cache 层及控制 API。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2512.18194">TraCT: Disaggregated LLM Serving with CXL Shared Memory KV Cache at Rack-Scale</a></td>
+<td>arXiv，2025</td>
+<td>让 GPU 通过 CXL load&#x2F;store&#x2F;DMA 直接读写机架级共享 KV，绕过 NIC hop。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2605.03375">Tutti: Making SSD-Backed KV Cache Practical for Long-Context LLM Serving</a></td>
+<td>arXiv，2026</td>
+<td>以 GPU-centric object store 和 GPU <code>io_uring</code> 移除 SSD↔HBM KV 数据及控制关键路径中的 CPU。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2604.26557">DUAL-BLADE: Dual-Path NVMe-Direct KV-Cache Offloading for Edge LLM Inference</a></td>
+<td>arXiv，2026；作者标注 to appear at ICDCS 2026</td>
+<td>结合 page-cache 与 NVMe-direct 双路径，旁路文件系统并重叠 I&#x2F;O 与 GPU DMA。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2604.26074">DAK: Direct-Access-Enabled GPU Memory Offloading with Optimal Efficiency for LLM Inference</a></td>
+<td>arXiv，2026</td>
+<td>让 TMA 异步从远端内存直接取回卸载的 KV&#x2F;权重至 GPU SMEM。</td>
+<td>是</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2506.12708">Serving Large Language Models on Huawei CloudMatrix384</a></td>
+<td>arXiv 技术报告，2025</td>
+<td>包含 P&#x2F;D 分离、RDMA-plane KV 传输、UB 分布式 DRAM&#x2F;SSD Context Caching 和 AIV-Direct。</td>
+<td>是；但 AIV-Direct 本身不是 KV 路径</td>
+</tr>
+</tbody></table>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>InstInfer 与 InstAttention</p>
+</div>
+        <div class="message-body">
+            <p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2409.04992">InstInfer: In-Storage Attention Offloading for Cost-Effective Long-Context LLM Inference</a> 是 2024 年预印本名称；正式进入 HPCA 2025 时题名为 <strong>InstAttention</strong>。检索时应将二者视为同一工作演化，避免重复计数。</p>
+
+        </div>
+    </article>
+
+<h2 id="设计路线"><a href="#设计路线" class="headerlink" title="设计路线"></a>设计路线</h2><ol>
+<li><strong>显存内管理</strong>：PagedAttention 解决块分配和碎片；Keyformer、KIVI、QUEST、ALISA、LServe 通过选择、稀疏或量化降低常驻容量和读取带宽。</li>
+<li><strong>跨请求复用</strong>：Prompt Cache 和 PagedAttention 处理前缀或显式模块；CacheBlend、CacheSlide、ContextPilot、DroidSpeak 把复用扩展到非前缀、位置变化或跨模型场景。</li>
+<li><strong>分层存储</strong>：CachedAttention、IMPRESS、Mooncake、Strata、SolidAttention、KVDrive 在 HBM、DRAM、SSD 之间管理生命周期、淘汰和预取。</li>
+<li><strong>P&#x2F;D 解耦与网络传输</strong>：DistServe、Splitwise 奠定架构；DéjàVu、CacheGen、HACK、KVDirect、KVServe、DualPath、KVCodec 优化 KV 跨阶段移动。</li>
+<li><strong>直连与近数据处理</strong>：DirectKV 直接访问 CPU 内存；HiFC 使用 GPU Direct Storage；InstAttention 在 CSD 内执行 Attention；TraCT 使用 CXL 共享内存；Turbo 使用网络内聚合。</li>
+</ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>建议阅读顺序</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>先读 <strong>PagedAttention</strong>，理解 KV block、碎片和批处理容量。</li>
+<li>再读 <strong>DistServe&#x2F;Splitwise</strong>，理解为什么 P&#x2F;D 解耦会制造 KV 传输问题。</li>
+<li>读 <strong>CacheGen、Mooncake、Strata</strong>，分别观察压缩传输、生产级分布式缓存、层级缓存与调度。</li>
+<li>如果关注“直驱”，并列阅读 <strong>KVDirect、DirectKV、HiFC、InstAttention、TraCT、Tutti、DAK、CloudMatrix384</strong>，逐一确认数据路径绕过的是 CPU、Host DRAM、SDMA、NIC 还是 GPU staging buffer。</li>
+</ol>
+
+        </div>
+    </article>
+
+<h2 id="参考入口"><a href="#参考入口" class="headerlink" title="参考入口"></a>参考入口</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2024/program/">ACM SIGCOMM 2024 Program</a></li>
+<li><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2025/program/papers-info/">ACM SIGCOMM 2025 Papers</a></li>
+<li><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">ACM SIGCOMM 2026 Papers</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi24/technical-sessions">OSDI 2024 Technical Sessions</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/technical-sessions">OSDI 2026 Technical Sessions</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/technical-sessions">NSDI 2026 Technical Sessions</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast25/technical-sessions">FAST 2025 Technical Sessions</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast26/technical-sessions">FAST 2026 Technical Sessions</a></li>
+<li><a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/">MLSys Proceedings</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.iscaconf.org/isca2024/program/">ISCA 2024 Program</a></li>
+<li><a target="_blank" rel="noopener" href="https://hpca-conf.org/2025/main-program/">HPCA 2025 Program</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Long-Context KV Cache Systems</p><p><a href="http://icarus.shaojiemike.top/2026/08/24/Work/Artificial Intelligence/Inference/long-context-llm-kv-cache-systems/">http://icarus.shaojiemike.top/2026/08/24/Work/Artificial Intelligence/Inference/long-context-llm-kv-cache-systems/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-24</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-24</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/KV-CACHE/">KV CACHE</a><a class="link-muted mr-2" rel="tag" href="/tags/LLM/">LLM</a><a class="link-muted mr-2" rel="tag" href="/tags/LONG-CONTEXT/">LONG CONTEXT</a><a class="link-muted mr-2" rel="tag" href="/tags/INFERENCE/">INFERENCE</a><a class="link-muted mr-2" rel="tag" href="/tags/DISAGGREGATION/">DISAGGREGATION</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/08/24/Work/Artificial%20Intelligence/AIInfra/AIV-Direct-Drive/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">AIV Direct Drive</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/17/OutOfWork/0-love/ModernMatchmakingSystem/"><span class="level-item">Modern Matchmaking System</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">597</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">50</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">883</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">结论</span></span></a></li><li><a class="level is-mobile" href="#核心必读"><span class="level-left"><span class="level-item">2</span><span class="level-item">核心必读</span></span></a></li><li><a class="level is-mobile" href="#与-AIV-Direct-相近的数据路径"><span class="level-left"><span class="level-item">3</span><span class="level-item">与 AIV-Direct 相近的数据路径</span></span></a></li><li><a class="level is-mobile" href="#扩展正式论文"><span class="level-left"><span class="level-item">4</span><span class="level-item">扩展正式论文</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#内存、稀疏与量化"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">内存、稀疏与量化</span></span></a></li><li><a class="level is-mobile" href="#复用、存储与跨节点移动"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">复用、存储与跨节点移动</span></span></a></li><li><a class="level is-mobile" href="#其他正式出版"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">其他正式出版</span></span></a></li></ul></li><li><a class="level is-mobile" href="#预印本与技术报告"><span class="level-left"><span class="level-item">5</span><span class="level-item">预印本与技术报告</span></span></a></li><li><a class="level is-mobile" href="#设计路线"><span class="level-left"><span class="level-item">6</span><span class="level-item">设计路线</span></span></a></li><li><a class="level is-mobile" href="#参考入口"><span class="level-left"><span class="level-item">7</span><span class="level-item">参考入口</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">25</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T10:00:00.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/Work/Artificial%20Intelligence/Inference/Distributed-KV-Cache-Management/">Distributed KV Cache Management</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T08:53:32.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/Work/Artificial%20Intelligence/AIInfra/Mooncake/">Mooncake</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T08:03:11.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/Work/Artificial%20Intelligence/Inference/KV-Cache-Fundamentals/">KV Cache Fundamentals</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T07:15:29.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/Work/Artificial%20Intelligence/AIInfra/AIV-Direct-Drive/">AIV Direct Drive</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Infrastructure/"><span class="tag">AI Infrastructure</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-STARTUP/"><span class="tag">AI STARTUP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Systems/"><span class="tag">AI Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIV/"><span class="tag">AIV</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

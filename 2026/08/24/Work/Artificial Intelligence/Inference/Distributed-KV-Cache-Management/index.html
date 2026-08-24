@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Distributed KV Cache Management - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       长上下文把 KV cache 从一块 GPU 临时张量，逐步推成了跨 GPU、CPU、SSD、NIC 和远程内存流动的分布式状态。表面上，近几年的论文分别在做分页、卸载、压缩、P&amp;#x2F;D 解耦、远程复用或直通访问；从更抽象的角度看，它们其实都在回答同一个问题：如何分布式地管理一批有依赖、可重算、持续增长且必须按时到达的数据？"><meta property="og:type" content="blog"><meta property="og:title" content="Distributed KV Cache Management"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/24/Work/Artificial%20Intelligence/Inference/Distributed-KV-Cache-Management/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       长上下文把 KV cache 从一块 GPU 临时张量，逐步推成了跨 GPU、CPU、SSD、NIC 和远程内存流动的分布式状态。表面上，近几年的论文分别在做分页、卸载、压缩、P&amp;#x2F;D 解耦、远程复用或直通访问；从更抽象的角度看，它们其实都在回答同一个问题：如何分布式地管理一批有依赖、可重算、持续增长且必须按时到达的数据？"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2026/08/b28ebad0fd3f77cdd6bf9cdb541a259d.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2026/08/992ff210ade2f94bd279840d6cc62146.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2026/08/985f10b68121dafd2e1ae1792a9916e5.png"><meta property="article:published_time" content="2026-08-24T10:00:00.000Z"><meta property="article:modified_time" content="2026-08-24T11:49:36.413Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="RDMA"><meta property="article:tag" content="LLM Serving"><meta property="article:tag" content="KV Cache"><meta property="article:tag" content="Distributed Systems"><meta property="article:tag" content="Long Context"><meta property="article:tag" content="Data Placement"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2026/08/b28ebad0fd3f77cdd6bf9cdb541a259d.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/24/Work/Artificial%20Intelligence/Inference/Distributed-KV-Cache-Management/"},"headline":"Distributed KV Cache Management","image":["https://pic.shaojiemike.top/shaojiemike/2026/08/b28ebad0fd3f77cdd6bf9cdb541a259d.png","https://pic.shaojiemike.top/shaojiemike/2026/08/992ff210ade2f94bd279840d6cc62146.png","https://pic.shaojiemike.top/shaojiemike/2026/08/985f10b68121dafd2e1ae1792a9916e5.png"],"datePublished":"2026-08-24T10:00:00.000Z","dateModified":"2026-08-24T11:49:36.413Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       长上下文把 KV cache 从一块 GPU 临时张量，逐步推成了跨 GPU、CPU、SSD、NIC 和远程内存流动的分布式状态。表面上，近几年的论文分别在做分页、卸载、压缩、P&#x2F;D 解耦、远程复用或直通访问；从更抽象的角度看，它们其实都在回答同一个问题：如何分布式地管理一批有依赖、可重算、持续增长且必须按时到达的数据？"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/24/Work/Artificial%20Intelligence/Inference/Distributed-KV-Cache-Management/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-24T10:00:00.000Z" title="8/24/2026, 10:00:00 AM">2026-08-24</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-24T11:49:36.413Z" title="8/24/2026, 11:49:36 AM">2026-08-24</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">2 hours read (About 14110 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Distributed KV Cache Management</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>长上下文把 KV cache 从一块 GPU 临时张量，逐步推成了跨 GPU、CPU、SSD、NIC 和远程内存流动的分布式状态。表面上，近几年的论文分别在做分页、卸载、压缩、P&#x2F;D 解耦、远程复用或直通访问；从更抽象的角度看，它们其实都在回答同一个问题：<strong>如何分布式地管理一批有依赖、可重算、持续增长且必须按时到达的数据？</strong></p>
+<p>本文以<strong>放置、组织、传输</strong>为主轴，把命名、依赖、正确性、调度与故障恢复作为支撑平面，纵向回看 2022—2026 年的演化，横向比较七类设计范式，并推演下一阶段可能出现的三条路径。研究截止日期为 <strong>2026-08-24</strong>。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>证据口径</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><strong>事实</strong>来自论文原文、正式会议页面或项目官方文档，并在相关判断附近给出链接。</li>
+<li><strong>本文推断</strong>是对多篇工作共同趋势的归纳，不等同于作者原话。</li>
+<li><strong>本文观点</strong>是为了建立统一模型而提出的抽象；它用于解释设计，不声称已经成为行业标准。</li>
+</ul>
+
+        </div>
+    </article>
+
+<h2 id="核心结论"><a href="#核心结论" class="headerlink" title="核心结论"></a>核心结论</h2><h3 id="不是普通缓存"><a href="#不是普通缓存" class="headerlink" title="不是普通缓存"></a>不是普通缓存</h3><p><strong>本文观点：KV cache 更准确的抽象是“依赖携带的物化中间状态”，而不是普通 Key-Value Cache。</strong>它具有五个同时存在的性质：</p>
+<ol>
+<li><strong>可派生</strong>：只要 Token、模型权重、位置语义和推理配置仍在，KV 可以重新计算；因此丢失通常影响延迟和成本，不一定影响数据耐久性。</li>
+<li><strong>前缀依赖</strong>：第 <code>t</code> 个位置的状态由它之前的上下文决定。PagedAttention 原文明确指出，同一 Token 出现在不同位置时，其 KV 可以不同。<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2309.06180">PagedAttention</a></li>
+<li><strong>单请求内追加</strong>：Decode 每步追加新状态，历史块通常不再修改；这使内容寻址、引用计数和写后发布比传统可变缓存更合适。</li>
+<li><strong>容量大且在关键路径上</strong>：它既像存储对象，又是下一次 Attention 的直接输入；“已经命中但来不及加载”仍然等价于一次性能上的未命中。</li>
+<li><strong>生命周期跨计算阶段</strong>：Prefill 生产，Decode 消费并继续追加；多轮会话、RAG、Agent 工具调用还会让它暂停、恢复、复用或迁移。</li>
+</ol>
+<p>可以把第 <code>l</code> 层、前缀长度为 <code>t</code> 的状态写成：</p>
+<p>$$<br>C_{l,t}&#x3D;F_l(W, A, x_{0:t}, P, Q),<br>$$</p>
+<p>其中 <code>W</code> 是模型版本，<code>A</code> 是 Adapter&#x2F;LoRA 等增量权重，<code>x</code> 是 Token 前缀，<code>P</code> 是位置编码与截断策略，<code>Q</code> 是量化、稀疏和 Attention 配置。<strong>只比较 Token 文本而忽略这些依赖，可能得到形状正确但语义错误的 KV。</strong></p>
+<h3 id="三个主问题"><a href="#三个主问题" class="headerlink" title="三个主问题"></a>三个主问题</h3><p>近几年系统工作的差异，可以压缩为三个主问题和三个支撑问题：</p>
+<ol>
+<li><strong>放置 Placement</strong>：某个 KV 块的权威位置和当前副本在哪里——HBM、CPU DRAM、SSD、远程缓存池，还是计算存储设备？热块应该复制，长尾应该分片，还是直接重算？</li>
+<li><strong>组织 Organization</strong>：KV 以请求、连续张量、固定页、前缀树、内容寻址对象、层、Head 还是 Token 区间为单位？逻辑依赖粒度、内存分配粒度、网络传输粒度与 Kernel Tile 粒度是否一致？</li>
+<li><strong>传输 Transport</strong>：由生产者 Push 还是消费者 Pull？整段搬、逐层流式搬、压缩搬，还是不搬数据而把 Attention 移到数据旁边？如何处理拥塞、背压和完成通知？</li>
+<li><strong>身份与正确性</strong>：怎样证明“这份 KV 正是当前请求需要的版本”？父前缀、模型版本、位置、租户和写入完成状态如何进入标识？</li>
+<li><strong>调度与拓扑</strong>：请求去找已有数据，还是数据去找空闲计算？局部性、负载均衡、TTFT、TPOT 和网络带宽如何联合权衡？</li>
+<li><strong>故障与安全</strong>：副本丢失后重算还是恢复？跨租户命中是否泄漏前缀存在性？未完成或旧版本对象是否可能被读到？</li>
+</ol>
+<h3 id="五年演化"><a href="#五年演化" class="headerlink" title="五年演化"></a>五年演化</h3><p><strong>本文推断：主线不是“KV 越搬越远”，而是管理边界逐层外扩。</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    A[2022&lt;br/&gt;请求内状态&lt;br/&gt;随迭代调度] --&gt; B[2023&lt;br/&gt;逻辑地址与&lt;br/&gt;物理地址分离]</span><br><span class="line">    B --&gt; C[2024&lt;br/&gt;状态可卸载、&lt;br/&gt;可迁移、跨阶段]</span><br><span class="line">    C --&gt; D[2025&lt;br/&gt;全局缓存池与&lt;br/&gt;语义化复用]</span><br><span class="line">    D --&gt; E[2026&lt;br/&gt;分离式内存、&lt;br/&gt;直访与近数据计算]</span><br><span class="line"></span><br><span class="line">    B -. 分页 .-&gt; B1[Page / Block]</span><br><span class="line">    C -. 流动 .-&gt; C1[Prefill → Decode]</span><br><span class="line">    D -. 服务化 .-&gt; D1[Namespace / Directory]</span><br><span class="line">    E -. 硬件协同 .-&gt; E1[RDMA / NVLink-C2C / SSD]</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>2022：先把时间切细。</strong> Orca 的迭代级调度让不同请求可以在每个 Token 迭代边界加入或退出 Batch。它首先把自回归请求暴露为跨迭代存活的状态机，但 KV 仍主要绑定在执行实例上。<a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi22/presentation/yu">Orca，OSDI 2022</a></li>
+<li><strong>2023：再把地址虚拟化。</strong> PagedAttention 把连续逻辑 KV 映射到不连续物理块，解决预留和碎片问题，也让块级共享成为可能。<a target="_blank" rel="noopener" href="https://doi.org/10.1145/3600006.3613165">PagedAttention，SOSP 2023</a></li>
+<li><strong>2024：让状态开始移动。</strong> CachedAttention 在 HBM、DRAM、SSD 间分层保存多轮 KV；DistServe 和 Splitwise 把 Prefill&#x2F;Decode 放到不同 GPU；CacheGen 开始专门压缩跨网络传输的 KV；LoongServe 则为单个长请求动态调整序列并行资源。</li>
+<li><strong>2025：KV 成为独立且有类型的数据平面。</strong> Mooncake 把闲置 CPU、DRAM、SSD 和 NIC 组织成全局分离式 KV 池；IMPRESS 和 Aqua 分别利用重要 Token 与闲置 Peer HBM；CacheBlend、Jenga、DiffKV 又承认不同位置、层、Head、Token 与状态类型的依赖并不均匀。</li>
+<li><strong>2026：KV 成为可编程数据流，计算与数据重新靠拢。</strong> Strata 联合重做层级布局、I&#x2F;O 和调度；SYMPHONY 解耦计算与 KV 存储；DirectKV 让 GPU Kernel 直接访问 CPU 驻留 KV；SIGCOMM 2026 的 DualPath、KVServe、KVCodec、Turbo 等工作继续改变路径、表示和计算位置。</li>
+</ol>
+<h3 id="四个反复出现的矛盾"><a href="#四个反复出现的矛盾" class="headerlink" title="四个反复出现的矛盾"></a>四个反复出现的矛盾</h3><ul>
+<li><strong>局部性与负载均衡</strong>：请求跟着 KV 走，可以减少传输，却可能把热点压在少数实例；KV 跟着空闲 GPU 走，可以均衡计算，却会制造网络流量。</li>
+<li><strong>传输与重算</strong>：远端已有 KV 不代表必须加载。对短前缀、拥塞链路或不兼容版本，重算可能更快。</li>
+<li><strong>细粒度复用与大粒度 I&#x2F;O</strong>：小页便于共享和减少碎片，大块更能吃满 PCIe、RDMA 和 SSD 带宽。Strata 的出发点之一正是碎片布局造成的小 I&#x2F;O。<a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang">Strata，OSDI 2026</a></li>
+<li><strong>通用抽象与硬件直通</strong>：分页、对象接口和远程缓存较通用；NVLink-C2C、GPUDirect、CXL、UB 或计算存储能缩短路径，却把系统绑定到特定硬件和 Kernel。</li>
+</ul>
+<h2 id="关键时间线"><a href="#关键时间线" class="headerlink" title="关键时间线"></a>关键时间线</h2><table>
+<thead>
+<tr>
+<th>时间</th>
+<th>工作</th>
+<th>当时主要瓶颈</th>
+<th>新增抽象</th>
+<th>留下的新问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2022-07</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi22/presentation/yu">Orca</a>，OSDI</td>
+<td>请求级批处理不适合逐 Token 生成</td>
+<td>迭代级调度、选择性批处理</td>
+<td>请求状态仍随执行实例放置</td>
+</tr>
+<tr>
+<td>2023-10</td>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3600006.3613165">PagedAttention</a>，SOSP</td>
+<td>连续预留导致内部&#x2F;外部碎片，前缀难共享</td>
+<td>逻辑块、物理块、Block Table</td>
+<td>Attention Kernel 需要理解分页；块大小成为全栈折中</td>
+</tr>
+<tr>
+<td>2024-06</td>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1109/ISCA59077.2024.00019">Splitwise</a>，ISCA</td>
+<td>Prefill 计算密集、Decode 带宽受限，共置硬件利用率低</td>
+<td>P&#x2F;T&#x2F;Mixed Pool、逐层 KV Handoff</td>
+<td>阶段弹性换来网络交接和容量配比依赖</td>
+</tr>
+<tr>
+<td>2024-07</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi24/presentation/lee">InfiniGen</a>，OSDI</td>
+<td>CPU Offload 后，全量取回 KV 受总线限制</td>
+<td>预测重要 KV，只预取必要项</td>
+<td>访问集合预测与模型准确性进入系统边界</td>
+</tr>
+<tr>
+<td>2024-07</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi24/presentation/zhong-yinmin">DistServe</a>，OSDI</td>
+<td>Prefill 与 Decode 相互干扰、资源计划耦合</td>
+<td>P&#x2F;D 分池、带宽感知放置</td>
+<td>KV 交接成为显式网络依赖</td>
+</tr>
+<tr>
+<td>2024-07</td>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v235/strati24a.html">DéjàVu</a>，ICML</td>
+<td>Pipeline Bubble、KV 预留与故障重算代价高</td>
+<td>Microbatch KV Stream、异步副本、复制前沿</td>
+<td>恢复粒度绑定 Pipeline 与 Microbatch</td>
+</tr>
+<tr>
+<td>2024-07</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/atc24/presentation/gao-bin-cost">CachedAttention</a>，ATC</td>
+<td>多轮对话重复 Prefill</td>
+<td>HBM&#x2F;DRAM&#x2F;SSD 层级、逐层预取、异步保存</td>
+<td>位置编码、截断与历史有效性需要单独处理</td>
+</tr>
+<tr>
+<td>2024-08</td>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2024/program/">CacheGen</a>，SIGCOMM</td>
+<td>远程 KV 比原始文本大，加载时间高</td>
+<td>KV 专用编码、带宽自适应流式传输</td>
+<td>压缩版本、质量预算和解码算力需要协同</td>
+</tr>
+<tr>
+<td>2024-11</td>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3694715.3695948">LoongServe</a>，SOSP</td>
+<td>超长请求资源需求随阶段变化</td>
+<td>弹性序列并行</td>
+<td>GPU 伸缩、KV 分片和迁移必须同步调整</td>
+</tr>
+<tr>
+<td>2025-02</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast25/presentation/qin">Mooncake</a>，FAST</td>
+<td>节点本地缓存容量小，P&#x2F;D 资源与状态难统一调度</td>
+<td>分布式 KV Pool、全局 Conductor、Transfer Engine</td>
+<td>目录、热点复制、网络拥塞和中心控制复杂化</td>
+</tr>
+<tr>
+<td>2025-02</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast25/presentation/chen-weijian-impress">IMPRESS</a>，FAST</td>
+<td>三级前缀缓存全量读取产生 I&#x2F;O 放大</td>
+<td>Query-Specific 重要 Token、KV-Aware 磁盘布局</td>
+<td>Probe 与近似筛选引入质量边界</td>
+</tr>
+<tr>
+<td>2025-03</td>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3669940.3707256">vAttention</a>，ASPLOS</td>
+<td>专用分页 Kernel 侵入 Attention 实现</td>
+<td>连续虚拟地址、按需物理页映射</td>
+<td>页粒度、驱动能力与跨节点管理仍未解决</td>
+</tr>
+<tr>
+<td>2025-03</td>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3676641.3715983">Aqua</a>，ASPLOS</td>
+<td>CPU Offload 慢，而 Scale-up 域中存在闲置 Peer HBM</td>
+<td>拓扑内 HBM 借用、Producer&#x2F;Consumer 配对</td>
+<td>收益依赖空闲 HBM、NVLink 和负载互补性</td>
+</tr>
+<tr>
+<td>2025-03</td>
+<td><a target="_blank" rel="noopener" href="https://hpca-conf.org/2025/main-program/">InstAttention</a>，HPCA</td>
+<td>长上下文 Attention 反复搬运 SSD 中 KV</td>
+<td>存储侧 Attention、GPU-CSD P2P</td>
+<td>计算存储能力、算子支持和负载均衡受设备约束</td>
+</tr>
+<tr>
+<td>2025-04</td>
+<td><a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/research/publication/you-only-prefill-once-combining-cached-knowledge-for-large-language-model-serving-with-cacheblend/">CacheBlend</a>，EuroSys</td>
+<td>RAG Chunk 不一定处于原位置，直接拼 KV 会丢失跨 Chunk 依赖</td>
+<td>非前缀复用、选择性重算、加载与计算流水</td>
+<td>“命中”变成部分可用而非二元状态</td>
+</tr>
+<tr>
+<td>2025-08</td>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2025/program/papers-info/">HACK</a>，SIGCOMM</td>
+<td>P&#x2F;D 传输和反量化开销</td>
+<td>压缩域上近似计算</td>
+<td>表示格式进入计算语义，质量边界更复杂</td>
+</tr>
+<tr>
+<td>2025-10</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2503.18292">Jenga</a>，SOSP</td>
+<td>新模型各层状态尺寸和 Token 依赖异构</td>
+<td>两级分配器、逐层缓存接口</td>
+<td>统一固定页不再足以描述全部状态</td>
+</tr>
+<tr>
+<td>2025-10</td>
+<td><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3731569.3764810">DiffKV</a>，SOSP</td>
+<td>Key&#x2F;Value、Token、Head 重要性不同</td>
+<td>差异化压缩、GPU 并行 Compaction</td>
+<td>稀疏布局与动态整理引入新管理成本</td>
+</tr>
+<tr>
+<td>2026-05</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/presentation/agarwal">SYMPHONY</a>，NSDI</td>
+<td>多轮会话状态使计算节点难弹性调度</td>
+<td>计算-内存解耦、提示驱动预取、协同内存管理</td>
+<td>提示可能错误，优先级和回退决定尾延迟</td>
+</tr>
+<tr>
+<td>2026-05</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/presentation/liu-yuhan">DroidSpeak</a>，NSDI</td>
+<td>微调模型变体之间重复计算</td>
+<td>跨模型逐层复用与选择性重算</td>
+<td>模型兼容不再是简单版本相等</td>
+</tr>
+<tr>
+<td>2026-07</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang">Strata</a>，OSDI</td>
+<td>HBM&#x2F;DRAM&#x2F;SSD 层级被碎片 I&#x2F;O 和 Delay Hit 拖慢</td>
+<td>Host&#x2F;GPU 布局解耦、GPU 辅助 I&#x2F;O、缓存感知调度</td>
+<td>数据布局与调度器绑定更深</td>
+</tr>
+<tr>
+<td>2026-07</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/liu-guangda">ECHO</a>，OSDI</td>
+<td>原生稀疏模型仍受 KV 容量和召回延迟限制</td>
+<td>图友好管理、无损预测预取、融合流水</td>
+<td>预取逻辑依赖模型内部 Indexer 语义</td>
+</tr>
+<tr>
+<td>2026-07</td>
+<td><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/luo">DirectKV</a>，OSDI</td>
+<td>CPU Offload 仍需要 HBM Staging Buffer 和双向复制</td>
+<td>GPU 对 CPU KV 的 Zero-Copy 访问</td>
+<td>依赖高带宽一致互连和专门的 Attention Kernel</td>
+</tr>
+<tr>
+<td>2026-08</td>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">KVServe、KVCodec</a>，SIGCOMM</td>
+<td>固定压缩策略或昂贵解码抵消远端复用收益</td>
+<td>SLO&#x2F;质量感知在线压缩、GPU 视频编解码</td>
+<td>表示版本、质量约束和专用 Codec 资源进入调度</td>
+</tr>
+<tr>
+<td>2026-08</td>
+<td><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">DualPath、TurboBus、Turbo、Connex</a>，SIGCOMM</td>
+<td>存储 NIC、PCIe、分片 Attention 和动态端点各有路径瓶颈</td>
+<td>双路径加载、链路池化、网内归约、迁移契约</td>
+<td>系统更加依赖拓扑、流量隔离和 Epoch&#x2F;顺序语义</td>
+</tr>
+</tbody></table>
+<p>从这条时间线可以看出，早期论文主要改变<strong>内存地址和调度粒度</strong>；中期开始改变<strong>阶段所有权和缓存层级</strong>；后期则同时改变<strong>数据语义、全局命名、传输路径和计算位置</strong>。这也是 KV cache 研究从 MLSys 问题扩展到 SOSP、OSDI、FAST、NSDI、SIGCOMM 和 HPCA 的原因。</p>
+<h2 id="横向对比"><a href="#横向对比" class="headerlink" title="横向对比"></a>横向对比</h2><h3 id="七种范式"><a href="#七种范式" class="headerlink" title="七种范式"></a>七种范式</h3><p>选择这七类比较对象，是因为它们分别把主导权交给不同资源：本地内存管理器、序列并行执行器、层级缓存、阶段调度器、全局缓存服务、语义选择器和硬件数据通路。它们不是互斥产品，一套生产系统往往叠加其中数种。</p>
+<table>
+<thead>
+<tr>
+<th>范式</th>
+<th>代表工作</th>
+<th>放置</th>
+<th>组织单位</th>
+<th>传输方式</th>
+<th>依赖处理</th>
+<th>最适合</th>
+<th>主要失效条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本地分页</td>
+<td>PagedAttention、vAttention</td>
+<td>单实例 HBM，必要时 Host Swap</td>
+<td>固定 Token Block 或连续虚拟地址</td>
+<td>设备内寻址，少量 Swap</td>
+<td>请求 Block Table、引用计数</td>
+<td>中短上下文、高并发、稳定单机池</td>
+<td>单请求超过本地容量；远程共享需求强</td>
+</tr>
+<tr>
+<td>弹性序列并行</td>
+<td>LoongServe</td>
+<td>同一请求跨多 GPU 分片</td>
+<td>序列片段、阶段并行计划</td>
+<td>GPU 间 Collective&#x2F;迁移</td>
+<td>同一序列的分片完成依赖</td>
+<td>单请求极长、Prefill 计算大</td>
+<td>网络慢、伸缩频繁、迁移收益小于成本</td>
+</tr>
+<tr>
+<td>层级卸载</td>
+<td>CachedAttention、InfiniGen、IMPRESS、Strata</td>
+<td>HBM&#x2F;DRAM&#x2F;SSD</td>
+<td>页、层、重要 Token</td>
+<td>预取、逐层流水、异步回写</td>
+<td>预测未来访问，保证使用前 Ready</td>
+<td>本地有大容量 Host&#x2F;SSD，长上下文</td>
+<td>I&#x2F;O 碎片、预测失败、加载无法隐藏</td>
+</tr>
+<tr>
+<td>P&#x2F;D 解耦</td>
+<td>DistServe、Splitwise</td>
+<td>Prefill 与 Decode 不同 GPU Pool</td>
+<td>请求 KV、Layer Stream</td>
+<td>Push&#x2F;RDMA&#x2F;流式传输</td>
+<td>Prefill 完成事件触发 Decode</td>
+<td>两阶段资源形态差异大，SLO 清晰</td>
+<td>KV 过大或网络拥塞，交接压过解耦收益</td>
+</tr>
+<tr>
+<td>全局 KV 服务</td>
+<td>Mooncake、SYMPHONY</td>
+<td>远程 DRAM&#x2F;SSD Pool，多级副本</td>
+<td>内容寻址对象、Paged Block</td>
+<td>RDMA、Striping、多 NIC</td>
+<td>目录、租约、热点复制、预取提示</td>
+<td>多轮&#x2F;RAG&#x2F;Agent，有高前缀复用</td>
+<td>命中率低、中心元数据瓶颈、远程尾延迟高</td>
+</tr>
+<tr>
+<td>语义化压缩与复用</td>
+<td>CacheGen、CacheBlend、Jenga、DiffKV、DroidSpeak</td>
+<td>依重要性和兼容性动态放置</td>
+<td>Chunk、Layer、Head、Token 子集</td>
+<td>压缩流、选择性加载与重算</td>
+<td>显式识别位置、层和模型依赖</td>
+<td>非前缀 RAG、异构模型、带宽受限</td>
+<td>误差不可接受，元数据和 Kernel 复杂度过高</td>
+</tr>
+<tr>
+<td>直访、拓扑借存与近数据计算</td>
+<td>Aqua、InstAttention、DirectKV、Turbo</td>
+<td>Peer GPU、CPU、CSD 或交换机成为可用层级</td>
+<td>Kernel Tile、远端 Buffer、局部 Attention</td>
+<td>Zero-Copy、P2P、Query Broadcast&#x2F;Reduction</td>
+<td>硬件完成语义、Tile 级流水</td>
+<td>高带宽互连、闲置 Peer HBM 或可计算设备可用</td>
+<td>PCIe&#x2F;网络太慢、设备不通用、资源争用</td>
+</tr>
+</tbody></table>
+<h3 id="为什么选择或放弃"><a href="#为什么选择或放弃" class="headerlink" title="为什么选择或放弃"></a>为什么选择或放弃</h3><ol>
+<li><strong>优先本地分页</strong>：当请求能放进单机 HBM、前缀共享主要发生在同一实例时，它仍是最简单且延迟最低的基线。放弃它通常不是因为分页“过时”，而是容量或共享边界越过了单机。</li>
+<li><strong>选择层级卸载</strong>：当 Host DRAM&#x2F;SSD 便宜且未来访问可预测时，容量收益明显；如果每步都要同步拉取不可预测的 KV，卸载只是在关键路径上增加慢设备。</li>
+<li><strong>选择 P&#x2F;D 解耦</strong>：当 Prefill 和 Decode 的资源比例随负载明显不同，分池可以独立扩缩；如果两阶段之间的 KV 交接无法被流水隐藏，Colocation 或 Chunked Prefill 可能更合适。Mooncake 论文也明确讨论了这项争议，而不是把 P&#x2F;D 视为无条件最优。<a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/fast25-qin.pdf">Mooncake PDF</a></li>
+<li><strong>选择全局缓存池</strong>：多轮对话、固定 System Prompt、热门文档和 Agent 重复轨迹能够提供较高复用；一次性随机长 Prompt 则可能只付出存储、目录和网络成本。</li>
+<li><strong>选择语义化方案</strong>：当“所有 KV 等价”这一假设已经明显不成立时，按位置、层、Head 或 Token 区分可以提升效率；代价是正确性和质量不能再只由内存系统保证。</li>
+<li><strong>选择直访&#x2F;近数据计算</strong>：当互连带宽足够高、Kernel 能适配远端内存时，减少中转 Buffer 很有价值；在普通 PCIe 或异构设备上，显式批量搬运可能仍然更快、更易控。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>不要只比较命中率</p>
+</div>
+        <div class="message-body">
+            <p>分布式 KV 系统至少需要同时比较：<strong>TTFT、TPOT、Goodput、P99、网络字节、重算 FLOPs、HBM&#x2F;DRAM&#x2F;SSD 占用、命中到达时间、质量损失和故障恢复代价</strong>。只报命中率，会把“命中了但晚到”“命中后解压太慢”“热点命中把节点压垮”等问题全部隐藏。</p>
+
+        </div>
+    </article>
+
+<h2 id="详细分析"><a href="#详细分析" class="headerlink" title="详细分析"></a>详细分析</h2><h3 id="先定义对象"><a href="#先定义对象" class="headerlink" title="先定义对象"></a>先定义对象</h3><p>要分布式管理 KV，第一步不是选 RDMA 还是 SSD，而是回答：<strong>系统正在管理的对象究竟是什么？</strong></p>
+<p>一个更完整的逻辑对象标识可以写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">KVBlockID = Hash(</span><br><span class="line">    model_snapshot,</span><br><span class="line">    adapter_set,</span><br><span class="line">    attention_schema,</span><br><span class="line">    parent_prefix_hash,</span><br><span class="line">    token_ids,</span><br><span class="line">    position_policy,</span><br><span class="line">    multimodal_input_hash,</span><br><span class="line">    numeric_format,</span><br><span class="line">    tenant_salt,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这不是某个框架现成 API，而是本文给出的正确性清单。vLLM 当前的 Automatic Prefix Caching 已经把<strong>父块 Hash、当前块 Token 和额外 Hash</strong>纳入块标识；额外项可包含 LoRA ID、多模态输入 Hash 与租户隔离 Salt。<a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/design/prefix_caching/">vLLM Prefix Caching 文档</a></p>
+<p>还应把三层身份分开：</p>
+<ul>
+<li><strong>Semantic ID</strong>：说明它是哪一个模型语义、哪条前缀血缘下的 KV。</li>
+<li><strong>Representation ID</strong>：说明它是 BF16&#x2F;INT8、稠密&#x2F;稀疏、Layer&#x2F;Head&#x2F;TP Shard，以及采用哪种 Codec 和物理 Layout。</li>
+<li><strong>Physical Locator</strong>：说明当前副本位于哪个 Tier、Node、Device、Memory Region 和 Placement Epoch。</li>
+</ul>
+<p>迁移只改变 Locator，压缩或重排改变 Representation，只有模型、前缀或位置语义变化才改变 Semantic ID。<strong>把这三层混成一个地址，会让迁移、压缩和版本失效互相污染。</strong></p>
+<p>父块 Hash 非常关键。仅对当前 16 个 Token 做 Hash，不能区分：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[系统提示 A] + [相同的当前块]</span><br><span class="line">[系统提示 B] + [相同的当前块]</span><br></pre></td></tr></table></figure>
+
+<p>两段当前文本相同，但其隐藏状态和 KV 受到此前上下文影响。把父 Hash 链起来后，KV Block 才成为一棵前缀树或 DAG 上的节点，而不只是“Token 字符串对应的缓存”。</p>
+<p>对象还需要状态，而不只是 ID：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">stateDiagram-v2</span><br><span class="line">    [*] --&gt; Missing</span><br><span class="line">    Missing --&gt; Allocated: reserve</span><br><span class="line">    Allocated --&gt; Filling: prefill / decode append</span><br><span class="line">    Filling --&gt; Ready: write complete + publish</span><br><span class="line">    Ready --&gt; Moving: copy / stream / replicate</span><br><span class="line">    Moving --&gt; Ready: destination verified</span><br><span class="line">    Ready --&gt; Evicted: lease expired / pressure</span><br><span class="line">    Evicted --&gt; Missing</span><br><span class="line">    Missing --&gt; Ready: recompute</span><br></pre></td></tr></table></figure>
+
+<p>只有 <code>Ready</code> 对象能被消费者使用。<code>Allocated</code> 表示地址存在，不表示 KV 已经生成完；<code>Moving</code> 也不表示远端副本已经可见。这意味着 P&#x2F;D 解耦至少需要目标地址、数据传输、完成通知和发布顺序四类状态。所谓“无状态调度”，通常只是<strong>计算实例不长期拥有状态</strong>，而不是系统真的没有状态。</p>
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>一个关键区别</p>
+</div>
+        <div class="message-body">
+            <p>数据库通常把存储副本视为真相，计算结果可以丢；KV cache 恰好相反：<strong>Token 与模型快照更接近真相，KV 是昂贵但可重建的副本。</strong>因此它可以采用 Best-Effort Replica、丢失后重算和弱持久性，但不能放松语义身份与写入原子性。</p>
+
+        </div>
+    </article>
+
+<h3 id="放置：谁靠近谁"><a href="#放置：谁靠近谁" class="headerlink" title="放置：谁靠近谁"></a>放置：谁靠近谁</h3><p>放置决策有三个彼此独立的维度：</p>
+<ol>
+<li><strong>存储层级</strong>：HBM、Host DRAM、本地 SSD、远程 DRAM、远程 SSD、对象存储。</li>
+<li><strong>拓扑距离</strong>：同一 GPU、同一 Superchip、同一节点、同一机架、跨机架。</li>
+<li><strong>所有权</strong>：请求私有、实例本地共享、模型池共享、集群全局共享、跨模型共享。</li>
+</ol>
+<p>许多论文只在其中一个维度移动数据。例如 CachedAttention 主要扩展存储层级；DistServe 主要改变阶段所有权；Mooncake 同时扩展层级、拓扑和全局共享范围；DroidSpeak 又把所有权扩展到同架构微调模型之间。</p>
+<h4 id="请求找数据，还是数据找计算"><a href="#请求找数据，还是数据找计算" class="headerlink" title="请求找数据，还是数据找计算"></a>请求找数据，还是数据找计算</h4><p>这是分布式 KV 调度最核心的矛盾：</p>
+<ul>
+<li><strong>Cache Affinity</strong>：把请求送到已有前缀的实例，节省搬运和重算，但热门前缀可能造成负载倾斜。</li>
+<li><strong>Load Balance</strong>：把请求送到最空闲实例，再搬 KV；计算更平衡，但网络与目标显存可能成为瓶颈。</li>
+<li><strong>Remote Access</strong>：计算不迁移，KV 也不落到 HBM，而由 Kernel 直接读远端层级；减少显式迁移，却把远端带宽放进每次 Attention 的关键路径。</li>
+<li><strong>Recompute</strong>：两者都不迁移，在目标实例重建 KV。它消耗 Prefill FLOPs，但可能避开拥塞、解压和版本转换。</li>
+</ul>
+<p>可以用一个简单的在线选择式表达：</p>
+<p>$$<br>T_{use}(b,c)&#x3D;\min<br>\begin{cases}<br>T_{recompute}(b,c),\<br>T_{fetch}(b,s\rightarrow c)+T_{decode}(b),\<br>T_{remote_attention}(b,s,c).<br>\end{cases}<br>$$</p>
+<p>这里 <code>b</code> 是 KV Block，<code>c</code> 是消费者，<code>s</code> 是当前存储位置。真实调度还要加入排队时间、容量影子价格、SLO 风险和依赖是否 Ready。<strong>缓存命中只是候选路径，不是调度结论。</strong></p>
+<h4 id="复制、分片与重算"><a href="#复制、分片与重算" class="headerlink" title="复制、分片与重算"></a>复制、分片与重算</h4><ul>
+<li><strong>复制热前缀</strong>可以降低热点读取拥塞，并让更多 Prefill 实例获得亲和性。Mooncake 的 Conductor 会围绕缓存位置调度，并对热点块做迁移或复制。<a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast25/presentation/qin">Mooncake，FAST 2025</a></li>
+<li><strong>分片超长 KV</strong>可以突破单节点容量，但一次 Attention 可能要访问所有序列分片，并合并局部结果；这把 KV 管理与 Sequence&#x2F;Context Parallelism 绑定起来。</li>
+<li><strong>只保留或读取重要子集</strong>如 InfiniGen、<a target="_blank" rel="noopener" href="https://proceedings.mlsys.org/paper_files/paper/2025/hash/cc8c6b9d89f7a898a29f58869b238e46-Abstract-Conference.html">LServe</a> 与 IMPRESS，把“完整副本”改成“召回集合”；它节省容量和传输，却要求模型或运行时能预测当前 Query 需要哪些历史。</li>
+<li><strong>借用拓扑内闲置 HBM</strong>如 Aqua，把同一 NVLink&#x2F;NVSwitch Domain 中的 Memory Producer 与 Consumer 配对；它比 CPU DRAM 快，但只有负载和拓扑存在互补余量时才成立。<a target="_blank" rel="noopener" href="https://doi.org/10.1145/3676641.3715983">Aqua，ASPLOS 2025</a></li>
+<li><strong>不做高可用副本</strong>也可能合理。Mooncake Store 官方架构说明其 Cache Layer 的复制为 Best-Effort，不保证高可用；写入保持对象原子性，读取获得一致版本但不保证最新版本。<a target="_blank" rel="noopener" href="https://kvcache-ai.github.io/Mooncake/design/architecture.html">Mooncake Store 架构</a></li>
+</ul>
+<p>最后一点说明了 KV 与业务数据库的差别：<strong>它更关心“可及时重建”而不是“永不丢失”</strong>。但如果重算会让 P99 超过 SLO，Best-Effort 在性能意义上仍然可能失败。</p>
+<h3 id="组织：四种粒度冲突"><a href="#组织：四种粒度冲突" class="headerlink" title="组织：四种粒度冲突"></a>组织：四种粒度冲突</h3><p>KV 的“块”并不是天然存在的。同一份数据至少有四种候选粒度：</p>
+<ol>
+<li><strong>依赖粒度</strong>：一个前缀节点、RAG Chunk、一次多轮会话的历史段。</li>
+<li><strong>分配粒度</strong>：HBM Page、不同层的状态页、Buddy&#x2F;Slab 中的内存块。</li>
+<li><strong>传输粒度</strong>：RDMA Segment、SSD I&#x2F;O、压缩 Bitstream、Multi-NIC Stripe。</li>
+<li><strong>计算粒度</strong>：Attention Kernel 读取的 Layer、Head、Token Tile。</li>
+</ol>
+<p>PagedAttention 的突破，是把逻辑 Token Block 与物理 KV Block 分开：逻辑连续不再要求物理连续，Block Table 保存映射。它使按需增长、块级共享和 Copy-on-Write 成为可能，但也让 Kernel、调度器和 Swap 都围绕 Page 工作。</p>
+<figure>
+  <img src="https://pic.shaojiemike.top/shaojiemike/2026/08/b28ebad0fd3f77cdd6bf9cdb541a259d.png" alt="PagedAttention 逻辑块到物理块的映射" style="width: 82%;">
+  <figcaption>论文 Figure 6：逻辑 KV Block 通过 Block Table 映射到不连续的物理块。截图来自 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2309.06180">PagedAttention 论文</a>第 6 个 PDF 页面；它证明的是地址虚拟化机制，不代表跨节点分布式缓存。</figcaption>
+</figure>
+
+<p>此后两条路线分别修正了分页的边界：</p>
+<ul>
+<li><strong>vAttention</strong>使用 CUDA Virtual Memory Management 维持连续虚拟 KV 地址，把动态物理分配隐藏在虚拟内存映射下，减少专用 PagedAttention Kernel 的侵入。<a target="_blank" rel="noopener" href="https://doi.org/10.1145/3669940.3707256">vAttention，ASPLOS 2025</a></li>
+<li><strong>Strata</strong>发现 GPU 上适合计算的碎片布局并不适合 Host&#x2F;SSD 大块 I&#x2F;O，因此解耦 Host 与 GPU 布局，再用 GPU 辅助整理大传输。换句话说，<strong>计算页与传输块不必是同一个物理布局。</strong></li>
+</ul>
+<h4 id="从页表到内容寻址"><a href="#从页表到内容寻址" class="headerlink" title="从页表到内容寻址"></a>从页表到内容寻址</h4><p>页表解决“同一请求的逻辑地址映射到哪块显存”；全局复用还要解决“另一请求如何证明它需要同一内容”。这推动系统从 Request ID 转向 Prefix Hash、Block Key 和全局目录。</p>
+<p>Mooncake 将 KV 作为对象管理，提供 <code>Get/Put/List/Del</code> 等接口，并由中心 Master 维护对象到 VRAM&#x2F;DRAM&#x2F;NVM Buffer 的映射；Transfer Engine 负责跨多 NIC 的 Zero-Copy 与 Striping。<a target="_blank" rel="noopener" href="https://kvcache-ai.github.io/Mooncake/design/architecture.html">Mooncake Store 官方架构</a> 从抽象上看，它已经不只是推理引擎的内存管理器，而是<strong>为可派生张量定制的分布式对象缓存</strong>。</p>
+<figure>
+  <img src="https://pic.shaojiemike.top/shaojiemike/2026/08/992ff210ade2f94bd279840d6cc62146.png" alt="Mooncake KVCache-centric 分离式架构" style="width: 96%;">
+  <figcaption>论文 Figure 2：Prefill Pool、Decoding Pool、分布式 KVCache Pool、Transfer Engine 和全局 Conductor 被放入同一控制闭环。截图来自 <a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/fast25-qin.pdf">Mooncake FAST 2025 论文</a>第 3 个 PDF 页面。</figcaption>
+</figure>
+
+<h4 id="从同质页到语义对象"><a href="#从同质页到语义对象" class="headerlink" title="从同质页到语义对象"></a>从同质页到语义对象</h4><p>固定页隐含了一个早期假设：各层每个 Token 的状态尺寸、生命周期和访问方式大致相同。新模型正在打破它：</p>
+<ul>
+<li>Sliding Window Attention 只保留有限窗口；Full Attention 依赖全部历史；Mamba&#x2F;Gated Delta 类状态可能固定大小或只需要最近状态。</li>
+<li>Jenga 为不同层暴露 Page Size、Active Pages 和逐层缓存策略，说明“所有层统一保留完整前缀”已经不是通用模型。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2503.18292">Jenga，SOSP 2025</a></li>
+<li>DiffKV 区分 Key&#x2F;Value、Token 重要性与不同 Head 的稀疏模式，并为不规则释放后的空间设计 GPU 并行 Compaction。<a target="_blank" rel="noopener" href="https://doi.org/10.1145/3731569.3764810">DiffKV，SOSP 2025</a></li>
+<li>DroidSpeak 发现同架构微调模型之间可以逐层复用一部分 KV，另一部分需要重算。对象兼容性由“模型版本相同”变成“哪些层在误差预算内兼容”。<a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/presentation/liu-yuhan">DroidSpeak，NSDI 2026</a></li>
+</ul>
+<p>因此，未来的 KV Namespace 很可能不只是 <code>(prefix_hash → bytes)</code>，而要表达<strong>层类型、位置语义、表示格式、质量等级和可重算规则</strong>。</p>
+<h3 id="传输：什么时候搬"><a href="#传输：什么时候搬" class="headerlink" title="传输：什么时候搬"></a>传输：什么时候搬</h3><p>传输设计的第一原则不是峰值带宽，而是<strong>依赖到达时间</strong>。一次 Decode 能启动，需要它所访问的所有 KV 分片在正确版本上 Ready；其中最慢的一块决定关键路径。</p>
+<h4 id="Push-与-Pull"><a href="#Push-与-Pull" class="headerlink" title="Push 与 Pull"></a>Push 与 Pull</h4><ul>
+<li><strong>Producer Push</strong>：Prefill 生成一层或一块 KV 后立即流向 Decode。优点是能与后续 Prefill 重叠；缺点是必须预先选择 Decode 实例并预留地址，过早绑定可能损害负载均衡。</li>
+<li><strong>Consumer Pull</strong>：Decode 或 Prefill 在确定需求后从全局池读取。优点是选择更晚、调度更灵活；缺点是 Miss 或目录查询容易进入 TTFT&#x2F;TPOT 关键路径。</li>
+<li><strong>Advisory Prefetch</strong>：SYMPHONY 利用用户交互或工作负载结构提供的提示提前搬缓存，并用优先级和协同内存管理应对提示不可靠。<a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/presentation/agarwal">SYMPHONY，NSDI 2026</a></li>
+</ul>
+<p>生产系统通常同时使用三者：新 KV 逐层 Push，历史前缀按目录 Pull，交互间隙再做预测预取。</p>
+<h4 id="整体、逐层与双路径"><a href="#整体、逐层与双路径" class="headerlink" title="整体、逐层与双路径"></a>整体、逐层与双路径</h4><p>一次性传完整 KV 容易获得大带宽，但 Decode 要等最后一字节；逐层流式可以早到早用，却增加元数据、完成事件和小消息。Mooncake 的典型流程会逐层把增量 KV 流向 Decode，并用多 NIC Transfer Engine 聚合带宽。SIGCOMM 2026 的 DualPath 进一步同时利用 Prefill 与 Decode 两侧的存储 I&#x2F;O 路径，再经 RDMA 汇合。<a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">SIGCOMM 2026 Program</a></p>
+<p>这不是简单的“链路越多越快”。多路径必须处理：</p>
+<ul>
+<li>同一对象不同 Segment 的顺序与完成条件；</li>
+<li>某一路拥塞时的动态分流和背压；</li>
+<li>目标 Buffer 的容量预留与取消；</li>
+<li>Decode 被调度走后，迟到数据如何回收；</li>
+<li>重复到达和重试是否幂等。</li>
+</ul>
+<p>当计算端点本身会扩缩或迁移时，问题又从“选哪条路”升级为“路由变化时正在飞的数据怎么办”。SIGCOMM 2026 的 Connex 为 Token Stream、Activation 和 KV Transfer 定义 Endpoint Mobility Contract，用 Epoch-Based Routing、显式 Handover、Exactly-Once Delivery 和 Credit Backpressure 约束切换过程。<a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">Connex，SIGCOMM 2026</a> 这类机制说明，<strong>Placement Epoch 最终必须进入 KV 的传输协议，而不能只存在于调度器内存里。</strong></p>
+<h4 id="压缩、重算与质量预算"><a href="#压缩、重算与质量预算" class="headerlink" title="压缩、重算与质量预算"></a>压缩、重算与质量预算</h4><p>CacheGen 把 KV 编码为更紧凑的 Bitstream，并随可用带宽调整不同部分的压缩级别；论文报告在其测试中将 KV 大小降低 <code>3.5—4.3×</code>。<a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2024/program/">CacheGen，SIGCOMM 2024</a> HACK 则尝试直接在量化 KV 上近似计算，避免传输后完整反量化。<a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2025/program/papers-info/">HACK，SIGCOMM 2025</a></p>
+<p>从分布式系统角度看，压缩产生了新的版本维度：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">同一逻辑 KV</span><br><span class="line">├── BF16 完整副本</span><br><span class="line">├── INT8 网络副本</span><br><span class="line">├── 更低比特冷副本</span><br><span class="line">└── 只保留重要 Token 的稀疏副本</span><br></pre></td></tr></table></figure>
+
+<p>调度器必须知道消费者 Kernel 支持哪个版本、转换成本是多少、质量预算是否允许。否则“远端有副本”仍然不可直接使用。</p>
+<h3 id="直访：让计算靠近数据"><a href="#直访：让计算靠近数据" class="headerlink" title="直访：让计算靠近数据"></a>直访：让计算靠近数据</h3><p>传统 Offload 路径是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CPU/SSD KV → DMA → HBM Staging Buffer → Attention Kernel</span><br></pre></td></tr></table></figure>
+
+<p>DirectKV 在 GH200&#x2F;GB200 一类高带宽 CPU-GPU 平台上，让 GPU Kernel 经 NVLink-C2C 直接访问 CPU 驻留 KV，并通过面向 CPU Memory 的 Tiling、Warp Pipeline 和 Kernel Fusion 隐藏远端访问。论文报告其实现最多减少 <code>50%</code> CPU-GPU 传输量和 <code>43%</code> GPU 内存占用，但端到端提升最高为 <code>1.2×</code>；这也说明<strong>去掉一次复制并不等于消除带宽差距</strong>。<a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/luo">DirectKV，OSDI 2026</a></p>
+<figure>
+  <img src="https://pic.shaojiemike.top/shaojiemike/2026/08/985f10b68121dafd2e1ae1792a9916e5.png" alt="DirectKV Swap 与 Zero-Copy 路径" style="width: 78%;">
+  <figcaption>论文 Figure 1：红色路径先把 KV 搬入 HBM Buffer，绿色路径让 GPU SM 经 L2 和 NVLink-C2C 直接读取 CPU Memory。截图来自 <a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/osdi26-luo.pdf">DirectKV OSDI 2026 论文</a>第 4 个 PDF 页面。</figcaption>
+</figure>
+
+<p>“直驱&#x2F;直访”至少要区分四种机制：</p>
+<ol>
+<li><strong>控制面旁路</strong>：设备核心直接提交通信描述符，减少 Host&#x2F;AICPU 下发。AIV-Direct 主要属于这一类。</li>
+<li><strong>数据面旁路</strong>：GPU RDMA、GPUDirect Storage 或 P2P 避免 Host Bounce Buffer。</li>
+<li><strong>地址空间直访</strong>：GPU Kernel 直接 Load CPU&#x2F;CXL&#x2F;Peer Memory，不显式 Swap 到 HBM。</li>
+<li><strong>近数据计算</strong>：InstAttention 把 Decode Attention 下沉到计算存储设备，不再把全部 KV 搬回 GPU。<a target="_blank" rel="noopener" href="https://hpca-conf.org/2025/main-program/">InstAttention，HPCA 2025</a></li>
+</ol>
+<p>SIGCOMM 2026 的 Turbo 又把 Query Broadcast 和局部 Attention Aggregation 下沉到交换机：KV 仍分散在 GPU，但网络设备参与合并局部结果。<a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">Turbo，SIGCOMM 2026</a> 它与 InstAttention 分别代表“存储侧计算”和“网内归约”，共同回答了同一个抽象问题：如果依赖数据太大且分布太散，能否只移动 Query 和部分结果？</p>
+<p>这四类不能混称为同一种“直驱”。尤其是 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2506.12708">Serving Large Language Models on Huawei CloudMatrix384</a> 中的 <strong>AIV-Direct</strong>，主要指 AIV Core 经 UB 直接写远端 NPU Memory、降低 MoE Dispatch&#x2F;Combine 小消息的 SDMA 启动开销；论文中的 P&#x2F;D KV 交接使用独立 RDMA Plane，Context Caching 又是 UB 连接的 DRAM&#x2F;SSD 池。<strong>它与 KV 分布式管理共享“缩短控制&#x2F;数据路径”的思想，但 AIV-Direct 本身不是 KV Cache 协议。</strong></p>
+<h3 id="正确性：不是最新，而是匹配"><a href="#正确性：不是最新，而是匹配" class="headerlink" title="正确性：不是最新，而是匹配"></a>正确性：不是最新，而是匹配</h3><p>普通缓存经常讨论 Strong Consistency 或 Eventual Consistency；不可变 KV Block 更适合问：</p>
+<blockquote>
+<p>当前读到的对象，是否与所需依赖完全匹配，并且已经完整写入？</p>
+</blockquote>
+<p>对写后不变、内容寻址的块来说，系统不一定需要所有副本立刻更新到“最新”；它需要：</p>
+<ol>
+<li><strong>身份匹配</strong>：模型、Adapter、Token 前缀、位置、格式和租户域一致。</li>
+<li><strong>原子发布</strong>：消费者不能看见半写入对象。</li>
+<li><strong>父依赖闭合</strong>：子块可用时，它引用的父前缀必须对应同一依赖链。</li>
+<li><strong>幂等传输</strong>：重试、重复 Push 不会产生两个冲突身份。</li>
+<li><strong>安全隔离</strong>：跨租户不能通过命中延迟推断他人是否使用过某个秘密前缀。</li>
+</ol>
+<p>还必须把三种“可用”分开，否则同一个 Hit Rate 会混合完全不同的正确性：</p>
+<table>
+<thead>
+<tr>
+<th>可用语义</th>
+<th>代表工作</th>
+<th>消费前动作</th>
+<th>正确性边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>精确状态复用</td>
+<td>Mooncake、Strata、SYMPHONY、KVCodec</td>
+<td>校验后直接加载或直读</td>
+<td>数值状态与依赖精确匹配；只改变位置或无损表示</td>
+</tr>
+<tr>
+<td>修复式复用</td>
+<td>CacheBlend、DroidSpeak</td>
+<td>选择性重算 Token 或 Critical Layer</td>
+<td>旧状态并非完全等价，修复后满足质量要求</td>
+</tr>
+<tr>
+<td>质量预算式近似</td>
+<td>IMPRESS、DiffKV、HACK、KVServe</td>
+<td>稀疏选择、量化或在线选 Codec</td>
+<td>必须显式满足任务质量下限，不能只验证 Hash</td>
+</tr>
+</tbody></table>
+<p>ECHO 是介于预测和精确执行之间的特殊情况：预取可以漏，但遗漏项会被 Recall，因而预测错误影响性能而不放宽最终语义。<a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/liu-guangda">ECHO，OSDI 2026</a></p>
+<p>对一个正在生成的序列，可以维护 <code>committed_frontier</code>：只有它之前所有必需 Layer、Head 和 TP Shard 都通过版本检查并完成发布，Decode 才能把前缀视为可读。当前追加尾部只有一个合法 Writer；Beam、并行采样或 Agent 分支发生时，应创建新的 Branch&#x2F;Epoch，而不是让多个 Writer 修改同一尾部。</p>
+<p>Mooncake Store 的“读取一致版本但不保证最新”在不可变对象语境下是合理折中；vLLM 的 Cache Salt 则把安全域加入第一个块的 Hash，避免未授权租户共享和基于延迟的前缀探测。<a target="_blank" rel="noopener" href="https://kvcache-ai.github.io/Mooncake/design/architecture.html">Mooncake Store</a>、<a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/design/prefix_caching/">vLLM Cache Isolation</a></p>
+<p>位置依赖是最容易被低估的正确性问题。CacheBlend 指出：一个 RAG Chunk 单独预计算的 KV，被移动到另一个 Chunk 之后时，缺少对前置文本的 Cross-Attention，不能直接当成完整 Prefill 结果。它通过选择性重算少量 Token 融合缓存。<a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/research/uploads/prod/2024/09/eurosys25-final999.pdf">CacheBlend，EuroSys 2025</a> 这说明分布式复用不是简单的 <code>memcpy</code>，而是<strong>带数据血缘的增量视图维护</strong>。</p>
+<h3 id="调度：命中也可能迟到"><a href="#调度：命中也可能迟到" class="headerlink" title="调度：命中也可能迟到"></a>调度：命中也可能迟到</h3><p>随着 KV 进入远端层级，调度器需要联合管理三种队列：</p>
+<ul>
+<li><strong>计算队列</strong>：Prefill FLOPs、Decode Token Step、Batch Slot。</li>
+<li><strong>容量队列</strong>：HBM Page、Host Buffer、SSD 空间、远端配额。</li>
+<li><strong>传输队列</strong>：NIC、PCIe、NVLink、SSD Queue、解压&#x2F;重排 Kernel。</li>
+</ul>
+<p>只优化其中一个会产生反直觉结果：</p>
+<ul>
+<li>为最高缓存命中把请求集中到一台 Prefill 实例，导致排队时间超过重算节省。</li>
+<li>Decode Slot 已经预留，但 KV 传输拥塞，宝贵 HBM 空等。</li>
+<li>多个请求同时 Miss 同一长前缀，第一份正在加载，其余请求都等待，形成 Strata 所说的 <strong>Delay Hit</strong>。</li>
+<li>为隐藏 I&#x2F;O 填入更多计算请求，结果 Batch 中 KV 总量超过 HBM，再次触发 Eviction。</li>
+</ul>
+<p>Mooncake 的架构把 Prefill Cache-Aware Scheduler、KVCache Balance Scheduler 和 Decode Load-Balance Scheduler放在统一 Conductor 下；Strata 再把缓存加载延迟直接加入 Batch 组合；SYMPHONY 则让推理框架和远程内存层协同调整优先级。演化方向很明确：<strong>KV Placement 不再是调度后的副作用，而是调度决策本身。</strong></p>
+<p>一个可执行的调度目标可以写成：</p>
+<p>$$<br>\max ; Goodput<br>\quad s.t. \quad<br>P(TTFT\le S_{ttft})\ge p,<br>;P(TPOT\le S_{tpot})\ge p,<br>;M_{tier}\le C_{tier},<br>;B_{link}\le C_{link}.<br>$$</p>
+<p>其中请求的预计完成时间必须包含：目录查询、排队、加载、解码格式转换、重算和依赖等待，而不是只计算 GPU Kernel 时间。</p>
+<h4 id="租约与恢复"><a href="#租约与恢复" class="headerlink" title="租约与恢复"></a>租约与恢复</h4><p>不同生命周期需要不同租约：</p>
+<ul>
+<li><strong>Active&#x2F;Pinned</strong>：Decode 正在读取，不能被普通淘汰策略回收。</li>
+<li><strong>Paused</strong>：Agent 等待工具、用户或外部服务，返回时间未知；系统需在保留、降级到慢层和丢弃后重算之间选择。</li>
+<li><strong>Warm&#x2F;Reusable</strong>：当前没有活跃消费者，但预计会被多轮会话或共享前缀再次使用。</li>
+<li><strong>Soft Replica</strong>：只服务性能，可以在容量压力或节点故障时直接丢弃。</li>
+</ul>
+<p>KV 的恢复根不是某一份缓存副本，而应是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Token Log</span><br><span class="line">+ Model / Adapter Version</span><br><span class="line">+ Position / Attention Configuration</span><br><span class="line">+ Request / Branch Epoch</span><br><span class="line">+ Sampling State</span><br></pre></td></tr></table></figure>
+
+<p>Prefill 节点失败可以重跑或读取前缀副本；Decode 节点失败可以从最近提交前沿加载 KV，或从 Token Log 重算；缓存节点失败可以退化为 Miss；传输中断则应丢弃未越过 Publish Barrier 的目标对象。<strong>这类系统需要的是延迟韧性，而不是把每份 KV 都做成强持久数据库。</strong></p>
+<h3 id="演化不是直线"><a href="#演化不是直线" class="headerlink" title="演化不是直线"></a>演化不是直线</h3><p>每次“解决”都会把瓶颈推到下一层：</p>
+<ol>
+<li><strong>Orca 提高动态批处理能力</strong>，更多并发请求让 KV 容量更快成为瓶颈。</li>
+<li><strong>PagedAttention 消除大部分显存碎片</strong>，更长上下文和更大 Batch 又把容量边界推向 CPU&#x2F;SSD。</li>
+<li><strong>Offload 扩大有效容量</strong>，CPU-GPU&#x2F;SSD-GPU 传输成为瓶颈，催生预取、稀疏选择和 Zero-Copy。</li>
+<li><strong>P&#x2F;D 解耦消除阶段干扰</strong>，却把原本实例内部的依赖变成网络上的 KV Handoff，催生 CacheGen、HACK、KVServe、DualPath。</li>
+<li><strong>全局复用减少重复 Prefill</strong>，又暴露位置、模型、租户和质量版本兼容问题，催生 CacheBlend、DroidSpeak 与更严格的 Namespace。</li>
+<li><strong>直访减少显式搬运</strong>，远端带宽、Kernel Tiling、硬件可移植性和错误恢复成为新边界。</li>
+</ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>最稳定的设计原则</p>
+</div>
+        <div class="message-body">
+            <p>不要把某一级存储、某种传输协议或某个 Block Size 写死为 KV 的本质。更稳定的接口应表达：<strong>对象身份、依赖、可用版本、位置、Ready 事件、可接受的重算&#x2F;质量预算和拓扑成本</strong>；底层再选择分页、RDMA、SSD、CXL、UB 或近数据计算。</p>
+
+        </div>
+    </article>
+
+<h2 id="未来判断"><a href="#未来判断" class="headerlink" title="未来判断"></a>未来判断</h2><p>以下不是对单篇论文结论的复述，而是基于 2022—2026 年公开工作做出的<strong>趋势推断</strong>。判断标准不是“某个方案看起来更先进”，而是它能否同时承受更长上下文、更大并发、Agent 分支、异构存储和故障尾延迟。</p>
+<h3 id="路线一：依赖原生的-KV-Cache-OS"><a href="#路线一：依赖原生的-KV-Cache-OS" class="headerlink" title="路线一：依赖原生的 KV Cache OS"></a>路线一：依赖原生的 KV Cache OS</h3><p>今天多数系统分别拥有一部分能力：vLLM 管页表与前缀 Hash，Mooncake 管远端对象与拓扑传输，DistServe 管 P&#x2F;D Placement，Strata 管加载等待，DéjàVu 管复制前沿。它们还没有共同收敛成一个真正的“KV Cache OS”。</p>
+<p>我认为最可能先出现的形态，是一个横跨框架和存储层的控制面：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">                 Semantic Namespace</span><br><span class="line">     (model, adapter, tokens, position, branch, tenant)</span><br><span class="line">                           │</span><br><span class="line">                      Prefix / Branch DAG</span><br><span class="line">                           │</span><br><span class="line">        ┌──────────────────┼──────────────────┐</span><br><span class="line">        │                  │                  │</span><br><span class="line">   Placement          Representation       Lifecycle</span><br><span class="line">HBM/DRAM/SSD/Remote   BF16/INT8/Sparse     Lease/Pin/Evict</span><br><span class="line">        │                  │                  │</span><br><span class="line">        └──────────────────┼──────────────────┘</span><br><span class="line">                           │</span><br><span class="line">                Scheduler + Transfer Engine</span><br></pre></td></tr></table></figure>
+
+<p>它不必亲自保存所有字节，但必须回答六件事：对象是否存在、依赖是否闭合、哪个表示可直接消费、哪份副本按时可达、谁持有租约、失败后从哪个提交前沿恢复。这样，<code>cache hit</code> 才从布尔值变成一个带时间和成本的承诺。</p>
+<ul>
+<li><strong>成立前提</strong>：框架愿意暴露稳定的语义身份、Ready&#x2F;Publish 事件和重算成本；目录查询与依赖图维护不能进入每个 Token Step 的高开销关键路径。</li>
+<li><strong>可观测信号</strong>：不同推理引擎开始共享 Cache Connector、对象格式和 Namespace；调度器直接查询远端目录；Prefix Tree 扩展为 Agent Branch DAG；缓存服务出现租约、配额和版本兼容 API。</li>
+<li><strong>失败条件</strong>：模型、Adapter、Kernel Layout 与量化格式持续碎片化，导致“逻辑命中、物理不可用”；跨租户安全要求又使共享域过小，元数据成本超过复用收益。</li>
+</ul>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>它更像文件系统加调度器，而不是数据库</p>
+</div>
+        <div class="message-body">
+            <p>历史 KV 主要是写后不变、可由 Token Log 重建的派生状态，因此不需要一般数据库的多写事务。真正要原子化的是 <strong>身份确认、对象发布、租约转移和调度承诺</strong>。如果把所有副本都做成强一致持久数据，成本往往高于失败后重算。</p>
+
+        </div>
+    </article>
+
+<h3 id="路线二：机架级共享内存与直访数据面"><a href="#路线二：机架级共享内存与直访数据面" class="headerlink" title="路线二：机架级共享内存与直访数据面"></a>路线二：机架级共享内存与直访数据面</h3><p>第二条路线试图继续消除“先复制到本地 HBM 才能计算”的假设。DirectKV 已展示 GPU Kernel 直读 CPU Memory；LoongServe 把 Query 发往分散的 KV Owner；InstAttention 把 Attention 推到存储侧；CloudMatrix 则展示 UB&#x2F;RDMA&#x2F;DRAM&#x2F;SSD 并存的 Scale-up Domain。它们虽然机制不同，却都在逼近同一目标：<strong>让地址、传输和计算位置可以独立选择。</strong></p>
+<p>未来的机架级 KV Pool 可能同时提供两类接口：</p>
+<ol>
+<li><strong>对象接口</strong>：<code>Get/Put/Prefetch/Replicate</code>，适合大块、可预测、跨故障域的数据移动。</li>
+<li><strong>远程内存或主动计算接口</strong>：<code>Load/Attend/Reduce</code>，适合不值得完整复制的冷 KV 或分片 KV。</li>
+</ol>
+<p>调度器应按复用次数选择路径：只读一次时直接远程访问；会连续 Decode 多轮时先搬入 HBM；KV 分散且搬运昂贵时，把 Query 发给 Owner 做局部 Attention，再归约结果。这比把 Zero-Copy 当成无条件最优更符合成本规律。</p>
+<ul>
+<li><strong>成立前提</strong>：机架内互连的带宽、尾延迟和故障隔离足以支撑 Attention 关键路径；Kernel 能对远端访问做 Tiling、流水和回压；地址撤销、节点重启和迟到读有明确定义。</li>
+<li><strong>可观测信号</strong>：GPU&#x2F;NPU Runtime 暴露稳定的 Peer&#x2F;CXL&#x2F;统一地址访问；Attention Kernel 原生接受远端或分片 KV；KV Appliance 同时支持 RDMA 对象传输与近数据算子。</li>
+<li><strong>失败条件</strong>：HBM 与远端介质的性能差距长期过大，随机小读放大尾延迟；硬件语义高度厂商绑定；一次网络抖动就阻塞整个 Decode Batch。此时显式异步复制仍会是更稳健的主路径。</li>
+</ul>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>直访不等于没有数据运动</p>
+</div>
+        <div class="message-body">
+            <p>GPUDirect 通常省掉 Host Bounce Buffer，但不保证由 GPU 自主完成全部控制；Zero-Copy 省掉显式中间副本，但字节仍要经过互连；CXL 或统一地址空间解决可达性，也不会自动解决模型版本、Branch Epoch 和半写对象的语义正确性。</p>
+
+        </div>
+    </article>
+
+<h3 id="路线三：主动-KV-与模型—缓存协同"><a href="#路线三：主动-KV-与模型—缓存协同" class="headerlink" title="路线三：主动 KV 与模型—缓存协同"></a>路线三：主动 KV 与模型—缓存协同</h3><p>第三条路线不再默认“必须保存并搬运全部稠密 K&#x2F;V Tensor”。InfiniGen 与 IMPRESS 预测真正需要的 Token，CacheGen 为链路生成多码率表示，HACK 在量化 KV 上直接近似计算，CacheBlend 选择性重算位置相关 Token，DroidSpeak 只传多模型协作时必要的中间状态。共同趋势是：<strong>KV 从被动字节数组变成可选择、可变形、带质量预算的物化视图。</strong></p>
+<p>这条路线最终可能把数据节点变成“主动 KV 节点”：它不仅返回字节，还能执行过滤、量化转换、局部 Attention、跨 Chunk 融合或增量修复。更进一步，模型架构和训练过程会显式考虑可复用性、可分片性和跨位置稳定性，而不是让系统在训练完成后被动适配。</p>
+<ul>
+<li><strong>成立前提</strong>：系统能把近似误差映射到任务质量和 SLO；模型与 Cache Representation 有明确版本契约；算子支持混合精度、稀疏与局部重算。</li>
+<li><strong>可观测信号</strong>：调度器开始携带 <code>quality_budget</code>；远端 Cache 返回多个表示而非单一 Tensor；Attention API 接受稀疏、量化或部分可重算 KV；论文同时报告系统性能与任务质量，而非只报告困惑度。</li>
+<li><strong>失败条件</strong>：表示版本组合爆炸，校准成本高于节省；误差在长链 Agent 任务中累积且难以归因；模型更新频繁，使预计算 Cache 大量失效。</li>
+</ul>
+<h3 id="综合判断"><a href="#综合判断" class="headerlink" title="综合判断"></a>综合判断</h3><p>未来三到五年更可能是三条路线叠加，而不是一种机制胜出：</p>
+<table>
+<thead>
+<tr>
+<th>层面</th>
+<th>最可能的稳定抽象</th>
+<th>仍会快速变化的实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>语义面</td>
+<td>内容身份、Prefix&#x2F;Branch 依赖、版本、安全域</td>
+<td>Token&#x2F;Chunk&#x2F;Session 的具体编码</td>
+</tr>
+<tr>
+<td>控制面</td>
+<td>Placement、Lease、Ready、重算预算、恢复前沿</td>
+<td>调度启发式与元数据服务形态</td>
+</tr>
+<tr>
+<td>数据面</td>
+<td>对象传输、远程读取、计算随数据走三选一</td>
+<td>RDMA、CXL、NVLink、UB、SSD 与压缩算法</td>
+</tr>
+<tr>
+<td>执行面</td>
+<td>消费者声明可接受的 Representation</td>
+<td>Page Size、Kernel Layout、量化与稀疏格式</td>
+</tr>
+</tbody></table>
+<p>因此，最值得投入的不是押注某个单一介质，而是先把接口分层：<strong>Semantic ID 决定“是不是同一份状态”，Representation ID 决定“能不能直接用”，Physical Locator 决定“从哪里、以什么代价取得”。</strong> 只要三者仍被揉成一个地址，系统每增加一种硬件、模型或复用方式，就要重写整条链路。</p>
+<h2 id="仍待确认的问题"><a href="#仍待确认的问题" class="headerlink" title="仍待确认的问题"></a>仍待确认的问题</h2><p>这轮调研能够确认“研究方向正在从显存优化走向分布式状态管理”，但下面几项尚无公认答案：</p>
+<ol>
+<li><strong>语义身份是否可能标准化</strong>：目前没有跨 vLLM、TensorRT-LLM、SGLang、Mooncake 等系统通用的 Semantic ID、Branch Epoch、Position Schema 和 Publish 协议。即便都叫 KV Block，也未必能交换。</li>
+<li><strong>表示兼容由谁负责</strong>：模型版本相同仍可能因 TP&#x2F;PP 切分、Head Layout、DType、压缩与 Kernel Packing 不同而无法直读。转换发生在生产者、缓存服务还是消费者，尚未收敛。</li>
+<li><strong>依赖图能否扩展到 Agent 工作负载</strong>：工具调用带来长时间 Pause、分支与回退，传统线性 Prefix Tree 不足以表达其租约和回收价值；公开论文中的真实 Agent Trace 仍有限。</li>
+<li><strong>近似 KV 如何验收</strong>：压缩、稀疏、选择性重算的质量指标各异。面向代码生成、长文推理和多轮 Agent 时，局部 Attention 误差如何转化为最终任务失败，还缺少统一基准。</li>
+<li><strong>跨租户复用是否值得</strong>：内容寻址会带来命中侧信道和数据残留风险；强隔离又会降低共享率。vLLM 的 Cache Salt 解决部分命名隔离，但不等于完整的访问控制、擦除证明和审计。</li>
+<li><strong>远程命中何时优于重算</strong>：这取决于 Prefill 算力价格、网络尾延迟、压缩开销和后续复用次数。很多论文在不同硬件与 Trace 上各自比较，尚不能直接推出统一阈值。</li>
+<li><strong>故障语义应做到哪一级</strong>：KV 可重建并不意味着重建免费；但为每个 Token 做强持久复制又代价过高。复制到请求、Chunk、Layer、Microbatch 还是 Token Frontier，应由 SLO 和故障域决定。</li>
+<li><strong>“直驱”概念仍需严格区分</strong>：CloudMatrix 技术报告中的 AIV-Direct 面向 MoE 通信，P&#x2F;D KV 使用另一条 RDMA 数据面；把二者直接等同会误判优化对象。该报告目前是 arXiv 技术报告，其结论还应结合实现细节与后续同行评议验证。</li>
+<li><strong>2026 年部分工作仍处于最新发表窗口</strong>：Strata、ECHO、DirectKV、SYMPHONY、DroidSpeak 已有会议官方页面；SIGCOMM 2026 的 DualPath 等条目可由官方 Program 确认，但本文没有把尚未充分公开的实现细节当成已验证事实。</li>
+<li><strong>尚无系统统一覆盖全部问题</strong>：现有工作通常只在分页、P&#x2F;D 交接、远端缓存、传输、压缩、直访、近数据计算或恢复中的一到三项做到深入。所谓“KV Cache OS”仍是本文的抽象归纳，而不是某篇论文已经完整实现的产品。</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>以下优先列会议官方页面、正式 DOI、作者论文或项目官方设计文档；访问与出版状态核对截止到 <strong>2026-08-24</strong>。</p>
+<h3 id="2022—2024"><a href="#2022—2024" class="headerlink" title="2022—2024"></a>2022—2024</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi22/presentation/yu"><em>Orca: A Distributed Serving System for Transformer-Based Generative Models</em></a>，OSDI 2022。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3600006.3613165"><em>Efficient Memory Management for Large Language Model Serving with PagedAttention</em></a>，SOSP 2023。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1109/ISCA59077.2024.00019"><em>Splitwise: Efficient Generative LLM Inference Using Phase Splitting</em></a>，ISCA 2024。</li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi24/presentation/zhong-yinmin"><em>DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving</em></a>，OSDI 2024。</li>
+<li><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v235/strati24a.html"><em>DéjàVu: KV-cache Streaming for Fast, Fault-tolerant Generative LLM Serving</em></a>，ICML 2024。</li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/atc24/presentation/gao-bin-cost"><em>Cost-Efficient Large Language Model Serving for Multi-turn Conversations with CachedAttention</em></a>，USENIX ATC 2024。</li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi24/presentation/lee"><em>InfiniGen: Efficient Generative Inference of Large Language Models with Dynamic KV Cache Management</em></a>，OSDI 2024。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3651890.3672274"><em>CacheGen: KV Cache Compression and Streaming for Fast Large Language Model Serving</em></a>，SIGCOMM 2024。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3694715.3695948"><em>LoongServe: Efficiently Serving Long-context Large Language Models with Elastic Sequence Parallelism</em></a>，SOSP 2024。</li>
+</ul>
+<h3 id="2025—2026"><a href="#2025—2026" class="headerlink" title="2025—2026"></a>2025—2026</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast25/presentation/qin"><em>Mooncake: Trading More Storage for Less Computation — A KVCache-centric Architecture for Serving LLM Chatbot</em></a>，FAST 2025。</li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/fast25/presentation/chen-weijian-impress"><em>IMPRESS: An Importance-Informed Multi-Tier Prefix KV Storage System for Large Language Model Inference</em></a>，FAST 2025。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3689031.3696098"><em>CacheBlend: Fast Large Language Model Serving for RAG with Cached Knowledge Fusion</em></a>，EuroSys 2025。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3669940.3707256"><em>vAttention: Dynamic Memory Management for Serving LLMs without PagedAttention</em></a>，ASPLOS 2025。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3676641.3715983"><em>Aqua: Network-Accelerated Memory Offloading for LLMs in Scale-Up GPU Domains</em></a>，ASPLOS 2025。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1109/HPCA61900.2025.00113"><em>InstAttention: In-Storage Attention Offloading for Cost-Effective Long-Context LLM Inference</em></a>，HPCA 2025。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3718958.3750481"><em>HACK: Homomorphic Acceleration via Compression of the Key-Value Cache for Disaggregated LLM Inference</em></a>，SIGCOMM 2025。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3731569.3764823"><em>Jenga: Effective Memory Management for Serving LLM with Heterogeneity</em></a>，SOSP 2025。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3731569.3764810"><em>DiffKV: Differentiated Memory Management for Large Language Models with Parallel KV Compaction</em></a>，SOSP 2025。</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2506.12708"><em>Serving Large Language Models on Huawei CloudMatrix384</em></a>，arXiv 技术报告，2025。</li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/presentation/agarwal"><em>SYMPHONY: Enabling Compute-Memory Disaggregation in LLM Serving Systems</em></a>，NSDI 2026。</li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/presentation/liu-yuhan"><em>DroidSpeak: KV Cache Sharing Across Fine-tuned Model Variants</em></a>，NSDI 2026。</li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang"><em>Strata: Hierarchical Context Caching for Long Context Language Model Serving</em></a>，OSDI 2026。</li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/liu-guangda"><em>ECHO: Efficient KV Cache Offloading with Lossless Prefetching for Serving Native Sparse Attention LLMs</em></a>，OSDI 2026。</li>
+<li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/osdi26/presentation/luo"><em>No Buffer, No Bottleneck: Efficient Zero-Copy KV Cache Offloading for Long-Context LLMs</em></a>，OSDI 2026。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3789240.3829139"><em>KVServe: Service-Aware KV Cache Compression for Communication-Efficient Disaggregated LLM Serving</em></a>，SIGCOMM 2026。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3789240.3829159"><em>DualPath: Accelerating Agentic LLM Inference by Harvesting Disaggregated KV-Cache Storage I&#x2F;O</em></a>，SIGCOMM 2026。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3789240.3829120"><em>Efficient Remote KV Cache Reuse with GPU-native Video Codec</em></a>，SIGCOMM 2026，系统名 KVCodec。</li>
+<li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3789240.3829130"><em>TurboBus: Pooling PCIe Bandwidth for LLM Workloads via Scale-Up Fabrics</em></a>，SIGCOMM 2026。</li>
+<li><a target="_blank" rel="noopener" href="https://conferences.sigcomm.org/sigcomm/2026/program/papers/">SIGCOMM 2026 Technical Program</a>，另含 Turbo 的网内 Attention Aggregation、Connex 的动态端点迁移契约等工作。</li>
+</ul>
+<h3 id="实现与设计文档"><a href="#实现与设计文档" class="headerlink" title="实现与设计文档"></a>实现与设计文档</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/design/prefix_caching/">vLLM Automatic Prefix Caching Design</a>，Prefix Hash、Cache Salt 与隔离说明。</li>
+<li><a target="_blank" rel="noopener" href="https://kvcache-ai.github.io/Mooncake/design/architecture.html">Mooncake Store Architecture</a>，对象 API、原子写、版本语义、零拷贝与多 NIC Transfer Engine。</li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Distributed KV Cache Management</p><p><a href="http://icarus.shaojiemike.top/2026/08/24/Work/Artificial Intelligence/Inference/Distributed-KV-Cache-Management/">http://icarus.shaojiemike.top/2026/08/24/Work/Artificial Intelligence/Inference/Distributed-KV-Cache-Management/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-24</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-24</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/RDMA/">RDMA</a><a class="link-muted mr-2" rel="tag" href="/tags/LLM-Serving/">LLM Serving</a><a class="link-muted mr-2" rel="tag" href="/tags/KV-Cache/">KV Cache</a><a class="link-muted mr-2" rel="tag" href="/tags/Distributed-Systems/">Distributed Systems</a><a class="link-muted mr-2" rel="tag" href="/tags/Long-Context/">Long Context</a><a class="link-muted mr-2" rel="tag" href="/tags/Data-Placement/">Data Placement</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/24/Work/Artificial%20Intelligence/AIInfra/Mooncake/"><span class="level-item">Mooncake</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">597</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">50</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">883</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#核心结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">核心结论</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#不是普通缓存"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">不是普通缓存</span></span></a></li><li><a class="level is-mobile" href="#三个主问题"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">三个主问题</span></span></a></li><li><a class="level is-mobile" href="#五年演化"><span class="level-left"><span class="level-item">1.3</span><span class="level-item">五年演化</span></span></a></li><li><a class="level is-mobile" href="#四个反复出现的矛盾"><span class="level-left"><span class="level-item">1.4</span><span class="level-item">四个反复出现的矛盾</span></span></a></li></ul></li><li><a class="level is-mobile" href="#关键时间线"><span class="level-left"><span class="level-item">2</span><span class="level-item">关键时间线</span></span></a></li><li><a class="level is-mobile" href="#横向对比"><span class="level-left"><span class="level-item">3</span><span class="level-item">横向对比</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#七种范式"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">七种范式</span></span></a></li><li><a class="level is-mobile" href="#为什么选择或放弃"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">为什么选择或放弃</span></span></a></li></ul></li><li><a class="level is-mobile" href="#详细分析"><span class="level-left"><span class="level-item">4</span><span class="level-item">详细分析</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#先定义对象"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">先定义对象</span></span></a></li><li><a class="level is-mobile" href="#放置：谁靠近谁"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">放置：谁靠近谁</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#请求找数据，还是数据找计算"><span class="level-left"><span class="level-item">4.2.1</span><span class="level-item">请求找数据，还是数据找计算</span></span></a></li><li><a class="level is-mobile" href="#复制、分片与重算"><span class="level-left"><span class="level-item">4.2.2</span><span class="level-item">复制、分片与重算</span></span></a></li></ul></li><li><a class="level is-mobile" href="#组织：四种粒度冲突"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">组织：四种粒度冲突</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#从页表到内容寻址"><span class="level-left"><span class="level-item">4.3.1</span><span class="level-item">从页表到内容寻址</span></span></a></li><li><a class="level is-mobile" href="#从同质页到语义对象"><span class="level-left"><span class="level-item">4.3.2</span><span class="level-item">从同质页到语义对象</span></span></a></li></ul></li><li><a class="level is-mobile" href="#传输：什么时候搬"><span class="level-left"><span class="level-item">4.4</span><span class="level-item">传输：什么时候搬</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Push-与-Pull"><span class="level-left"><span class="level-item">4.4.1</span><span class="level-item">Push 与 Pull</span></span></a></li><li><a class="level is-mobile" href="#整体、逐层与双路径"><span class="level-left"><span class="level-item">4.4.2</span><span class="level-item">整体、逐层与双路径</span></span></a></li><li><a class="level is-mobile" href="#压缩、重算与质量预算"><span class="level-left"><span class="level-item">4.4.3</span><span class="level-item">压缩、重算与质量预算</span></span></a></li></ul></li><li><a class="level is-mobile" href="#直访：让计算靠近数据"><span class="level-left"><span class="level-item">4.5</span><span class="level-item">直访：让计算靠近数据</span></span></a></li><li><a class="level is-mobile" href="#正确性：不是最新，而是匹配"><span class="level-left"><span class="level-item">4.6</span><span class="level-item">正确性：不是最新，而是匹配</span></span></a></li><li><a class="level is-mobile" href="#调度：命中也可能迟到"><span class="level-left"><span class="level-item">4.7</span><span class="level-item">调度：命中也可能迟到</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#租约与恢复"><span class="level-left"><span class="level-item">4.7.1</span><span class="level-item">租约与恢复</span></span></a></li></ul></li><li><a class="level is-mobile" href="#演化不是直线"><span class="level-left"><span class="level-item">4.8</span><span class="level-item">演化不是直线</span></span></a></li></ul></li><li><a class="level is-mobile" href="#未来判断"><span class="level-left"><span class="level-item">5</span><span class="level-item">未来判断</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#路线一：依赖原生的-KV-Cache-OS"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">路线一：依赖原生的 KV Cache OS</span></span></a></li><li><a class="level is-mobile" href="#路线二：机架级共享内存与直访数据面"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">路线二：机架级共享内存与直访数据面</span></span></a></li><li><a class="level is-mobile" href="#路线三：主动-KV-与模型—缓存协同"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">路线三：主动 KV 与模型—缓存协同</span></span></a></li><li><a class="level is-mobile" href="#综合判断"><span class="level-left"><span class="level-item">5.4</span><span class="level-item">综合判断</span></span></a></li></ul></li><li><a class="level is-mobile" href="#仍待确认的问题"><span class="level-left"><span class="level-item">6</span><span class="level-item">仍待确认的问题</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">7</span><span class="level-item">参考资料</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#2022—2024"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">2022—2024</span></span></a></li><li><a class="level is-mobile" href="#2025—2026"><span class="level-left"><span class="level-item">7.2</span><span class="level-item">2025—2026</span></span></a></li><li><a class="level is-mobile" href="#实现与设计文档"><span class="level-left"><span class="level-item">7.3</span><span class="level-item">实现与设计文档</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">25</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T10:00:00.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/Work/Artificial%20Intelligence/Inference/Distributed-KV-Cache-Management/">Distributed KV Cache Management</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T08:53:32.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/Work/Artificial%20Intelligence/AIInfra/Mooncake/">Mooncake</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T08:03:11.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/Work/Artificial%20Intelligence/Inference/KV-Cache-Fundamentals/">KV Cache Fundamentals</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T07:15:29.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/Work/Artificial%20Intelligence/AIInfra/AIV-Direct-Drive/">AIV Direct Drive</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Infrastructure/"><span class="tag">AI Infrastructure</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-STARTUP/"><span class="tag">AI STARTUP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Systems/"><span class="tag">AI Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIInfra/"><span class="tag">AIInfra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AISBench/"><span class="tag">AISBench</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AIV/"><span class="tag">AIV</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
