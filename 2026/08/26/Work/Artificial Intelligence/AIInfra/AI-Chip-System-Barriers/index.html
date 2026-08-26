@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>AI Chip System Barriers - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       一场围绕 OpenAI Jalapeño 推理芯片的讨论提出了一个看似矛盾的问题：专用 AI 计算核心可能比顶级通用 CPU 更规则，为什么 AI 芯片仍然很难做？ 两句话可以同时成立。矩阵乘加阵列的局部控制逻辑相对规则，但一款有竞争力的 AI 产品还要跨过微架构、RTL、验证、物理实现、先进封装、内存与互联、编译器、Kernel"><meta property="og:type" content="blog"><meta property="og:title" content="AI Chip System Barriers"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/26/Work/Artificial%20Intelligence/AIInfra/AI-Chip-System-Barriers/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       一场围绕 OpenAI Jalapeño 推理芯片的讨论提出了一个看似矛盾的问题：专用 AI 计算核心可能比顶级通用 CPU 更规则，为什么 AI 芯片仍然很难做？ 两句话可以同时成立。矩阵乘加阵列的局部控制逻辑相对规则，但一款有竞争力的 AI 产品还要跨过微架构、RTL、验证、物理实现、先进封装、内存与互联、编译器、Kernel"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2026/08/9bcb86bbcde0f2046c69830ee93f44c7.png"><meta property="article:published_time" content="2026-08-26T08:30:00.000Z"><meta property="article:modified_time" content="2026-08-26T07:16:05.556Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="AI Chip"><meta property="article:tag" content="Computer Architecture"><meta property="article:tag" content="Compiler"><meta property="article:tag" content="NPU"><meta property="article:tag" content="XLA"><meta property="article:tag" content="CUDA"><meta property="article:tag" content="Inference"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2026/08/9bcb86bbcde0f2046c69830ee93f44c7.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/26/Work/Artificial%20Intelligence/AIInfra/AI-Chip-System-Barriers/"},"headline":"AI Chip System Barriers","image":["https://pic.shaojiemike.top/shaojiemike/2026/08/9bcb86bbcde0f2046c69830ee93f44c7.png"],"datePublished":"2026-08-26T08:30:00.000Z","dateModified":"2026-08-26T07:16:05.556Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       一场围绕 OpenAI Jalapeño 推理芯片的讨论提出了一个看似矛盾的问题：专用 AI 计算核心可能比顶级通用 CPU 更规则，为什么 AI 芯片仍然很难做？ 两句话可以同时成立。矩阵乘加阵列的局部控制逻辑相对规则，但一款有竞争力的 AI 产品还要跨过微架构、RTL、验证、物理实现、先进封装、内存与互联、编译器、Kernel"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/26/Work/Artificial%20Intelligence/AIInfra/AI-Chip-System-Barriers/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-26T08:30:00.000Z" title="8/26/2026, 8:30:00 AM">2026-08-26</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-26T07:16:05.556Z" title="8/26/2026, 7:16:05 AM">2026-08-26</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">an hour read (About 6866 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">AI Chip System Barriers</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>一场围绕 OpenAI Jalapeño 推理芯片的讨论提出了一个看似矛盾的问题：<strong>专用 AI 计算核心可能比顶级通用 CPU 更规则，为什么 AI 芯片仍然很难做？</strong></p>
+<p>两句话可以同时成立。矩阵乘加阵列的局部控制逻辑相对规则，但一款有竞争力的 AI 产品还要跨过微架构、RTL、验证、物理实现、先进封装、内存与互联、编译器、Kernel、运行时、模型适配和客户部署。真正的壁垒没有消失，而是从单个计算核心转移到了整条系统栈及其持续迭代能力。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>先给出整场讨论中最重要的判断：</p>
+<ol>
+<li><strong>“基本 NPU 计算阵列比较规则”大体成立，不能推出“AI 芯片没有门槛”。</strong> 前者只评价一个局部模块，后者评价从设计到量产、从软件到客户的完整产品。</li>
+<li><strong>OpenAI Jalapeño 的公开结果是一次有价值的定制推理芯片验证，不是“GPT-6 击溃 CUDA”。</strong> 测试对象是公开模型上的推理负载，比较范围和系统配置都有明确边界。</li>
+<li><strong>讨论中最可靠的观点来自真实产品落地和分层分析。</strong> “原型能跑”与“好用、量产、长期适配”之间的距离，正是 AI 芯片最容易被低估的部分。</li>
+<li><strong>编译器和运行时是核心竞争力，但不是全部竞争力。</strong> XLA、CUDA 等软件栈能够把不断变化的模型映射到硬件，却不能替代封装、HBM、互联、PPA 和供应链。</li>
+<li><strong>垂直整合与开放生态不是必然二选一。</strong> 接口快速变化时，垂直整合有利于协同优化；接口成熟后，模块化生态更容易扩张。DEC 与 IBM 只能作为类比，不能作为历史定律。</li>
+<li><strong>线性注意力、稀疏注意力和全注意力仍在并行演化。</strong> 单凭“人类思考是稀疏的”或“线性注意力像一锅汤”都不足以判断技术胜负。</li>
+</ol>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2026/08/9bcb86bbcde0f2046c69830ee93f44c7.png" alt="专用计算核心与完整 AI 芯片产品栈"></p>
+<p><em>自绘技术图：矩阵计算核心可能相对规则，但它只位于完整产品栈的一层；端到端表现由制造、芯片实现、系统硬件、运行时、编译器和产品目标共同决定。</em></p>
+<h2 id="标题事实核查"><a href="#标题事实核查" class="headerlink" title="标题事实核查"></a>标题事实核查</h2><p>讨论由一篇题为“OpenAI 首颗芯片压倒英伟达，GPT-6 干崩 CUDA”的文章引发。可核实的官方信息与标题之间存在明显距离。</p>
+<table>
+<thead>
+<tr>
+<th>说法</th>
+<th>已有证据</th>
+<th>判断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OpenAI 发布了首颗自研推理芯片</td>
+<td>Jalapeño 是 OpenAI 与 Broadcom 联合开发的推理芯片；Broadcom 还参与网络与连接，Celestica 参与板卡、机架和系统集成[^openai-chip]</td>
+<td><strong>基本属实，但“独立自研”不准确</strong></td>
+</tr>
+<tr>
+<td>从初始设计到流片只用了九个月</td>
+<td>OpenAI 官方确实使用了这一时间口径[^openai-chip]</td>
+<td><strong>属实，但流片不等于量产和成熟部署</strong></td>
+</tr>
+<tr>
+<td>性能“压倒英伟达”</td>
+<td>OpenAI 在 GPT-OSS 120B、DeepSeek R1、Kimi K2.5 的特定配置上，报告了约 <code>1.5–1.9×</code> 的峰值单位功耗工作量，以及 <code>1.7–3.6×</code> 的端到端延迟优势[^openai-results]</td>
+<td><strong>只支持特定推理负载和对照配置</strong></td>
+</tr>
+<tr>
+<td>GPT-6 击败 CUDA</td>
+<td>公布的模型不包括 GPT-6，测试也不是训练比较</td>
+<td><strong>没有证据</strong></td>
+</tr>
+<tr>
+<td>CUDA 已被击溃</td>
+<td>CUDA 是编程模型、编译工具、库和生态的组合，不是一项单芯片性能指标[^cuda]；OpenAI 仍表示会广泛部署 NVIDIA 加速器[^openai-chip]</td>
+<td><strong>明显夸大</strong></td>
+</tr>
+</tbody></table>
+<p>这组结果值得重视，但仍需保留三个边界：</p>
+<ul>
+<li><strong>推理不等于训练。</strong> Jalapeño 的定位与公开测试都不能直接外推到通用训练平台。</li>
+<li><strong>特定基准不等于全面替代。</strong> 模型、精度、Batch、延迟约束、服务器配置和软件版本都会改变结论。</li>
+<li><strong>实验室结果不等于客户可复现。</strong> SemiAnalysis 参与了 OpenAI 实验室中的测试，但普通客户尚不能独立复现实物、软件和完整环境[^semi]。</li>
+</ul>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>核查边界</p>
+</div>
+        <div class="message-body">
+            <p>原微信正文需要验证后才能访问，因此这里不判断其未读到的正文，只评价可见标题、群聊说法和 OpenAI、Broadcom、SemiAnalysis 等公开材料。<strong>标题中的“GPT-6 干崩 CUDA”没有得到现有证据支持。</strong></p>
+
+        </div>
+    </article>
+
+<h2 id="双层概念解释"><a href="#双层概念解释" class="headerlink" title="双层概念解释"></a>双层概念解释</h2><h3 id="小白版"><a href="#小白版" class="headerlink" title="小白版"></a>小白版</h3><p>可以把 AI 计算系统想成一家大型中央厨房：</p>
+<ul>
+<li><strong>CPU</strong> 像全能厨师，什么菜都能做，面对例外情况也很灵活。</li>
+<li><strong>GPU</strong> 像拥有大量相似工位的中央厨房，适合把许多相似任务并行完成。</li>
+<li><strong>NPU&#x2F;TPU</strong> 像针对少数热门菜设计的专用流水线，动作更固定，效率更高。</li>
+<li><strong>编译器与运行时</strong> 像总厨、菜谱翻译器和现场调度员，负责把“做什么菜”变成每台机器可执行的步骤。</li>
+<li><strong>模型、客户和部署环境</strong> 像不断变化的菜单、客流和食品标准。机器今天很快，不代表明天仍适合新菜单。</li>
+</ul>
+<p>五个高门槛词可以先这样记：</p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>直观理解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DEC 模式</td>
+<td>厨房自己做设备、操作系统、工具和菜谱，靠上下打通赢得效率</td>
+</tr>
+<tr>
+<td>IBM 模式</td>
+<td>各家按公开接口分工：有人做主机、有人做零件、有人做软件，靠兼容生态扩大规模</td>
+</tr>
+<tr>
+<td>SIMC</td>
+<td>在这段讨论里很可能是 <code>SMIC</code> 的误写，即中芯国际；若原意是 <code>SIMD</code>，则是“一条指令同时处理多份数据”</td>
+</tr>
+<tr>
+<td>XLA</td>
+<td>把模型计算图翻译、融合、排布成加速器可高效执行程序的编译器</td>
+</tr>
+<tr>
+<td>Taalas</td>
+<td>把一类模型更深地固化进芯片，用灵活性换取能效和延迟</td>
+</tr>
+</tbody></table>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>类比的边界</p>
+</div>
+        <div class="message-body">
+            <p>厨房类比只帮助理解分工。真实芯片还受到数值精度、数据依赖、片上存储、互联、功耗、时序和制程约束，不能把“流水线动作固定”理解成“芯片很容易造”。</p>
+
+        </div>
+    </article>
+
+<h3 id="专业版"><a href="#专业版" class="headerlink" title="专业版"></a>专业版</h3><p><strong>DEC 模式</strong>不是计算机体系结构中的正式术语，而是讨论者对“高度垂直整合”的简称。Digital Equipment Corporation 曾同时控制硬件、操作系统和开发工具，以紧密协同形成产品优势；但 DEC 后期也尝试让 Alpha 支持多种操作系统和更开放的合作，因此“DEC 永远封闭，并因此必败”不符合完整历史。它的衰落涉及技术转型、市场结构和经营判断等多重因素[^dec]。</p>
+<p><strong>IBM 模式</strong>在这段话里更准确地说是 <strong>IBM PC Compatible &#x2F; Wintel 式模块化生态</strong>。IBM PC 使用市场可获得的零件并公开技术资料，让第三方软件、扩展卡和兼容机迅速发展[^ibm-pc][^pc-history]。但它也不是“所有东西都开源”：例如 BIOS 仍受版权保护，兼容厂商需要通过独立实现绕开。IBM 自己后来也失去了 PC 市场主导权，所以开放生态有利于扩大市场，不保证创始公司持续获胜。</p>
+<p><strong>SIMC</strong>不是这段语境中的常见标准缩写。结合原话把它与晶圆制造和 Arm IP 并列，<strong>最高概率是 <code>SMIC</code>，即 Semiconductor Manufacturing International Corporation（中芯国际）</strong>。如果原文实际想写 <code>SIMD</code>，它才是 Single Instruction, Multiple Data（单指令多数据）。原讨论中“SMIC 像 x86、Arm 像 Linux”的类比跨错了层：SMIC 是晶圆代工企业，x86&#x2F;Arm 是指令集与处理器生态，Linux 是操作系统。Arm IP 通过商业授权获得，也不等于开放全部 RTL 源码[^arm]。</p>
+<p><strong>XLA</strong>全称 <strong>Accelerated Linear Algebra</strong>，现属于 OpenXLA 编译生态。它把框架产生的高层计算转换为 HLO&#x2F;StableHLO 一类中间表示，再执行算子融合、布局与内存规划、分片和设备代码生成[^xla]。XLA 对 TPU 的可用性非常重要，因为硬件峰值只有在计算图被正确映射后才能兑现；但“XLA 占 TPU 成功的 60%”是没有统一测量口径的修辞，不应当作事实数字。</p>
+<p><strong>Taalas</strong>是公司名，不是缩写。它提出“The Model Is The Computer”，尝试把模型核心和部分权重更直接地映射到芯片结构，并保留有限的可编程区域处理微调等变化[^taalas][^taalas-patent]。好处是减少取权重、解释指令和搬运数据的成本；代价是模型结构或权重发生较大变化时，可能需要修改掩膜甚至重新生产芯片。它没有消除模型漂移风险，而是<strong>用灵活性换效率</strong>。</p>
+<h2 id="缩写与专有名词"><a href="#缩写与专有名词" class="headerlink" title="缩写与专有名词"></a>缩写与专有名词</h2><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>全称或含义</th>
+<th>在讨论中的作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ASIC</td>
+<td>Application-Specific Integrated Circuit</td>
+<td>面向特定用途设计的芯片，定制推理芯片通常属于此类</td>
+</tr>
+<tr>
+<td>NPU &#x2F; AIPU</td>
+<td>Neural &#x2F; AI Processing Unit</td>
+<td>面向神经网络张量计算的加速器</td>
+</tr>
+<tr>
+<td>TPU</td>
+<td>Tensor Processing Unit</td>
+<td>Google 的张量处理器及其系统</td>
+</tr>
+<tr>
+<td>RTL</td>
+<td>Register-Transfer Level</td>
+<td>用硬件描述语言表达寄存器和组合逻辑的数据传输</td>
+</tr>
+<tr>
+<td>IP</td>
+<td>Intellectual Property Core</td>
+<td>可授权复用的处理器、接口或其他设计模块</td>
+</tr>
+<tr>
+<td>Fab &#x2F; Foundry</td>
+<td>晶圆厂 &#x2F; 晶圆代工</td>
+<td>把芯片设计制造为硅片</td>
+</tr>
+<tr>
+<td>Tape-out</td>
+<td>流片</td>
+<td>把最终版图交给制造；之后仍有制造、封装、点亮和量产验证</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td>物理实现后端</td>
+<td>布局布线、时钟树、功耗、时序收敛等，不是 Web 后端</td>
+</tr>
+<tr>
+<td>打一拍</td>
+<td>插入一级寄存器</td>
+<td>缩短组合路径以改善时序，但会增加延迟和控制复杂度</td>
+</tr>
+<tr>
+<td>PPA</td>
+<td>Performance, Power, Area</td>
+<td>性能、功耗和面积三者的综合权衡</td>
+</tr>
+<tr>
+<td>HBM</td>
+<td>High Bandwidth Memory</td>
+<td>与加速器紧密封装的高带宽内存</td>
+</tr>
+<tr>
+<td>W2W</td>
+<td>Wafer-to-Wafer</td>
+<td>晶圆到晶圆的堆叠或键合方式</td>
+</tr>
+<tr>
+<td>SerDes</td>
+<td>Serializer &#x2F; Deserializer</td>
+<td>高速串并转换接口，是芯片互联的关键模块</td>
+</tr>
+<tr>
+<td>CUDA</td>
+<td>Compute Unified Device Architecture</td>
+<td>NVIDIA 的编程模型、编译工具、库和运行时生态</td>
+</tr>
+<tr>
+<td>GEMM</td>
+<td>General Matrix Multiplication</td>
+<td>通用矩阵乘，是多数 AI 计算的基本 Kernel</td>
+</tr>
+<tr>
+<td>KV Cache</td>
+<td>Key-Value Cache</td>
+<td>自回归推理中保存历史注意力状态的缓存</td>
+</tr>
+<tr>
+<td>MoE &#x2F; Expert</td>
+<td>Mixture of Experts &#x2F; 专家网络</td>
+<td>每个 Token 只激活部分专家的稀疏模型结构</td>
+</tr>
+<tr>
+<td>QAT &#x2F; PTQ</td>
+<td>Quantization-Aware Training &#x2F; Post-Training Quantization</td>
+<td>训练中量化与训练后量化</td>
+</tr>
+<tr>
+<td>LoRA</td>
+<td>Low-Rank Adaptation</td>
+<td>用低秩增量参数低成本微调模型</td>
+</tr>
+<tr>
+<td>BF16 &#x2F; FP32 &#x2F; FP8</td>
+<td>不同位宽浮点格式</td>
+<td>在精度、吞吐、存储和功耗之间取舍</td>
+</tr>
+<tr>
+<td>GDN</td>
+<td>Gated Delta Network</td>
+<td>用门控递归状态压缩历史的线性注意力路线</td>
+</tr>
+<tr>
+<td>MaaS</td>
+<td>Model as a Service</td>
+<td>通过服务接口提供模型能力</td>
+</tr>
+<tr>
+<td>Orin</td>
+<td>NVIDIA Jetson&#x2F;DRIVE 平台中的 SoC 系列</td>
+<td>车载和边缘 AI 部署的软硬件平台参照</td>
+</tr>
+<tr>
+<td>Alpha 21264</td>
+<td>DEC Alpha 高性能 CPU</td>
+<td>讨论中用来对比通用 CPU 与专用加速器复杂度</td>
+</tr>
+<tr>
+<td>Larrabee</td>
+<td>Intel 曾探索的众核图形&#x2F;计算架构</td>
+<td>说明“有 CPU 能力”不自动等于能做成 GPU 产品</td>
+</tr>
+</tbody></table>
+<h2 id="九位参与者的观点"><a href="#九位参与者的观点" class="headerlink" title="九位参与者的观点"></a>九位参与者的观点</h2><p>为保护群聊参与者隐私，公开版不保留昵称；以下按首次发言顺序为每位参与者分配一个观点角色。评价采用三个问题：<strong>比较对象是否一致、证据能否支持结论、结论是否被过度外推。</strong></p>
+<ol>
+<li><p><strong>内容转发者</strong></p>
+<ul>
+<li><strong>观点：</strong> 转发文章和链接，没有形成可独立判断的技术主张。</li>
+<li><strong>评价：</strong> 只能评价所转发标题，不能把标题自动视为转发者本人的立场。标题把特定推理基准扩大成 GPT-6 和 CUDA 的全面胜负，证据不足。</li>
+</ul>
+</li>
+<li><p><strong>GPU 对照者</strong></p>
+<ul>
+<li><strong>观点：</strong> 专用推理芯片击败 GPU 并非第一次发生，定制芯片在固定工作负载上具有天然优势。</li>
+<li><strong>合理部分：</strong> 基本正确。Google TPU 等历史案例已经说明，面向稳定负载的专用数据流芯片可以在性能或能效上超过同时代通用处理器[^tpu-paper]。</li>
+<li><strong>边界：</strong> “击败”必须绑定模型、精度、延迟、吞吐、功耗和系统成本。一个指标获胜不能推出 GPU 被全面替代。</li>
+</ul>
+</li>
+<li><p><strong>产品落地者</strong></p>
+<ul>
+<li><strong>观点：</strong> 标题夸张；做出能跑的 NPU 原型不算最难，真正困难的是产品化、部署、软件和持续适配。模型快速变化会让过度固化的芯片迅速落后。</li>
+<li><strong>合理部分：</strong> 这是整场讨论中最平衡、最接近工程现实的观点。它正确区分了原型、流片、点亮、量产、软件成熟和客户落地，也抓住了 AI 工作负载变化快这一核心风险。</li>
+<li><strong>边界：</strong> “第一代没有机会”或“必须两三年”不能作为普遍规律；不同团队的 IP、供应链和软件基础差异很大。FP8、KV Cache 等具体判断也依赖模型与实现。</li>
+</ul>
+</li>
+<li><p><strong>系统壁垒者</strong></p>
+<ul>
+<li><strong>观点：</strong> 基本 AI 计算核心比顶级 CPU 简单，单点架构难形成长期壁垒；真正壁垒来自软件、模型、芯片和业务的垂直整合。其后又以 Intel、Arm、性能翻倍和稀疏注意力支持“芯片本身门槛不高”。</li>
+<li><strong>合理部分：</strong> “局部核心较规则”和“系统护城河更强”都很有洞察力。模型持续变化会削弱固定微架构的寿命，垂直整合也确实能缩短跨层反馈回路。</li>
+<li><strong>问题：</strong> 论证多次更换比较对象：从计算核心跳到完整芯片，再跳到制造和生态。Intel 的成败不能证明芯片没有壁垒；Arm IP 是授权产品，不是完全公开的源代码；NVIDIA Grace 使用 Arm Neoverse V2 CPU 核心，也不是从零设计通用 CPU ISA[^grace]。芯片性能迭代很快同样不能证明设计简单，它也可能来自制程、封装、规模和软件共同进步。</li>
+<li><strong>总评：</strong> <strong>核心命题有价值，支持它的若干例子和绝对化表达不成立。</strong></li>
+</ul>
+</li>
+<li><p><strong>架构与产品区分者</strong></p>
+<ul>
+<li><strong>观点：</strong> “做出芯片”和“做出好产品”必须分开；Intel 的衰落是多因素结果；制造服务和 Arm IP 降低了部分进入门槛，长期可能走向更开放的产业分工。</li>
+<li><strong>合理部分：</strong> 对讨论对象的纠偏很重要。Intel 的历史确实不能被简化成单一技术原因，IP、EDA、Foundry 和设计服务也确实降低了重复造轮子的成本。</li>
+<li><strong>问题：</strong> “中国 RTL 以上已经不落后”缺乏清晰指标，无法整体判断；“开放最终一定胜利”不是产业定律；关于某位高管、内部决策和强势 CEO 的说法属于不可核实的内部叙事或反事实推演。</li>
+<li><strong>总评：</strong> <strong>分析框架合理，但宏观结论超出了证据。</strong></li>
+</ul>
+</li>
+<li><p><strong>物理实现者</strong></p>
+<ul>
+<li><strong>观点：</strong> 先进工艺、流片、后端和物理实现仍然很难；不能用 Intel 的商业失败反推芯片不存在门槛。</li>
+<li><strong>合理部分：</strong> 完全击中了前一论证的逻辑漏洞。微架构清楚并不意味着 PPA、时序、功耗、信号完整性、良率和可靠性自动解决。</li>
+<li><strong>边界：</strong> “没有大师芯片就点不亮”是强调难度的修辞，不是可验证的普遍规律。成熟 IP、EDA 流程和外部设计服务可以降低风险，但不会把风险降为零。</li>
+</ul>
+</li>
+<li><p><strong>车载部署者</strong></p>
+<ul>
+<li><strong>观点：</strong> 很多团队都能流片，客户可部署的软件和精度才是难点；实际项目中卷积容易加速，而 Attention、INT16、量化和算子支持更棘手，Orin 的软件生态优势明显。</li>
+<li><strong>合理部分：</strong> 这是高价值的一线案例。它具体说明了峰值算力不能替代模型精度、量化工具链、算子覆盖和部署支持，也解释了客户为什么愿意为成熟生态付费。</li>
+<li><strong>边界：</strong> 单一车载项目不能代表所有云端训练、数据中心推理或边缘工作负载；没有统一 benchmark 时，不能把体验量化为整个行业的性能结论。</li>
+</ul>
+</li>
+<li><p><strong>分层分析者</strong></p>
+<ul>
+<li><strong>观点：</strong> 要区分体系结构、微架构和物理实现；专用计算核心可能简单，但先进制程、封装、HBM、SerDes 和系统集成很难。OpenAI 能快速推进，与 Broadcom 等合作伙伴有关。</li>
+<li><strong>合理部分：</strong> 这套分层最适合终结“简单&#x2F;困难”的空泛争论。OpenAI 官方也明确说明 Broadcom 和 Celestica 分别承担了硅片、互联和系统集成的重要工作[^openai-chip]。</li>
+<li><strong>问题：</strong> “流水线只要打一拍”低估了延迟、冒险、旁路、验证和 PPA 代价；未经来源支持的带宽与秒数不应作为结论；九个月流片不等于九个月完成成熟产品。外包能转移或共享门槛，不能让门槛消失。</li>
+<li><strong>总评：</strong> <strong>分层框架强，局部实现难度仍被低估。</strong></li>
+</ul>
+</li>
+<li><p><strong>编译与运行时者</strong></p>
+<ul>
+<li><strong>观点：</strong> HBM、KV Cache、量化格式、算子库、编译器和运行时决定硬件能否被真正利用；XLA 是 TPU 成功的关键，Taalas 通过把模型固化进芯片减少搬运与解释开销。</li>
+<li><strong>合理部分：</strong> 对编译器作用的强调是正确的。图优化、算子融合、内存规划、分片和代码生成决定理论峰值能否变成端到端性能。Taalas 也确实代表了“用通用性换能效”的极端共同设计路线。</li>
+<li><strong>问题：</strong> “XLA 占 60%”没有可验证口径；TPU 并非简单“不需要 FP32”，公开说明通常是 BF16 乘法配合 FP32 累加[^tpu-doc]；HBM 相对片上 SRAM 仍有更高访问代价；若不指定频率、并行规模和精度，周期数与带宽数字没有可比性。关于未公开芯片、会议和客户的数据应标为传闻，而不是事实。</li>
+<li><strong>总评：</strong> <strong>方向判断很强，定量表述和绝对化说法需要降级。</strong></li>
+</ul>
+</li>
+</ol>
+<h2 id="争议焦点"><a href="#争议焦点" class="headerlink" title="争议焦点"></a>争议焦点</h2><h3 id="计算核心与完整产品"><a href="#计算核心与完整产品" class="headerlink" title="计算核心与完整产品"></a>计算核心与完整产品</h3><p>“AI Core 比 CPU 简单”在限定条件下成立。顶级乱序 CPU 要处理复杂分支预测、异常、精确状态和广泛兼容性；规则张量阵列可把大量面积投入乘加和局部存储。但完整 AI 芯片仍要回答：</p>
+<ul>
+<li>新模型引入了不规则算子，硬件如何承载？</li>
+<li>HBM、片上 SRAM、互联和网络如何避免计算单元空等？</li>
+<li>编译器怎样做融合、分片、布局和动态形状处理？</li>
+<li>数值格式变化后，精度与吞吐如何共同验收？</li>
+<li>客户已有 CUDA 或其他生态资产，迁移成本由谁承担？</li>
+<li>流片成功后，如何完成封装、点亮、量产、稳定性和长期支持？</li>
+</ul>
+<p>因此更精确的表达是：<strong>专用核心降低了一类控制复杂度，但把竞争转移到数据移动、系统协同和软件适配。</strong></p>
+<h3 id="垂直整合与开放生态"><a href="#垂直整合与开放生态" class="headerlink" title="垂直整合与开放生态"></a>垂直整合与开放生态</h3><p>DEC&#x2F;IBM 类比的价值在于提示两种组织方式，而不是预测唯一结局：</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>垂直整合更有利</th>
+<th>模块化生态更有利</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>接口成熟度</td>
+<td>接口快速变化，需要频繁共同设计</td>
+<td>接口稳定，可由多家独立优化</td>
+</tr>
+<tr>
+<td>工作负载</td>
+<td>少数大规模、可控负载</td>
+<td>客户与应用高度多样</td>
+</tr>
+<tr>
+<td>优化目标</td>
+<td>极致能效、延迟或单位成本</td>
+<td>兼容性、选择权和迁移便利</td>
+</tr>
+<tr>
+<td>主要风险</td>
+<td>被单一路线和模型变化锁死</td>
+<td>跨厂商协同慢、性能损失和责任边界模糊</td>
+</tr>
+</tbody></table>
+<p>OpenAI、Google 或云厂商拥有大量内部负载，适合用定制芯片做垂直优化；NVIDIA 则通过 GPU、网络、CUDA、库和开发者生态提供横向平台。二者可以长期共存，OpenAI 自研芯片同时继续采购 NVIDIA 就是这种组合策略的直接体现[^openai-chip]。</p>
+<h3 id="线性注意力与稀疏注意力"><a href="#线性注意力与稀疏注意力" class="headerlink" title="线性注意力与稀疏注意力"></a>线性注意力与稀疏注意力</h3><p>讨论把线性注意力描述成“所有信息混成一锅汤”，把稀疏注意力类比成人类只保留重要记忆。两个比喻都过于粗糙：</p>
+<ul>
+<li><strong>现代线性注意力并非简单平均。</strong> GDN 一类方法通过门控、遗忘和增量状态更新，控制哪些信息写入和保留。Qwen3.5 也采用线性与全注意力混合结构[^qwen]。</li>
+<li><strong>稀疏注意力也不是免费跳过历史。</strong> DeepSeek 的稀疏注意力需要轻量索引器从历史中选择子集，再让主注意力处理被选位置[^deepseek]。</li>
+<li><strong>人类认知类比不能替代系统实验。</strong> 真正要比较的是质量、长上下文、训练稳定性、KV&#x2F;状态成本、硬件利用率和部署复杂度。</li>
+</ul>
+<p>现阶段更合理的判断不是“谁必胜”，而是：<strong>全注意力、固定状态和 token 稀疏分别重组历史信息，混合架构很可能在相当长时间内并存。</strong></p>
+<h2 id="综合裁决"><a href="#综合裁决" class="headerlink" title="综合裁决"></a>综合裁决</h2><table>
+<thead>
+<tr>
+<th>命题</th>
+<th>裁决</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AI 芯片没有门槛</td>
+<td><strong>明显错误。</strong> 它把局部计算阵列偷换成完整产品</td>
+</tr>
+<tr>
+<td>单个计算核心很难形成长期护城河</td>
+<td><strong>基本正确。</strong> 但核心仍可能通过数据流、存储层级和 PPA 形成价值</td>
+</tr>
+<tr>
+<td>一颗定制芯片的 benchmark 证明 CUDA 已死</td>
+<td><strong>明显错误。</strong> 芯片指标和平台生态不是同一比较对象</td>
+</tr>
+<tr>
+<td>快速变化阶段垂直整合更有优势</td>
+<td><strong>有条件成立。</strong> 前提是拥有稳定大负载和强跨层团队</td>
+</tr>
+<tr>
+<td>行业成熟后一定由开放模式获胜</td>
+<td><strong>证据不足。</strong> 开放与专有常会长期混合</td>
+</tr>
+<tr>
+<td>编译器是 AI 芯片成功的核心因素</td>
+<td><strong>成立。</strong> 但编译器只是多层系统中的关键一层</td>
+</tr>
+<tr>
+<td>稀疏注意力必然优于线性注意力</td>
+<td><strong>尚无定论。</strong> 必须以模型质量和端到端系统指标验证</td>
+</tr>
+</tbody></table>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>四个常见偷换</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li><strong>专用架构较规则，不等于完整产品简单。</strong></li>
+<li><strong>单项 benchmark 获胜，不等于全面替代 GPU。</strong></li>
+<li><strong>完成流片，不等于已经点亮、量产、部署并形成生态。</strong></li>
+<li><strong>DEC&#x2F;IBM 是非正式组织模式类比，不是技术演化定律。</strong></li>
+</ol>
+
+        </div>
+    </article>
+
+<h2 id="自检问题"><a href="#自检问题" class="headerlink" title="自检问题"></a>自检问题</h2><ol>
+<li>为什么“矩阵计算核心比顶级 CPU 更规则”和“AI 芯片产品很难做”可以同时成立？</li>
+<li>一种新的 Attention 结构出现时，它会同时影响产品栈中的哪些层？</li>
+<li>在什么证据条件下，才能从“定制芯片在一组推理基准获胜”进一步判断 CUDA 护城河真的变弱？</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这场讨论真正有价值的地方，不是判定“做芯片到底简单还是困难”，而是迫使比较对象变得精确：</p>
+<ul>
+<li>若对象是<strong>规则矩阵计算核心</strong>，它确实可能比顶级通用 CPU 更容易理解。</li>
+<li>若对象是<strong>先进制程上的高 PPA 芯片</strong>，物理实现、验证和封装仍然困难。</li>
+<li>若对象是<strong>客户愿意迁移的 AI 产品</strong>，编译器、Kernel、运行时、精度、模型适配和支持体系往往决定成败。</li>
+<li>若对象是<strong>长期产业护城河</strong>，关键不是某一层是否神秘，而是团队能否持续跨层共同设计，并在模型变化后快速重构。</li>
+</ul>
+<p>OpenAI Jalapeño 证明了定制推理芯片仍有巨大优化空间。它没有证明 GPU、CUDA 或开放生态已经失效；相反，它再次说明：<strong>未来竞争不是“芯片对芯片”，而是完整系统对完整系统。</strong></p>
+<p>[^openai-chip]: <a target="_blank" rel="noopener" href="https://openai.com/index/openai-broadcom-jalapeno-inference-chip/">OpenAI and Broadcom introduce Jalapeño inference chip</a><br>[^openai-results]: <a target="_blank" rel="noopener" href="https://openai.com/index/jalapeno-first-results/">Jalapeño: First Results</a><br>[^semi]: <a target="_blank" rel="noopener" href="https://newsletter.semianalysis.com/p/openai-jalapeno-better-than-nvidia">SemiAnalysis: OpenAI Jalapeño</a><br>[^cuda]: <a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda">NVIDIA CUDA</a><br>[^dec]: <a target="_blank" rel="noopener" href="https://computerhistory.org/blog/what-the-dec-records-of-minicomputer-giant-digital-equipment-corporation-open-for-research-at-chm/">Computer History Museum: Digital Equipment Corporation records</a><br>[^ibm-pc]: <a target="_blank" rel="noopener" href="https://www.ibm.com/history/personal-computer">IBM: The IBM Personal Computer</a><br>[^pc-history]: <a target="_blank" rel="noopener" href="https://www.computerhistory.org/revolution/personal-computers/17/302">Computer History Museum: Personal Computers</a><br>[^arm]: <a target="_blank" rel="noopener" href="https://investors.arm.com/node/8281/html">Arm Holdings annual filing: licensing model</a><br>[^xla]: <a target="_blank" rel="noopener" href="https://openxla.org/xla/architecture">OpenXLA: XLA Architecture</a><br>[^tpu-doc]: <a target="_blank" rel="noopener" href="https://docs.cloud.google.com/tpu/docs/intro-to-tpu">Google Cloud: Introduction to Cloud TPU</a><br>[^taalas]: <a target="_blank" rel="noopener" href="https://taalas.com/">Taalas</a><br>[^taalas-patent]: <a target="_blank" rel="noopener" href="https://patents.google.com/patent/US20250238726A1/en">Taalas patent: model-specific hardware implementation</a><br>[^tpu-paper]: <a target="_blank" rel="noopener" href="https://research.google/pubs/in-datacenter-performance-analysis-of-a-tensor-processing-unit/">In-Datacenter Performance Analysis of a Tensor Processing Unit</a><br>[^grace]: <a target="_blank" rel="noopener" href="https://docs.nvidia.com/grace-performance-tuning-guide.pdf">NVIDIA Grace Performance Tuning Guide</a><br>[^qwen]: <a target="_blank" rel="noopener" href="https://huggingface.co/Qwen/Qwen3.5-9B">Qwen3.5 model card</a><br>[^deepseek]: <a target="_blank" rel="noopener" href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp">DeepSeek-V3.2-Exp</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>AI Chip System Barriers</p><p><a href="http://icarus.shaojiemike.top/2026/08/26/Work/Artificial Intelligence/AIInfra/AI-Chip-System-Barriers/">http://icarus.shaojiemike.top/2026/08/26/Work/Artificial Intelligence/AIInfra/AI-Chip-System-Barriers/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-26</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-26</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/AI-Chip/">AI Chip</a><a class="link-muted mr-2" rel="tag" href="/tags/Computer-Architecture/">Computer Architecture</a><a class="link-muted mr-2" rel="tag" href="/tags/Compiler/">Compiler</a><a class="link-muted mr-2" rel="tag" href="/tags/NPU/">NPU</a><a class="link-muted mr-2" rel="tag" href="/tags/XLA/">XLA</a><a class="link-muted mr-2" rel="tag" href="/tags/CUDA/">CUDA</a><a class="link-muted mr-2" rel="tag" href="/tags/Inference/">Inference</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/26/Work/Artificial%20Intelligence/Inference/Dynamo-TRTLLM-AgentX/"><span class="level-item">Dynamo TRT-LLM and AgentX</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">609</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">51</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">921</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">结论</span></span></a></li><li><a class="level is-mobile" href="#标题事实核查"><span class="level-left"><span class="level-item">2</span><span class="level-item">标题事实核查</span></span></a></li><li><a class="level is-mobile" href="#双层概念解释"><span class="level-left"><span class="level-item">3</span><span class="level-item">双层概念解释</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#小白版"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">小白版</span></span></a></li><li><a class="level is-mobile" href="#专业版"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">专业版</span></span></a></li></ul></li><li><a class="level is-mobile" href="#缩写与专有名词"><span class="level-left"><span class="level-item">4</span><span class="level-item">缩写与专有名词</span></span></a></li><li><a class="level is-mobile" href="#九位参与者的观点"><span class="level-left"><span class="level-item">5</span><span class="level-item">九位参与者的观点</span></span></a></li><li><a class="level is-mobile" href="#争议焦点"><span class="level-left"><span class="level-item">6</span><span class="level-item">争议焦点</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#计算核心与完整产品"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">计算核心与完整产品</span></span></a></li><li><a class="level is-mobile" href="#垂直整合与开放生态"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">垂直整合与开放生态</span></span></a></li><li><a class="level is-mobile" href="#线性注意力与稀疏注意力"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">线性注意力与稀疏注意力</span></span></a></li></ul></li><li><a class="level is-mobile" href="#综合裁决"><span class="level-left"><span class="level-item">7</span><span class="level-item">综合裁决</span></span></a></li><li><a class="level is-mobile" href="#自检问题"><span class="level-left"><span class="level-item">8</span><span class="level-item">自检问题</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">9</span><span class="level-item">总结</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">31</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-26T08:30:00.000Z">2026-08-26</time></p><p class="title"><a href="/2026/08/26/Work/Artificial%20Intelligence/AIInfra/AI-Chip-System-Barriers/">AI Chip System Barriers</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-26T02:32:06.000Z">2026-08-26</time></p><p class="title"><a href="/2026/08/26/Work/Artificial%20Intelligence/Inference/Dynamo-TRTLLM-AgentX/">Dynamo TRT-LLM and AgentX</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-25T16:00:00.000Z">2026-08-25</time></p><p class="title"><a href="/2026/08/25/Work/InferenceX-Site-Research/">InferenceX Data Pipeline</a></p><p class="categories"><a href="/categories/Work/">Work</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-25T10:10:00.000Z">2026-08-25</time></p><p class="title"><a href="/2026/08/25/Work/Artificial%20Intelligence/AIInfra/Mooncake-Ascend-Transports/">Mooncake Ascend Transports</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Chip/"><span class="tag">AI Chip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
