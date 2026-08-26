@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>InferenceX Data Pipeline - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       本文对齐 InferenceX 官网、公开 API、官方 InferenceX &amp;#x2F; InferenceX-app 仓库、AIPerf，以及 Ascend 与 vLLM-Ascend 一手资料，回答“哪些 NVIDIA 基线真实存在、AgentX 能否迁移到 A3&amp;#x2F;A5、需要多少机器、数据怎样采集和提交”。结论是"><meta property="og:type" content="blog"><meta property="og:title" content="InferenceX Data Pipeline"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/25/Work/InferenceX-Site-Research/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       本文对齐 InferenceX 官网、公开 API、官方 InferenceX &amp;#x2F; InferenceX-app 仓库、AIPerf，以及 Ascend 与 vLLM-Ascend 一手资料，回答“哪些 NVIDIA 基线真实存在、AgentX 能否迁移到 A3&amp;#x2F;A5、需要多少机器、数据怎样采集和提交”。结论是"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-08-25T16:00:00.000Z"><meta property="article:modified_time" content="2026-08-26T02:58:25.811Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="INFERENCEX"><meta property="article:tag" content="AGENTX"><meta property="article:tag" content="VLLM"><meta property="article:tag" content="GPU Benchmark"><meta property="article:tag" content="H100"><meta property="article:tag" content="H200"><meta property="article:tag" content="B200"><meta property="article:tag" content="ASCEND"><meta property="article:tag" content="A3"><meta property="article:tag" content="A5"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/25/Work/InferenceX-Site-Research/"},"headline":"InferenceX Data Pipeline","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-08-25T16:00:00.000Z","dateModified":"2026-08-26T02:58:25.811Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       本文对齐 InferenceX 官网、公开 API、官方 InferenceX &#x2F; InferenceX-app 仓库、AIPerf，以及 Ascend 与 vLLM-Ascend 一手资料，回答“哪些 NVIDIA 基线真实存在、AgentX 能否迁移到 A3&#x2F;A5、需要多少机器、数据怎样采集和提交”。结论是"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/25/Work/InferenceX-Site-Research/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-25T16:00:00.000Z" title="8/25/2026, 4:00:00 PM">2026-08-25</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-26T02:58:25.811Z" title="8/26/2026, 2:58:25 AM">2026-08-26</time></span><span class="level-item"><a class="link-muted" href="/categories/Work/">Work</a></span><span class="level-item">an hour read (About 7039 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">InferenceX Data Pipeline</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>本文对齐 InferenceX 官网、公开 API、官方 InferenceX &#x2F; InferenceX-app 仓库、AIPerf，以及 Ascend 与 vLLM-Ascend 一手资料，回答“哪些 NVIDIA 基线真实存在、AgentX 能否迁移到 A3&#x2F;A5、需要多少机器、数据怎样采集和提交”。结论是：AgentX 客户端可以直接压测 Ascend 的 OpenAI-compatible 服务，但<strong>模型可运行不等于能够同配置复现</strong>；DeepSeek-R1 当前没有原生 vLLM 的 H100&#x2F;H200&#x2F;B200 对照数据，A3 也不支持与 NVIDIA FP4 等价的原生浮点格式。应先建立严格对照的离线长表，再推进官方 runner、PR 与自动入库。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ol>
+<li><strong>指定对比页不能直接作为“vLLM 基线”。</strong> 当前 <a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/api/v1/availability"><code>/api/v1/availability</code></a> 中，DeepSeek-R1 在 H100、H200、B200 上均没有 <code>framework=vllm</code>；现有后端是 Dynamo SGLang、Dynamo TRT-LLM、SGLang 或 TRT-LLM。因此，<a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/compare/deepseek-r1-b200-vs-h100/8k-1k">DeepSeek-R1 B200 vs H100 8K→1K</a> 展示的是硬件组合的现有结果，不能据此得到一个控制后端为 vLLM 的 B200&#x2F;H100 对照组。</li>
+<li><strong>Kimi K3 的问题是场景缺口，不是完全无数据。</strong> 2026-08-26 读取 <a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/api/v1/benchmarks?model=Kimi-K3"><code>benchmarks?model=Kimi-K3</code></a> 得到 107 条最新结果；其中 H100&#x2F;H200&#x2F;B200 共 50 条，全部是 <code>agentic_traces</code>：H200 有 35 条原生 <code>vllm</code> 行，B200 有 15 条 <code>dynamo-vllm</code> 行，H100 为 0。三者均没有固定 8K→1K 的 Kimi K3 数据。</li>
+<li><strong><code>availability</code> 不能当作 benchmark 点数。</strong> 它只暴露模型、ISL&#x2F;OSL、精度、硬件、框架、推测方法、是否解耦、场景和日期，不含并发、拓扑、offload 等维度；例如 Kimi K3 在 H200 只有 1 个 availability 覆盖桶，却对应 35 条最新 benchmark 行。<a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/api">API schema</a> 明确列出了这两个接口的不同字段。</li>
+<li><strong>自动化覆盖“执行—采集—入库”，不覆盖“自动发现新平台”。</strong> 每个数据点来自公开 GitHub Actions；但组合的镜像、命令、并行策略和 runner 都先固化到仓库，配置变化后才重跑。官网说明现在已经不是 nightly 全量跑，而是配置发生变化时重跑。<a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/about#reproducibility">复现说明</a></li>
+<li><strong>正式上站要走官方 PR 和 CI。</strong> 本地结果可用公开 API、图表 CSV、GitHub Actions artifact 或数据库快照离线比较；要进入官网数据库，必须让官方 workflow 产生并接管 artifact，随后由 InferenceX-app 执行 <code>ingest-results</code> 或 <code>ingest-agentic-results</code>。</li>
+<li><strong>AgentX 本身支持 Ascend，但服务端模型支持决定能否完成测试。</strong> AIPerf 只要求可达的 OpenAI-compatible streaming chat endpoint，不绑定 CUDA；真正的约束是模型权重、量化格式、最大上下文、KV cache、并行拓扑和长会话并发。</li>
+<li><strong>A3 不能与 B200 的“FP4”直接等量替换。</strong> A3 可用 W8A8&#x2F;W4A8，其中 W4A8 是 INT4 权重、INT8 激活；原生 MXFP4&#x2F;MXFP8 是 Ascend 950&#x2F;A5 能力。即使 A5 支持 MXFP4，也不能把它和 NVIDIA NVFP4 只按“4 bit”视为同一精度，必须同时报告格式与精度评测。</li>
+<li><strong>Kimi K3 目前是明确的困难项。</strong> 网站原生 vLLM 的 K3&#x2F;AgentX 基线只在 H200 上出现，使用 32 GPU；按设备数换算是 2 台 A3 或 4 台 A5，但当前 vLLM-Ascend 的 A3 验证仍处于 WIP，公开实验用了 16 台 A3，且有 KV 容量和算子稳定性问题。这个例子说明“拓扑等价机器数”不能代替“已验证可运行机器数”。</li>
+</ol>
+<h2 id="当前数据矩阵"><a href="#当前数据矩阵" class="headerlink" title="当前数据矩阵"></a>当前数据矩阵</h2><h3 id="统计口径"><a href="#统计口径" class="headerlink" title="统计口径"></a>统计口径</h3><p>本文在 2026-08-26 一次性读取公开 <code>availability</code> API，共得到 <strong>6,568 个历史覆盖记录</strong>，包含 13 个数据库模型 key、10 个硬件 key、13 个 framework key 和 <code>single_turn</code> &#x2F; <code>agentic_traces</code> 两类 benchmark。接口只返回已经存在无错误 benchmark 行、且 workflow 有完成结论的覆盖组合；字段定义见 <a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX-app/blob/master/packages/db/src/queries/workflow-info.ts">InferenceX-app 查询实现</a> 和 <a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/api">API Reference</a>。</p>
+<p>前端会把部分数据库 key 合并展示，例如 <code>kimik2.5</code>、<code>kimik2.6</code>、<code>kimik2.7-code</code> 都归入 Kimi-K2.5，<code>glm5</code> 和 <code>glm5.1</code> 都归入 GLM-5；映射以 <a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX-app/blob/master/packages/constants/src/models.ts">models.ts</a> 为准。</p>
+<p>当前前端还把模型分为生命周期层级：默认主线包括 DeepSeek-V4-Pro、Kimi-K3、MiniMax-M3、GLM-5.2&#x2F;5.3 和 Qwen-3.5；DeepSeek-R1 已进入 maintenance；Kimi-K2.5、GLM-5、gpt-oss-120b、MiniMax-M2.5 和 Llama-3.3-70B 等属于 deprecated。生命周期定义见 <a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX-app/blob/master/packages/app/src/lib/data-mappings.ts">data-mappings.ts</a>。因此，旧模型有数据不代表官方仍会持续补齐新硬件和新后端。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>名称漂移</p>
+</div>
+        <div class="message-body">
+            <p>当前 Comparison 页面文案已经出现 GLM 5.3，但公开 availability 和前端模型常量仍是 <code>glm5.2</code> &#x2F; <code>GLM-5.2</code>。自动化脚本应先查询 availability 和模型常量，不应抓取营销页面名称作为 API 参数。这更像发布迁移中的短期不一致，不能自行推断两者等价。</p>
+
+        </div>
+    </article>
+
+<h3 id="H100、H200、B200-全后端覆盖"><a href="#H100、H200、B200-全后端覆盖" class="headerlink" title="H100、H200、B200 全后端覆盖"></a>H100、H200、B200 全后端覆盖</h3><p>下表按前端展示模型合并，只列出当前公开数据中出现过的框架。<code>—</code> 表示该模型与硬件没有任何公开覆盖记录。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>H100</th>
+<th>H200</th>
+<th>B200</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DeepSeek-R1-0528</td>
+<td>Dynamo SGLang、Dynamo TRT-LLM</td>
+<td>Dynamo SGLang、Dynamo TRT-LLM、SGLang、TRT-LLM</td>
+<td>Dynamo SGLang、Dynamo TRT-LLM、SGLang、TRT-LLM</td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Pro</td>
+<td>—</td>
+<td>Dynamo SGLang、SGLang、vLLM</td>
+<td>Dynamo SGLang、Dynamo vLLM、SGLang、TRT-LLM、vLLM</td>
+</tr>
+<tr>
+<td>GLM-5 &#x2F; GLM-5.1</td>
+<td>—</td>
+<td>SGLang</td>
+<td>Dynamo SGLang、SGLang、TileRT</td>
+</tr>
+<tr>
+<td>GLM-5.2</td>
+<td>—</td>
+<td>Dynamo SGLang</td>
+<td>SGLang</td>
+</tr>
+<tr>
+<td>gpt-oss-120b</td>
+<td>vLLM</td>
+<td>TRT-LLM、vLLM</td>
+<td>TRT-LLM、vLLM</td>
+</tr>
+<tr>
+<td>Kimi-K2.5 &#x2F; K2.6</td>
+<td>—</td>
+<td>vLLM</td>
+<td>Dynamo TRT-LLM、Dynamo vLLM、vLLM</td>
+</tr>
+<tr>
+<td>Kimi-K3</td>
+<td>—</td>
+<td>vLLM</td>
+<td>Dynamo vLLM</td>
+</tr>
+<tr>
+<td>Llama-3.3-70B</td>
+<td>vLLM</td>
+<td>TRT-LLM、vLLM</td>
+<td>TRT-LLM、vLLM</td>
+</tr>
+<tr>
+<td>MiniMax-M2.5</td>
+<td>vLLM</td>
+<td>vLLM</td>
+<td>Dynamo vLLM、TRT-LLM、vLLM</td>
+</tr>
+<tr>
+<td>MiniMax-M3</td>
+<td>vLLM</td>
+<td>vLLM</td>
+<td>Dynamo vLLM、TRT-LLM、vLLM</td>
+</tr>
+<tr>
+<td>Qwen-3.5-397B-A17B</td>
+<td>SGLang</td>
+<td>SGLang</td>
+<td>SGLang、TRT-LLM</td>
+</tr>
+</tbody></table>
+<h3 id="严格-framework-vllm"><a href="#严格-framework-vllm" class="headerlink" title="严格 framework=vllm"></a>严格 <code>framework=vllm</code></h3><p>这里把 <code>vllm</code>、<code>dynamo-vllm</code> 和 <code>llmd-vllm</code> 视为不同框架 key。<code>F</code> 表示固定序列 <code>single_turn</code>，<code>A</code> 表示 AgentX <code>agentic_traces</code>；“3 seq”表示 1K→1K、1K→8K、8K→1K 均有记录。日期是该格最后一个 availability 日期，反映数据新鲜度，不是软件版本发布时间。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>H100</th>
+<th>H200</th>
+<th>B200</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DeepSeek-R1-0528</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Pro</td>
+<td>—</td>
+<td>F、FP8、1K→1K&#x2F;8K→1K，2026-07-14</td>
+<td>F+A、FP4、1K→1K&#x2F;8K→1K，2026-08-22</td>
+</tr>
+<tr>
+<td>GLM-5 &#x2F; GLM-5.1</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>GLM-5.2</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>gpt-oss-120b</td>
+<td>F、FP4、3 seq，2026-05-17</td>
+<td>F、FP4、3 seq，2026-05-30</td>
+<td>F、FP4、3 seq，2026-05-31</td>
+</tr>
+<tr>
+<td>Kimi-K2.5</td>
+<td>—</td>
+<td>F、INT4、3 seq，2026-05-30</td>
+<td>F、FP4&#x2F;INT4、3 seq，2026-08-07</td>
+</tr>
+<tr>
+<td>Kimi-K3</td>
+<td>—</td>
+<td>A、FP4、2026-08-07</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Llama-3.3-70B</td>
+<td>F、FP8、3 seq，2025-10-29</td>
+<td>F、FP8、3 seq，2025-10-29</td>
+<td>F、FP4&#x2F;FP8、3 seq，2025-10-29</td>
+</tr>
+<tr>
+<td>MiniMax-M2.5</td>
+<td>F、FP8、3 seq，2026-06-04</td>
+<td>F、FP8、3 seq，2026-06-05</td>
+<td>F、FP4&#x2F;FP8、3 seq，2026-06-04</td>
+</tr>
+<tr>
+<td>MiniMax-M3</td>
+<td>F+A、FP8、1K→1K&#x2F;8K→1K，2026-08-12</td>
+<td>F+A、FP8、1K→1K&#x2F;8K→1K，2026-08-12</td>
+<td>F+A、FP4&#x2F;FP8、1K→1K&#x2F;8K→1K，2026-08-16</td>
+</tr>
+<tr>
+<td>Qwen-3.5-397B-A17B</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<p>以下是 H100&#x2F;H200&#x2F;B200 中额外出现的 <strong>vLLM 家族但非原生 <code>vllm</code></strong> 覆盖：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>硬件</th>
+<th>framework key</th>
+<th>场景与精度</th>
+<th>最后日期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DeepSeek-V4-Pro</td>
+<td>B200</td>
+<td><code>dynamo-vllm</code></td>
+<td>F、FP4</td>
+<td>2026-08-07</td>
+</tr>
+<tr>
+<td>Kimi-K2.6</td>
+<td>B200</td>
+<td><code>dynamo-vllm</code></td>
+<td>F、FP4</td>
+<td>2026-07-31</td>
+</tr>
+<tr>
+<td>Kimi-K3</td>
+<td>B200</td>
+<td><code>dynamo-vllm</code></td>
+<td>A、FP4</td>
+<td>2026-08-19</td>
+</tr>
+<tr>
+<td>MiniMax-M2.5</td>
+<td>B200</td>
+<td><code>dynamo-vllm</code></td>
+<td>F、FP4&#x2F;FP8</td>
+<td>2026-06-03</td>
+</tr>
+<tr>
+<td>MiniMax-M3</td>
+<td>B200</td>
+<td><code>dynamo-vllm</code></td>
+<td>F、FP4</td>
+<td>2026-08-04</td>
+</tr>
+</tbody></table>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>框架标识不一定等于实际入口</p>
+</div>
+        <div class="message-body">
+            <p>Kimi K3 的 B200 配置是一个具体反例：当前 <a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX/blob/main/configs/nvidia-master.yaml"><code>nvidia-master.yaml</code></a> 注释说明，配置为 launcher 路由保留 <code>framework: dynamo-vllm</code>，但该变体实际直接执行 <code>vllm serve</code>，没有 Dynamo frontend、worker 或 router。因此做严谨横向比较时不能只按 framework 字符串分组，还应核对 recipe、image、run URL 和拓扑。</p>
+
+        </div>
+    </article>
+
+<h2 id="Ascend-可运行性与机器规模"><a href="#Ascend-可运行性与机器规模" class="headerlink" title="Ascend 可运行性与机器规模"></a>Ascend 可运行性与机器规模</h2><h3 id="硬件口径"><a href="#硬件口径" class="headerlink" title="硬件口径"></a>硬件口径</h3><p>本文把“A3”按当前 vLLM-Ascend 文档常用的 Atlas 800 A3 运行环境计算，把“A5”按已公开的 Atlas 650E A5 &#x2F; Ascend 950DT SKU 计算。两者不能只用营销名称代替具体 SKU。</p>
+<table>
+<thead>
+<tr>
+<th>平台</th>
+<th>单机软件可见设备与 HBM</th>
+<th>相关量化能力</th>
+<th>仅按设备数换算</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Atlas 800 A3</td>
+<td>常见运行环境为 16 个逻辑 NPU × 64 GB；产品口径也会写成 8 × 128 GB，总 HBM 均为 1 TB</td>
+<td>W8A8、W4A8；后者是 INT4 weight + INT8 activation，不是浮点 FP4</td>
+<td><code>ceil(网站 GPU 总数 / 16)</code></td>
+</tr>
+<tr>
+<td>Atlas 650E A5 &#x2F; Ascend 950DT</td>
+<td>8 NPU × 96 GB，总 HBM 768 GB</td>
+<td>HiF8、MXFP8、MXFP4</td>
+<td><code>ceil(网站 GPU 总数 / 8)</code></td>
+</tr>
+</tbody></table>
+<p>硬件容量来自 <a target="_blank" rel="noopener" href="https://e.huawei.com/cn/products/computing/ascend/atlas-800i-a3">Atlas 800I A3</a> 和 <a target="_blank" rel="noopener" href="https://www.hiascend.com/hardware/ai-server?tag=800A2">Atlas 服务器规格</a>；Ascend 950 的新格式能力见 <a target="_blank" rel="noopener" href="https://www.huawei.com/en/news/2025/9/hc-xu-keynote-speech">Huawei Connect 2025 路线说明</a>。路线图中的 144 GB 950DT 与当前公开 96 GB SKU 不是同一容量口径，不能混用。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>机器数不是性能等价</p>
+</div>
+        <div class="message-body">
+            <p>下表的 A3&#x2F;A5 台数首先按网站该行的<strong>总加速器数量</strong>做拓扑换算，只回答“保留相同设备数量需要几台机器”，不代表 GPU 与 NPU 单卡性能、显存或互联等价。若严格固定 TP，显存不足时不能靠增加卡数解决，因为加卡已经改变 TP&#x2F;EP&#x2F;DP 配置；更合理的横评应固定模型、量化精度、场景、并发和延迟 SLO，允许各平台选择最优并行拓扑，并单独披露总设备数。</p>
+
+        </div>
+    </article>
+
+<h3 id="数据与-Ascend-叠加表"><a href="#数据与-Ascend-叠加表" class="headerlink" title="数据与 Ascend 叠加表"></a>数据与 Ascend 叠加表</h3><p><code>网站设备规模</code> 是 H100&#x2F;H200&#x2F;B200 上原生 <code>framework=vllm</code> 行实际出现的 GPU 总数范围，不是理论最小值。A3&#x2F;A5 两列是对应的单次配置换算；凡需要超过 2 台，均按要求标记为 <strong>难（&gt;2 机）</strong>。最后一列再加入当前 vLLM-Ascend 的真实软件支持和已公开部署规模。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>网站原生 vLLM 数据</th>
+<th align="right">网站设备规模</th>
+<th align="right">A3 同设备数</th>
+<th align="right">A5 同设备数</th>
+<th>Ascend 实际状态与判定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DeepSeek-R1-0528</td>
+<td>H100&#x2F;H200&#x2F;B200 均无</td>
+<td align="right">—</td>
+<td align="right">—</td>
+<td align="right">—</td>
+<td>A2&#x2F;A3 支持 W8A8、最大 128K；A5 未显式列入当前矩阵。<strong>缺少 NVIDIA vLLM 对照组，不能直接横评</strong></td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Pro</td>
+<td>H200 固定；B200 固定 + AgentX</td>
+<td align="right">8、64</td>
+<td align="right">1、<strong>4 难</strong></td>
+<td align="right">1、<strong>8 难</strong></td>
+<td>A3 为实验支持，官方 W4A8-MTP 配方至少 2 台；A5 原生支持 MXFP8&#x2F;MXFP4，但 1.6T 权重的容量下界已超过单机，至少 2 台并需实测</td>
+</tr>
+<tr>
+<td>GLM-5 &#x2F; 5.1 &#x2F; 5.2</td>
+<td>均无</td>
+<td align="right">—</td>
+<td align="right">—</td>
+<td align="right">—</td>
+<td>A3 上 GLM-5.2：W8A8&#x2F;W4A8C8 1 台，BF16 2 台；64K 低延迟配方为 2 台。A5 当前明确列出 GLM-5.1，<strong>但网站无原生 vLLM 对照</strong></td>
+</tr>
+<tr>
+<td>gpt-oss-120b</td>
+<td>H100&#x2F;H200&#x2F;B200 固定三种序列</td>
+<td align="right">1–8</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td>当前 vLLM-Ascend 支持矩阵未列出该模型；规模虽小，仍需先完成模型适配验收</td>
+</tr>
+<tr>
+<td>Kimi-K2.5</td>
+<td>H200&#x2F;B200 固定三种序列</td>
+<td align="right">4、8、16、64</td>
+<td align="right">1、<strong>4 难</strong></td>
+<td align="right">1–2、<strong>8 难</strong></td>
+<td>A3 实验支持；固定 8K→1K 的 W4A8 配方可 1 台，高并发 PD 配方因显存建议 4 台，<strong>难（&gt;2 机）</strong>。A5 未显式列出</td>
+</tr>
+<tr>
+<td>Kimi-K3</td>
+<td>H200 仅 AgentX</td>
+<td align="right">32</td>
+<td align="right">2</td>
+<td align="right"><strong>4 难</strong></td>
+<td>主支持矩阵尚未列入。当前 A3 WIP 实验用了 <strong>16 台，难（&gt;2 机）</strong>，仍有 1M KV 容量、原生算子崩溃和性能回退问题；不适合作为首个复现模型</td>
+</tr>
+<tr>
+<td>Llama-3.3-70B</td>
+<td>H100&#x2F;H200&#x2F;B200 固定三种序列</td>
+<td align="right">1–8</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td>vLLM-Ascend 扩展列表覆盖到 Llama 3&#x2F;3.1&#x2F;3.2，3.3 未被当前矩阵明确确认；需先做兼容性 smoke test</td>
+</tr>
+<tr>
+<td>MiniMax-M2.5</td>
+<td>H100&#x2F;H200&#x2F;B200 固定三种序列</td>
+<td align="right">1–64</td>
+<td align="right">1–<strong>4 难</strong></td>
+<td align="right">1–<strong>8 难</strong></td>
+<td>A3&#x2F;A5 均为实验支持；固定小规模可优先试验，但复现 64 卡网站曲线为 <strong>难（&gt;2 机）</strong></td>
+</tr>
+<tr>
+<td>MiniMax-M3</td>
+<td>H100&#x2F;H200&#x2F;B200 固定 + AgentX</td>
+<td align="right">2–64</td>
+<td align="right">1–<strong>4 难</strong></td>
+<td align="right">1–<strong>8 难</strong></td>
+<td>A3 为实验支持，PD disaggregation 尚未支持且存在多模态 parser 已知问题；A5 未显式列出。固定序列可 smoke test，完整 AgentX&#x2F;64 卡曲线为 <strong>难（&gt;2 机）</strong></td>
+</tr>
+<tr>
+<td>Qwen-3.5-397B-A17B</td>
+<td>H100&#x2F;H200&#x2F;B200 均无原生 vLLM</td>
+<td align="right">—</td>
+<td align="right">—</td>
+<td align="right">—</td>
+<td>A3 W8A8 固定测试可 1 台、BF16 2 台；推荐 PD 为 3 台，<strong>难（&gt;2 机）</strong>。A5 原生支持，但<strong>网站缺少同后端对照</strong></td>
+</tr>
+</tbody></table>
+<p>表中网站 GPU 总数来自公开 <a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/api#tag/Benchmarks"><code>benchmarks</code></a> 行的单节点和 prefill&#x2F;decode 拓扑字段。Ascend 模型状态以 <a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/support_matrix/supported_models.md">vLLM-Ascend Supported Models</a> 为主，已验证规模分别参考 <a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/DeepSeek-V4-Pro.md">DeepSeek-V4-Pro</a>、<a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Kimi-K2.5.md">Kimi-K2.5</a>、<a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/GLM5.2.md">GLM-5.2</a> 和 <a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3.5-397B-A17B.md">Qwen-3.5</a> 配方。</p>
+<h3 id="FP4-与量化可比性"><a href="#FP4-与量化可比性" class="headerlink" title="FP4 与量化可比性"></a>FP4 与量化可比性</h3><p>vLLM-Ascend 当前明确区分平台能力：<a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/feature_guide/expert_parallelism_load_balancer.md">量化与 Expert Parallel 文档</a> 中，A2&#x2F;A3 支持 W8A8、动态 W8A8 和 W4A8，Ascend 950 才支持 MXFP4&#x2F;MXFP8。因此应这样记录：</p>
+<ul>
+<li><strong>A3 对 B200 FP4</strong>：不能声称同精度复现。可做 W4A8 或 W8A8 的“平台最优量化”比较，但必须另列模型质量、显存和吞吐，不能把结果标签简写成通用 <code>FP4</code>。</li>
+<li><strong>A5 对 B200 FP4</strong>：可以比较低比特浮点路线，但 <code>MXFP4</code> 与 NVIDIA 结果中的具体 FP4 recipe 仍可能在 block size、scale、累加精度和 kernel 上不同。需要保存完整 quant config，并运行相同 eval。</li>
+<li><strong>严格横评</strong>：优先选择双方都能稳定运行的 BF16&#x2F;FP8-like 或经质量评测对齐的量化权重；若格式不同，将结论写成“各平台最佳可用配置”，不要写成单纯硬件倍数。</li>
+</ul>
+<h3 id="AgentX-在-Ascend-上的判定"><a href="#AgentX-在-Ascend-上的判定" class="headerlink" title="AgentX 在 Ascend 上的判定"></a>AgentX 在 Ascend 上的判定</h3><p>AgentX 客户端层面是<strong>支持</strong>的：AIPerf 不关心服务端是 CUDA 还是 Ascend，只要 vLLM-Ascend 暴露兼容接口。但一个配置能否跑完，要同时通过以下四个门槛：</p>
+<ol>
+<li><strong>模型门槛</strong>：模型必须在当前 vLLM-Ascend 版本和目标 A3&#x2F;A5 SKU 上受支持；实验状态不能等同于生产可跑。</li>
+<li><strong>上下文门槛</strong>：AgentX 的公开 trace 输入常达 100K 以上，尾部可超过 300K；固定 8K→1K 跑通不能证明 AgentX 能跑。必须以目标数据集实际 p95&#x2F;max token 长度配置 <code>max_model_len</code>。</li>
+<li><strong>KV 与并发门槛</strong>：<code>conc</code> 是存活 session tree 数，子 Agent 会使瞬时请求数更高。应从 <code>conc=1</code> 逐级扩展，并记录 cache hit、失败率和是否 OOM，不能照抄 NVIDIA 的高并发列表。</li>
+<li><strong>有效性门槛</strong>：本地 trace 与 <code>--unsafe-override</code> 只能 smoke test；正式可比运行必须使用固定公开 corpus、至少 900 秒，并检查 <code>submission_valid</code>。</li>
+</ol>
+<p>Kimi K3 是上述门槛同时叠加的反例。公开 <a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/issues/14314">Kimi K3 支持 WIP</a> 显示，A3 的 1M 上下文实验在 16 台机器上仍遇到 KV 空间不足；另有 <a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/issues/14527">原生算子崩溃</a> 和 <a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/issues/14567">性能回退</a> 记录。因此不能根据 H200 的 32 GPU 行简单承诺“2 台 A3 可跑”。</p>
+<h3 id="推荐的首轮范围"><a href="#推荐的首轮范围" class="headerlink" title="推荐的首轮范围"></a>推荐的首轮范围</h3><ol>
+<li><strong>若目标必须是 DeepSeek-R1</strong>：先在 NVIDIA 上补跑同一版本、同一场景、原生 vLLM 的控制组，再测 A3&#x2F;A5。否则网站指定页面只能作为展示样例，不能作为 vLLM 硬件结论。</li>
+<li><strong>若目标是先证明链路</strong>：优先用 Kimi-K2.5 的固定 8K→1K 做单机 A3 smoke test；它有 H200&#x2F;B200 原生 vLLM 数据，且 A3 有公开单机 W4A8 配方。随后再逐步增加并发。</li>
+<li><strong>若目标是证明 AgentX</strong>：先在受支持模型上跑 corpus 子集和 <code>conc=1</code>，再跑完整 900–1,800 秒测试。MiniMax-M3 的网站对照最完整，但 Ascend 仍是实验支持，风险高于固定序列。</li>
+<li><strong>暂不以 Kimi K3 为第一目标</strong>：它既缺少固定序列数据，又处于 Ascend 多机 WIP；即使投入超过 2 台机器，也不能保证形成可发布结果。</li>
+</ol>
+<h2 id="AgentX-定义与运行入口"><a href="#AgentX-定义与运行入口" class="headerlink" title="AgentX 定义与运行入口"></a>AgentX 定义与运行入口</h2><h3 id="测量对象"><a href="#测量对象" class="headerlink" title="测量对象"></a>测量对象</h3><p>AgentX 是 AIPerf 中的 <code>inferencex-agentx-mvp</code> 场景，重放长上下文、多轮 agentic-coding 会话树。它保留输入&#x2F;输出长度、共享前缀、子 Agent 扇出、轮间等待和 KV-cache 复用结构；官网明确说明提示文本经过合成，不重放私有用户内容。<a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/about#agentx-how-the-benchmark-works">AgentX 方法说明</a></p>
+<p>核心锁定条件包括：</p>
+<ul>
+<li><strong>OpenAI-compatible streaming chat endpoint</strong>：用于得到 TTFT 和 ITL。</li>
+<li><strong>固定重放规则</strong>：保留轮间延迟，系统全空闲最多压缩到 10 秒。</li>
+<li><strong><code>first_turn_prefix</code> cache busting</strong>：阻止同一 trace 重放造成跨 session 的虚假缓存命中，同时保留 session 内部复用。</li>
+<li><strong>有效时长</strong>：至少 900 秒，默认 1,800 秒。</li>
+<li><strong>固定公开语料</strong>：可比较或提交的运行应使用日期固定的 <code>semianalysis_cc_traces_weka_062126</code>；滚动 alias 会漂移。</li>
+<li><strong>有效性标志</strong>：AIPerf 在结果写入 <code>submission_valid</code>。使用本地任意 Weka 目录或 <code>--unsafe-override</code> 只能做 smoke test，结果会标记为不可提交。</li>
+</ul>
+<p>完整约束和当前 MVP 状态见 <a target="_blank" rel="noopener" href="https://github.com/ai-dynamo/aiperf/blob/main/docs/tutorials/agentx-mvp.md">AIPerf AgentX tutorial</a>。</p>
+<h3 id="最小运行命令"><a href="#最小运行命令" class="headerlink" title="最小运行命令"></a>最小运行命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">aiperf profile \</span><br><span class="line">  --scenario inferencex-agentx-mvp \</span><br><span class="line">  --url http://localhost:8000 \</span><br><span class="line">  --model YOUR_MODEL \</span><br><span class="line">  --endpoint-type chat \</span><br><span class="line">  --public-dataset semianalysis_cc_traces_weka_062126 \</span><br><span class="line">  --concurrency 256</span><br></pre></td></tr></table></figure>
+
+<p>这条命令只要求后端暴露 OpenAI-compatible chat API，因此 <strong>AgentX 客户端入口本身并不绑定 CUDA、vLLM 或 SGLang</strong>。能否得到可比较结果仍取决于服务端能否承受数据集中的上下文、会话树与并发，并满足 <code>submission_valid</code> 的限制。并发表示“同时存活的 session tree 数”，不是瞬时 HTTP 请求数；子 Agent 扇出时，实际请求并发可以更高。</p>
+<p>在 InferenceX 官方仓库中，运行入口分为三层：</p>
+<ol>
+<li><strong>配置层</strong>：<code>configs/*-master.yaml</code> 的 <code>scenarios.agentic-coding</code> 定义模型、硬件 runner、精度、框架、TP&#x2F;PP&#x2F;EP、offload 和 <code>conc-list</code>。<a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX/blob/main/configs/CONFIGS.md">配置规范</a></li>
+<li><strong>服务层</strong>：<code>benchmarks/</code> 中的脚本和 recipe 启动具体推理服务；单节点和多节点 workflow 模板把矩阵字段变成环境变量与 artifact 名称。<a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX/tree/main/benchmarks">benchmark 目录</a></li>
+<li><strong>调度层</strong>：<a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX/blob/main/.github/workflows/run-sweep.yml"><code>run-sweep.yml</code></a> 执行 AgentX matrix，聚合结果，并把成功 artifact dispatch 给 InferenceX-app。</li>
+</ol>
+<h2 id="数据采集与-schema"><a href="#数据采集与-schema" class="headerlink" title="数据采集与 schema"></a>数据采集与 schema</h2><h3 id="自动化边界"><a href="#自动化边界" class="headerlink" title="自动化边界"></a>自动化边界</h3><p>数据链路可以概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">人工 PR / perf-changelog</span><br><span class="line">  → GitHub Actions 在注册的真实硬件 runner 启动服务</span><br><span class="line">  → benchmark_serving 或 AIPerf 发流并采集请求/服务指标</span><br><span class="line">  → process_result 或 process_agentic_result 聚合</span><br><span class="line">  → GitHub Actions 上传 benchmark、raw trace、log、eval artifact</span><br><span class="line">  → InferenceX-app 校验、标准化、入库并刷新 availability</span><br><span class="line">  → 官网通过 /api/v1/* 读取数据库</span><br></pre></td></tr></table></figure>
+
+<p>因此“工具自动采集”是成立的，但应限定为：<strong>组合被人工注册并触发后，测试执行、指标采集、artifact 上传和网站入库自动完成</strong>。它不是从未知硬件环境自动发现模型，也不是抓取用户已有日志后自动生成可发布结果。官网说明每个点都链接到对应的公开 GitHub Actions run、recipe、日志与 artifact。<a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/about#reproducibility">Reproducibility</a></p>
+<h3 id="固定序列结果"><a href="#固定序列结果" class="headerlink" title="固定序列结果"></a>固定序列结果</h3><p>单节点首先生成 <code>&lt;RESULT_FILENAME&gt;.json</code>，<code>utils/process_result.py</code> 再生成 <code>agg_&lt;RESULT_FILENAME&gt;.json</code>；collector 最终输出 <code>results_bmk/agg_bmk.json</code>，形状是 benchmark row 数组。主要字段包括：</p>
+<ul>
+<li><strong>配置</strong>：<code>hw</code>、<code>model</code>、<code>infmax_model_prefix</code>、<code>framework</code>、<code>precision</code>、<code>spec_decoding</code>、<code>image</code>、<code>disagg</code>、<code>is_multinode</code>、<code>isl</code>、<code>osl</code>、<code>conc</code>。</li>
+<li><strong>拓扑</strong>：单节点的 <code>tp</code>、<code>pp</code>、<code>dcp_size</code>、<code>pcp_size</code>、<code>ep</code>、<code>dp_attention</code>；多节点拆成 <code>prefill_*</code>、<code>decode_*</code> 和对应 GPU 数。</li>
+<li><strong>指标</strong>：<code>tput_per_gpu</code>、<code>input_tput_per_gpu</code>、<code>output_tput_per_gpu</code>，以及 TTFT、TPOT、ITL、E2EL 等延迟分位数。</li>
+</ul>
+<p>详细 schema 与 artifact 命名见 <a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX/blob/main/docs/results-and-ingestion.md#throughput-artifacts">Results and Ingestion</a>。</p>
+<h3 id="AgentX-结果"><a href="#AgentX-结果" class="headerlink" title="AgentX 结果"></a>AgentX 结果</h3><p>AgentX 同时上传聚合与原始 sibling：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bmk_agentic_&lt;RESULT_FILENAME&gt;   → 聚合 JSON</span><br><span class="line">agentic_&lt;RESULT_FILENAME&gt;       → results/** 原始树</span><br><span class="line">server_logs_&lt;RESULT_FILENAME&gt;   → 服务端日志</span><br></pre></td></tr></table></figure>
+
+<p><code>process_agentic_result.py</code> 至少需要 <code>profile_export.jsonl</code>，并可读取 <code>profile_export_aiperf.json</code>、<code>server_metrics_export.json</code> 与框架日志。聚合 schema 重点包括：</p>
+<ul>
+<li><strong>场景与计数</strong>：<code>scenario_type: agentic-coding</code>、总请求数、成功请求数、<code>request_accounting</code>。</li>
+<li><strong>缓存与拓扑</strong>：KV offload、offload backend、CPU DRAM 分配、router、TP&#x2F;PP&#x2F;EP 等。</li>
+<li><strong>请求指标</strong>：QPS，TTFT&#x2F;E2EL&#x2F;ITL&#x2F;TPOT&#x2F;interactivity 分位数，token 分布，总吞吐和每 GPU 吞吐。</li>
+<li><strong>服务指标</strong>：prefix cache、KV-cache、token totals、告警和数据来源。</li>
+<li><strong>数据集溯源</strong>：从 AIPerf <code>metadata.dataset</code> 复制的 <code>dataset</code>。</li>
+</ul>
+<p>入库后，公开 API 把配置字段置于顶层，把可演化的数值指标放入 <code>metrics</code> 对象；AgentX 行使用 <code>benchmark_type=agentic_traces</code>、<code>isl=null</code>、<code>osl=null</code>，并以 <code>conc</code> 表示用户&#x2F;session-tree 并发。<a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/api#schema">公开 BenchmarkRow schema</a></p>
+<h2 id="提交到网站"><a href="#提交到网站" class="headerlink" title="提交到网站"></a>提交到网站</h2><h3 id="官方路径"><a href="#官方路径" class="headerlink" title="官方路径"></a>官方路径</h3><p>官网没有公开的“上传结果文件”端点。根据 <a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> 和 ingestion 实现，正式上站流程是：</p>
+<ol>
+<li>Fork 仓库并增加或修改硬件 runner、master config、benchmark 脚本&#x2F;recipe 和必要验证。</li>
+<li>所有可能影响性能的改动都在 <code>perf-changelog.yaml</code> <strong>末尾追加</strong>记录，不得改写历史条目。</li>
+<li>提交 PR，运行 PR validation 和完整 sweep，包括 eval；官方建议使用 <code>full-sweep-fail-fast</code> label。</li>
+<li>由对应公司的 CODEOWNER 按最新 checklist 签字，并链接 validation&#x2F;eval run、vLLM recipe 或 SGLang cookbook PR。</li>
+<li>获得核心 maintainer 审批；授权 maintainer 发布 <code>/reuse-sweep-run</code>，复用 PR 上已经成功的昂贵 sweep。</li>
+<li>合并后的 main workflow 通过 <code>ingest-results</code> 或 <code>ingest-agentic-results</code> 将 source run artifact 交给 InferenceX-app，完成 schema 迁移、标准化、upsert、availability 刷新和缓存失效。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>不能只交本地 JSON</p>
+</div>
+        <div class="message-body">
+            <p>InferenceX-app 的写入身份绑定 GitHub <code>run_id + run_attempt</code>、标准化 config 和配套 artifact。即使本地 JSON 字段看起来一致，也缺少 runner、workflow、changelog、raw sibling、eval 与日志溯源，不能通过现有公开流程直接出现在网站上。这是根据官方 ingestion 主键和 dispatch 链路得出的结论。</p>
+
+        </div>
+    </article>
+
+<h3 id="最低合作前提"><a href="#最低合作前提" class="headerlink" title="最低合作前提"></a>最低合作前提</h3><p>若希望新硬件正式进入网站，需要提前与 InferenceX maintainer 对齐：</p>
+<ul>
+<li>可供 GitHub Actions 调度的稳定 runner&#x2F;集群与硬件标签；</li>
+<li>官方可审计的容器或上游运行时镜像；</li>
+<li>固定模型权重、精度、tokenizer&#x2F;chat template 与并行拓扑；</li>
+<li>与现有 benchmark schema 对齐的服务启动、健康检查、指标采集和清理逻辑；</li>
+<li>可公开的 workflow 日志、artifact 和 CODEOWNER 审批责任。</li>
+</ul>
+<h2 id="离线横向比较"><a href="#离线横向比较" class="headerlink" title="离线横向比较"></a>离线横向比较</h2><h3 id="推荐顺序"><a href="#推荐顺序" class="headerlink" title="推荐顺序"></a>推荐顺序</h3><ol>
+<li><strong>快速覆盖盘点</strong>：先查 <code>/api/v1/availability</code>，确定真实存在的模型、硬件、框架、精度、场景和日期。</li>
+<li><strong>获取可比较行</strong>：固定 display model 后查 <code>/api/v1/benchmarks?model=...</code>；历史趋势使用 <code>/api/v1/benchmarks/history</code>。固定序列必须精确匹配 ISL、OSL；AgentX 使用 <code>benchmarkType=agentic_traces</code>，不要错误地过滤掉 <code>isl=null</code> &#x2F; <code>osl=null</code>。</li>
+<li><strong>保留溯源</strong>：每条横向比较至少保留 <code>id</code>、<code>date</code>、<code>run_url</code>、image、recipe fingerprint、模型&#x2F;精度&#x2F;框架、并行拓扑、GPU 总数、并发、offload、MTP 和 <code>metrics</code>。</li>
+<li><strong>下载原始证据</strong>：需要检查未入库结果、服务日志或 AgentX raw trace 时，从 <code>run_url</code> 对应的 GitHub Actions 下载 <code>results_bmk</code>、<code>agentic_*</code>、<code>server_logs_*</code> 等 artifact。</li>
+<li><strong>大规模历史分析</strong>：从 <a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX-app/releases?q=db-dump">InferenceX-app DB Dump Releases</a> 下载周度 PostgreSQL dump，校验 <code>SHA256SUMS</code> 后恢复到本地 PostgreSQL。官网也允许在图表直接导出 raw CSV。<a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/about#frequently-asked-questions">数据使用说明</a></li>
+</ol>
+<h3 id="API-示例"><a href="#API-示例" class="headerlink" title="API 示例"></a>API 示例</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 发现 H100/H200/B200 的原生 vLLM 覆盖</span></span><br><span class="line">curl --fail --compressed \</span><br><span class="line">  <span class="string">&#x27;https://inferencex.semianalysis.com/api/v1/availability&#x27;</span> \</span><br><span class="line">| jq <span class="string">&#x27;[.[] | select(</span></span><br><span class="line"><span class="string">    (.hardware == &quot;h100&quot; or .hardware == &quot;h200&quot; or .hardware == &quot;b200&quot;)</span></span><br><span class="line"><span class="string">    and .framework == &quot;vllm&quot;</span></span><br><span class="line"><span class="string">  )]&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Kimi K3 当前最新结果；随后必须继续按硬件、框架和场景过滤</span></span><br><span class="line">curl --fail --compressed \</span><br><span class="line">  <span class="string">&#x27;https://inferencex.semianalysis.com/api/v1/benchmarks?model=Kimi-K3&#x27;</span> \</span><br><span class="line">| jq <span class="string">&#x27;[.[] | select(</span></span><br><span class="line"><span class="string">    (.hardware == &quot;h100&quot; or .hardware == &quot;h200&quot; or .hardware == &quot;b200&quot;)</span></span><br><span class="line"><span class="string">    and .benchmark_type == &quot;agentic_traces&quot;</span></span><br><span class="line"><span class="string">  ) | &#123;</span></span><br><span class="line"><span class="string">    id, date, hardware, framework, precision, conc,</span></span><br><span class="line"><span class="string">    is_multinode, num_prefill_gpu, num_decode_gpu,</span></span><br><span class="line"><span class="string">    spec_method, offload_mode,</span></span><br><span class="line"><span class="string">    tput_per_gpu: .metrics.tput_per_gpu,</span></span><br><span class="line"><span class="string">    median_ttft: .metrics.median_ttft,</span></span><br><span class="line"><span class="string">    p95_e2el: .metrics.p95_e2el,</span></span><br><span class="line"><span class="string">    run_url</span></span><br><span class="line"><span class="string">  &#125;]&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="可比性主键"><a href="#可比性主键" class="headerlink" title="可比性主键"></a>可比性主键</h3><p>离线表格不能只按“模型 + GPU”对齐。至少应把以下字段作为联合主键或严格过滤条件：</p>
+<ul>
+<li>模型权重版本、tokenizer 与 chat template；</li>
+<li>场景与数据集版本：固定 ISL&#x2F;OSL，或 AgentX 日期固定 corpus、随机种子与 <code>submission_valid</code>；</li>
+<li>精度与量化实现；</li>
+<li>framework、image&#x2F;commit、MTP&#x2F;spec method；</li>
+<li>单&#x2F;多节点、TP&#x2F;PP&#x2F;EP&#x2F;DCP&#x2F;PCP、prefill&#x2F;decode worker 数与总 GPU 数；</li>
+<li>disaggregation、router、KV offload&#x2F;backends；</li>
+<li>concurrency、benchmark duration 和失败率；</li>
+<li>指标定义与单位，特别是 per-GPU、per-chip 与整个部署总吞吐之间的差别。</li>
+</ul>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>建议交付物</p>
+</div>
+        <div class="message-body">
+            <p>第一阶段先维护一份“公开基线 + 本地新硬件”统一长表，所有行保留 <code>source=InferenceX API | local</code> 与 <code>official=true | false</code>。只有联合主键完全一致的行才计算性能比；其余行只作为能力覆盖或成本估算，不进入一对一性能结论。正式上站是第二阶段，不能替代第一阶段的本地可比性验证。</p>
+
+        </div>
+    </article>
+
+<h2 id="一手来源"><a href="#一手来源" class="headerlink" title="一手来源"></a>一手来源</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/compare">InferenceX Comparison Catalog</a></li>
+<li><a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/inference">InferenceX Dashboard</a></li>
+<li><a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/api">InferenceX Public API Reference</a></li>
+<li><a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/api/v1/availability">InferenceX Availability API</a></li>
+<li><a target="_blank" rel="noopener" href="https://inferencex.semianalysis.com/about">InferenceX About and Reproducibility</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX">SemiAnalysisAI&#x2F;InferenceX</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX/blob/main/docs/results-and-ingestion.md">Results and Ingestion</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX/blob/main/configs/CONFIGS.md">Configuration Schema</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX/blob/main/configs/nvidia-master.yaml">NVIDIA Master Config</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX-app/blob/master/packages/constants/src/models.ts">InferenceX-app Model Mapping</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/InferenceX-app/releases?q=db-dump">InferenceX-app DB Dumps</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/ai-dynamo/aiperf/blob/main/docs/tutorials/agentx-mvp.md">AIPerf AgentX MVP Tutorial</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/SemiAnalysisAI/agentx-harness">AgentX Harness</a></li>
+<li><a target="_blank" rel="noopener" href="https://e.huawei.com/cn/products/computing/ascend/atlas-800i-a3">Atlas 800I A3</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/hardware/ai-server?tag=800A2">Atlas A5 &#x2F; Ascend 950 Server Specifications</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/support_matrix/supported_models.md">vLLM-Ascend Supported Models</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/user_guide/feature_guide/quantization.md">vLLM-Ascend Quantization</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/DeepSeek-V4-Pro.md">DeepSeek-V4-Pro on Ascend</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Kimi-K2.5.md">Kimi-K2.5 on Ascend</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/GLM5.2.md">GLM-5.2 on Ascend</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/blob/main/docs/source/tutorials/models/Qwen3.5-397B-A17B.md">Qwen-3.5-397B on Ascend</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm-ascend/issues/14314">Kimi K3 Ascend Support WIP</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>InferenceX Data Pipeline</p><p><a href="http://icarus.shaojiemike.top/2026/08/25/Work/InferenceX-Site-Research/">http://icarus.shaojiemike.top/2026/08/25/Work/InferenceX-Site-Research/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-25</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-26</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/INFERENCEX/">INFERENCEX</a><a class="link-muted mr-2" rel="tag" href="/tags/AGENTX/">AGENTX</a><a class="link-muted mr-2" rel="tag" href="/tags/VLLM/">VLLM</a><a class="link-muted mr-2" rel="tag" href="/tags/GPU-Benchmark/">GPU Benchmark</a><a class="link-muted mr-2" rel="tag" href="/tags/H100/">H100</a><a class="link-muted mr-2" rel="tag" href="/tags/H200/">H200</a><a class="link-muted mr-2" rel="tag" href="/tags/B200/">B200</a><a class="link-muted mr-2" rel="tag" href="/tags/ASCEND/">ASCEND</a><a class="link-muted mr-2" rel="tag" href="/tags/A3/">A3</a><a class="link-muted mr-2" rel="tag" href="/tags/A5/">A5</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/25/Work/Artificial%20Intelligence/AIInfra/Mooncake-Ascend-Transports/"><span class="level-item">Mooncake Ascend Transports</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">607</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">51</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">915</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">结论</span></span></a></li><li><a class="level is-mobile" href="#当前数据矩阵"><span class="level-left"><span class="level-item">2</span><span class="level-item">当前数据矩阵</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#统计口径"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">统计口径</span></span></a></li><li><a class="level is-mobile" href="#H100、H200、B200-全后端覆盖"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">H100、H200、B200 全后端覆盖</span></span></a></li><li><a class="level is-mobile" href="#严格-framework-vllm"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">严格 framework=vllm</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Ascend-可运行性与机器规模"><span class="level-left"><span class="level-item">3</span><span class="level-item">Ascend 可运行性与机器规模</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#硬件口径"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">硬件口径</span></span></a></li><li><a class="level is-mobile" href="#数据与-Ascend-叠加表"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">数据与 Ascend 叠加表</span></span></a></li><li><a class="level is-mobile" href="#FP4-与量化可比性"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">FP4 与量化可比性</span></span></a></li><li><a class="level is-mobile" href="#AgentX-在-Ascend-上的判定"><span class="level-left"><span class="level-item">3.4</span><span class="level-item">AgentX 在 Ascend 上的判定</span></span></a></li><li><a class="level is-mobile" href="#推荐的首轮范围"><span class="level-left"><span class="level-item">3.5</span><span class="level-item">推荐的首轮范围</span></span></a></li></ul></li><li><a class="level is-mobile" href="#AgentX-定义与运行入口"><span class="level-left"><span class="level-item">4</span><span class="level-item">AgentX 定义与运行入口</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#测量对象"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">测量对象</span></span></a></li><li><a class="level is-mobile" href="#最小运行命令"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">最小运行命令</span></span></a></li></ul></li><li><a class="level is-mobile" href="#数据采集与-schema"><span class="level-left"><span class="level-item">5</span><span class="level-item">数据采集与 schema</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#自动化边界"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">自动化边界</span></span></a></li><li><a class="level is-mobile" href="#固定序列结果"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">固定序列结果</span></span></a></li><li><a class="level is-mobile" href="#AgentX-结果"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">AgentX 结果</span></span></a></li></ul></li><li><a class="level is-mobile" href="#提交到网站"><span class="level-left"><span class="level-item">6</span><span class="level-item">提交到网站</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#官方路径"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">官方路径</span></span></a></li><li><a class="level is-mobile" href="#最低合作前提"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">最低合作前提</span></span></a></li></ul></li><li><a class="level is-mobile" href="#离线横向比较"><span class="level-left"><span class="level-item">7</span><span class="level-item">离线横向比较</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#推荐顺序"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">推荐顺序</span></span></a></li><li><a class="level is-mobile" href="#API-示例"><span class="level-left"><span class="level-item">7.2</span><span class="level-item">API 示例</span></span></a></li><li><a class="level is-mobile" href="#可比性主键"><span class="level-left"><span class="level-item">7.3</span><span class="level-item">可比性主键</span></span></a></li></ul></li><li><a class="level is-mobile" href="#一手来源"><span class="level-left"><span class="level-item">8</span><span class="level-item">一手来源</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">29</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-25T16:00:00.000Z">2026-08-25</time></p><p class="title"><a href="/2026/08/25/Work/InferenceX-Site-Research/">InferenceX Data Pipeline</a></p><p class="categories"><a href="/categories/Work/">Work</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-25T10:10:00.000Z">2026-08-25</time></p><p class="title"><a href="/2026/08/25/Work/Artificial%20Intelligence/AIInfra/Mooncake-Ascend-Transports/">Mooncake Ascend Transports</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-25T10:00:00.000Z">2026-08-25</time></p><p class="title"><a href="/2026/08/25/Work/Artificial%20Intelligence/AIInfra/AIV-Direct-Drive-Programming/">AIV Direct Drive Programming</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-25T06:00:00.000Z">2026-08-25</time></p><p class="title"><a href="/2026/08/25/Work/Artificial%20Intelligence/AIInfra/DMA-Communication-Terminology/">DMA Communication Terminology</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">31</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Infrastructure/"><span class="tag">AI Infrastructure</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
