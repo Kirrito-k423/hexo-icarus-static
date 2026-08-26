@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Ascend Communication Stack - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       华为昇腾通信资料最容易制造一种错觉：DMA、HCCS、HCCL、SHMEM、Fabric Memory 和 AIV 直驱仿佛是一摞可以从上到下整齐堆叠的软件层。实际并非如此。这些词分别回答“谁组织通信、谁建立地址、谁提交任务、谁搬数据、数据走哪条物理链路、对端是否参与”中的不同问题。有些是库，有些是协议或硬件，有些只是数据路径属性"><meta property="og:type" content="blog"><meta property="og:title" content="Ascend Communication Stack"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/26/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-Stack/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       华为昇腾通信资料最容易制造一种错觉：DMA、HCCS、HCCL、SHMEM、Fabric Memory 和 AIV 直驱仿佛是一摞可以从上到下整齐堆叠的软件层。实际并非如此。这些词分别回答“谁组织通信、谁建立地址、谁提交任务、谁搬数据、数据走哪条物理链路、对端是否参与”中的不同问题。有些是库，有些是协议或硬件，有些只是数据路径属性"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2026/08/8849fa643481872845988eba21956631.png"><meta property="article:published_time" content="2026-08-26T04:00:00.000Z"><meta property="article:modified_time" content="2026-08-26T07:36:38.188Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="AIV"><meta property="article:tag" content="HCCL"><meta property="article:tag" content="SHMEM"><meta property="article:tag" content="RDMA"><meta property="article:tag" content="RoCE"><meta property="article:tag" content="HCCS"><meta property="article:tag" content="Memory Semantics"><meta property="article:tag" content="DMA"><meta property="article:tag" content="UDMA"><meta property="article:tag" content="UnifiedBus"><meta property="article:tag" content="HiXL"><meta property="article:tag" content="CANN VMM"><meta property="article:tag" content="Fabric Memory"><meta property="article:tag" content="TileXR"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/26/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-Stack/"},"headline":"Ascend Communication Stack","image":["https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png","https://pic.shaojiemike.top/shaojiemike/2026/08/8849fa643481872845988eba21956631.png"],"datePublished":"2026-08-26T04:00:00.000Z","dateModified":"2026-08-26T07:36:38.188Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       华为昇腾通信资料最容易制造一种错觉：DMA、HCCS、HCCL、SHMEM、Fabric Memory 和 AIV 直驱仿佛是一摞可以从上到下整齐堆叠的软件层。实际并非如此。这些词分别回答“谁组织通信、谁建立地址、谁提交任务、谁搬数据、数据走哪条物理链路、对端是否参与”中的不同问题。有些是库，有些是协议或硬件，有些只是数据路径属性"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/26/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-Stack/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-26T04:00:00.000Z" title="8/26/2026, 4:00:00 AM">2026-08-26</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-26T07:36:38.188Z" title="8/26/2026, 7:36:38 AM">2026-08-26</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">3 hours read (About 22727 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Ascend Communication Stack</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>华为昇腾通信资料最容易制造一种错觉：DMA、HCCS、HCCL、SHMEM、Fabric Memory 和 AIV 直驱仿佛是一摞可以从上到下整齐堆叠的软件层。实际并非如此。<strong>这些词分别回答“谁组织通信、谁建立地址、谁提交任务、谁搬数据、数据走哪条物理链路、对端是否参与”中的不同问题。</strong>有些是库，有些是协议或硬件，有些只是数据路径属性；把它们画在同一层，关系一定会错。</p>
+<p>本文把历史纵轴和技术横轴合并：先建立一张总地图，再逐个概念给出小白版与专业版解释，最后核对公开仓库的首次可见提交、立项目的、硬件范围、迁移和待废弃状态。研究截止日为 <strong>2026 年 8 月 26 日</strong>。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="核心结论"><a href="#核心结论" class="headerlink" title="核心结论"></a>核心结论</h2><ol>
+<li><strong>这不是一座塔，而是五条相交的轴。</strong>HCCL、HiXL、SHMEM 和 TileXR 是不同用途的上层软件；DMA、MTE、SDMA、RDMA、UDMA 是数据执行机制；HCCS、PCIe、RoCE、UB 是互联；IPC、VMM、对称堆、内存注册是地址和内存语义；零拷贝与 AIV 直驱则是跨层属性。</li>
+<li><strong>内存语义是一份“允许观察到什么”的契约，不是一种内存或一条链路。</strong>狭义内存模型规定 load&#x2F;store&#x2F;atomic&#x2F;fence 的顺序和可见结果；UBMEM&#x2F;UMDK 语境采用更宽的系统口径，还涉及寻址、权限、远端操作、完成、同步和生命周期。支持远端地址访问不能自动推出 cache coherent、强一致、全局立即可见或持久化。</li>
+<li><strong>CANN 的 <code>xDMA</code> 是家族名，RDMA 与 RoCE 也不是同义词。</strong>当前 SHMEM 术语表把 xDMA 定义为 DMA 类引擎统称，可概括 SDMA、RDMA&#x2F;RoCE、UDMA 等后端；MTE 在该项目的后端分类里与 xDMA 并列。RDMA 是远程访存能力和队列语义，RoCE 是把 InfiniBand RDMA transport 承载于 Ethernet 的具体协议；AMD&#x2F;Xilinx <code>XDMA</code> 则是 FPGA PCIe DMA 产品。</li>
+<li><strong>HCCS、HCCL 不是同一类对象。</strong>HCCS 是服务器或超节点内互联；HCCL 是集合通信库，向上提供 AllReduce、AllGather、AllToAll 等语义，向下通过 HCOMM 等资源与传输层使用 HCCS、RoCE、PCIe 或 UB 能力。</li>
+<li><strong>UB、UBMEM、UDMA 和 URMA 也不是同义词。</strong>UB 是灵衢 UnifiedBus 互联体系；UBMEM 是内存语义；URMA 是 UB 上的统一远程内存访问模型；UDMA 是当前 CANN SHMEM&#x2F;HCOMM 中面向 Ascend 950 的具体 DMA 数据后端。</li>
+<li><strong>SHMEM 与 HCCL 是两种编程模型。</strong>HCCL 从“整个通信组要完成哪个 collective”出发；SHMEM 从“当前 PE 要访问哪个 PE 的对称内存”出发。SHMEM 可以实现 collective，但不能因此把 HCCL 包含进 SHMEM。</li>
+<li><strong>ADXL 正在被 HiXL 新 API 取代，但兼容代码尚未删除。</strong>HiXL 公开仓从 2025 年 10 月起同时包含 HIXL 与 ADXL 接口；2026 年 4 月公开文档把 ADXL 明确列入“待废弃”。这应写作“API 迁移中”，不能写成“ADXL 已不可用”。</li>
+<li><strong><code>USE_UBSHMEM</code> 不等于 <code>cann/shmem</code>。</strong>Mooncake 的 UBShmem transport 是基于 CANN VMM、Fabric&#x2F;IPC 共享句柄和 ACL 异步复制的专用路径；固定公开源码没有调用 <code>aclshmem</code> Device API，也不能据名称推断为 AIV 直驱。</li>
+<li><strong>Fabric Memory 与 CANN VMM 是上下层关系。</strong>VMM 提供物理内存、虚拟地址、映射、权限和共享句柄；Fabric Memory 是利用这些机制，把超节点内远端内存纳入可访问地址空间的模式。VMM 本身不是传输协议。</li>
+<li><strong>零拷贝和 AIV 直驱都不是独立传输引擎。</strong>零拷贝描述中间副本是否被消除；AIV 直驱描述谁构造和提交通信任务。二者都不能回答数据最终由 MTE、SDMA、RDMA 还是 UDMA 搬运。</li>
+<li><strong>多数“立项时间”无法从公开资料核实。</strong>本文只把仓库首个可见提交、首次公开说明、首个标签和正式开源公告写成事实；内部立项、闭源实现沿革与芯片 RTL 时间没有一手证据时统一标为“暂未核实”。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>读图原则</p>
+</div>
+        <div class="message-body">
+            <p><strong>实线表示公开接口或源码能确认的调用或依赖，虚线表示可选后端、兼容关系或设计意图。</strong>“位于下方”不自动等于“被上方包含”；同一库也可能根据芯片、拓扑、数据方向和 CANN 版本选择完全不同的路径。</p>
+
+        </div>
+    </article>
+
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>证据口径</p>
+</div>
+        <div class="message-body">
+            <p><strong>事实</strong>来自官方规范、版本文档、公开源码或可复核 Git 历史；<strong>推断</strong>是由多个事实连接得到、但尚无官方一句话确认的判断；<strong>观点</strong>用于给出制图、迁移或验证建议。仓库首提交只代表“不晚于该日公开可见”，不能替代内部立项日期。</p>
+
+        </div>
+    </article>
+
+<h2 id="总体架构"><a href="#总体架构" class="headerlink" title="总体架构"></a>总体架构</h2><p>先看总图，再读后面的概念卡。图中从上到下依次回答：程序选择什么通信语义、运行时如何建立地址和资源、谁提交任务、谁搬运数据，以及字节最终经过哪种互联。右侧的内存语义、零拷贝与 AIV 直驱是<strong>横向契约或属性</strong>，不能被误画成第六层传输协议。</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png" alt="昇腾通信栈的五轴架构与内存语义契约面"></p>
+<p><em>图 1：昇腾通信栈五轴架构。根据本文研究内容整理的自绘示意图。</em></p>
+<p>阅读时应重点区分黄色主路径与紫色横向属性：相邻方框表示一次请求可能经过的责任边界，不表示上层只能依赖唯一后端，也不表示两个名词存在包含关系。</p>
+<p>下面保留可复制、可搜索的 Mermaid 结构图；它与上图表达同一组关系，用于后续修改和局部引用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line">flowchart TB</span><br><span class="line">    subgraph APP[&quot;业务与算子&quot;]</span><br><span class="line">        FRAME[&quot;PyTorch / MindSpore / 训练与推理框架&quot;]</span><br><span class="line">        KV[&quot;Mooncake / KV Cache / 参数分发&quot;]</span><br><span class="line">        OP[&quot;自定义算子 / MC2 / 通算融合&quot;]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph API[&quot;通信语义与产品库&quot;]</span><br><span class="line">        HCCL[&quot;HCCL&lt;br&gt;集合通信&quot;]</span><br><span class="line">        HIXL[&quot;HiXL&lt;br&gt;Host 侧单边传输&quot;]</span><br><span class="line">        ADXL[&quot;ADXL compatibility&lt;br&gt;待废弃 API&quot;]</span><br><span class="line">        SHMEM[&quot;cann/shmem&lt;br&gt;PE + 对称内存 + RMA&quot;]</span><br><span class="line">        UBS[&quot;Mooncake UBShmem&lt;br&gt;VMM 映射快路&quot;]</span><br><span class="line">        TILE[&quot;TileXR&lt;br&gt;Tile 通信与融合算子&quot;]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    SEM[&quot;内存语义契约面&lt;br&gt;寻址 / 顺序 / 完成 / 可见性&lt;br&gt;原子性 / 一致性域 / 生命周期&quot;]</span><br><span class="line"></span><br><span class="line">    subgraph RES[&quot;资源、地址与运行时&quot;]</span><br><span class="line">        HCOMM[&quot;HCOMM&lt;br&gt;控制面 / 数据面资源&quot;]</span><br><span class="line">        VMM[&quot;CANN Runtime VMM&lt;br&gt;Reserve / Physical / Map / Access&quot;]</span><br><span class="line">        IPC[&quot;CANN IPC&lt;br&gt;导出 / 打开设备内存句柄&quot;]</span><br><span class="line">        SYM[&quot;SHMEM Runtime&lt;br&gt;Bootstrap / Team / 对称堆 / 注册&quot;]</span><br><span class="line">        UBMEM[&quot;UBMEM&lt;br&gt;UB 内存语义&quot;]</span><br><span class="line">        FM[&quot;Fabric Memory&lt;br&gt;远端物理内存映射模式&quot;]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph ENG[&quot;提交者与数据搬运引擎&quot;]</span><br><span class="line">        HOST[&quot;Host / AICPU 提交&quot;]</span><br><span class="line">        AIV[&quot;AIV 直驱&lt;br&gt;Device 侧提交与同步&quot;]</span><br><span class="line">        MTE[&quot;MTE&lt;br&gt;AI Core 内存搬运&quot;]</span><br><span class="line">        SDMA[&quot;SDMA&quot;]</span><br><span class="line">        RDMA[&quot;RDMA / RoCE Engine&quot;]</span><br><span class="line">        UDMA[&quot;UDMA&lt;br&gt;Ascend 950&quot;]</span><br><span class="line">        ACLCOPY[&quot;ACL Copy / LD-ST&quot;]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph FAB[&quot;互联与内存&quot;]</span><br><span class="line">        PCIE[&quot;PCIe / 片内 NoC&quot;]</span><br><span class="line">        HCCS[&quot;HCCS / SIO&quot;]</span><br><span class="line">        ROCE[&quot;RoCE / Ethernet&quot;]</span><br><span class="line">        UB[&quot;UnifiedBus / URMA&quot;]</span><br><span class="line">        MEM[&quot;Host DRAM / Device HBM-GM / Remote Memory&quot;]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    ZERO[&quot;零拷贝&lt;br&gt;跨层路径属性&quot;]</span><br><span class="line"></span><br><span class="line">    FRAME --&gt; HCCL</span><br><span class="line">    KV --&gt; HIXL</span><br><span class="line">    KV --&gt; UBS</span><br><span class="line">    OP --&gt; SHMEM</span><br><span class="line">    OP --&gt; TILE</span><br><span class="line">    ADXL -. &quot;兼容层，迁移到新 API&quot; .-&gt; HIXL</span><br><span class="line"></span><br><span class="line">    HCCL --&gt; HCOMM</span><br><span class="line">    HIXL -. &quot;复用通信与运行时能力&quot; .-&gt; HCOMM</span><br><span class="line">    HIXL --&gt; VMM</span><br><span class="line">    SHMEM --&gt; SYM</span><br><span class="line">    SHMEM -. &quot;显式 RMA/AMO/同步语义&quot; .-&gt; SEM</span><br><span class="line">    SHMEM -. &quot;950 UDMA 资源&quot; .-&gt; HCOMM</span><br><span class="line">    UBS --&gt; VMM</span><br><span class="line">    VMM -. &quot;只覆盖映射、权限与生命周期的一部分&quot; .-&gt; SEM</span><br><span class="line">    TILE --&gt; IPC</span><br><span class="line">    TILE --&gt; HCCL</span><br><span class="line">    TILE -. &quot;UDMA 路径；公开真机验证待补&quot; .-&gt; SHMEM</span><br><span class="line"></span><br><span class="line">    VMM --&gt; FM</span><br><span class="line">    IPC --&gt; MTE</span><br><span class="line">    SYM --&gt; MTE</span><br><span class="line">    SYM --&gt; SDMA</span><br><span class="line">    SYM --&gt; RDMA</span><br><span class="line">    SYM --&gt; UDMA</span><br><span class="line">    FM --&gt; ACLCOPY</span><br><span class="line">    HCOMM --&gt; HOST</span><br><span class="line">    HCOMM --&gt; AIV</span><br><span class="line">    HCOMM --&gt; UBMEM</span><br><span class="line">    UBMEM -. &quot;UB 的内存语义实现路径&quot; .-&gt; SEM</span><br><span class="line">    UBMEM --&gt; UB</span><br><span class="line"></span><br><span class="line">    HOST --&gt; SDMA</span><br><span class="line">    HOST --&gt; RDMA</span><br><span class="line">    HOST --&gt; UDMA</span><br><span class="line">    AIV --&gt; MTE</span><br><span class="line">    AIV --&gt; RDMA</span><br><span class="line">    AIV --&gt; UDMA</span><br><span class="line"></span><br><span class="line">    MTE --&gt; PCIE</span><br><span class="line">    MTE --&gt; HCCS</span><br><span class="line">    SDMA --&gt; HCCS</span><br><span class="line">    RDMA --&gt; ROCE</span><br><span class="line">    UDMA --&gt; UB</span><br><span class="line">    ACLCOPY --&gt; HCCS</span><br><span class="line">    ACLCOPY --&gt; UB</span><br><span class="line">    PCIE --&gt; MEM</span><br><span class="line">    HCCS --&gt; MEM</span><br><span class="line">    ROCE --&gt; MEM</span><br><span class="line">    UB --&gt; MEM</span><br><span class="line">    ZERO -. &quot;逐路径检查中间副本&quot; .-&gt; VMM</span><br><span class="line">    ZERO -.-&gt; RDMA</span><br></pre></td></tr></table></figure>
+
+<p>图中最值得注意的是三条<strong>不能画成实线等号</strong>的关系：</p>
+<ul>
+<li><code>UBShmem ≠ cann/shmem</code>；</li>
+<li><code>ADXL/HiXL Direct ≠ AIV Direct</code>；</li>
+<li><code>DMA/RDMA/UDMA ≠ 零拷贝</code>。</li>
+</ul>
+<h2 id="关键时间线"><a href="#关键时间线" class="headerlink" title="关键时间线"></a>关键时间线</h2><p>总时间线分成三个阶段：通用机制与标准形成、昇腾公开软件栈成形，以及 Ascend 950 与 Device 直驱路径加速公开。下图用于建立整体节奏，后续表格保留精确日期、动机和证据边界。</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2026/08/8849fa643481872845988eba21956631.png" alt="昇腾通信技术与公开仓库时间线"></p>
+<p><em>图 2：通用通信机制、昇腾公开仓库与 Ascend 950 路线时间线。根据本文研究内容整理的自绘示意图。</em></p>
+<p>图中 2025 年后的节点密度明显上升，但这只代表<strong>公开仓库和公开说明集中出现</strong>，不能倒推出对应项目都在 2025 年才内部立项。</p>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>公开事件</th>
+<th>动机或变化</th>
+<th>证据边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1954–1957</td>
+<td>大型机 I&#x2F;O Channel&#x2F;Data Synchronizer 展现现代 DMA 的早期形态</td>
+<td>让 I&#x2F;O 与计算并行，避免 CPU 逐字搬运</td>
+<td>“第一台 DMA”受定义影响，本文不锁定唯一发明者</td>
+</tr>
+<tr>
+<td>1979-09</td>
+<td>Leslie Lamport 给出 Sequential Consistency 的经典定义</td>
+<td>用“各处理器程序序 + 全局单一顺序”约束并发内存可观察行为</td>
+<td>它是内存一致性模型，不是后来所有硬件的默认实现</td>
+</tr>
+<tr>
+<td>1990 年代</td>
+<td>Cray SHMEM 编程模型形成；远程直接访存与 HPC 互联逐步商品化</td>
+<td>用单边 Put&#x2F;Get 减少消息匹配开销</td>
+<td>这是通用 SHMEM&#x2F;RDMA 历史，不是 CANN 项目时间</td>
+</tr>
+<tr>
+<td>1999–2000</td>
+<td>InfiniBand 行业组织和 1.0 规范形成</td>
+<td>标准化高性能网络的远程内存、队列和完成语义</td>
+<td>RDMA 不是由华为项目发明</td>
+</tr>
+<tr>
+<td>2007-10</td>
+<td>IETF 发布 RDMAP RFC 5040</td>
+<td>固化 direct placement、STag 保护和远端操作顺序规则</td>
+<td>这是 RDMAP&#x2F;iWARP 规范节点，不是 RoCE 或 UB 的诞生时间</td>
+</tr>
+<tr>
+<td>2010</td>
+<td>IBTA 发布 RoCE v1</td>
+<td>将 InfiniBand RDMA transport 承载在二层以太网上</td>
+<td>受同一二层广播域约束，不是普通 TCP&#x2F;IP</td>
+</tr>
+<tr>
+<td>2010–2012</td>
+<td>OpenSHMEM 标准化组织与首批公开规范</td>
+<td>把不同厂商 SHMEM 方言收敛为统一 API</td>
+<td>CANN SHMEM 借鉴编程模型，不等于完整兼容声明</td>
+</tr>
+<tr>
+<td>2014-09-16</td>
+<td>IBTA 发布 RoCE v2</td>
+<td>以 UDP&#x2F;IP 封装获得三层路由能力</td>
+<td>仍需 RDMA NIC、MR&#x2F;QP&#x2F;CQ 与拥塞&#x2F;无损网络工程</td>
+</tr>
+<tr>
+<td>2018-10-10</td>
+<td>华为公开昇腾全栈方案与 CANN 1.0</td>
+<td>形成从芯片、算子到框架的软件栈</td>
+<td>DMA&#x2F;HCCL&#x2F;HCCS 的内部立项日暂未核实</td>
+</tr>
+<tr>
+<td>2020-08-10</td>
+<td>CANN 3.0 与 AscendCL 公开</td>
+<td>用 Runtime API 统一设备、内存、Stream 与任务管理</td>
+<td>当前 GitCode runtime 仓库公开时间更晚</td>
+</tr>
+<tr>
+<td>2022-08 起</td>
+<td>openEuler UMDK 出现公开 Git 历史</td>
+<td>以内存语义为核心开放 URMA、URPC、ULOCK、USOCK 等 UB 软件组件</td>
+<td>公开提交不是华为内部 UB&#x2F;UMDK 立项日</td>
+</tr>
+<tr>
+<td>2025-03</td>
+<td>UB-Mesh 论文公开</td>
+<td>以 UnifiedBus、分层 FullMesh、路由和拓扑感知 collective 面向万卡集群</td>
+<td>论文不是完整 UB 产品 ABI</td>
+</tr>
+<tr>
+<td>2025-08-13 至 08-18</td>
+<td>Mooncake PR #740 合入 Ascend Direct</td>
+<td>把 HCCS&#x2F;RDMA、注册和传输委托给 ADXL</td>
+<td><code>USE_ASCEND_DIRECT</code> 是 Host 侧库路径，不是 AIV 直驱</td>
+</tr>
+<tr>
+<td>2025-10-14</td>
+<td><code>cann/hixl</code> 首个可见代码提交；README 称 2025-10 开源</td>
+<td>面向 PD 分离、RL 参数切换、KV Cache 的多链路单边传输</td>
+<td>内部 ADXL&#x2F;HiXL 立项时间暂未核实</td>
+</tr>
+<tr>
+<td>2025-11-30</td>
+<td>HCCL&#x2F;HCOMM 正式开源</td>
+<td>集合通信与通信基础资源分层解耦</td>
+<td>Git 首提交分别早于公告数周，不等于内部诞生时间</td>
+</tr>
+<tr>
+<td>2025-12-12</td>
+<td><code>cann/shmem</code> 首个可见提交</td>
+<td>面向昇腾的对称内存、RMA&#x2F;AMO 与通算融合</td>
+<td>README 称 2025-12 首次上线</td>
+</tr>
+<tr>
+<td>2025-12-25</td>
+<td><code>cann/runtime</code> 首个可见提交</td>
+<td>公开 Runtime 与维测组件</td>
+<td>CANN Runtime 产品本身早于仓库公开</td>
+</tr>
+<tr>
+<td>2025-12-30</td>
+<td>TileXR 首个可见提交</td>
+<td>Tile 级异步通信、IPC 共享窗口和融合算子</td>
+<td>无公开 tag&#x2F;release；不能据此认定内部立项日</td>
+</tr>
+<tr>
+<td>2026-01-06</td>
+<td>HiXL 仓首次加入 Fabric Memory 模式直传能力</td>
+<td>用统一编址和远端 DRAM 扩展 KV Cache 层级</td>
+<td>2026-03 README 才将其列为正式动态</td>
+</tr>
+<tr>
+<td>2026-01-18 至 01-26</td>
+<td>Mooncake PR #1399 合入 <code>USE_UBSHMEM</code></td>
+<td>将 CANN VMM&#x2F;Fabric 映射做成独立专用快路</td>
+<td>与 cann&#x2F;shmem 没有名称上的包含关系</td>
+</tr>
+<tr>
+<td>2026-02-09</td>
+<td>CANN SHMEM <code>v1.0.0</code>&#x2F;<code>v1.0.1</code> 可见标签</td>
+<td>形成首批可识别公开版本</td>
+<td>tag 日期是公开版本节点，不是立项日</td>
+</tr>
+<tr>
+<td>2026-03</td>
+<td>HCCL 宣布 Ascend 950 单算子支持 AIV&#x2F;AICPU 引擎；HiXL 宣布 FabricMem</td>
+<td>控制路径继续下沉，内存池化进入公开产品路径</td>
+<td>具体接口仍受产品与 CANN 版本约束</td>
+</tr>
+<tr>
+<td>2026-04-08</td>
+<td>CANN SHMEM <code>v1.3.0</code></td>
+<td>新增 AICore 直驱与 40+ 接口</td>
+<td>Device 侧直驱能力进入公开版本</td>
+</tr>
+<tr>
+<td>2026-04-13</td>
+<td>HiXL 文档新增“待废弃 ADXL 接口”</td>
+<td>对外 API 从 ADXL 向 HIXL 收敛</td>
+<td>ADXL 仍保留实现和头文件，尚未删除</td>
+</tr>
+<tr>
+<td>2026-05-25 起</td>
+<td>TileXR UDMA 设计与实现继续公开</td>
+<td>在 IPC&#x2F;MTE、HCCL&#x2F;MC2 之外增加注册内存与 Device UDMA 路径</td>
+<td>代码与验收脚本已闭环，但公开资料明确仍需 A5 真机数据面验证</td>
+</tr>
+<tr>
+<td>2026-06-11</td>
+<td>SHMEM 术语表明确 <code>xDMA = DMA family</code></td>
+<td>消除把 xDMA 当单一引擎的歧义</td>
+<td>当前集合可扩展，不应写死为永久枚举</td>
+</tr>
+<tr>
+<td>2026-07-30</td>
+<td>CANN SHMEM <code>v1.6.0</code></td>
+<td>完善 Ascend 950 RDMA、UDMA&#x2F;MTE、SIMT 与诊断</td>
+<td>项目活跃，未废弃</td>
+</tr>
+<tr>
+<td>2026-08-26</td>
+<td>本文截止</td>
+<td>HCCL、HCOMM、HiXL、SHMEM、Runtime 均有近期提交</td>
+<td>“活跃”指公开仓状态，不代表所有历史 API 都长期兼容</td>
+</tr>
+</tbody></table>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>仓库日期怎么读</p>
+</div>
+        <div class="message-body">
+            <p><strong>公开首提交、正式开源公告、首个 release&#x2F;tag 和内部立项是四个不同日期。</strong>本文能核验前三者时分别列出；不能核验内部立项时不会用“首次提交”偷换。</p>
+
+        </div>
+    </article>
+
+<h2 id="横向对比"><a href="#横向对比" class="headerlink" title="横向对比"></a>横向对比</h2><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>对象类型</th>
+<th>主要回答</th>
+<th>发起或参与者</th>
+<th>地址&#x2F;内存契约</th>
+<th>常见下层</th>
+<th>公开状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内存语义</td>
+<td>跨层访问契约</td>
+<td>哪些内存操作、顺序、完成与可见结果被允许</td>
+<td>CPU、NPU、NIC、DMA engine 等观察者</td>
+<td>寻址、保护、原子性、顺序、可见性、一致性域、生命周期</td>
+<td>由 VMM、SHMEM、RDMA、UBMEM 等分别实现不同子集</td>
+<td>基础概念；没有单一仓库或统一废弃状态</td>
+</tr>
+<tr>
+<td>DMA</td>
+<td>通用机制</td>
+<td>谁替计算单元搬字节</td>
+<td>CPU、Runtime 或 Device 提交</td>
+<td>DMA&#x2F;IOVA、页表、权限</td>
+<td>片内总线、PCIe、HCCS、UB</td>
+<td>长期基础机制</td>
+</tr>
+<tr>
+<td>xDMA</td>
+<td>CANN 家族名</td>
+<td>一组高速 DMA 后端如何统称</td>
+<td>取决于具体后端</td>
+<td>取决于 SDMA&#x2F;RDMA&#x2F;UDMA</td>
+<td>多种链路</td>
+<td>活跃术语，不是独立产品</td>
+</tr>
+<tr>
+<td>RDMA</td>
+<td>远程访存机制&#x2F;网络语义</td>
+<td>如何直接访问远端注册内存</td>
+<td>Host&#x2F;NIC 或 Device</td>
+<td>MR、key、QP、CQ</td>
+<td>InfiniBand&#x2F;RoCE 等</td>
+<td>活跃</td>
+</tr>
+<tr>
+<td>RoCE</td>
+<td>RDMA 的 Ethernet 承载</td>
+<td>如何让 IB transport&#x2F;verbs 运行在以太网上</td>
+<td>RoCE RNIC&#x2F;NPU 网络引擎</td>
+<td>沿用 MR、QP、CQ；v2 增加 UDP&#x2F;IP 外层</td>
+<td>v1 为 L2；v2 可 L3 路由</td>
+<td>v1&#x2F;v2 均未废弃，v2 为主流</td>
+</tr>
+<tr>
+<td>UDMA</td>
+<td>CANN 具体后端</td>
+<td>如何在 UB&#x2F;Ascend 950 上做统一 DMA</td>
+<td>Host&#x2F;AICPU&#x2F;AIV 可提交</td>
+<td>队列、Token、注册内存</td>
+<td>UB&#x2F;URMA</td>
+<td>活跃，硬件特定</td>
+</tr>
+<tr>
+<td>HCCS</td>
+<td>硬件互联</td>
+<td>服务器内 CPU&#x2F;NPU 或 NPU 间怎么连</td>
+<td>DMA&#x2F;Load-Store 等使用</td>
+<td>由平台和 Runtime 暴露</td>
+<td>电&#x2F;光链路、SIO 等</td>
+<td>A2&#x2F;A3 等平台活跃</td>
+</tr>
+<tr>
+<td>UB</td>
+<td>互联与协议体系</td>
+<td>超节点内外的事务如何寻址、路由和传输</td>
+<td>CPU、NPU、NIC、存储等多类发起者</td>
+<td>EID、UMMU、Transaction&#x2F;Transport、URMA</td>
+<td>灵衢 Fabric、UBoE</td>
+<td>新一代、活跃</td>
+</tr>
+<tr>
+<td>UBMEM</td>
+<td>UB 内存语义路径</td>
+<td>如何把远端内存暴露为受保护、可操作的地址对象</td>
+<td>HCOMM Endpoint&#x2F;Channel、AIV&#x2F;AICPU 等</td>
+<td>注册、元数据交换、映射、远端访问契约</td>
+<td>URMA&#x2F;UB + UDMA&#x2F;MTE 等资源</td>
+<td>950 路径活跃；不是物理内存类型</td>
+</tr>
+<tr>
+<td>HCCL</td>
+<td>集合通信库</td>
+<td>一组 rank 如何完成 collective</td>
+<td>Host、AICPU、AIV 引擎</td>
+<td>Rank、communicator、buffer</td>
+<td>HCOMM + 多传输</td>
+<td>活跃</td>
+</tr>
+<tr>
+<td>SHMEM</td>
+<td>单边内存库</td>
+<td>PE 如何访问对称内存</td>
+<td>Host 与 Device API</td>
+<td>PE、Team、对称堆、RMA</td>
+<td>MTE&#x2F;SDMA&#x2F;RDMA&#x2F;UDMA</td>
+<td>活跃</td>
+</tr>
+<tr>
+<td>HiXL &#x2F; ADXL</td>
+<td>单边传输产品&#x2F;API</td>
+<td>应用如何跨多链路传一批 buffer</td>
+<td>当前公开路径主要由 Host API 发起</td>
+<td>注册内存、engine、request</td>
+<td>HCCS、RDMA、FabricMem、UB</td>
+<td>HiXL 活跃；ADXL 待废弃</td>
+</tr>
+<tr>
+<td>IPC</td>
+<td>进程间机制</td>
+<td>不同进程如何共享句柄或地址</td>
+<td>Host Runtime 建立映射</td>
+<td>导出&#x2F;打开 handle、peer VA</td>
+<td>MTE&#x2F;ACL copy&#x2F;LD-ST</td>
+<td>活跃</td>
+</tr>
+<tr>
+<td>CANN VMM</td>
+<td>内存管理 API</td>
+<td>VA、物理页和权限如何拆分管理</td>
+<td>Host Runtime</td>
+<td>Reserve、Physical、Map、SetAccess</td>
+<td>驱动页表&#x2F;Fabric handle</td>
+<td>活跃</td>
+</tr>
+<tr>
+<td>Fabric Memory</td>
+<td>部署&#x2F;访问模式</td>
+<td>如何把远端物理内存纳入本地可访问空间</td>
+<td>Host&#x2F;AICPU&#x2F;Copy engine</td>
+<td>VMM + 共享句柄 + 统一编址</td>
+<td>HCCS 或 UB Fabric</td>
+<td>活跃、平台受限</td>
+</tr>
+<tr>
+<td>Mooncake UBShmem</td>
+<td>项目专用 transport</td>
+<td>KV Cache 如何走映射快路</td>
+<td>Host worker + ACL stream</td>
+<td>VMM&#x2F;Fabric&#x2F;IPC mapping</td>
+<td>ACL copy</td>
+<td>活跃；非 cann&#x2F;shmem</td>
+</tr>
+<tr>
+<td>TileXR</td>
+<td>算子通信工具包</td>
+<td>Tile 与融合算子如何组织通信</td>
+<td>Host 建资源，AICore kernel 使用</td>
+<td><code>CommArgs</code>、peer window、UDMA registry</td>
+<td>IPC&#x2F;MTE、HCCL&#x2F;MC2、UDMA</td>
+<td>活跃；逐路径成熟度待验证</td>
+</tr>
+<tr>
+<td>零拷贝</td>
+<td>数据路径属性</td>
+<td>中间软件副本是否被消除</td>
+<td>不固定</td>
+<td>不固定</td>
+<td>DMA、映射、P2P 均可能</td>
+<td>不是产品</td>
+</tr>
+<tr>
+<td>AIV 直驱</td>
+<td>控制路径属性</td>
+<td>谁生成并提交通信任务</td>
+<td>AIV&#x2F;Vector Core</td>
+<td>Channel、WQE、Notify、完成状态</td>
+<td>MTE&#x2F;RDMA&#x2F;UDMA 等</td>
+<td>新增支持中，严格依版本</td>
+</tr>
+</tbody></table>
+<h2 id="基础机制"><a href="#基础机制" class="headerlink" title="基础机制"></a>基础机制</h2><h3 id="内存语义"><a href="#内存语义" class="headerlink" title="内存语义"></a>内存语义</h3><article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>先消歧</p>
+</div>
+        <div class="message-body">
+            <p><strong>内存语义不是一种硬件、链路或软件仓库。</strong>狭义内存模型规定并发读写的允许观察结果；广义系统内存语义还包括地址、映射、权限、完成、可见性、原子性和生命周期。华为资料中的 <strong>UBMEM</strong> 又是第三个更具体的口径：它是远端内存注册、元数据交换、映射和地址式访问的一条实现路径，不是所有内存语义问题的总称。</p>
+
+        </div>
+    </article>
+
+<p><strong>小白版。</strong>内存语义像多人协作仓库的操作章程。生产者先把张量写进货架，再把 <code>ready=1</code> 的牌子翻过来；消费者看到牌子后才能取货。若系统只保证“两个动作最终都会发生”，却没有保证“货先到、牌子后翻且消费者此时已能看见货”，消费者就可能读到新牌子和旧张量。内存语义正是规定：谁能访问哪个货位、读写能否重排、何时算完成、其他观察者何时可见、并发改同一计数器是否原子。</p>
+<p>在 Ascend SHMEM 中，一个具体做法是先 <code>put</code> 数据，再用 fence&#x2F;quiet、put-with-signal 或匹配的 wait&#x2F;barrier 建立发布与消费关系；具体选哪一个必须服从 API 的完成与内存序定义。类比有效之处是“门禁、操作顺序、收货回执和他人可见”确实是不同问题；失真之处是硬件里没有单一仓库管理员，编译器、cache、write buffer、DMA 队列、NIC、互联和远端执行单元都可能是独立观察者。</p>
+<p><strong>专业版。</strong>“内存语义”至少有三种常见口径：</p>
+<ol>
+<li><strong>狭义内存模型或内存一致性模型</strong>规定并发 load、store、atomic、fence 的允许执行和 <code>read-from</code> 结果，核心是 ordering、visibility、atomicity 与 consistency；它通常不负责虚拟地址映射、MR 注册和链路路由。<a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/research/publication/make-multiprocessor-computer-correctly-executes-multiprocess-programs/">Lamport 在 1979 年给出了 Sequential Consistency 的经典定义</a>，现代 Arm、GPU&#x2F;NPU 和分布式 RMA 系统通常暴露更弱、带作用域的顺序，需要显式同步。</li>
+<li><strong>广义互联或产品内存语义</strong>还把“远端内存能否像本地对象一样被命名和操作”纳入契约。<a target="_blank" rel="noopener" href="https://gitcode.com/openeuler/umdk">openEuler UMDK</a> 把 URMA 描述为统一内存语义，提供单边、双边和原子远端操作；<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/master/docs/glossary.md">CANN SHMEM 术语表</a>则公开对称内存、RMA、AMO、Signal、Fence、Quiet、Sync&#x2F;Barrier。本文讨论 UB&#x2F;UBMEM 时采用这一广义口径，但把其中严格的可观察行为单独称为“内存序&#x2F;一致性”。</li>
+<li><strong>UBMEM 产品语境</strong>强调把远端内存注册、交换元数据并映射为可寻址对象，再由 HCOMM&#x2F;AIV 等路径使用；它是 Ascend 950 上的一种具体后端协议语义，不是语言级 memory model，也不是第三种物理介质。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>子问题</th>
+<th>它真正回答什么</th>
+<th>Ascend&#x2F;UB 例子</th>
+<th>不能据此推出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>放置与介质</td>
+<td>字节物理上在哪里</td>
+<td>Host DRAM、Device HBM&#x2F;GM、Remote Memory</td>
+<td>可被任意发起者访问</td>
+</tr>
+<tr>
+<td>寻址与保护</td>
+<td>谁能用哪个地址、key 和权限访问</td>
+<td>CANN VMM、IPC key、MR、UMMU、EID</td>
+<td>已经完成或对端已可见</td>
+</tr>
+<tr>
+<td>数据放置</td>
+<td>payload 最终落入业务 buffer 还是 staging buffer</td>
+<td>RDMA direct placement、HCCL buffer、SHMEM 对称对象</td>
+<td>没有网络或内存流量</td>
+</tr>
+<tr>
+<td>运输与执行</td>
+<td>谁搬数据、经过什么链路</td>
+<td>MTE&#x2F;xDMA、RDMA over RoCE、UDMA over UB</td>
+<td>自动获得强一致或全局地址</td>
+</tr>
+<tr>
+<td>操作集合</td>
+<td>能做 load&#x2F;store、put&#x2F;get、message 还是 atomic</td>
+<td>SHMEM RMA&#x2F;AMO、URMA Memory&#x2F;Message&#x2F;Atomic</td>
+<td>所有操作具有同样顺序</td>
+</tr>
+<tr>
+<td>原子性</td>
+<td>一次更新是否不可分割</td>
+<td>atomic add、swap、compare-swap</td>
+<td>对其他地址也自动保序</td>
+</tr>
+<tr>
+<td>顺序</td>
+<td>哪些操作不能越过哪些操作</td>
+<td>fence、acquire&#x2F;release、队列内 ordering</td>
+<td>前序操作已经远端完成</td>
+</tr>
+<tr>
+<td>完成与可见性</td>
+<td>何时可复用源 buffer，何时目标或消费者能看见结果</td>
+<td>local&#x2F;remote completion、quiet、signal&#x2F;wait</td>
+<td>cache 自动一致或数据已持久化</td>
+</tr>
+<tr>
+<td>一致性与 coherence 域</td>
+<td>多个观察者允许看到哪些值和顺序</td>
+<td>CPU&#x2F;NPU&#x2F;device shareability、CMO、协议作用域</td>
+<td>强一致覆盖所有节点和所有地址</td>
+</tr>
+<tr>
+<td>所有权与生命周期</td>
+<td>当前谁可安全访问，注册、映射和 key 要存活多久</td>
+<td>VMM handle、IPC import、Endpoint&#x2F;Channel、MR</td>
+<td>资源可跨进程永久使用或异步完成前可 free</td>
+</tr>
+<tr>
+<td>持久性</td>
+<td>数据能否跨掉电、进程崩溃或设备复位保存</td>
+<td>普通 DRAM&#x2F;HBM 路径通常不承诺</td>
+<td>remote completion 就等于 durable</td>
+</tr>
+</tbody></table>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>两个关键不等式</p>
+</div>
+        <div class="message-body">
+            <p><strong>Coherence ≠ Consistency。</strong>缓存一致主要约束同一地址的副本如何收敛，不能自动保证不同地址上的 <code>payload</code> 与 <code>flag</code> 按程序序被观察。<strong>Completion ≠ Visibility。</strong>提交返回、CQE 或本地完成不必然表示任意远端 CPU&#x2F;AICore 已能安全消费；必须检查具体 API 的完成范围、通知和缓存维护规则。</p>
+
+        </div>
+    </article>
+
+<p><strong>与栈内对象的关系。</strong>CANN VMM 和 IPC 主要解决寻址、映射、权限与生命周期；DMA、UDMA 和 RDMA 执行数据操作，RoCE 只是 RDMA 的 Ethernet 承载；SHMEM 定义对称对象、RMA&#x2F;AMO 与同步；UB 是互联体系，URMA 暴露远端操作，UBMEM&#x2F;HCOMM <code>COMM_PROTOCOL_UB_MEM</code> 是具体内存语义路径。Fabric Memory 组织远端物理内存的映射和池化，零拷贝只统计中间副本，AIV 直驱只改变提交者。<strong>它们各自实现内存语义契约的一部分，任何一个词都不等于整份契约。</strong></p>
+<p><strong>公开实现证据。</strong>HCOMM 的 Fence 文档只约束同一通信线程和 Channel 上屏障前后的读写完成顺序，不能外推成所有 CPU、AICore 和 cache 的全局强序；URMA API 又把 <code>place_order</code>、<code>comp_order</code> 和 <code>fence</code> 分开暴露，且支持度依传输模式而变。这正说明<strong>放置顺序、完成顺序、屏障和消费者可见性是四个要分别核对的契约</strong>，不是一个“已完成”布尔值。</p>
+<p><strong>历史与状态。</strong>1979 年 Sequential Consistency 是通用理论里程碑；1990 年代 SHMEM 把远端内存操作做成 PGAS API；InfiniBand&#x2F;RDMA、OpenSHMEM 和 RoCE 又分别标准化队列&#x2F;RMA、编程模型与 Ethernet 承载。华为&#x2F;灵衢公开线索可追到 openEuler UMDK 的 2022 年公开 Git 历史，以及 2025 年 UB 2.0、2025–2026 年 HCOMM&#x2F;SHMEM&#x2F;UBMEM 的开放实现。<strong>“内存语义”不是一个独立仓库，不能给它填写单一立项日或废弃日；能版本化和废弃的是具体协议、API 与保证强度。</strong></p>
+<p><strong>术语对应。</strong>货位门牌对应 addressability，门禁对应 protection&#x2F;key，操作章程对应 operation semantics，先放货后翻牌对应 ordering，收货回执对应 completion，消费者实际看到新货对应 visibility，不可分割改库存对应 atomicity，多份账本保持同一货位更新顺序对应 coherence，撤销门禁与释放货位对应 lifetime&#x2F;revocation。</p>
+<p><strong>易错点。</strong>Cache coherence 不等于跨地址的强一致性；atomic 只保证指定更新不可分割，不自动给周围普通读写加序；DMA&#x2F;RDMA 完成的精确含义依 API 而定，不能把 CQE 一律解释为远端 CPU&#x2F;NPU 已可消费；VMM 映射、零拷贝或“像本地指针”都不自动提供同步、持久化和故障原子性。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>为什么“进程 B 能导入进程 A 的 Device VA”只回答了内存语义契约的一部分？</li>
+<li>AIV 先 nonblocking put 张量、再写远端 ready flag 时，至少需要核对哪些顺序、完成和可见性保证？</li>
+<li>一条 UB 链路支持原子写且多个端点能缓存远端数据，为什么仍不能推出系统对所有地址满足 Sequential Consistency？</li>
+</ol>
+<h3 id="DMA"><a href="#DMA" class="headerlink" title="DMA"></a>DMA</h3><p><strong>小白版。</strong>DMA 像一支专门的搬运队。CPU、AICPU 或 AIV 填写“源地址、目的地址、长度和完成方式”后，搬运引擎沿片内总线、PCIe、HCCS、RoCE 或 UB 推进数据，计算单元不再自己执行逐字节读写。搬运队、搬运单、门牌和回执分别对应 <strong>DMA engine、descriptor&#x2F;WQE、DMA&#x2F;IOVA 地址和 Event&#x2F;CQ&#x2F;Fence</strong>。</p>
+<p>类比的边界是：DMA 仍然真的移动了数据，通常不是“零拷贝”；“Direct”也不表示没有软件控制，更不表示可以越过 IOMMU、页表、注册与权限访问任意地址。</p>
+<p><strong>专业版。</strong>DMA 是让 I&#x2F;O 设备、加速器或专用数据引擎绕开通用 CPU 的逐字节 load&#x2F;store 循环，对可访问内存执行传输的机制。典型流程是：固定或注册页面，建立 IOVA&#x2F;设备页表映射，生成单段或 Scatter-Gather descriptor，提交队列并写 doorbell，DMA 读源写目的，最后产生完成记录。非一致系统还要显式处理 cache flush&#x2F;invalidate 与 memory barrier。Linux 的 <a target="_blank" rel="noopener" href="https://docs.kernel.org/core-api/dma-api-howto.html">DMA API</a>明确区分 CPU 虚拟地址、物理地址和设备使用的 DMA 地址；CANN 的异步复制则以 Stream&#x2F;Event 管理任务依赖。</p>
+<p><strong>栈内位置。</strong>VMM、SVM、IPC 或内存注册回答“地址能否被访问”；DMA 回答“由谁移动字节”；HCCS、PCIe、UB 回答“字节走哪条路”。因此总图把 DMA 家族放在运行时和互联之间。</p>
+<p><strong>历史、硬件与状态。</strong>1950 年代 I&#x2F;O Channel 是现代 DMA 的早期祖先；2018 年公开的昇腾&#x2F;CANN 全栈已把数据搬运作为基础能力，但华为内部 DMA 立项日暂未核实。当前 Runtime、Driver、HCOMM 和 SHMEM 均保留活跃的 DMA 路径；<strong>DMA 机制本身没有被废弃</strong>。不同 SoC 只是具体 DMA 单元、Channel 数量和链路不同。</p>
+<p><strong>易错点。</strong>DMA 不等于链路，不等于零拷贝；异步 API 返回也不等于完成。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>为什么 DMA 不由 CPU 搬每个字节，却仍可能需要 CPU 初始化和收尾？</li>
+<li>Pageable Host 内存经中转页再 DMA 到 NPU 时，能否称为端到端零拷贝？</li>
+<li>两个进程共享同一物理页而没有 payload 复制时，DMA 是否必然发生？</li>
+</ol>
+<h3 id="xDMA"><a href="#xDMA" class="headerlink" title="xDMA"></a>xDMA</h3><p><strong>小白版。</strong>在 CANN SHMEM 语境中，<code>xDMA</code> 是“各种高速 DMA 搬运车”的类别牌，不是一辆叫 xDMA 的车。当前车队里可以有 SDMA、RDMA&#x2F;RoCE 和 UDMA；MTE 在 SHMEM 的后端分类中与 xDMA 车队并列。</p>
+<p>这个类比不能带到所有资料：AMD&#x2F;Xilinx <code>XDMA</code> 是一套具体 FPGA PCIe DMA IP&#x2F;驱动；华为光接入论文里的 <code>xDMA</code> 甚至是多址接入技术族。大小写不足以消歧，必须写出命名空间。</p>
+<p><strong>专业版。</strong>CANN SHMEM <a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/master/docs/glossary.md">术语表</a>把 xDMA 定义为 <code>Direct Memory Access family</code>。公开引擎枚举只有 MTE、SDMA、ROCE 和 UDMA，并没有名为 <code>ACLSHMEM_DATA_OP_XDMA</code> 的具体后端。因此合理的包含图是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">CANN::xDMA-family</span><br><span class="line">├── SDMA</span><br><span class="line">├── RDMA / RoCE</span><br><span class="line">└── UDMA</span><br><span class="line"></span><br><span class="line">MTE  // 在 SHMEM 后端分类中与 xDMA 并列</span><br></pre></td></tr></table></figure>
+
+<p>这个集合用于表达当前公开实现，可继续扩展，不能当作永久封闭枚举。xDMA 没有独立仓库和独立 release；它随 <code>cann/shmem</code>、HCOMM 或 MemFabric 的实现演进。</p>
+<p><strong>同名旁支。</strong>AMD&#x2F;Xilinx XDMA 面向 Host 内存与 PCIe FPGA Endpoint 的 H2C&#x2F;C2H Scatter-Gather 传输；华为 FX600 示例使用的是 Xilinx 原生 XDMA IP，不是华为自研昇腾引擎。总架构图只保留 <code>CANN::xDMA-family</code>，其余放入同名异义说明。</p>
+<p><strong>历史与状态。</strong><code>cann/shmem</code> 于 2025-12 首次上线；2026-06-11 的术语表提交正式消除了族名歧义。当前 xDMA 抽象活跃且无废弃公告。AMD XDMA 也仍在维护，但与本文昇腾主线无包含关系。</p>
+<p><strong>易错点。</strong>不能把 xDMA 画成 SDMA、RDMA、UDMA 之外的第四个引擎；不能从 SHMEM 的 xDMA 分类反推 HCCL 的所有私有实现。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>为什么 <code>xDMA</code> 不能与 SDMA、RDMA、UDMA 并列？</li>
+<li>日志出现 <code>/dev/xdma0_h2c_0</code> 且硬件是 Xilinx FPGA 时，应归入哪条技术线？</li>
+<li>“RDMA 属于 xDMA”在哪个命名空间下成立，在哪些上下文会误导？</li>
+</ol>
+<h3 id="RDMA"><a href="#RDMA" class="headerlink" title="RDMA"></a>RDMA</h3><p><strong>小白版。</strong>RDMA 像让本地网卡拿着经过授权的库位编号，直接把货写入远端仓库。远端 CPU 不必为每一批货执行配对接收，但双方仍要先建仓、登记地址、交换钥匙并建立运输队列。</p>
+<p>类比的边界是：真正系统还有内存注册、页表、QP 状态机、重试、拥塞控制、完成队列和内存序；“远端 CPU 不处理 payload”不等于对端完全没有控制面。</p>
+<p><strong>专业版。</strong>RDMA 是通过网络或设备互联对远端已注册内存执行 READ、WRITE、SEND&#x2F;RECV 或 Atomic 的机制与队列模型。典型对象包括 Protection Domain、Memory Region、lkey&#x2F;rkey、Queue Pair、Work Request&#x2F;WQE、Completion Queue&#x2F;CQE。InfiniBand 是原生 RDMA Fabric；RoCE 把 RDMA 语义承载于以太网。单边 READ&#x2F;WRITE 不要求远端应用逐次贴出匹配 receive，但建链、注册和异常恢复仍需软件参与。</p>
+<p><strong>昇腾位置。</strong>RDMA&#x2F;RoCE 可以是 HCCL&#x2F;HCOMM 的跨节点传输、HiXL 的单边后端，也是 CANN SHMEM 的 xDMA 后端之一。它与 HCCS&#x2F;UB 不是同一抽象：前者强调远端内存和队列语义，后者强调具体互联体系。</p>
+<p><strong>硬件与状态。</strong>RDMA 依赖支持 verbs&#x2F;URMA 类资源的 NIC、Device 或互联，硬件矩阵与 CANN、HDK、网卡及无损网络配置共同决定。当前 HCCL、HiXL、SHMEM 均继续增强 RDMA，未见废弃公告。</p>
+<p><strong>易错点。</strong>RDMA 不等于 RoCE；RDMA 也不自动保证零拷贝，应用缓冲区、注册方式和中转池仍可能增加副本。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>RDMA WRITE 为什么可以不让远端应用贴出一条匹配接收？</li>
+<li>已经使用 RoCE 时，为什么还要关心 PFC、拥塞、MR 和 CQ？</li>
+<li>如果数据先复制到注册的 staging buffer 再 RDMA，哪一段破坏了端到端零拷贝？</li>
+</ol>
+<h3 id="RoCE"><a href="#RoCE" class="headerlink" title="RoCE"></a>RoCE</h3><p><strong>小白版。</strong>把 RDMA 看成仓库机器人的作业规则：MR 是获准访问的货架，QP 是收发车道，CQ 是完成回执箱。<strong>RoCE 是让这套规则跑在 Ethernet 道路上</strong>。RoCE v1 只在同一二层园区通行；RoCE v2 给报文套上 IP&#x2F;UDP 外层，可以经三层路由跨子网，目的 UDP 端口为 4791。</p>
+<p>PFC 像某优先级车道逐跳亮红灯暂停，ECN 则让交换机给拥堵报文盖章，接收端返回 CNP，发送端再降速。类比的边界是：RoCEv2 不是普通 UDP socket；可靠性、顺序、PSN、ACK&#x2F;NAK 与重传仍由 InfiniBand transport&#x2F;QP 类型实现，UDP 主要承担可路由封装和选路熵。</p>
+<p><strong>专业版。</strong>RoCE（RDMA over Converged Ethernet）是 IBTA 定义的 <strong>InfiniBand RDMA transport over Ethernet</strong>，不是 RDMA 能力本身，也不是 verbs API：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">HCCL / HiXL / CANN SHMEM / 存储框架</span><br><span class="line">  → verbs：PD + MR(lkey/rkey) + QP(SQ/RQ) + CQ</span><br><span class="line">  → IB transport：RC / UC / UD 等语义</span><br><span class="line">  → RoCE v1：Ethernet L2</span><br><span class="line">     RoCE v2：UDP/IP over Ethernet</span><br><span class="line">  → RoCE RNIC/NPU 网络引擎 + Ethernet switches</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>RoCE v1</th>
+<th>RoCE v2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>外层</td>
+<td>Ethernet 二层封装</td>
+<td>Ethernet + IPv4&#x2F;IPv6 + UDP</td>
+</tr>
+<tr>
+<td>路由范围</td>
+<td>同一 L2 域，不能跨 IP 子网</td>
+<td>可经标准 L3 路由</td>
+</tr>
+<tr>
+<td>QoS 线索</td>
+<td>VLAN&#x2F;PCP</td>
+<td>DSCP&#x2F;ECN、UDP 4791</td>
+</tr>
+<tr>
+<td>上层对象</td>
+<td>QP、MR、CQ、verbs</td>
+<td>QP、MR、CQ、verbs 基本不变</td>
+</tr>
+</tbody></table>
+<p>IBTA 于 2010 年发布首版，2014-09-16 发布 RoCEv2。v1 仍有实现支持，v2 是大型可路由数据中心的主流选择；截至研究截止日均无标准废弃公告。PFC 是 IEEE 802.1Qbb 的逐跳、按优先级 pause，不是 RoCE 报文格式；ECN&#x2F;CNP&#x2F;发送端算法构成拥塞反馈，DCQCN 只是常见实现而非唯一选择。只开 PFC 可能造成队头阻塞、pause 扩散甚至死锁，不能写成“开启即绝对无损”。</p>
+<p><strong>在昇腾栈中。</strong>HCCL、HCOMM、HiXL 和 CANN SHMEM 可把 RoCE 作为跨节点数据面；HCCS 是专用 scale-up 互联；UnifiedBus 是另一套计算互联与内存语义；UBoE 是 UB over Ethernet。<strong>UBoE 与 RoCEv2 即使都使用 UDP&#x2F;IP&#x2F;Ethernet，承载的上层协议、地址资源和控制栈仍不同，绝不是 RoCEv3。</strong>A2&#x2F;A3 长期保留 Device RoCE；950 增加 Device UB&#x2F;UBoE&#x2F;UDMA，但 Host RoCE、XSCALE&#x2F;HNS 1825 RDMA provider 等路径仍存在，因此属于重心迁移而非全局 EOL。</p>
+<p><strong>术语对应。</strong>登记货架是 MR&#x2F;lkey&#x2F;rkey，机器人车道是 QP 的 SQ&#x2F;RQ，任务单是 WR&#x2F;WQE，回执箱是 CQ&#x2F;WC，园区内送货是 RoCE v1，IP 信封跨城是 RoCE v2，逐跳红灯是 PFC，拥堵盖章并反馈降速是 ECN→CNP→RP。</p>
+<p><strong>易错点。</strong>RoCE、RDMA 与 verbs 分属承载、能力和 API；RoCEv2 不是普通 UDP 应用；PFC 不等于拥塞控制或绝不丢包；UBoE 不是 RoCEv2 的别名。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>为什么 RoCE v1 不能跨 IP 子网，而 v2 可以？上层 verbs 是否必须重写？</li>
+<li>已开启 PFC 却出现长尾和 pause 扩散，应怎样检查 ECN、CNP 与发送端调速闭环？</li>
+<li>950 的 Host RoCE 与 AIV UBoE 都经 Ethernet 时，为什么仍是两条不同协议栈？</li>
+</ol>
+<h3 id="UDMA"><a href="#UDMA" class="headerlink" title="UDMA"></a>UDMA</h3><p><strong>小白版。</strong>UDMA 是 Ascend 950&#x2F;UB 路径上的一类具体“远端搬运车”。AIV 或 Host 把远端目标、长度和权限写成 WQE 放进发送队列，UDMA 引擎沿 UB&#x2F;URMA 访问远端内存，最后通过 CQ 或 <code>quiet()</code> 告知完成。</p>
+<p>“Unified”表示它服务于统一互联和多类内存访问，不表示能在所有昇腾芯片上替代 MTE、SDMA 或 RDMA；早期文档偶尔把 UDMA 展开为 User-space DMA，本文采用当前 SHMEM 术语表的 <strong>Unified Direct Memory Access</strong>。</p>
+<p><strong>专业版。</strong>CANN SHMEM 把 UDMA 列为 xDMA 具体后端，围绕 QP&#x2F;队列、内存注册、Token、WQE、CQ 和 RMA&#x2F;AMO 组织数据面。Device 侧低阶 API 可以由 AIV 直接生成和提交 WQE；高阶接口则在 SHMEM 的 PE、对称地址和内存序语义下封装它。WQE 可能经 UB&#x2F;MTE 暂存下发，但大块 payload 由 UDMA 执行，不能据描述符下发路径把 UDMA 误判成 MTE payload copy。</p>
+<p><strong>硬件、时间与状态。</strong>当前 SHMEM Quick Start 把 UDMA 限定到 Ascend 950，并要求 CANN 9.1.0、对应 toolkit&#x2F;ops 与 HCOMM 资源接口。2026 年 SHMEM v1.3–v1.6 持续补齐 AICore 直驱、UDMA&#x2F;MTE、Atomic 和示例；它是活跃新后端，不是废弃接口。</p>
+<p><strong>易错点。</strong>UDMA 不是所有 DMA 的新名字；<code>UDMA enabled</code> 也不意味着任何旧算子会自动获得透明回退和加速。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>UDMA 与 URMA、UB 分别处在哪三个抽象层？</li>
+<li>为什么 UDMA 的描述符可能经过 MTE，却仍不能说 payload 由 MTE 搬完？</li>
+<li>在 A3 上运行的程序能否仅凭升级 SHMEM 就假设 UDMA 可用？</li>
+</ol>
+<h2 id="通信与互联"><a href="#通信与互联" class="headerlink" title="通信与互联"></a>通信与互联</h2><h3 id="HCCL"><a href="#HCCL" class="headerlink" title="HCCL"></a>HCCL</h3><p><strong>小白版。</strong>把多张 NPU 想成分头做题的学生。每个人算完一份梯度后都要拿到总和是 AllReduce；每个人都要收齐所有人的分片是 AllGather；人人向不同目标发送不同块是 AlltoAll。HCCL 像物流总调度：识别要完成的集体任务，再根据人数、数据量和道路拓扑选择 Ring、Mesh、RHD、Pipeline 等方案。</p>
+<p>HCOMM 更像基础设施部门，负责通信域、RankGraph、Endpoint、Channel、内存、Notify 和读写归约原语。真实系统没有一台中央服务器逐包指挥；各 rank 按一致的算法并发推进。</p>
+<p><strong>专业版。</strong>狭义 HCCL 是 <code>cann/hccl</code> 的集合通信算子、算法选择、executor、template 与拓扑适配；广义官方口径则由 <strong>HCCL 集合通信库 + HCOMM 通信基础库</strong>组成。典型调用链是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">框架 collective/P2P API</span><br><span class="line">  → HCCL selector / executor / template</span><br><span class="line">  → HCOMM control plane + data plane resources</span><br><span class="line">  → HOST / AICPU_TS / AIV / CCU</span><br><span class="line">  → HCCS / PCIe / RoCE-RDMA / UB</span><br></pre></td></tr></table></figure>
+
+<p>HCCL 负责“整个通信组做什么、怎样拆阶段和分块”；HCOMM 负责“有哪些资源、通道和基础动作”；链路和 DMA 引擎负责真正搬运。单算子&#x2F;图模式是框架接入维度，HOST&#x2F;AICPU&#x2F;AIV&#x2F;CCU 是通信算法展开与执行维度，两者不能混成一列。</p>
+<p><strong>历史。</strong>公开 MindSpore 文档证明 HCCL 至少在 2020-03 已作为产品能力使用。旧 <code>Ascend/cann-hccl</code> 参考代码仓于 2024-07 可见；当前 <code>cann/hccl</code> 和 <code>cann/hcomm</code> 双仓分别在 2025-11-15、2025-10-17 出现首提交，并于 2025-11-30 宣布正式开源。2026 年继续加入 Ascend 950 AIV&#x2F;AICPU、图模式和静态库，7 月发布 v9.1.0&#x2F;v9.2.0-beta.1，<strong>HCCL 整体未废弃</strong>。旧 Gitee 仓 Paused 更应理解为仓库迁移或参考线停止，不能当作产品 EOL。</p>
+<p><strong>硬件。</strong>当前栈覆盖 Ascend 950、A3、A2 及部分更早训练&#x2F;推理产品，但协议和执行引擎矩阵并不一致：950 引入 UB、UBMEM、AIV&#x2F;CCU 等新资源；A2&#x2F;A3 仍主要出现 HCCS、RoCE 和不同 Host&#x2F;AICPU 路径。</p>
+<p><strong>易错点。</strong>HCCS&#x2F;RDMA&#x2F;UDMA 是 HCCL 的可用下层，不是与 AllReduce 同层的替代品；HCCL 也不等于某一种 Ring 算法。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>如何同时解释“HCOMM 是 HCCL 基础库”和“HCCL 包含 HCOMM”两句话？</li>
+<li>小数据 AllReduce 使用 AIV 引擎时，算法、Channel、AIV 执行和 UB&#x2F;HCCS 分别在哪一层？</li>
+<li>仅用 UDMA Put 写远端显存，为什么不能直接称为 HCCL AlltoAll？</li>
+</ol>
+<h3 id="HCCS"><a href="#HCCS" class="headerlink" title="HCCS"></a>HCCS</h3><p><strong>小白版。</strong>HCCS 是厂区内部的高速轨道，SDMA 是轨道上的自动货车，HCCL 是物流调度中心。A3 中还可把 SIO 看成同一紧耦合模组内的短桥，RoCE 看成去远端园区的公路，UB 看成新一代统一轨道体系。</p>
+<p>类比不能推出“用了 HCCS 就有应用透明共享内存”。昇腾 Host 与 Device 仍可能有独立地址空间，应用还要显式复制、IPC 映射或 VMM 注册；全称中的 Cache Coherence 也不能替代对具体一致性域的核验。</p>
+<p><strong>专业版。</strong>当前昇腾术语推荐全称是 <strong>Huawei Cache Coherence System</strong>；部分早期资料写 Cache Coherent System，暂无证据表明是两个协议版本。在鲲鹏 CPU 语境中，HCCS 连接 die&#x2F;socket 并参与真正的缓存一致性体系；在昇腾语境中，它是 HCCL&#x2F;HCOMM 可使用的高带宽 NPU 互联和通信协议。Profiler 把 <code>HCCS</code> 列为 link type，把 <code>SDMA</code> 列为 transport type，直接说明典型路径是 <strong>SDMA over HCCS</strong>，而不是两个同义词。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HCCL collective algorithm</span><br><span class="line">  → HCOMM/HCCP 控制适配</span><br><span class="line">  → SDMA 搬运任务</span><br><span class="line">  → HCCS / HCCS_SW 链路</span><br><span class="line">  → 对端 NPU HBM</span><br></pre></td></tr></table></figure>
+
+<p><strong>与 SIO 的边界。</strong>A3 公开拓扑中，两个处理器&#x2F;die 通过 SIO 形成 HiAM，HiAM 间走 HCCS-L1，计算节点间走 HCCS-L2，不同逻辑 SuperPoD 再走 RoCE。SIO 与 HCCS 在 CANN 中也是独立协议枚举。</p>
+<p><strong>代际与状态。</strong>公开产品证据至少可追到 2019 年的 Kunpeng 920 四路服务器和 Ascend 910&#x2F;Atlas 900。A2、A3 和部分鲲鹏产品截至本文日期仍使用 HCCS；Ascend 950 的 scale-up 主路径转向 UB 2.0。HCCS 无独立公开数据面仓和完整协议规范，也没有整体废弃公告，因此准确说法是<strong>在 950 上被 UB 局部替代，在 A2&#x2F;A3&#x2F;鲲鹏上仍活跃</strong>。</p>
+<p><strong>公开灰区。</strong>华为 2025 年演讲把 Atlas 900 A3 SuperPoD 称为 UB 1.0，当前 CANN&#x2F;MindCluster 文档又继续暴露 SIO、HCCS-L1&#x2F;L2。公开资料不足以判断 UB 1.0 与 HCCS 是封装、复用、兼容模式还是品牌层次，不能直接写 <code>UB 1.0 = HCCS</code>。</p>
+<p><strong>易错点。</strong>HCCS 不是 HCCL，不是 SDMA，也不能仅凭名字推出任意 CPU&#x2F;NPU 指针透明一致。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>如何用“路线、车辆、调度中心”区分 HCCS、SDMA 和 HCCL？</li>
+<li>A3 的 HiAM 内、HiAM 间、节点间和逻辑 SuperPoD 间分别可能使用什么链路？</li>
+<li>产品手册只写“支持 HCCS”时，还要查哪些信息才能判断能否透明 load&#x2F;store？</li>
+</ol>
+<h3 id="UB"><a href="#UB" class="headerlink" title="UB"></a>UB</h3><article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>先消歧</p>
+</div>
+        <div class="message-body">
+            <p>SuperPoD、EID、URMA、UBoE 语境中的 <strong>UB 是 UnifiedBus（灵衢）</strong>；Ascend C 算子里的 <code>__ubuf__</code>、<code>LocalTensor</code>、<code>ub2gm</code> 则是 AI Core 片上的 <strong>Unified Buffer</strong>。后者是核内暂存空间，不是前者的一层。</p>
+
+        </div>
+    </article>
+
+<p><strong>小白版。</strong>UnifiedBus 像把芯片、加速卡、节点和内存池接成一台大机器的交通体系：EID 是门牌，UMMU 负责把统一地址翻译到真实内存，UB Controller 处理协议，URMA 的 Jetty&#x2F;工作请求则像异步快递单。应用通常通过 HCCL、HCOMM、SHMEM 或内存服务使用它，而不是直接“调用一根总线”。</p>
+<p>这个类比的边界是：UB 不只是物理道路，还规定寻址、事务、流控、可靠性、内存和管理语义；“像访问本地内存”也不等于远端延迟、故障和一致性真的与本地 HBM 相同。</p>
+<p><strong>专业版。</strong>UnifiedBus 是面向 SuperPoD 的互联技术和分层协议栈。公开 2.0.1 规范覆盖 Physical、Data Link、Network、Transport、Transaction 和 Function 层；上层可使用同步 Load&#x2F;Store，也可用 URMA&#x2F;Jetty 异步提交 Memory、Message、Atomic 等事务。典型软件关系是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HCCL / SHMEM / HCOMM / UB Service Core</span><br><span class="line">  → URMA、liburma、UB OS 组件</span><br><span class="line">  → UMMU、UB Controller、交换网络</span><br><span class="line">  → 原生 UB PHY 或 UBoE 承载</span><br></pre></td></tr></table></figure>
+
+<p>华为称 2019 年开始研究 UB；<code>openEuler/umdk</code> 的公开 Git 历史可追至 2022-08；Atlas 900 A3 被公开称为 UB 1.0 落地，2025-09-18 发布 UB 2.0 和 Atlas 950 路线。截至研究截止日，规范与软件仍在活跃演进。A2&#x2F;A3 的 HCCS 与 950 的 UB 重心迁移更适合画成<strong>按代际和拓扑并存</strong>，而不是宣称 UB 已全面删除 HCCS、PCIe 或 RoCE。</p>
+<p><strong>术语对应。</strong>统一交通网是 UnifiedBus，门牌是 EID，地址翻译与权限检查是 UMMU，同步访问是 Load&#x2F;Store 模型，异步投递与完成是 URMA Jetty&#x2F;JFC，在 Ethernet&#x2F;IP 上承载 UB 事务是 UBoE。</p>
+<p><strong>易错点。</strong>UB 不是 HCCL，也不是 URMA API；UBoE 不是 RoCE 的别名；支持 UB 不自动等于端到端零拷贝或 CPU cache coherent。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li><code>DataCopy(dstGm, srcUb)</code> 中的 UB 为什么不是 Atlas 950 的 UB 端口？</li>
+<li>一次 URMA 单边写至少会经过哪些软件对象和协议层？</li>
+<li>只知道产品支持 UBoE，为什么不能推出它使用 RoCE verbs？</li>
+</ol>
+<h2 id="内存与运行时"><a href="#内存与运行时" class="headerlink" title="内存与运行时"></a>内存与运行时</h2><h3 id="UBMEM"><a href="#UBMEM" class="headerlink" title="UBMEM"></a>UBMEM</h3><p><strong>小白版。</strong>UBMEM 像先让两端登记仓库、交换门禁和柜位，再把远端柜位映射成当前进程可使用的地址视图。Endpoint&#x2F;Channel 主要负责“双方认识并完成映射”，后续 payload 可以由 AIV、UDMA、MTE 等资源访问映射地址；Channel 本身不一定像传统网络 <code>Send/Recv</code> 那样承运每一箱数据。</p>
+<p>类比的边界是：<strong>本地式地址不等于本地性能或本地故障模型</strong>，也不表示任意指针自动获得权限、缓存一致性和全局可见性。</p>
+<p><strong>专业版。</strong>CANN SHMEM 把 UBMEM&#x2F;UBmem 定义为“内存语义”；HCOMM 则把它编码为 <code>COMM_PROTOCOL_UB_MEM</code>，由 <code>UbMemEndpoint</code>、<code>AivUbMemChannel</code>、<code>AivUbMemTransport</code> 等组件建立注册、元数据交换和映射。它不属于 <code>CommMemType</code>：实际内存仍是 Host DRAM 或 Device HBM，因此 UBMEM 是<strong>协议语义和 HCOMM 后端</strong>，不是第三种物理内存。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HCCL / SHMEM / MoE 算子</span><br><span class="line">  → HCOMM engine + Endpoint + Channel</span><br><span class="line">  → COMM_PROTOCOL_UB_MEM：注册、交换、映射</span><br><span class="line">  → URMA/UB 地址和访问能力</span><br><span class="line">  → AIV、UDMA、MTE 等执行资源</span><br></pre></td></tr></table></figure>
+
+<p>HCOMM 公开仓首提交为 2025-10-17；公开 API 中 <code>COMM_PROTOCOL_UB_MEM</code> 可追至 2026-03-30，当前实现路径在 2026-06-03 的架构调整中出现。<strong>这些是公开可见时间，不是内部立项时间。</strong>当前公开支持矩阵只在 Ascend 950PR&#x2F;950DT 的 AICPU_TS 与 AIV engine 下列出 UB_MEM；A2&#x2F;A3 未列出。实现仍在 master，属活跃演进而非废弃。</p>
+<p><strong>术语对应。</strong>登记仓库是通信内存注册，交换柜位是 Channel 元数据交换，远端柜位成为本地编号是 remote mapping，真正搬箱子的是 UDMA&#x2F;MTE&#x2F;AIV，跨节点统一仓库治理则是更上层的 Fabric Memory&#x2F;MemFabric。</p>
+<p><strong>易错点。</strong>UBMEM 不是内存介质，不是 Unified Buffer，也不等于 URMA、UDMA 或完整 Fabric Memory；HCCL 文档中的“支持 UB”还可能指 UB_CTP、UB_RTP、UBoE，不能全部窄化为 UB_MEM。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>为什么存在 <code>COMM_PROTOCOL_UB_MEM</code>，却没有 <code>COMM_MEM_TYPE_UB_MEM</code>？</li>
+<li>已取得远端 buffer 的本地映射地址后，Endpoint、Channel 与 UDMA&#x2F;AIV 分别还做什么？</li>
+<li>系统支持 URMA 或 Fabric Memory，能否推出 HCOMM 必然选择 UB_MEM？</li>
+</ol>
+<h3 id="SHMEM"><a href="#SHMEM" class="headerlink" title="SHMEM"></a>SHMEM</h3><article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>四个同名对象</p>
+</div>
+        <div class="message-body">
+            <p><strong>Cray SHMEM</strong> 是 1993 年起的历史实现；<strong>OpenSHMEM</strong> 是厂商中立的 PGAS API 标准；<code>cann/shmem</code> 是面向昇腾的 OpenSHMEM 风格实现与扩展；POSIX&#x2F;System V shared memory 则是同一 OS 上的共享页机制。Mooncake 的 <code>UBSHMEM</code> 还是另一个项目专用 transport 名，不能仅凭名字合并。</p>
+
+        </div>
+    </article>
+
+<p><strong>小白版。</strong>SHMEM 像让一组编号分店各自按相同规则摆放一套“对称货架”。PE 0 可以把货 <code>put</code> 到 PE 3 的对应货位，也可以 <code>get</code> 回来，或用 atomic add 不可分割地更新计数器；Team 是参与操作的分店子集，<code>quiet</code> 等待此前搬运完成，<code>fence</code> 约束先后次序，barrier 则让一组 PE 在检查点会合。</p>
+<p>类比的边界是：<strong>对称不表示虚拟地址、数据值或物理内存完全相同</strong>，只表示实现能从“本地对称对象 + 目标 PE”定位远端对应对象。单边 payload 也不表示初始化、建 Team、分配和异常处理完全不需要多方协商。</p>
+<p><strong>专业版。</strong>OpenSHMEM 是 PGAS 模型：物理内存仍分区归属各 PE，逻辑上允许对 symmetric object 做 RMA <code>put/get</code>、AMO、signal、wait、collective 和同步。<code>cann/shmem</code> 把这套语义映射到 Ascend Host&#x2F;Device API：Host 侧负责 bootstrap、PE&#x2F;Team、对称堆、Stream 和 transport；Device 侧允许 AICore&#x2F;SIMT kernel 直接发起 RMA、AMO 和同步。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">模型 / 自定义算子 / 通算融合</span><br><span class="line">  → aclshmem_* / aclshmemx_*：PE、Team、对称堆、RMA、AMO、Sync</span><br><span class="line">  → CANN Runtime / VMM / HCOMM 资源</span><br><span class="line">  → MTE、SDMA、RDMA、UDMA</span><br><span class="line">  → PCIe、HCCS/SIO、RoCE、UB</span><br></pre></td></tr></table></figure>
+
+<p>OpenSHMEM 1.0 于 2012 年发布，当前正式规范为 2024 年发布的 1.6。<code>cann/shmem</code> README 称 2025-12 首次上线，2026-02 有首批 v1.0 tag，v1.3 在 4 月加入 AICore 直驱和更多 API，v1.6 在 7 月继续完善 Ascend 950 的 UDMA&#x2F;MTE&#x2F;RDMA&#x2F;SIMT。A2&#x2F;A3 的 910B&#x2F;C 主要使用 MTE、SDMA、RDMA；950 增加 UB&#x2F;UDMA。项目活跃，但公开资料不足以声称它通过了完整 OpenSHMEM 1.6 一致性测试；<code>cann/shmem v1.6</code> 与标准版本号相同只是巧合。</p>
+<p><strong>术语对应。</strong>分店编号是 PE，分店小组是 Team，对应货架是 symmetric heap，远端写&#x2F;读是 put&#x2F;get，原子改数是 AMO，等本人发出的任务完成是 quiet，规定远端操作顺序是 fence，逻辑统一而物理分散是 PGAS。</p>
+<p><strong>易错点。</strong>SHMEM 不是 Linux 共享内存；对称堆不是一块全局物理 RAM；SHMEM 可以有 collective，HCCL 也不是它的子集；put 返回是否足以让远端消费取决于 blocking、quiet、signal 和内存序；底层也不必固定为 RDMA。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>为什么对称堆既不是所有 PE 共用一块物理内存，也不要求数据值相同？</li>
+<li>nonblocking put 后 PE 3 的 kernel 要安全读取，还需要哪些完成或通知步骤？</li>
+<li>一个名为 <code>USE_UBSHMEM</code> 的开关需要哪些调用符号证据，才能认定它使用 <code>cann/shmem</code>？</li>
+</ol>
+<h3 id="UBSHMEM"><a href="#UBSHMEM" class="headerlink" title="UBSHMEM"></a>UBSHMEM</h3><p><strong>小白版。</strong>Mooncake 的 UBShmem 像先把一段远端 NPU HBM 的“房卡”放入元数据：源进程导入 Fabric handle 或 IPC key，把远端地址重定位为本进程可用的 VA，然后让 ACL stream 上的 <code>aclrtMemcpyAsync</code> 搬运 KV Cache。映射会被缓存，后续传输可以复用。</p>
+<p>类比的边界是：房间没有被搬到本机，payload 仍然发生设备数据搬运；“shared memory”只表示可共享和重映射的设备内存，<strong>不是 OpenSHMEM 的 PE、Team、对称堆与 Device put&#x2F;get</strong>。</p>
+<p><strong>专业版。</strong><code>UBShmemTransport</code> 是 Mooncake Transfer Engine 的 Ascend 专用可选后端，可用 <code>USE_UBSHMEM=ON</code> 构建、以 <code>protocol=&quot;ubshmem&quot;</code> 选择：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Mooncake Store / KV Cache</span><br><span class="line">  → UBShmemTransport：元数据、地址重定位、worker/stream pool</span><br><span class="line">  → Fabric：MallocPhysical → ReserveVA → Map → Export/Import handle</span><br><span class="line">    或 IPC：GetExportKey → ImportByKey → peer access</span><br><span class="line">  → aclrtMemcpyAsync</span><br><span class="line">  → CANN Runtime / Driver / NPU Fabric</span><br></pre></td></tr></table></figure>
+
+<p>它的 CMake 链接 AscendCL，当前源码没有链接 <code>cann/shmem</code>，也没有调用 <code>aclshmem_*</code>。与 Mooncake <code>ub</code> transport 的 URMA&#x2F;UMDK 路径、Ascend Direct 的 ADXL&#x2F;HiXL 路径同样不能合并。Mooncake issue #1312 于 2025-12-31 提出以 CANN VMM 构建类似 NVLink 的 Fabric Memory transport；PR #1399 于 2026-01-26 合入首次公开实现，2 月增加 IPC&#x2F;allocator，3 月增加线程池、stream pool 和 Store 适配，之后仍在维护。它是<strong>活跃但非默认推荐总入口</strong>。</p>
+<p>当前构建资料要求 CANN、Driver 和 Lingqu 的相应版本。基础 VMM API 可跨多代硬件，但 Fabric handle 的公开跨服务器约束曾明确限定 Atlas A3；950PR&#x2F;DT 支持相关 IPC&#x2F;VMM API，却不能由此反推出 Mooncake 已公布完整逐型号验证矩阵。</p>
+<p><strong>术语对应。</strong>房卡是 Fabric handle&#x2F;IPC key，登记簿是 TransferMetadata，本地入口是 imported VA mapping，换门牌是 address relocation，多名搬运工是 worker&#x2F;ACL stream pool，真正搬数据的是 <code>aclrtMemcpyAsync</code>。</p>
+<p><strong>易错点。</strong>UBSHMEM 不是 CANN SHMEM&#x2F;OpenSHMEM，也不等于 UBMEM；共享映射不等于零数据搬运；支持 <code>aclrtMapMem</code> 不等于支持完整跨服务器 Fabric 路径。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>为什么 UBShmem 不是“华为版 OpenSHMEM”？</li>
+<li>首次写同一远端 buffer 时，handle、metadata、地址重定位和 copy 如何排序？</li>
+<li>A2 支持 VMM 基础 API，为什么仍不能推出跨服务器 UBShmem 可用？</li>
+</ol>
+<h3 id="IPC"><a href="#IPC" class="headerlink" title="IPC"></a>IPC</h3><p><strong>小白版。</strong>昇腾 IPC 内存共享像进程 A 租下一个 Device 保险柜，再把不透明“取物凭证”交给进程 B。B 不能直接使用 A 的 <code>devPtr</code> 数值，因为两者地址空间不同；B 要用 key 向 Runtime 导入同一底层 allocation，获得自己的 Device VA。两边门牌可以不同，但指向同一份物理数据。</p>
+<p>类比的边界是：IPC key 只负责对象识别、授权和映射，不负责替应用交换 key、同步消费者，也不代表访问时没有 HBM&#x2F;P2P&#x2F;HCCS&#x2F;UB 流量。</p>
+<p><strong>专业版。</strong><code>aclrtIpcMem*</code> 是比通用管道、Socket 更窄的 CANN 共享设备内存 API：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Exporter：aclrtMalloc → IpcMemGetExportKey → 可选 PID 白名单</span><br><span class="line">                   │ 普通 IPC/RPC/元数据只传 65-byte key</span><br><span class="line">Importer：IpcMemImportByKey(+ peer access) → importer-local Device VA</span><br><span class="line">Cleanup：所有 importer Close → exporter Close → aclrtFree</span><br></pre></td></tr></table></figure>
+
+<p>key 不是 VA。导出进程提前释放原 allocation 会使导入映射失效。它与显式 VMM shareable handle 的区别是：IPC 从已有 VA&#x2F;size 导出 key，Runtime 隐藏物理页和 VA 管理；VMM 从 physical handle 出发，由应用显式 Reserve&#x2F;Map&#x2F;SetAccess，Fabric V2 handle 还能覆盖特定跨服务器拓扑。</p>
+<p>Mooncake UBShmem 于 2026-01 先加入 Fabric&#x2F;VMM 模式，2026-02 增加 <code>MC_USE_UBSHMEM_IPC=1</code>：导出 65 字节 key、导入 peer allocation，再用重定位 VA 执行 ACL copy。<code>cann/runtime</code> 2025-12-25 的公开首提交已含 IPC 声明，2026-03 增加公开样例；更早产品文档至少可追到 CANN 8.2 周期。当前样例覆盖 950PR&#x2F;DT、A3、A2 等产品，未见废弃声明。</p>
+<p><strong>零拷贝边界。</strong>IPC 让两个进程共享同一 allocation，因此可消除“再复制一份给 B”的额外 buffer copy；B 实际读取产生的内存&#x2F;互联流量，以及后续复制到另一 buffer 的动作仍然存在。它为零额外副本创造条件，但不自动证明端到端零拷贝。</p>
+<p><strong>术语对应。</strong>保险柜是 Device allocation，凭证是 opaque IPC key，白名单是 import PID trustlist，新开一扇门是 import mapping，B 的门牌是 importer-local Device VA，显式管理地契与门牌则是 VMM physical handle + Reserve&#x2F;Map。</p>
+<p><strong>易错点。</strong>IPC key 不是指针；IPC key、VMM handle、Fabric handle 结构与流程不同；性能材料中的 IPC 还可能是 Instructions Per Cycle；共享 allocation 不自动解决可见性、完成和生命周期。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>为什么不能只把导出方 <code>devPtr</code> 的数值交给另一进程？</li>
+<li>Mooncake IPC 模式里，key、导入 VA、地址重定位和实际搬运分别发生在哪层？</li>
+<li>两进程映射同一 Device allocation，为什么仍不足以证明整个 KV Cache 链路端到端零拷贝？</li>
+</ol>
+<h3 id="CANN-VMM"><a href="#CANN-VMM" class="headerlink" title="CANN VMM"></a>CANN VMM</h3><p><strong>小白版。</strong>VMM 像把“门牌、房间、门牌到房间的绑定、门禁”拆开管理：<code>aclrtReserveMemAddress</code> 先圈连续门牌但不占真实存储；<code>aclrtMallocPhysical</code> 买物理内存并返回不可解引用的产权 handle；<code>aclrtMapMem</code> 建立 VA→物理页关系；<code>aclrtMemSetAccess</code> 再设置可访问设备和权限。Export&#x2F;Import 只是转交产权凭证，<strong>不会搬 payload</strong>。</p>
+<p>类比的边界是：VA 不天然全局相同，Map&#x2F;Unmap 有页表与同步成本，粒度、TLB、peer 可达性、生命周期也不是房屋类比能表达的。</p>
+<p><strong>专业版。</strong>CANN Runtime VMM 是把虚拟地址保留、物理内存分配、映射、权限和共享解耦的一组 API；没有名为 <code>CreatePhysical</code> 的正式 CANN API，准确名称是 <code>aclrtMallocPhysical</code>。标准生命周期是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GetAllocationGranularity</span><br><span class="line">  → ReserveMemAddress + MallocPhysical</span><br><span class="line">  → MapMem → MemSetAccess → 使用 virPtr</span><br><span class="line">  → 等所有异步消费者完成</span><br><span class="line">  → UnmapMem → ReleaseMemAddress → FreePhysical</span><br></pre></td></tr></table></figure>
+
+<p>共享时，出借方 Export shareable handle 并通过 Socket&#x2F;RPC&#x2F;MPI 等旁路传 token；借入方 Import 得到本地 physical handle，仍需 Reserve&#x2F;Map&#x2F;SetAccess。普通 <code>aclrtMalloc</code> 则一次返回已可用指针，隐藏上述分层；<code>aclrtIpcMem*</code> 从既有 VA 导出 key并直接返回 importer-local 指针，控制粒度也更粗。</p>
+<p>VMM 公开证据不晚于 CANN 7.0.0 的 2024-01 文档；2024 年 <code>torch_npu</code> 已用预留大 VA、按需 Map&#x2F;Unmap 实现 expandable segments；<code>cann/runtime</code> 2025-12 才公开源码，不能把仓库首提交当作 API 立项日。当前基础 API 支持 950、A3、A2 与部分旧 Atlas，但物理内存属性、V2 handle 和跨服务器 Fabric 能力需要逐接口看矩阵：当前公开文档中的跨 AI Server Fabric sharing 仅 A3。整体活跃，未废弃。</p>
+<p><strong>与 Fabric 的边界。</strong><code>aclrtMemFabricHandle</code> 是 V2 共享句柄格式；HiXL FabricMem 是 A3 上利用 VMM、地址交换、页表映射和 SDMA&#x2F;HCCS 的访问模式；MemFabric 是有 GVA、池化管理和多 transport 的独立系统。三者都不是 VMM 的别名。VMM 也只是零拷贝的使能手段：官方基础样例仍会对映射地址调用 <code>aclrtMemcpy</code>。</p>
+<p><strong>术语对应。</strong>圈门牌是 Reserve VA，买房是 MallocPhysical，产权凭证是 <code>aclrtDrvMemHandle</code>，挂门牌是 Map，发门禁是 SetAccess，可转交凭证是 shareable&#x2F;Fabric handle，退门牌与退房分别是 ReleaseAddress 与 FreePhysical。</p>
+<p><strong>易错点。</strong>handle 不是指针；Reserve 成功不代表物理页已分配；Export&#x2F;Import 不是数据传输；使用 VMM 不自动更快、不自动全局同 VA，也不自动端到端零拷贝。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>只 Reserve 得到 <code>virPtr</code> 后，为什么还不能写入？</li>
+<li>进程 B 导入 handle 后，向 kernel 传指针前还要完成哪些调用？</li>
+<li>“VMM + Fabric handle &#x3D; 跨机零拷贝 Fabric Memory”还缺哪些地址、数据路径和硬件证据？</li>
+</ol>
+<h2 id="产品与跨层路径"><a href="#产品与跨层路径" class="headerlink" title="产品与跨层路径"></a>产品与跨层路径</h2><h3 id="ADXL-HIXL"><a href="#ADXL-HIXL" class="headerlink" title="ADXL &#x2F; HIXL"></a>ADXL &#x2F; HIXL</h3><article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>命名与状态</p>
+</div>
+        <div class="message-body">
+            <p>官方拼写是 <strong>HIXL（Huawei Xfer Library）</strong>，类名为 <code>hixl::Hixl</code>；本文在一般叙述中沿用更常见的 HiXL 写法。ADXL 的可信英文全称未公开，不能自行展开。官方把 ADXL 标为<strong>待废弃</strong>，但不是已经删除。</p>
+
+        </div>
+    </article>
+
+<p><strong>小白版。</strong>HIXL 像昇腾设备搬家公司：应用给出本地与远端地址，它根据芯片和拓扑选择 HCCS、RoCE、UB 或 FabricMem 路径。ADXL 是旧柜台，HIXL 是新柜台；Mooncake 等老客户仍在旧柜台办业务，因此兼容层继续维护，但新项目应迁往 HIXL。</p>
+<p>类比的边界是：远端仍要初始化、注册内存并保持生命周期，只是不需要为每次 READ&#x2F;WRITE 调一次匹配 <code>recv</code>；Host 单边也不是 CPU 直接解引用远端指针，payload 仍由硬件引擎搬运。</p>
+<p><strong>专业版。</strong>HIXL 是 Host 侧单边传输库，提供 Engine、RegisterMem、Connect、同步&#x2F;异步 <code>Transfer</code> 和完成查询。当前 ADXL 并非独立旧引擎，也不是简单 typedef：<code>adxl::MemDesc/TransferOpDesc</code> 会转换为 <code>hixl::*</code> 类型，<code>AdxlEngineImpl</code> 与 <code>hixl::Hixl</code> 最终在共同 <code>EngineFactory</code>&#x2F;HIXL Engine 层会合。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Mooncake / vLLM / SGLang / LLM-DataDist</span><br><span class="line">  → ADXL compatibility API ─┐</span><br><span class="line">     HIXL current API ──────┴→ common HIXL Engine</span><br><span class="line">  → A2/A3：HCCS、RoCE；A3 可选 FabricMem</span><br><span class="line">     950PR/DT：RoCE、UB/UBoE、UB_RTP 等</span><br></pre></td></tr></table></figure>
+
+<p>公开 CANN 8.3 RC1 时期已存在 ADXL 文档；Mooncake 2025-08-18 合入 Ascend Direct&#x2F;ADXL；<code>cann/hixl</code> 于 2025-10-14 公开首个代码提交。2026-04-13 仓库加入“待废弃 ADXL”文档，但头文件、测试和 Mooncake 调用仍在，2026-08 兼容 API 甚至继续增加 Fabric handle 能力；截至截止日没有最终删除版本。HIXL 活跃，ADXL 处于迁移期。</p>
+<p><strong>零拷贝边界。</strong>注册用户 buffer 且底层可直接访问时，HIXL 可以省掉应用中转 buffer；启用 <code>OPTION_BUFFER_POOL</code> 或 Host 内存不可直达时仍会 staging。因此“支持 zero-copy”不是所有配置的无条件保证。</p>
+<p><strong>术语对应。</strong>旧柜台是 <code>adxl::AdxlEngine</code>，新柜台是 <code>hixl::Hixl</code>，备案是 RegisterMem，搬运地址单是 TransferOpDesc，一端主动下单是 one-sided READ&#x2F;WRITE，中转仓是 buffer pool。</p>
+<p><strong>易错点。</strong>ADXL&#x2F;HIXL 是两个 API 面而非两套串行协议；待废弃不等于已不可用；HIXL Direct 是 Host 发起而非 AIV 直驱；FabricMem 是 VMM&#x2F;统一编址模式，不是网络协议。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>为什么 ADXL 与 HIXL 不能只概括成“旧名与新名”？</li>
+<li>Decode 端从 Prefill HBM 读取 KV Cache 前，两端分别要准备什么，哪端提交 READ？</li>
+<li>950 Host-to-Host 传输如何在 Host UB、Device UB+UBMEM、RoCE 与 A3-only FabricMem 之间判断？</li>
+</ol>
+<h3 id="TileXR"><a href="#TileXR" class="headerlink" title="TileXR"></a>TileXR</h3><p><strong>小白版。</strong>TileXR 把大 Tensor 拆成许多小 tile，让一部分 tile 还在通信时，另一部分已经计算。<code>CommArgs</code> 是 Kernel 可见的路线板，记录 rank、伙伴窗口地址、credit、能力位和可选 UDMA 信息；IPC window 只是开放装卸口，真正搬数据的是 AI Core 的 DataCopy&#x2F;MTE、HCCL&#x2F;MC2 路径或 UDMA。</p>
+<p>类比的边界是：tile 没有全项目唯一固定大小，<code>CommArgs</code> 也不承载 payload；选择 UDMA 后不会自动保证失败时等价回退到 MTE&#x2F;HCCL。</p>
+<p><strong>专业版。</strong>TileXR 的公开定位是 <strong>eXtreme Rendezvous for Asynchronous Tile Communication</strong>，位于算子通信运行时和编排层，当前可见三类分支：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TileXR Host Runtime + tiling → Device CommArgs</span><br><span class="line">  ├─ IPC window + flag/credit → MTE / DataCopy</span><br><span class="line">  ├─ HCCL Device API + MC2 tiling → collective 与计算融合</span><br><span class="line">  └─ registered regions + UDMAInfo → put/get/signal/quiet</span><br></pre></td></tr></table></figure>
+
+<p>2025-12-30 是当前公开历史中首个可见提交；2026-01 增加 MC2 示例和 communicator&#x2F;IPC window；此后加入 UDMA、SDMA、EP&#x2F;MoonEP 等。A2&#x2F;A3 可见 MC2 示例和 IPC&#x2F;MTE 分支，UDMA Quickstart 则限定 A5&#x2F;Ascend 950、arch 3510。代码已形成 Host 注册、区域交换、QP&#x2F;WQ&#x2F;CQ、Device wrapper、demo 与检查脚本闭环，但公开 <code>ASCEND_VERIFICATION.md</code> 明示维护环境没有物理 Ascend 卡，因此<strong>不能把预期日志写成 A5 真机性能已验证</strong>。项目无废弃公告，成熟度应按算子和路径分别判断。</p>
+<p><strong>术语对应。</strong>小托盘是 tile&#x2F;chunk，路线板是 <code>CommArgs</code>，共享装卸口是 IPC window，伙伴入口表是 <code>peerMems[]</code>，红绿灯是 flag&#x2F;credit，叉车是 MTE&#x2F;DataCopy，边运边算方案是 MC2，远端输送线是 UDMA。</p>
+<p><strong>易错点。</strong>TileXR 不是 HCCL 新名字；IPC 不搬 payload；MC2、HCCL、MTE、UDMA 是按算子选择的分支而非串行必经栈；有 demo 不等于公开真机验证完成。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li><code>peerMems[]</code> 已有远端地址，为什么仍不能说 IPC 已搬完数据？</li>
+<li><code>all_gather_matmul</code> 中 TileXR、MC2、HCCL 与底层链路分别位于哪层？</li>
+<li>910B 上初始化成功但 <code>UDMAEnabled(args)=false</code>，为什么不能证明 UDMA 可用？</li>
+</ol>
+<h3 id="Fabric-Memory"><a href="#Fabric-Memory" class="headerlink" title="Fabric Memory"></a>Fabric Memory</h3><article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>必须拆成三个对象</p>
+</div>
+        <div class="message-body">
+            <p><strong>HiXL FabricMem</strong> 是 A3 超节点传输模式；<strong>Ascend MemFabric</strong> 是独立的异构内存池化系统；<code>aclrtMemFabricHandle</code> 只是 CANN VMM 的 128 字节共享能力 token。三者不能放进同一个方框后画等号。</p>
+
+        </div>
+    </article>
+
+<p><strong>小白版。</strong>HiXL FabricMem 像 A3 园区的“统一门牌 + 高速内部货运”：导入远端房产凭证，把远端页挂入本地页表，再由 SDMA 沿 HCCS 搬货。MemFabric 则像跨园区仓储平台：统一分配 GVA，把 DRAM&#x2F;HBM 编成池，并从 UB、RoCE 等运输商中选择 <code>xcopy</code> 路径。Fabric handle 只是电子房产证，拿到后仍要 Reserve&#x2F;Import&#x2F;Map&#x2F;SetAccess。</p>
+<p>类比的边界是：统一门牌不表示任意 CPU&#x2F;NPU 可普通 load&#x2F;store，也不表示没有物理数据移动；页表、IOMMU、权限、粒度、故障和完成语义都必须显式处理。</p>
+<p><strong>专业版。</strong>HiXL FabricMem 的机制是 <code>MallocPhysical → Reserve/Map → 交换 Fabric handle/地址段 → 访问方 Import 并注入页表 → 地址翻译与分段 → SDMA over A3 HCCS → 完成后反向释放</code>。它服务 D2RH、RH2D 和 D2D，当前只支持 Atlas A3，要求 CANN 9.0+、HDK 25.5+、Lingqu 1.5+，并需显式启用且与部分 buffer-pool 配置互斥。</p>
+<p>MemFabric 则提供 Global Memory Management、逻辑 GVA、DRAM&#x2F;HBM pooling、统一 <code>xcopy</code> 与 transport plugins：当前 README 把 A3 映射到 Device UB 1.0、A2 映射到 Device RoCE，另有 Host UB&#x2F;RoCE；当前未把 Ascend 950 列入已支持表。它于 2025-11 对外开源。HiXL FabricMem 首个可定位公开代码提交为 2026-01-06，3 月进入正式说明；两者截至 2026-08 都仍活跃。</p>
+<p><strong>术语对应。</strong>HiXL 的园区门牌是 Fabric VA pool，MemFabric 的仓位号是逻辑 GVA，电子房产证是 <code>aclrtMemFabricHandle</code>，录入地址簿是 Import + Reserve&#x2F;Map，A3 内部货运是 SDMA over HCCS，跨园区运输商是 UB&#x2F;RoCE plugin。</p>
+<p><strong>易错点。</strong>Fabric handle 不是 Fabric Memory；HiXL FabricMem 不是 MemFabric；当前 HiXL A3 路径写 HCCS&#x2F;SDMA，MemFabric A3 写 Device UB 1.0，不能用一条 <code>Fabric Memory → UB</code> 覆盖；“单边零拷贝”仍有 SDMA&#x2F;xcopy 的真实 payload 移动。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>拿到 Fabric handle 后，为什么还不能把它传给 kernel 当指针？</li>
+<li>A2 跨机 HBM 池化为什么更应归入 MemFabric 而非 HiXL FabricMem？</li>
+<li>“Fabric Memory → UB → 零拷贝”这条唯一链遗漏了哪些控制面、VMM 和数据面分支？</li>
+</ol>
+<h3 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h3><p><strong>小白版。</strong>普通路径会把货从业务箱倒进中转箱、运输、再倒进目标业务箱；零拷贝路径让 DMA&#x2F;NIC 直接从源业务 buffer 送到目标业务 buffer，或让两个进程映射同一物理 allocation。这里的“零”通常指 <strong>CPU 没有 memcpy</strong>或<strong>没有多余 staging</strong>，不是字节没有沿 HBM、总线或网络移动。</p>
+<p>类比的边界是：协议头、cache line、页表、IOMMU、分片、重传与算法 scratch 都可能产生额外流量；DMA 也可能因地址不可达落入 bounce buffer。因此必须先声明计数边界。</p>
+<p><strong>专业版。</strong>对 payload <code>P</code> 从逻辑源 <code>S</code> 到逻辑目的 <code>D</code>，本文建议记录：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Z(P, S→D) = (C_cpu, C_bounce, T_payload, M_map, R_app)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>C_cpu</code>：CPU 对整段 payload 的 memcpy&#x2F;materialize 次数；</li>
+<li><code>C_bounce</code>：进入或离开 staging&#x2F;bounce&#x2F;relay buffer 的边数；</li>
+<li><code>T_payload</code>：DMA&#x2F;SDMA&#x2F;RDMA&#x2F;MTE&#x2F;网络等必要物理运输；</li>
+<li><code>M_map</code>：Reserve、Register、Import、Map、页表注入等控制面操作；</li>
+<li><code>R_app</code>：远端应用 CPU 是否要为每次传输主动接收或搬运。</li>
+</ul>
+<p>因此，CPU 零拷贝只要求 <code>C_cpu=0</code>；严格无 staging 的传输还要求 <code>C_bounce=0</code>，但跨机时 <code>T_payload≥1</code>；IPC&#x2F;VMM 同页别名在建立阶段可以 <code>T_payload=0, M_map&gt;0</code>，后续消费者读取仍产生内存&#x2F;互联流量。</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>可以证明的“零”</th>
+<th>不能自动证明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DMA&#x2F;RDMA 直达已注册业务 buffer</td>
+<td>CPU copy 与 staging 可为 0</td>
+<td>bounce fallback、RDMA inline copy、协议 scratch 不存在</td>
+</tr>
+<tr>
+<td>IPC 映射同一 allocation</td>
+<td>建立共享关系不复制 payload</td>
+<td>应用没有先拷入或再拷出，跨 Device 没有链路流量</td>
+</tr>
+<tr>
+<td>CANN VMM&#x2F;Fabric handle</td>
+<td>Export&#x2F;Import&#x2F;Map 只处理地址和能力</td>
+<td>后续 <code>aclrtMemcpy</code>、SDMA 或 LD&#x2F;ST 也为 0</td>
+</tr>
+<tr>
+<td>HiXL&#x2F;FabricMem</td>
+<td>可省用户中转与远端应用 CPU</td>
+<td>buffer pool 没启用、SDMA&#x2F;HCCS 不搬字节</td>
+</tr>
+<tr>
+<td>HCCL 激活通信内存</td>
+<td>消除官方定义的 HCCL 中转 buffer</td>
+<td>collective 的传输、归约和所有算法 scratch 消失</td>
+</tr>
+<tr>
+<td>AIV&#x2F;cann-shmem 直驱</td>
+<td>Host 不在每次操作热路径</td>
+<td>UB&#x2F;GM、MTE、UDMA 的 payload movement 消失</td>
+</tr>
+</tbody></table>
+<p>零拷贝不是华为产品、协议或仓库，因此没有统一立项、版本或 EOL；某个 API 被废弃只代表一条实现路径迁移。</p>
+<p><strong>术语对应。</strong>“CPU 没搬”是 <code>C_cpu=0</code>，“直接到业务内存”是 <code>C_bounce=0</code>，“共享同一页”是 multiple VA map one allocation，“单边”主要回答 <code>R_app=0</code>，“直驱”回答谁提交任务，均不能单独推出端到端零拷贝。</p>
+<p><strong>易错点。</strong>DMA&#x2F;RDMA 不自动零拷贝；Export&#x2F;Import&#x2F;Map 不传 payload；远端 CPU 不参与只证明单边性；AI Core 的 Unified Buffer 若只是中转，就必须计入 staging。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>DMA 没有普通 CPU memcpy，但 SWIOTLB 发生 bounce，应归入哪种零拷贝口径？</li>
+<li>A Export VMM 内存、B Import+Map，但 A 先 memcpy 数据进共享区，五元组应如何计？</li>
+<li>HCCL Activate 消除内部 buffer 后，怎样分别按 CPU-copy、无 staging 和总物理移动判断 AllReduce？</li>
+</ol>
+<h3 id="AIV-直驱"><a href="#AIV-直驱" class="headerlink" title="AIV 直驱"></a>AIV 直驱</h3><p><strong>小白版。</strong>把通信看作快递：AIV 是车间工人，WQE 是快递单，doorbell 是通知硬件取单的铃，CQE 是回执，notify&#x2F;signal 是送货同时按门铃，quiet 是等待此前订单达到规定完成状态；真正运货的卡车仍是 UDMA、RDMA&#x2F;URMA、MTE 或 UB 引擎。</p>
+<p>传统细粒度路径可能让 AIV 每轮请求 Host&#x2F;AICPU 排任务；AIV 直驱则由 Vector Core 直接构造并发布 WQE、敲 doorbell、轮询 CQ 或等待 signal。类比的边界是：Host 没有完全消失，Endpoint、MR、Channel、远端地址与队列元数据通常仍由 Host&#x2F;HCOMM 预先建立。</p>
+<p><strong>专业版。</strong>AIV 直驱是<strong>数据面提交者&#x2F;控制路径属性</strong>，不是新的 DMA 或网络协议：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Host / HCCL / HCOMM 控制面</span><br><span class="line">  → 建通信域、Endpoint/Channel、注册 MR、交换地址与 key</span><br><span class="line">  → 下发 WQ/CQ/doorbell/channel entity</span><br><span class="line">AIV Kernel fast path</span><br><span class="line">  → 生成 WQE → publish SQ/WQ → ring doorbell</span><br><span class="line">  → UDMA/RDMA/URMA/MTE/UB engine 搬运</span><br><span class="line">  → poll CQ / wait notify / quiet</span><br></pre></td></tr></table></figure>
+
+<p>HCCL 的 <code>HCCL_OP_EXPANSION_MODE=AIV</code> 表示 collective 在 Vector Core 展开执行，与低层 WQE 直驱相关但不完全等号；大消息或受限场景可能回退 AICPU。HCOMM 的 <code>COMM_ENGINE_AIV</code> 表示申请给 AIV 数据面使用的 channel；HCOMM 本身不是传输引擎。<code>cann/shmem</code> 则用 Device API 封装 put&#x2F;get、put-with-signal 和 quiet，950 UDMA 路径依赖 HCOMM 控制面。</p>
+<p>公开资料不晚于 CANN 8.x 已出现 HCCL AIV 展开；2026-04 的 SHMEM v1.3 明确增加 AI Core 直驱，CANN 9.1 beta2 点名 Ascend 950PR 的 AIV 直驱 RoCE&#x2F;URMA。硬件范围必须拆开：A2&#x2F;A3 的有限 HCCL AIV 场景不等于支持 950 的 UDMA AIV 直驱。能力仍在扩展，未废弃。</p>
+<p><strong>术语对应。</strong>快递单是 WQE，传送带是 SQ&#x2F;WQ，敲铃是 ring doorbell，回执是 CQE，送货并通知是 put-with-signal，等本人此前操作完成是 quiet，预办通行证是 Endpoint&#x2F;Channel&#x2F;MR 控制面。</p>
+<p><strong>易错点。</strong>AIV 不亲自跨卡搬字节；AIV mode 不保证任何数据量都不回退；直驱不表示 Host 控制面消失；quiet 是本 rank 的完成性原语，不是多 PE barrier；MC2 Kernel 跑在 AIV 上也不自动等于通信由 AIV 直驱。</p>
+<p><strong>检查理解：</strong></p>
+<ol>
+<li>AIV 敲 doorbell 后，为什么仍不能说“AIV 就是 UDMA 引擎”？</li>
+<li><code>aclshmemx_udma_put_signal_nbi</code> + <code>quiet(peer)</code> 中，控制面、提交者、搬运引擎和完成机制分别是什么？</li>
+<li>HCCL 配置 AIV 却在大消息回退 AICPU，怎样用配置与 profiling 判断本次是否真正直驱？</li>
+</ol>
+<h2 id="组合路径与演进"><a href="#组合路径与演进" class="headerlink" title="组合路径与演进"></a>组合路径与演进</h2><h3 id="为什么不能只画包含树"><a href="#为什么不能只画包含树" class="headerlink" title="为什么不能只画包含树"></a>为什么不能只画包含树</h3><p>同一个请求可以同时被五种分类描述。以“Mooncake 把 PE 0 的 KV Cache 写到 PE 1”为例：</p>
+<ol>
+<li><strong>产品&#x2F;API 轴</strong>：应用可能调用 HiXL&#x2F;ADXL，也可能选择 Mooncake UBShmem。</li>
+<li><strong>内存轴</strong>：HiXL 要注册内存；UBShmem 要通过 VMM 导入对端共享物理内存并重建 VA 映射。</li>
+<li><strong>提交轴</strong>：当前公开 Mooncake 路径主要由 Host worker 和 ACL stream 发起；不能凭 <code>Direct</code> 或 <code>SHMEM</code> 字样推断 AIV。</li>
+<li><strong>引擎轴</strong>：实现可能选择 RDMA、SDMA、ACL copy 或 UB 后端。</li>
+<li><strong>互联轴</strong>：物理字节可能走 RoCE、HCCS 或 UB。</li>
+</ol>
+<p>因此，“HiXL 包含 RDMA”“UBShmem 包含 VMM”最多只是在某一固定版本和路径上的实现关系；更稳定的表达是：<strong>上层选择语义，运行时建立地址和资源，提交者生成任务，引擎搬运 payload，互联承载字节。</strong></p>
+<h3 id="四条主开发路径"><a href="#四条主开发路径" class="headerlink" title="四条主开发路径"></a>四条主开发路径</h3><h4 id="集合通信主线"><a href="#集合通信主线" class="headerlink" title="集合通信主线"></a>集合通信主线</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">框架 collective</span><br><span class="line">  → HCCL 算法、拓扑与 executor</span><br><span class="line">  → HCOMM 控制面/数据面资源</span><br><span class="line">  → AICPU / AIV / Host 执行引擎</span><br><span class="line">  → HCCS / RoCE / PCIe / UB</span><br></pre></td></tr></table></figure>
+
+<p>这条线解决的是<strong>一组 rank 如何共同完成操作</strong>。Ring、Mesh、RHD、分层 AllToAll 等算法关心数据如何切片、哪个 rank 先发给谁、如何 reduce 或 gather。底层 transport 只完成其中的点对点步骤。</p>
+<h4 id="Host-侧单边传输主线"><a href="#Host-侧单边传输主线" class="headerlink" title="Host 侧单边传输主线"></a>Host 侧单边传输主线</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">KV Cache / 参数切换 / 内存池化应用</span><br><span class="line">  → HiXL 新 API（ADXL compatibility 仍在）</span><br><span class="line">  → 注册内存、建链、同步/异步 request</span><br><span class="line">  → HCCS / Host RoCE / Device RoCE / UB / FabricMem</span><br></pre></td></tr></table></figure>
+
+<p>这条线以<strong>buffer 批量传输</strong>为中心。它不要求应用理解 collective 算法，也不要求用户手动管理 PE 对称堆。HiXL 的价值是用十余个核心 API 屏蔽多硬件和多链路差异；代价是底层路径和零拷贝程度要结合内存类型、注册状态和 buffer pool 判断。</p>
+<h4 id="Device-侧单边通信主线"><a href="#Device-侧单边通信主线" class="headerlink" title="Device 侧单边通信主线"></a>Device 侧单边通信主线</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AIV / 自定义算子</span><br><span class="line">  → cann/shmem Device API</span><br><span class="line">  → PE、对称地址、RMA/AMO、Signal/Quiet/Barrier</span><br><span class="line">  → MTE / SDMA / RDMA / UDMA</span><br></pre></td></tr></table></figure>
+
+<p>这条线把通信控制推进到 AICore Kernel。它适合通信与计算融合、细粒度 token 流水和减少 Host 下发，但必须正确管理完成、内存序、队列并发和 Vector Core 资源竞争。</p>
+<h4 id="映射型-Fabric-快路"><a href="#映射型-Fabric-快路" class="headerlink" title="映射型 Fabric 快路"></a>映射型 Fabric 快路</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Mooncake UBShmem / HiXL FabricMem</span><br><span class="line">  → CANN VMM 申请物理内存与预留 VA</span><br><span class="line">  → Export / Import Fabric 或 IPC handle</span><br><span class="line">  → Map + SetAccess</span><br><span class="line">  → ACL copy / SDMA / Fabric 后端访问映射地址</span><br></pre></td></tr></table></figure>
+
+<p>这条线的关键不是重新发明一个 SHMEM 标准，而是<strong>把远端物理内存变成本进程可寻址的地址对象</strong>。映射建好之后，后续 copy 不必每次重新交换远端地址描述；但容量对齐、连续空间、权限、句柄生命周期和异常回收会成为新的瓶颈。</p>
+<h3 id="TileXR-为什么跨了多条线"><a href="#TileXR-为什么跨了多条线" class="headerlink" title="TileXR 为什么跨了多条线"></a>TileXR 为什么跨了多条线</h3><p>TileXR 不是通用 transport 的简单别名。其当前公开代码同时出现三类路径：</p>
+<ul>
+<li>独立 <code>all_gather</code> 使用 <code>CommArgs.peerMems</code>、IPC 共享窗口和 Kernel 内同步；</li>
+<li><code>all_gather_add</code>、<code>all_gather_matmul</code> 等 MC2 算子使用 HCCL 对象；</li>
+<li>UDMA 路径把注册区域、<code>UDMAInfo</code>、WQ&#x2F;CQ&#x2F;QP 与 Device put&#x2F;get&#x2F;signal&#x2F;quiet 加入 <code>CommArgs</code>。</li>
+</ul>
+<p>这说明 TileXR 位于<strong>算子通信组织层</strong>：它可以消费 IPC&#x2F;MTE、HCCL&#x2F;MC2 或 UDMA 能力，却不应被画成这些底层机制的父类。当前代码已形成 Host 注册、区域交换、transport&#x2F;QP 初始化、<code>CommArgs</code> 上传、Device wrapper 和 demo 的流程闭环；但公开真机验证清单明确说维护环境没有物理 Ascend 卡，因此只能写“代码与验收流程完成，A5&#x2F;950 数据面仍待公开实测”，不能把 expected output 当成验证结果。</p>
+<h3 id="硬件代际不是简单替换"><a href="#硬件代际不是简单替换" class="headerlink" title="硬件代际不是简单替换"></a>硬件代际不是简单替换</h3><p>从当前公开支持矩阵看，更接近事实的画法是<strong>并存与重心迁移</strong>：</p>
+<ul>
+<li>A2&#x2F;A3 继续大量使用 HCCS、MTE、SDMA 与 RoCE；</li>
+<li>Ascend 950 引入 UB、URMA&#x2F;UDMA、UBMEM 与新的 AIV&#x2F;HCOMM 资源；</li>
+<li>跨超节点、异构或现有以太网部署仍需要 RoCE&#x2F;RDMA；</li>
+<li>PCIe、Host 内存、页表和 Runtime 不会因为 UB 出现而消失。</li>
+</ul>
+<p>因此，UB 是新一代统一互联与内存语义方向，<strong>不是在 2026-08-26 已经把 HCCS 和 RoCE 从所有产品一次性删除的证据</strong>。</p>
+<h3 id="仓库与项目边界"><a href="#仓库与项目边界" class="headerlink" title="仓库与项目边界"></a>仓库与项目边界</h3><table>
+<thead>
+<tr>
+<th>公开仓库</th>
+<th>首个可见提交&#x2F;公开节点</th>
+<th>主要责任</th>
+<th>不能据此推出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hccl"><code>cann/hccl</code></a></td>
+<td>Git 首提交 2025-11-15；README 称 2025-11-30 正式开源</td>
+<td>集合算法、算子 API、拓扑与 executor</td>
+<td>HCCL 在 2025 年才内部诞生</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm"><code>cann/hcomm</code></a></td>
+<td>Git 首提交 2025-10-17；随 HCCL 于 2025-11-30 公开</td>
+<td>通信控制面、数据面、endpoint&#x2F;channel&#x2F;memory 资源</td>
+<td>HCCS、RDMA 或 UB 被 HCOMM 发明</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl"><code>cann/hixl</code></a></td>
+<td>2025-10-14 首个代码提交</td>
+<td>单边 buffer 传输、LLM-DataDist、FabricMem、ADXL 兼容</td>
+<td><code>Direct</code> 必然由 AIV 发起</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem"><code>cann/shmem</code></a></td>
+<td>2025-12-12 首提交；2026-02 首批 tag</td>
+<td>对称内存、PE&#x2F;Team、RMA&#x2F;AMO&#x2F;同步与 Device API</td>
+<td>完整实现 OpenSHMEM 全部规范</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/cann/runtime"><code>cann/runtime</code></a></td>
+<td>2025-12-25 首提交</td>
+<td>Device、Stream&#x2F;Event、内存、任务与 DFX</td>
+<td>CANN Runtime 产品从 2025 年才存在</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/Ascend/memfabric_hybrid"><code>Ascend/memfabric_hybrid</code></a></td>
+<td>2025-04-14 首提交；README 称 2025-11 开源</td>
+<td>全局 VA、内存池化、xcopy 与多后端</td>
+<td>Fabric Memory 只有这一种实现</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/LingquLab/TileXR"><code>LingquLab/TileXR</code></a></td>
+<td>2025-12-30 首个可见公开提交；无正式 release</td>
+<td>Tile 通信、共享窗口、融合算子与 UDMA 路径</td>
+<td>有代码不等于已有公开 A5 真机性能验证</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake"><code>kvcache-ai/Mooncake</code></a></td>
+<td>2025-08 合入 ADXL；2026-01 合入 UBShmem</td>
+<td>KV Cache&#x2F;内存池传输与多 transport</td>
+<td>Mooncake 的 UBShmem 就是 CANN SHMEM</td>
+</tr>
+</tbody></table>
+<h3 id="“废弃”应该怎样表述"><a href="#“废弃”应该怎样表述" class="headerlink" title="“废弃”应该怎样表述"></a>“废弃”应该怎样表述</h3><p>本文采用四档状态，避免把“旧”“不支持本芯片”和“已删除”混为一谈：</p>
+<ol>
+<li><strong>活跃</strong>：仓库或版本仍在发布，如 HCCL、HCOMM、HiXL、SHMEM、Runtime、RDMA、UDMA。</li>
+<li><strong>待废弃</strong>：官方明确标记但接口仍保留，当前典型是 ADXL compatibility API。</li>
+<li><strong>平台迁移</strong>：新硬件把主路径从 HCCS&#x2F;SDMA 转向 UB&#x2F;UDMA，但旧平台仍使用旧路径。</li>
+<li><strong>未证实停用</strong>：只有长时间无提交或集成缺口，没有 EOL 公告。TileXR 应描述为“活跃、逐路径成熟度和公开硬件验证待核”，不能直接标红为废弃。</li>
+</ol>
+<h2 id="可能的演进路径"><a href="#可能的演进路径" class="headerlink" title="可能的演进路径"></a>可能的演进路径</h2><h3 id="路径一：HCCL-HCOMM-收敛-collective，UB-成为-950-主力后端"><a href="#路径一：HCCL-HCOMM-收敛-collective，UB-成为-950-主力后端" class="headerlink" title="路径一：HCCL&#x2F;HCOMM 收敛 collective，UB 成为 950 主力后端"></a>路径一：HCCL&#x2F;HCOMM 收敛 collective，UB 成为 950 主力后端</h3><p><strong>推断。</strong>最可能的主线是 HCCL 继续保持框架集合通信入口，HCOMM 进一步统一 AICPU、AIV、CCU、RoCE、HCCS 与 UB 资源。UB 在 Ascend 950 超节点内承担更多内存语义和低时延访问，但跨超节点 RoCE 继续存在。</p>
+<ul>
+<li><strong>成立前提</strong>：UB 软硬件规格、驱动、HCOMM 资源、算法和运维工具共同成熟。</li>
+<li><strong>先行信号</strong>：HCCL 新版本把更多 950 collective 默认算法切到 AIV&#x2F;UB；HCOMM <code>ub_mem</code>、URMA&#x2F;UDMA endpoint 从 legacy&#x2F;experimental 收敛到稳定 API。</li>
+<li><strong>失效条件</strong>：UB 生态兼容和故障恢复成本过高，或跨节点场景长期仍只能由 RoCE 主导。</li>
+</ul>
+<h3 id="路径二：HiXL-新-API-取代-ADXL，Host-单边传输成为应用主入口"><a href="#路径二：HiXL-新-API-取代-ADXL，Host-单边传输成为应用主入口" class="headerlink" title="路径二：HiXL 新 API 取代 ADXL，Host 单边传输成为应用主入口"></a>路径二：HiXL 新 API 取代 ADXL，Host 单边传输成为应用主入口</h3><p><strong>推断。</strong>KV Cache、参数切换和分布式内存池更可能消费 HiXL 的稳定 API，而不是让每个上层项目继续直接拼 HCCL 私有传输或维护 ADXL 兼容对象。</p>
+<ul>
+<li><strong>成立前提</strong>：HIXL API 覆盖 ADXL 的同步&#x2F;异步、自动建链、错误码、内存类型和 FabricMem 能力。</li>
+<li><strong>先行信号</strong>：Mooncake 等项目从 <code>adxl::AdxlEngine</code> 迁移到 HIXL 头文件；构建选项不再依赖 ADXL compatibility 包。</li>
+<li><strong>失效条件</strong>：兼容层长期更稳定、迁移收益有限，或新 API 在异步&#x2F;多目标&#x2F;异常恢复上缺失关键能力。</li>
+</ul>
+<h3 id="路径三：SHMEM-AIV-直驱扩展通算融合，项目专用-wrapper-被迫对齐"><a href="#路径三：SHMEM-AIV-直驱扩展通算融合，项目专用-wrapper-被迫对齐" class="headerlink" title="路径三：SHMEM&#x2F;AIV 直驱扩展通算融合，项目专用 wrapper 被迫对齐"></a>路径三：SHMEM&#x2F;AIV 直驱扩展通算融合，项目专用 wrapper 被迫对齐</h3><p><strong>推断。</strong>细粒度 MoE、MC2 和自定义算子会继续推动 Device 侧 RMA、Atomic、Signal 与 UDMA&#x2F;RDMA 直驱。TileXR 之类项目若要持续演进，需要把自己的 UDMA ABI、资源所有权和完成语义与 CANN&#x2F;HCOMM 的稳定接口持续对齐，并补齐 A5 真机验证。</p>
+<ul>
+<li><strong>成立前提</strong>：Device API 的多核并发、错误报告、性能阈值和硬件覆盖足够稳定。</li>
+<li><strong>先行信号</strong>：更多官方算子样例直接使用公共 Device API；TileXR 公布 A5 双卡运行日志、正确性和带宽&#x2F;时延测试。</li>
+<li><strong>失效条件</strong>：AIV 资源竞争抵消低时延收益，或 Host&#x2F;AICPU 路径在主流负载上已足够高效。</li>
+</ul>
+<h2 id="证据缺口"><a href="#证据缺口" class="headerlink" title="证据缺口"></a>证据缺口</h2><ol>
+<li><strong>内部立项日期。</strong>HCCL、HCCS、ADXL、HiXL、UDMA 和 Fabric Memory 的内部项目启动时间没有公开一手档案；本文只给公开证据时间。</li>
+<li><strong>HCCS 与 UB 的产品边界。</strong>公开文档能确认 A2&#x2F;A3 和 950 的主路径差异，但尚缺一份覆盖所有服务器形态、所有 CANN 版本的统一退役矩阵。</li>
+<li><strong>UDMA 的正式全称沿革。</strong>当前 SHMEM 术语表采用 Unified DMA，TileXR 等材料曾使用 User-space DMA；需要产品规范给出跨版本命名说明。</li>
+<li><strong>HCCL 私有数据面。</strong>公开源码能看到 HCOMM、AIV、UBMEM、URMA 等对象，但不能把所有 engine 的闭源固件细节和链路选择还原为完整微架构。</li>
+<li><strong>TileXR 可运行性。</strong>需要 Ascend 950、配套 CANN&#x2F;ops&#x2F;HCOMM 版本做真实编译与端到端测试，确认 UDMA put&#x2F;get&#x2F;signal&#x2F;quiet 的正确性、异常恢复和性能；当前公开 expected output 不能替代实测。</li>
+<li><strong>UBShmem 的命名。</strong>它是否会在 Mooncake 后续版本改名以避免与 OpenSHMEM&#x2F;CANN SHMEM 混淆，尚无公开计划。</li>
+<li><strong>零拷贝的测量口径。</strong>需要在具体链路上同时记录 CPU memcpy、DMA copy、staging buffer、页映射和网络 bytes，才能证明是“局部零拷贝”还是“端到端零拷贝”。</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><h3 id="华为与-CANN"><a href="#华为与-CANN" class="headerlink" title="华为与 CANN"></a>华为与 CANN</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://e.huawei.com/cn/news/ebg/201810101135">华为 2018：昇腾全栈全场景 AI 方案与 CANN 1.0</a>，2018-10-10。</li>
+<li><a target="_blank" rel="noopener" href="https://www.huawei.com/cn/news/2020/8/huawei-hai-ascend/">华为 2020：CANN 3.0 与 AscendCL</a>，2020-08-10。</li>
+<li><a target="_blank" rel="noopener" href="https://www.huawei.com/cn/news/2025/9/hc-xu-keynote-speech">华为 UnifiedBus&#x2F;Ascend 950 主题演讲</a>，2025-09-18。</li>
+<li><a target="_blank" rel="noopener" href="https://www.unifiedbus.com/zh">灵衢 UnifiedBus 社区与 2.0.1 规范入口</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hccl">CANN HCCL 仓库</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/hccl/blob/master/docs/zh/user_guide/hccl_intro.md">HCCL 简介</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm">CANN HCOMM 仓库</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm/blob/master/README.md">HCOMM README</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem">CANN SHMEM 仓库</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/master/docs/glossary.md">术语表</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/master/docs/quickstart.md">硬件&#x2F;版本矩阵</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl">CANN HiXL 仓库</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl/blob/master/docs/zh/api/cpp/deprecated_ADXL-interface.md">待废弃 ADXL 接口</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl/blob/master/docs/zh/FabricMem.md">FabricMem 模式</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/runtime">CANN Runtime 仓库</a>与<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/API/appdevgapi/aclcppdevg_03_0112.html"><code>aclrtMallocPhysical</code></a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/developer/techArticles/20250726-1?envFlag=1">CANN MoE 通算融合与 AIV 直驱 RDMA</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/Ascend/memfabric_hybrid">Ascend MemFabric</a>，访问于 2026-08-26。</li>
+</ol>
+<h3 id="项目源码与演进记录"><a href="#项目源码与演进记录" class="headerlink" title="项目源码与演进记录"></a>项目源码与演进记录</h3><ol start="12">
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/LingquLab/TileXR">TileXR 仓库</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/LingquLab/TileXR/blob/master/tests/udma/QUICKSTART.md">UDMA Quickstart</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/LingquLab/TileXR/blob/master/tests/udma/demo/ASCEND_VERIFICATION.md">A5 真机验证边界</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/pull/740">Mooncake PR #740：Ascend Direct&#x2F;ADXL</a>，2025-08。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/pull/1399">Mooncake PR #1399：UBShmem&#x2F;Fabric Memory</a>，2026-01。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/pull/1519">Mooncake PR #1519：UBShmem IPC 与 allocator</a>，2026-02。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/tree/main/mooncake-transfer-engine/src/transport/ascend_transport/ubshmem_transport">Mooncake UBShmem transport</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/openeuler/umdk">openEuler UMDK</a>与<a target="_blank" rel="noopener" href="https://docs.openeuler.org/zh/docs/24.03_LTS_SP3/unifiedbus/unifiedbus/urma/URMA%20User%20Guide.ch.html">URMA 用户指南</a>，访问于 2026-08-26。</li>
+</ol>
+<h3 id="通用标准与历史"><a href="#通用标准与历史" class="headerlink" title="通用标准与历史"></a>通用标准与历史</h3><ol start="18">
+<li><a target="_blank" rel="noopener" href="https://docs.kernel.org/core-api/dma-api-howto.html">Linux Dynamic DMA Mapping Guide</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.kernel.org/infiniband/user_verbs.html">Linux userspace RDMA&#x2F;verbs</a>与<a target="_blank" rel="noopener" href="https://github.com/linux-rdma/rdma-core">rdma-core</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc/rfc5040.html">RFC 5040：Remote Direct Memory Access Protocol</a>，2007-10。</li>
+<li><a target="_blank" rel="noopener" href="https://infinibandta.org/infiniband-trade-association-releases-updated-specification-for-remote-direct-memory-access-over-converged-ethernet-roce/">IBTA RoCEv2 公告</a>，2014-09-16。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/openshmem-org/specification/releases">OpenSHMEM Specification Releases</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/900/programug/acldevg/runtime_doc_dev_0007.html">CANN 9.0 VMM 编程指南</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/runtime/tree/master/example/1_basic_features/memory">CANN Runtime VMM 样例</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/910/API/runtimeapi/aclcppdevg_03_1934.html">CANN 9.1 IPC 内存导出接口</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/runtime/tree/master/example/1_basic_features/memory/10_ipc_memory_withpid">Runtime IPC 样例</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm/blob/master/docs/zh/api_ref/comm_opdev/datatype_definition/CommProtocol.md">HCOMM <code>CommProtocol</code> 与硬件矩阵</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/900/API/hcclug/hcclenvref_07_0009.html">HCCL AIV 展开模式</a>与<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/910beta2/releasenote/9.1.0-beta.2/release-notes.md">CANN 9.1 beta2 发布说明</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/900/API/hcclug/hcclcpp_07_0054.html">HCCL 零拷贝通信内存接口</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.kernel.org/next/core-api/swiotlb.html">Linux SWIOTLB 与 bounce buffer</a>和<a target="_blank" rel="noopener" href="https://docs.kernel.org/next/networking/msg_zerocopy.html"><code>MSG_ZEROCOPY</code></a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://infinibandta.org/ibta-specification/">IBTA Specification FAQ：RoCE v1&#x2F;v2</a>与<a target="_blank" rel="noopener" href="https://www.infinibandta.org/wp-content/uploads/2024/07/Demartek_IBTA_RoCE_Deployment_Guide_2018-07.pdf">IBTA RoCE Deployment Guide</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://www.rfc-editor.org/info/rfc3168/">RFC 3168：Explicit Congestion Notification</a>与<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/include/rdma/ib_verbs.h">Linux <code>ib_verbs.h</code></a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/research/publication/make-multiprocessor-computer-correctly-executes-multiprocess-programs/">Leslie Lamport：How to Make a Multiprocessor Computer That Correctly Executes Multiprocess Programs</a>，IEEE Transactions on Computers，1979-09。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.kernel.org/core-api/wrappers/memory-barriers.html">Linux Kernel Memory Barriers</a>与<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/102336/latest/">Armv8-A Memory Model Guide</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/openeuler/umdk">openEuler UMDK</a>与<a target="_blank" rel="noopener" href="https://cdn.unifiedbus.com/pdf/2025%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%B3%B0%E4%BC%9A-%E7%81%B5%E8%A1%A2%E5%88%86%E8%AE%BA%E5%9D%9B-%E7%81%B5%E8%A1%A2%E6%80%BB%E7%BA%BF%E6%8A%80%E6%9C%AF%E5%92%8C%E8%BD%AF%E4%BB%B6%E5%8F%82%E8%80%83%E8%AE%BE%E8%AE%A1.pdf">灵衢操作系统及软件参考设计</a>，访问于 2026-08-26。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm/blob/master/docs/zh/api_ref/comm_opdev/data_plane_api/cpu-cpu_ts-aicpu_ts/communication_operations/HcommChannelFenceOnThread.md">HCOMM <code>HcommChannelFenceOnThread</code> 语义</a>与<a target="_blank" rel="noopener" href="https://docs.openeuler.org/zh/docs/24.03_LTS_SP4/unifiedbus/unifiedbus/urma/URMA%20API%20Guide.ch.html">openEuler URMA API Guide</a>，访问于 2026-08-26。</li>
+</ol>
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>证据口径</p>
+</div>
+        <div class="message-body">
+            <p>以上链接支持的是公开能力、源码状态和公开时间节点。<strong>内部立项、未开源固件、RTL 微架构及所有产品组合没有公开证据时，本文不作确定性补写。</strong></p>
+
+        </div>
+    </article>
+
+</div><div class="article-licensing box"><div class="licensing-title"><p>Ascend Communication Stack</p><p><a href="http://icarus.shaojiemike.top/2026/08/26/Work/Artificial Intelligence/AIInfra/Ascend-Communication-Stack/">http://icarus.shaojiemike.top/2026/08/26/Work/Artificial Intelligence/AIInfra/Ascend-Communication-Stack/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-26</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-26</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/AIV/">AIV</a><a class="link-muted mr-2" rel="tag" href="/tags/HCCL/">HCCL</a><a class="link-muted mr-2" rel="tag" href="/tags/SHMEM/">SHMEM</a><a class="link-muted mr-2" rel="tag" href="/tags/RDMA/">RDMA</a><a class="link-muted mr-2" rel="tag" href="/tags/RoCE/">RoCE</a><a class="link-muted mr-2" rel="tag" href="/tags/HCCS/">HCCS</a><a class="link-muted mr-2" rel="tag" href="/tags/Memory-Semantics/">Memory Semantics</a><a class="link-muted mr-2" rel="tag" href="/tags/DMA/">DMA</a><a class="link-muted mr-2" rel="tag" href="/tags/UDMA/">UDMA</a><a class="link-muted mr-2" rel="tag" href="/tags/UnifiedBus/">UnifiedBus</a><a class="link-muted mr-2" rel="tag" href="/tags/HiXL/">HiXL</a><a class="link-muted mr-2" rel="tag" href="/tags/CANN-VMM/">CANN VMM</a><a class="link-muted mr-2" rel="tag" href="/tags/Fabric-Memory/">Fabric Memory</a><a class="link-muted mr-2" rel="tag" href="/tags/TileXR/">TileXR</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/08/26/Work/Artificial%20Intelligence/AIInfra/AI-Chip-System-Barriers/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">AI Chip System Barriers</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/26/Work/Artificial%20Intelligence/Inference/Dynamo-TRTLLM-AgentX/"><span class="level-item">Dynamo TRT-LLM and AgentX</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">610</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">51</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">923</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#核心结论"><span class="level-left"><span class="level-item">1</span><span class="level-item">核心结论</span></span></a></li><li><a class="level is-mobile" href="#总体架构"><span class="level-left"><span class="level-item">2</span><span class="level-item">总体架构</span></span></a></li><li><a class="level is-mobile" href="#关键时间线"><span class="level-left"><span class="level-item">3</span><span class="level-item">关键时间线</span></span></a></li><li><a class="level is-mobile" href="#横向对比"><span class="level-left"><span class="level-item">4</span><span class="level-item">横向对比</span></span></a></li><li><a class="level is-mobile" href="#基础机制"><span class="level-left"><span class="level-item">5</span><span class="level-item">基础机制</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#内存语义"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">内存语义</span></span></a></li><li><a class="level is-mobile" href="#DMA"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">DMA</span></span></a></li><li><a class="level is-mobile" href="#xDMA"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">xDMA</span></span></a></li><li><a class="level is-mobile" href="#RDMA"><span class="level-left"><span class="level-item">5.4</span><span class="level-item">RDMA</span></span></a></li><li><a class="level is-mobile" href="#RoCE"><span class="level-left"><span class="level-item">5.5</span><span class="level-item">RoCE</span></span></a></li><li><a class="level is-mobile" href="#UDMA"><span class="level-left"><span class="level-item">5.6</span><span class="level-item">UDMA</span></span></a></li></ul></li><li><a class="level is-mobile" href="#通信与互联"><span class="level-left"><span class="level-item">6</span><span class="level-item">通信与互联</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#HCCL"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">HCCL</span></span></a></li><li><a class="level is-mobile" href="#HCCS"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">HCCS</span></span></a></li><li><a class="level is-mobile" href="#UB"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">UB</span></span></a></li></ul></li><li><a class="level is-mobile" href="#内存与运行时"><span class="level-left"><span class="level-item">7</span><span class="level-item">内存与运行时</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#UBMEM"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">UBMEM</span></span></a></li><li><a class="level is-mobile" href="#SHMEM"><span class="level-left"><span class="level-item">7.2</span><span class="level-item">SHMEM</span></span></a></li><li><a class="level is-mobile" href="#UBSHMEM"><span class="level-left"><span class="level-item">7.3</span><span class="level-item">UBSHMEM</span></span></a></li><li><a class="level is-mobile" href="#IPC"><span class="level-left"><span class="level-item">7.4</span><span class="level-item">IPC</span></span></a></li><li><a class="level is-mobile" href="#CANN-VMM"><span class="level-left"><span class="level-item">7.5</span><span class="level-item">CANN VMM</span></span></a></li></ul></li><li><a class="level is-mobile" href="#产品与跨层路径"><span class="level-left"><span class="level-item">8</span><span class="level-item">产品与跨层路径</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#ADXL-HIXL"><span class="level-left"><span class="level-item">8.1</span><span class="level-item">ADXL / HIXL</span></span></a></li><li><a class="level is-mobile" href="#TileXR"><span class="level-left"><span class="level-item">8.2</span><span class="level-item">TileXR</span></span></a></li><li><a class="level is-mobile" href="#Fabric-Memory"><span class="level-left"><span class="level-item">8.3</span><span class="level-item">Fabric Memory</span></span></a></li><li><a class="level is-mobile" href="#零拷贝"><span class="level-left"><span class="level-item">8.4</span><span class="level-item">零拷贝</span></span></a></li><li><a class="level is-mobile" href="#AIV-直驱"><span class="level-left"><span class="level-item">8.5</span><span class="level-item">AIV 直驱</span></span></a></li></ul></li><li><a class="level is-mobile" href="#组合路径与演进"><span class="level-left"><span class="level-item">9</span><span class="level-item">组合路径与演进</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#为什么不能只画包含树"><span class="level-left"><span class="level-item">9.1</span><span class="level-item">为什么不能只画包含树</span></span></a></li><li><a class="level is-mobile" href="#四条主开发路径"><span class="level-left"><span class="level-item">9.2</span><span class="level-item">四条主开发路径</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#集合通信主线"><span class="level-left"><span class="level-item">9.2.1</span><span class="level-item">集合通信主线</span></span></a></li><li><a class="level is-mobile" href="#Host-侧单边传输主线"><span class="level-left"><span class="level-item">9.2.2</span><span class="level-item">Host 侧单边传输主线</span></span></a></li><li><a class="level is-mobile" href="#Device-侧单边通信主线"><span class="level-left"><span class="level-item">9.2.3</span><span class="level-item">Device 侧单边通信主线</span></span></a></li><li><a class="level is-mobile" href="#映射型-Fabric-快路"><span class="level-left"><span class="level-item">9.2.4</span><span class="level-item">映射型 Fabric 快路</span></span></a></li></ul></li><li><a class="level is-mobile" href="#TileXR-为什么跨了多条线"><span class="level-left"><span class="level-item">9.3</span><span class="level-item">TileXR 为什么跨了多条线</span></span></a></li><li><a class="level is-mobile" href="#硬件代际不是简单替换"><span class="level-left"><span class="level-item">9.4</span><span class="level-item">硬件代际不是简单替换</span></span></a></li><li><a class="level is-mobile" href="#仓库与项目边界"><span class="level-left"><span class="level-item">9.5</span><span class="level-item">仓库与项目边界</span></span></a></li><li><a class="level is-mobile" href="#“废弃”应该怎样表述"><span class="level-left"><span class="level-item">9.6</span><span class="level-item">“废弃”应该怎样表述</span></span></a></li></ul></li><li><a class="level is-mobile" href="#可能的演进路径"><span class="level-left"><span class="level-item">10</span><span class="level-item">可能的演进路径</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#路径一：HCCL-HCOMM-收敛-collective，UB-成为-950-主力后端"><span class="level-left"><span class="level-item">10.1</span><span class="level-item">路径一：HCCL/HCOMM 收敛 collective，UB 成为 950 主力后端</span></span></a></li><li><a class="level is-mobile" href="#路径二：HiXL-新-API-取代-ADXL，Host-单边传输成为应用主入口"><span class="level-left"><span class="level-item">10.2</span><span class="level-item">路径二：HiXL 新 API 取代 ADXL，Host 单边传输成为应用主入口</span></span></a></li><li><a class="level is-mobile" href="#路径三：SHMEM-AIV-直驱扩展通算融合，项目专用-wrapper-被迫对齐"><span class="level-left"><span class="level-item">10.3</span><span class="level-item">路径三：SHMEM/AIV 直驱扩展通算融合，项目专用 wrapper 被迫对齐</span></span></a></li></ul></li><li><a class="level is-mobile" href="#证据缺口"><span class="level-left"><span class="level-item">11</span><span class="level-item">证据缺口</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">12</span><span class="level-item">参考资料</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#华为与-CANN"><span class="level-left"><span class="level-item">12.1</span><span class="level-item">华为与 CANN</span></span></a></li><li><a class="level is-mobile" href="#项目源码与演进记录"><span class="level-left"><span class="level-item">12.2</span><span class="level-item">项目源码与演进记录</span></span></a></li><li><a class="level is-mobile" href="#通用标准与历史"><span class="level-left"><span class="level-item">12.3</span><span class="level-item">通用标准与历史</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">32</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">41</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-26T08:30:00.000Z">2026-08-26</time></p><p class="title"><a href="/2026/08/26/Work/Artificial%20Intelligence/AIInfra/AI-Chip-System-Barriers/">AI Chip System Barriers</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-26T04:00:00.000Z">2026-08-26</time></p><p class="title"><a href="/2026/08/26/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-Stack/">Ascend Communication Stack</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-26T02:32:06.000Z">2026-08-26</time></p><p class="title"><a href="/2026/08/26/Work/Artificial%20Intelligence/Inference/Dynamo-TRTLLM-AgentX/">Dynamo TRT-LLM and AgentX</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-25T16:00:00.000Z">2026-08-25</time></p><p class="title"><a href="/2026/08/25/Work/InferenceX-Site-Research/">InferenceX Data Pipeline</a></p><p class="categories"><a href="/categories/Work/">Work</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">34</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Chip/"><span class="tag">AI Chip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
