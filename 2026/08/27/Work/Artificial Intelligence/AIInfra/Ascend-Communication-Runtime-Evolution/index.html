@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Ascend Communication Runtime Evolution - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       在昇腾通信栈的第二轴中，HCOMM、SHMEM Runtime、IPC、CANN VMM 与 Fabric Memory 被放在同一个“资源、地址与运行时”区域。它们都在帮助程序访问另一进程、另一设备甚至另一节点的内存，因此很容易被理解成五套重复方案：既然目标相同，为什么不统一成一套 API？ 这个问题真正触及的是系统抽象如何演进"><meta property="og:type" content="blog"><meta property="og:title" content="Ascend Communication Runtime Evolution"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-Runtime-Evolution/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       在昇腾通信栈的第二轴中，HCOMM、SHMEM Runtime、IPC、CANN VMM 与 Fabric Memory 被放在同一个“资源、地址与运行时”区域。它们都在帮助程序访问另一进程、另一设备甚至另一节点的内存，因此很容易被理解成五套重复方案：既然目标相同，为什么不统一成一套 API？ 这个问题真正触及的是系统抽象如何演进"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png"><meta property="article:published_time" content="2026-08-27T08:32:19.000Z"><meta property="article:modified_time" content="2026-08-28T02:37:01.326Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="SHMEM"><meta property="article:tag" content="HCOMM"><meta property="article:tag" content="CANN VMM"><meta property="article:tag" content="Fabric Memory"><meta property="article:tag" content="PGAS"><meta property="article:tag" content="IPC"><meta property="article:tag" content="Memory Semantics"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-Runtime-Evolution/"},"headline":"Ascend Communication Runtime Evolution","image":["https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png"],"datePublished":"2026-08-27T08:32:19.000Z","dateModified":"2026-08-28T02:37:01.326Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       在昇腾通信栈的第二轴中，HCOMM、SHMEM Runtime、IPC、CANN VMM 与 Fabric Memory 被放在同一个“资源、地址与运行时”区域。它们都在帮助程序访问另一进程、另一设备甚至另一节点的内存，因此很容易被理解成五套重复方案：既然目标相同，为什么不统一成一套 API？ 这个问题真正触及的是系统抽象如何演进"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-Runtime-Evolution/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-27T08:32:19.000Z" title="8/27/2026, 8:32:19 AM">2026-08-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-28T02:37:01.326Z" title="8/28/2026, 2:37:01 AM">2026-08-28</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">an hour read (About 8198 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Ascend Communication Runtime Evolution</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>在昇腾通信栈的第二轴中，HCOMM、SHMEM Runtime、IPC、CANN VMM 与 Fabric Memory 被放在同一个“资源、地址与运行时”区域。它们都在帮助程序访问另一进程、另一设备甚至另一节点的内存，因此很容易被理解成五套重复方案：既然目标相同，为什么不统一成一套 API？</p>
+<p>这个问题真正触及的是系统抽象如何演进。<strong>五个概念共享“让数据可达”的目标，却分别承诺资源组织、PGAS 编程、进程共享、虚拟内存管理和内存池化；它们不是五代同类技术，而是从五个不同矛盾长出的责任边界。</strong>本文从第一性原理拆出这些不可互换的契约，再沿时间纵轴和能力横轴梳理其提出契机、公开时机、新仓库形成条件与未来收敛方向。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="从同层不同物开始"><a href="#从同层不同物开始" class="headerlink" title="从同层不同物开始"></a>从同层不同物开始</h2><p><a target="_blank" rel="noopener" href="https://shaojiemike.top/1-ai-systems/2026/08/26/Ascend-Communication-Stack/">《Ascend Communication Stack》</a>把一次通信拆成五条相交的轴：应用选择通信语义，Runtime 建立资源与地址，Host 或 Device 提交任务，DMA 类引擎搬运 Payload，底层互联承载字节。第二轴处在“上层想做什么”和“下层怎样搬”之间。</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png" alt="昇腾通信栈的五轴架构与内存语义契约面"></p>
+<p><em>图 1：昇腾通信栈五轴架构。根据既有研究内容整理的自绘示意图。</em></p>
+<p>把五个概念放在同一区域，只表示它们都可能参与<strong>通信前的资源与地址准备</strong>，并不表示它们属于同一个抽象层次：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HCOMM          通信资源与基础操作</span><br><span class="line">SHMEM Runtime  PE、Team、对称堆与远端内存操作</span><br><span class="line">IPC            已有 allocation 的跨进程共享</span><br><span class="line">CANN VMM       虚拟地址、物理内存与权限的拆分管理</span><br><span class="line">Fabric Memory  跨设备、跨介质的内存编址与池化</span><br></pre></td></tr></table></figure>
+
+<p>最容易误读的原因，是这五条路径最后都可能出现一个“本地可使用的地址”。但地址只说明<strong>怎样找到对象</strong>，不说明对象是谁拥有、允许做什么、何时完成、何时对其他观察者可见，也不说明对端失效后怎样回收。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>同层不等于同类</p>
+</div>
+        <div class="message-body">
+            <p>架构图中的一层通常是一段<strong>责任带</strong>，而不是 Java 式的同一个父类。HCOMM 和 SHMEM Runtime 更接近通信软件，IPC 与 VMM 是 Runtime 机制，Fabric Memory 则可能指一种访问模式、一个跨层能力或一个独立池化系统。若先假定它们可以彼此替换，历史与接口关系都会被读反。</p>
+
+        </div>
+    </article>
+
+<h2 id="第一性拆解"><a href="#第一性拆解" class="headerlink" title="第一性拆解"></a>第一性拆解</h2><p>先不使用任何产品名。一次可靠的远端内存访问，至少要回答七个无法由硬件带宽消除的问题：</p>
+<ol>
+<li><strong>参与者。</strong>进程、Rank、PE、Team、Device 或内存节点如何编号、发现和建立关系。</li>
+<li><strong>内存对象。</strong>访问的是普通 allocation、对称对象、注册内存、物理页，还是全局池中的逻辑对象。</li>
+<li><strong>命名空间。</strong>调用者持有本地 VA、远端 VA、<code>&lt;PE, symmetric address&gt;</code>、GVA，还是不可直接解引用的 handle。</li>
+<li><strong>授权方式。</strong>访问权来自 PID 白名单、VMM access、memory key，还是 Endpoint&#x2F;Channel 的资源配置。</li>
+<li><strong>操作集合。</strong>系统允许 Map、Memcpy、Put&#x2F;Get、Load&#x2F;Store、Atomic、Signal 中的哪些动作。</li>
+<li><strong>完成与可见性。</strong>提交成功、DMA 完成、远端可见和并发程序可安全消费是不是同一时刻。</li>
+<li><strong>生命周期与故障。</strong>谁能 Unmap、Close 或 Free；异步消费者尚未结束、对端进程退出或节点失联时怎样处理。</li>
+</ol>
+<p>可以把一个抽象写成契约元组：</p>
+<p>$$<br>C &#x3D; \langle P, O, N, A, X, V, L \rangle,<br>$$</p>
+<p>其中 $P$ 是参与者，$O$ 是对象，$N$ 是命名空间，$A$ 是权限，$X$ 是操作，$V$ 是完成与可见性，$L$ 是生命周期。<strong>两个概念只有在这七项大体相同、且调用者无需补写额外协议时，才可能被同一 API 真正替代。</strong></p>
+<p>按这个标准观察第二轴，差异会立即显现：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>起点问题</th>
+<th>核心对象</th>
+<th>命名方式</th>
+<th>操作与完成</th>
+<th>生命周期所有者</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>HCOMM</strong></td>
+<td>Collective 与通算融合怎样复用异构通信资源</td>
+<td>通信域、RankGraph、Endpoint、Channel、Memory、Notify</td>
+<td>Rank、Endpoint、Channel 及协议资源</td>
+<td>基础通信动作、Notify、Fence；完成依具体数据面</td>
+<td>通信域和资源管理器</td>
+</tr>
+<tr>
+<td><strong>SHMEM Runtime</strong></td>
+<td>Host 或 Kernel 怎样编程远端内存</td>
+<td>PE、Team、对称堆、对称对象</td>
+<td><code>&lt;PE, symmetric address&gt;</code></td>
+<td>RMA、AMO、Signal、Fence、Quiet、Barrier</td>
+<td>SHMEM 作业、Team 与对称堆</td>
+</tr>
+<tr>
+<td><strong>IPC</strong></td>
+<td>隔离进程怎样共享已有 Device allocation</td>
+<td>已分配内存、导出 key、导入映射</td>
+<td>导入方本地 VA + 共享 key</td>
+<td>建立共享关系；数据操作由后续 Copy 或 LD-ST 决定</td>
+<td>导出进程与导入进程共同遵守顺序</td>
+</tr>
+<tr>
+<td><strong>CANN VMM</strong></td>
+<td>VA、物理页和权限怎样独立管理</td>
+<td>VA range、physical handle、mapping、access</td>
+<td>预留 VA + 物理 handle</td>
+<td>Reserve、Map、SetAccess、Export&#x2F;Import；不定义 Payload 完成</td>
+<td>显式 VMM 调用者</td>
+</tr>
+<tr>
+<td><strong>Fabric Memory</strong></td>
+<td>分散的 HBM&#x2F;DRAM 怎样成为可池化、可寻址资源</td>
+<td>Fabric handle、远端物理内存、GVA、内存池</td>
+<td>统一或全局地址、远端映射</td>
+<td>地址编排、Copy 或多 transport 访问；语义随产品层次变化</td>
+<td>Fabric 服务、池管理器与客户端</td>
+</tr>
+</tbody></table>
+<p>这张表给出一个核心判断：<strong>未统一并不是技术债的充分证据，反而可能说明系统仍在正确保护不同契约。</strong>真正的重复要继续下钻到驱动、页表、物理 handle、注册缓存、拓扑探测和 transport 资源，而不能只凭“都能访问远端内存”认定五套 API 重复。</p>
+<h2 id="五个概念怎样长出"><a href="#五个概念怎样长出" class="headerlink" title="五个概念怎样长出"></a>五个概念怎样长出</h2><p>五条路径都与远端访问有关，但各自出现时面对的首要矛盾不同。以下日期均采用公开证据口径：仓库首个可见提交、公开说明与版本标签只能证明“不晚于该日公开”，不能替代内部立项时间。</p>
+<h3 id="HCOMM：从集合算法中抽资源"><a href="#HCOMM：从集合算法中抽资源" class="headerlink" title="HCOMM：从集合算法中抽资源"></a>HCOMM：从集合算法中抽资源</h3><p>HCCL 早期首先要稳定回答：一组 Rank 怎样完成 AllReduce、AllGather、AllToAll 等 collective。随着 Ascend 代际、拓扑、链路和执行引擎增多，算法层若同时管理建链、Endpoint、Channel、内存注册、Notify、协议选择和 Device 侧资源，会产生两个问题：</p>
+<ul>
+<li><strong>资源实现与算法组合相互牵制。</strong>新增 UDMA、UBMEM 或 AIV 路径，需要修改原本只应关心 collective 调度的代码。</li>
+<li><strong>非 collective 场景无法复用。</strong>通算融合或自定义通信算子也需要 Channel、Notify 和内存资源，却不一定需要 HCCL 的完整 collective 入口。</li>
+</ul>
+<p>HCOMM 的设计思路因此不是发明另一套 HCCL，而是把<strong>控制面和数据面基础资源</strong>从 collective 算法中向下抽取。HCCL 保留“整个通信组完成什么”；HCOMM 负责“怎样描述通信域和拓扑，怎样创建 Endpoint&#x2F;Channel，怎样准备 Memory&#x2F;Notify，怎样把基础动作交给不同协议后端”。</p>
+<p>HCOMM 与 HCCL 于 <strong>2025 年 11 月 30 日正式开源</strong>，公开 Git 历史可见代码早于公告出现。这个时点应读作软件边界公开化，而不是 HCOMM 在 2025 年 11 月才从零诞生。其独立仓库的意义是让<strong>通信算法和资源层获得独立构建、版本与硬件适配节奏</strong>。</p>
+<p>HCOMM 不能替代另外四者：它没有定义 SHMEM 的 PE&#x2F;Team 和对称堆，也不承担通用 VA&#x2F;物理页管理，更不会仅凭一个 Channel 把远端 DRAM 组织成全局内存池。</p>
+<h3 id="SHMEM-Runtime：把远端操作下沉到程序"><a href="#SHMEM-Runtime：把远端操作下沉到程序" class="headerlink" title="SHMEM Runtime：把远端操作下沉到程序"></a>SHMEM Runtime：把远端操作下沉到程序</h3><p>SHMEM 的历史远早于 CANN。Cray SHMEM 在 1990 年代形成，OpenSHMEM 在 2010 年代开始标准化 PE、对称内存、Put&#x2F;Get、Atomic 与同步。它要解决的首要矛盾是：<strong>并行程序能否直接表达“当前 PE 对远端 PE 的同构对象做什么”，而不是把每次访问包装成双方匹配的消息。</strong></p>
+<p>CANN SHMEM 把这套 PGAS 思想落到 Ascend。公开仓在 <strong>2025 年 12 月</strong>出现首批代码，2026 年 2 月出现 v1.0 可见标签，<strong>v1.3 在 2026 年 4 月加入 AICore 直驱和 40 多个接口，v1.6 在 7 月继续完善 Ascend 950 的 UDMA、MTE、RDMA 与 SIMT 支持</strong>。这条演进线反映的不是换了一个地址 API，而是控制路径从 Host bootstrap 继续下沉到 Kernel：</p>
+<ol>
+<li>Host 负责启动作业、建立 PE&#x2F;Team、创建对称堆和准备传输资源。</li>
+<li>Device 代码在计算过程中直接 Put&#x2F;Get、Atomic、Signal 或 Wait。</li>
+<li><code>fence</code>、<code>quiet</code>、signal 和 barrier 对操作顺序、完成与程序可见性作出明确承诺。</li>
+</ol>
+<p>这正是 SHMEM Runtime 无法并入 VMM 的原因。VMM 可以给对称堆提供 VA 和物理页，却不知道哪些 PE 必须获得对称对象，也不知道 <code>quiet</code> 应等待哪些远端操作。反过来，SHMEM 可以在内部复用 VMM、HCOMM、RDMA 或 UDMA，但不应把这些机制全部暴露为编程模型。</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>Runtime 的两个口径</p>
+</div>
+        <div class="message-body">
+            <p>“SHMEM Runtime”在本文中指支撑 PE、Team、对称堆、资源初始化、RMA&#x2F;AMO 与同步的运行时整体，不等于 <code>cann/runtime</code> 仓库中的一组内存 API。两者名字都含 Runtime，却分别拥有并行编程语义和设备通用运行时语义。</p>
+
+        </div>
+    </article>
+
+<h3 id="IPC：从进程隔离中共享已有对象"><a href="#IPC：从进程隔离中共享已有对象" class="headerlink" title="IPC：从进程隔离中共享已有对象"></a>IPC：从进程隔离中共享已有对象</h3><p>操作系统把不同进程的虚拟地址空间隔离开。同一块 Device memory 即使物理上可被两个进程访问，进程 B 也不能安全地拿进程 A 的数值地址直接解引用。IPC 首先解决的就是这个局部、具体的问题：</p>
+<ol>
+<li>导出方已经拥有一块 allocation。</li>
+<li>Runtime 把它转换成可传递的共享 key 或 handle，并限制允许导入的进程。</li>
+<li>导入方把同一底层对象映射为自己的本地 VA。</li>
+<li>双方遵守 Close、Free 和异步任务完成的先后顺序。</li>
+</ol>
+<p>IPC 的优势是<strong>便利与最小暴露</strong>。调用者不必显式选择物理页、预留地址区间和设置每一段 access；代价是控制粒度有限。它建立的是共享关系，不负责跨机建链，也不自动提供 Put&#x2F;Get、Atomic、Fence 或全局一致性。</p>
+<p>IPC 作为 Runtime 基础能力早于 <code>cann/runtime</code> 于 2025 年底公开 Git 仓；当前公开文档和样例展示了内存导出、带 PID 权限的导入和资源关闭流程。因此不能用仓库首提交给 IPC 定“诞生日期”，也没有必要因为 IPC 很重要就为它建立独立产品仓库。</p>
+<h3 id="CANN-VMM：把地址与物理内存解耦"><a href="#CANN-VMM：把地址与物理内存解耦" class="headerlink" title="CANN VMM：把地址与物理内存解耦"></a>CANN VMM：把地址与物理内存解耦</h3><p>传统 <code>malloc</code> 风格接口把“选择物理内存、分配容量、取得 VA、建立映射和授予权限”压成一步，简单但难以应对大模型工作负载中的几个矛盾：</p>
+<ul>
+<li>需要一大片连续 VA，物理页却希望按需提交或回收。</li>
+<li>需要减少碎片、复用地址区间或保持稳定 VA。</li>
+<li>需要把物理内存导出到另一进程、设备或 Fabric 节点，再映射到不同 VA。</li>
+<li>需要对不同设备设置更精细的访问权限。</li>
+</ul>
+<p>VMM 把这些动作拆开：先 Reserve VA，再创建或导入 Physical Handle，随后 Map，并通过 SetAccess 授权。它带来的关键思想是：</p>
+<blockquote>
+<p><strong>handle 不是 pointer，保留 VA 不是分配 Payload，完成 Map 也不表示发生了数据传输。</strong></p>
+</blockquote>
+<p>CANN 7.x 时期的公开文档已经能看到这类 VMM 能力，后续 CANN 9.0 文档和 Runtime 样例继续呈现 Reserve、Physical、Map、Access 与共享流程；2025 年底公开的 Runtime 仓库只是更晚的源码可见节点。VMM 长期留在 Runtime 内部很合理，因为它提供的是多个上层都会使用的<strong>通用地址机制</strong>，而不是独立的通信编程模型。</p>
+<p>IPC 与 VMM 因此是“便利入口与机制入口”，不是前后代关系。IPC 从已有 allocation 出发，快速完成跨进程共享；VMM 允许调用者显式编排 VA、物理对象和权限。系统可以让 IPC 在内部使用相似驱动机制，同时保留两种北向接口。</p>
+<h3 id="Fabric-Memory：从映射走向池化"><a href="#Fabric-Memory：从映射走向池化" class="headerlink" title="Fabric Memory：从映射走向池化"></a>Fabric Memory：从映射走向池化</h3><p>大模型推理把内存问题从“本机显存够不够”放大成“Prefill、Decode、KV Cache、Host DRAM 与 Device HBM 怎样形成统一容量层级”。仅有 VMM 仍然不够：应用还需要知道哪些远端内存可用、怎样分配、怎样跨节点寻址、选哪条 transport、故障后怎样摘除，以及热数据怎样在 DRAM&#x2F;HBM 间移动。</p>
+<p>“Fabric Memory”在公开材料中至少有三个不同层次，必须先消歧：</p>
+<ol>
+<li><strong><code>aclrtMemFabricHandle</code> 一类 Runtime 对象</strong>是可导出、导入或映射的能力令牌；它不是一套独立的内存池产品。</li>
+<li><strong>HiXL FabricMem</strong>是 HiXL 面向 Ascend A3 等平台的一种传输模式，利用 VMM 和 Fabric handle 访问远端 DRAM，数据仍可能由 SDMA&#x2F;HCCS 等路径搬运。</li>
+<li><strong>Ascend MemFabric</strong>是更完整的池化系统，公开仓围绕 GVA、异构 DRAM&#x2F;HBM、<code>xcopy</code>、client&#x2F;server 与多 transport 插件组织代码。</li>
+</ol>
+<p>公开节奏也说明它不是一条单线产品：Ascend MemFabric 在 <strong>2025 年 11 月前后公开</strong>；HiXL 仓于 <strong>2026 年 1 月 6 日</strong>出现可定位的 Fabric Memory 代码，3 月 README 将 FabricMem 列为公开能力。两者共享远端内存和统一编址思想，但产品边界不同。</p>
+<p>Fabric Memory 新思想的重点不是“又发明一个 Map”，而是把<strong>地址机制升级成容量服务</strong>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">VMM：给我 VA、物理对象、映射和权限</span><br><span class="line">Fabric Memory：给我可发现、可分配、可访问、可迁移、可恢复的远端内存资源</span><br></pre></td></tr></table></figure>
+
+<p>这就是它有时表现为 HiXL 的一个 capability，有时又值得形成 MemFabric 独立仓库的原因：前者主要扩展一条产品数据路径，后者承担了独立内存池、服务生命周期、多后端策略和兼容矩阵。</p>
+<h2 id="时间线不是替代链"><a href="#时间线不是替代链" class="headerlink" title="时间线不是替代链"></a>时间线不是替代链</h2><p>把公开节点放在一条纵轴上，可以看到“旧思想、新机制、新负载”三股力量在 2025–2026 年汇合，而不是五代 API 依次替换。</p>
+<table>
+<thead>
+<tr>
+<th>时期</th>
+<th>公开节点</th>
+<th>当时暴露的主要矛盾</th>
+<th>形成的设计方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1990 年代</td>
+<td>Cray SHMEM 编程模型形成</td>
+<td>消息匹配妨碍细粒度单边访问</td>
+<td>PE、对称对象、Put&#x2F;Get 与同步</td>
+</tr>
+<tr>
+<td>2010–2012</td>
+<td>OpenSHMEM 标准化</td>
+<td>多厂商 SHMEM 方言需要稳定语义</td>
+<td>标准化 PGAS API，而非指定唯一 transport</td>
+</tr>
+<tr>
+<td>2018–2020</td>
+<td>CANN 1.0、CANN 3.0 与 AscendCL 公开</td>
+<td>设备、内存、Stream 和任务管理需要统一 Runtime</td>
+<td>建立通用设备 Runtime 基础</td>
+</tr>
+<tr>
+<td>CANN 7.0–8.2</td>
+<td>VMM、IPC 接口在公开开发文档中逐步可见</td>
+<td>大块 VA、物理内存共享、进程隔离和细粒度权限</td>
+<td>地址、物理页、映射和共享 handle 解耦</td>
+</tr>
+<tr>
+<td>2025-11</td>
+<td>HCCL&#x2F;HCOMM、MemFabric 公开</td>
+<td>算法资源耦合；远端 DRAM&#x2F;HBM 需要池化</td>
+<td>通信资源下沉；Fabric 内存服务独立</td>
+</tr>
+<tr>
+<td>2025-12</td>
+<td>CANN SHMEM 与 Runtime 公开仓出现</td>
+<td>Device 侧 PGAS、Runtime 源码开放与新硬件适配</td>
+<td>对称堆、RMA&#x2F;AMO、基础内存机制产品化</td>
+</tr>
+<tr>
+<td>2026-01 至 03</td>
+<td>HiXL FabricMem 公开</td>
+<td>PD 分离与 KV Cache 需要远端 DRAM 快路</td>
+<td>VMM&#x2F;Fabric handle 成为 HiXL capability</td>
+</tr>
+<tr>
+<td>2026-04 至 07</td>
+<td>SHMEM v1.3 至 v1.6</td>
+<td>Host 调度粒度不足，950 后端与 SIMT 需完善</td>
+<td>AICore 直驱，UDMA&#x2F;MTE&#x2F;RDMA 多后端并存</td>
+</tr>
+</tbody></table>
+<p>这条时间线不能写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPC → VMM → SHMEM Runtime → Fabric Memory → HCOMM</span><br></pre></td></tr></table></figure>
+
+<p>更准确的纵向关系是五条不同来源的支线在新硬件和新负载处相交：</p>
+<ul>
+<li>HCOMM 从 <strong>collective 的资源复用</strong>向下生长。</li>
+<li>SHMEM Runtime 从 <strong>PGAS 编程语义</strong>向硬件落地。</li>
+<li>IPC 从 <strong>进程隔离与共享</strong>出发。</li>
+<li>VMM 从 <strong>虚拟内存与物理内存解耦</strong>出发。</li>
+<li>Fabric Memory 从 <strong>远端容量池化与统一编址</strong>出发。</li>
+</ul>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>为什么公开节点集中</p>
+</div>
+        <div class="message-body">
+            <p>2025–2026 年节点密集，不等于这些需求同时被第一次想到。更合理的解释是：大模型推理与通算融合改变了访问粒度和容量需求，Ascend 950、UB&#x2F;UDMA 等硬件能力改变了可实现边界，既有闭源能力又开始按 HCOMM、SHMEM、Runtime 和 MemFabric 的责任重新开放。<strong>工作负载、硬件和仓库边界同时变化，才造成了“新概念突然增多”的观感。</strong></p>
+
+        </div>
+    </article>
+
+<h2 id="横向看不可互换处"><a href="#横向看不可互换处" class="headerlink" title="横向看不可互换处"></a>横向看不可互换处</h2><p>纵向分析回答“为什么在那个时点出现”，横向分析则要在同一时点比较“它们究竟哪里不同”。最重要的不是 API 名字，而是替换后调用者要不要改变参与者、对象和完成规则。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>HCOMM</th>
+<th>SHMEM Runtime</th>
+<th>IPC</th>
+<th>CANN VMM</th>
+<th>Fabric Memory</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>首要用户</strong></td>
+<td>HCCL、通信算子、融合框架</td>
+<td>Host 程序与 AICore&#x2F;SIMT Kernel</td>
+<td>同机多进程 Runtime 程序</td>
+<td>内存管理器、框架、上层通信库</td>
+<td>KV&#x2F;参数服务、内存池客户端</td>
+</tr>
+<tr>
+<td><strong>主要范围</strong></td>
+<td>单机、超节点或多机通信域</td>
+<td>PE&#x2F;Team 作业范围</td>
+<td>通常是同一主机或设备可达域</td>
+<td>设备 Runtime 可管理的 VA&#x2F;物理对象</td>
+<td>跨设备、跨节点、跨介质容量域</td>
+</tr>
+<tr>
+<td><strong>是否分配内存</strong></td>
+<td>管理通信内存资源，不定义通用 allocator</td>
+<td>管理对称堆和对称 allocation</td>
+<td>否，主要共享已有 allocation</td>
+<td>显式创建物理对象并映射 VA</td>
+<td>是，通常需要池化 allocator 或服务</td>
+</tr>
+<tr>
+<td><strong>谁发起数据动作</strong></td>
+<td>Host、AICPU、AIV 等，依数据面</td>
+<td>Host 或 Device PE</td>
+<td>IPC 本身不发起 Payload</td>
+<td>VMM 本身不发起 Payload</td>
+<td>Host、Copy engine 或产品定义的发起者</td>
+</tr>
+<tr>
+<td><strong>Payload 语义</strong></td>
+<td>基础通信操作与资源语义</td>
+<td>Put&#x2F;Get、AMO、Signal 等 PGAS 操作</td>
+<td>由后续 Copy&#x2F;LD-ST 决定</td>
+<td>无，只管理地址与映射</td>
+<td>Copy、远端访问或迁移，随产品而异</td>
+</tr>
+<tr>
+<td><strong>完成边界</strong></td>
+<td>Channel&#x2F;Notify&#x2F;Fence 等具体协议边界</td>
+<td>Fence、Quiet、Signal&#x2F;Wait、Barrier</td>
+<td>只保证映射建立；完成依后续操作</td>
+<td>Map 成功不等于数据搬运完成</td>
+<td>请求、Copy 或服务级完成</td>
+</tr>
+<tr>
+<td><strong>故障域</strong></td>
+<td>通信域、Channel 和对端资源</td>
+<td>PE&#x2F;Team、对称堆和作业</td>
+<td>导出&#x2F;导入进程生命周期</td>
+<td>handle、mapping 与设备上下文</td>
+<td>内存节点、服务、transport 与池元数据</td>
+</tr>
+</tbody></table>
+<p>四组相邻概念尤其值得单独比较。</p>
+<h3 id="HCOMM-与-SHMEM-Runtime"><a href="#HCOMM-与-SHMEM-Runtime" class="headerlink" title="HCOMM 与 SHMEM Runtime"></a>HCOMM 与 SHMEM Runtime</h3><p>二者都可能使用 Endpoint、Channel、Memory、Notify 和 UDMA&#x2F;RDMA 后端，但 HCOMM 首先提供<strong>通信资源</strong>，SHMEM 首先提供<strong>远端内存编程模型</strong>。若只保留 HCOMM，调用者仍需自己定义 PE&#x2F;Team、对称对象和 Quiet；若只保留 SHMEM，HCCL 的算法层仍需要更通用的拓扑和资源抽象。最合理的统一方向是 SHMEM 复用 HCOMM 资源，而不是删除其中一个北向语义。</p>
+<h3 id="IPC-与-VMM"><a href="#IPC-与-VMM" class="headerlink" title="IPC 与 VMM"></a>IPC 与 VMM</h3><p>IPC 追求“把已有 allocation 安全地给另一进程使用”，VMM 追求“让调用者自己组合 VA、物理对象、映射和权限”。IPC 可以成为 VMM&#x2F;驱动机制上的便利封装，但保留它可以减少调用复杂度和误用面。只有当 VMM 提供同等简单、同等安全的共享流程时，某些 IPC 实现代码才可能变薄；这不等于 IPC 语义消失。</p>
+<h3 id="VMM-与-Fabric-Memory"><a href="#VMM-与-Fabric-Memory" class="headerlink" title="VMM 与 Fabric Memory"></a>VMM 与 Fabric Memory</h3><p>VMM 是局部机制，Fabric Memory 是系统策略。VMM 不负责发现远端容量、选择 DRAM&#x2F;HBM、维护池元数据、跨 transport 选路和服务故障恢复。Fabric Memory 若不复用 VMM，会重复实现页表和 handle；VMM 若试图直接承担池化，又会把通用 Runtime 绑定到特定部署策略。合适边界是<strong>机制下沉，策略上移</strong>。</p>
+<h3 id="SHMEM-与-Fabric-Memory"><a href="#SHMEM-与-Fabric-Memory" class="headerlink" title="SHMEM 与 Fabric Memory"></a>SHMEM 与 Fabric Memory</h3><p>二者都可能呈现“远端内存像可访问对象”的外观，但 SHMEM 用 PE 和对称地址表达并行算法，Fabric Memory 用全局地址或池对象表达容量服务。对称堆可以由 Fabric Memory 提供物理容量，Fabric 内存也可以被 SHMEM 注册，但 <code>quiet</code>、atomic 和 barrier 不能由一个池化 allocator 自动推出。</p>
+<h2 id="新思想何时需要新仓库"><a href="#新思想何时需要新仓库" class="headerlink" title="新思想何时需要新仓库"></a>新思想何时需要新仓库</h2><p>新名词不必然需要新代码仓。判断边界是否应独立，至少要看四项责任是否同时成立：</p>
+<ol>
+<li><strong>新的北向语义。</strong>出现了旧系统无法稳定表达的对象、操作或完成规则。</li>
+<li><strong>独立生命周期与故障域。</strong>它必须自行管理初始化、对端退出、异常恢复和资源回收。</li>
+<li><strong>多后端策略。</strong>它需要在芯片、链路、DMA 引擎、内存介质或部署方式之间选择路径。</li>
+<li><strong>独立兼容矩阵。</strong>它需要自己的版本、测试、性能和硬件适配节奏。</li>
+</ol>
+<p>用这四项回看五个概念：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>是否需要独立仓库</th>
+<th>设计判断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>HCOMM</strong></td>
+<td>是</td>
+<td>已形成通信资源北向接口、独立硬件&#x2F;协议适配与测试边界，适合与 HCCL 算法解耦</td>
+</tr>
+<tr>
+<td><strong>CANN SHMEM</strong></td>
+<td>是</td>
+<td>PE&#x2F;Team、对称堆、Device API、RMA&#x2F;AMO 和同步构成完整编程模型</td>
+</tr>
+<tr>
+<td><strong>IPC</strong></td>
+<td>通常否</td>
+<td>是 CANN Runtime 的基础共享流程，没有独立产品生命周期和策略面</td>
+</tr>
+<tr>
+<td><strong>CANN VMM</strong></td>
+<td>通常否</td>
+<td>是 Runtime 通用机制，应被多个上层共同复用</td>
+</tr>
+<tr>
+<td><strong>HiXL FabricMem</strong></td>
+<td>当前更像 HiXL 内部 capability</td>
+<td>主要扩展 HiXL 数据路径，版本和请求模型仍跟随 HiXL</td>
+</tr>
+<tr>
+<td><strong>Ascend MemFabric</strong></td>
+<td>是</td>
+<td>GVA、异构池化、client&#x2F;server、<code>xcopy</code> 和多 transport 已形成独立系统责任</td>
+</tr>
+<tr>
+<td><strong>Fabric handle</strong></td>
+<td>否</td>
+<td>只是能力对象或 ABI，不是独立产品契约</td>
+</tr>
+</tbody></table>
+<p>因此，“产生了新代码仓”最有价值的信号不是代码数量，而是<strong>责任已经无法跟随原系统的版本和故障边界演进</strong>。反之，把每个 handle、每种数据路径都拆成仓库，只会把真正可复用的机制割裂。</p>
+<h2 id="跨生态旁证"><a href="#跨生态旁证" class="headerlink" title="跨生态旁证"></a>跨生态旁证</h2><p>CUDA 生态提供了一组很接近的横向样本：CUDA IPC 负责跨进程共享，CUDA VMM 负责 VA 与物理 allocation 的显式管理，NVSHMEM 负责 PE、对称堆、RMA&#x2F;AMO 和同步。NVSHMEM 的动态对称堆可以在内部使用 CUDA VMM，多节点 NVLink 场景又可以通过 Fabric handle 导出 allocation。</p>
+<p>这些实现可以共享驱动、页表与 handle，NVIDIA 仍然保留 IPC、VMM 和 NVSHMEM 的不同 API。这个旁证说明：</p>
+<ul>
+<li><strong>实现复用不等于语义合并。</strong>VMM 为 NVSHMEM 服务，并不会让 VMM 获得 Quiet 或 Team 语义。</li>
+<li><strong>便利接口与机制接口可以共存。</strong>IPC 面向常见共享流程，VMM 面向精细控制。</li>
+<li><strong>Fabric handle 只是能力令牌。</strong>它解决 allocation 怎样跨 Fabric 导出，不自动变成内存池或 PGAS 编程模型。</li>
+</ul>
+<p>昇腾第二轴的多概念并存因此不是孤例。系统软件常见的正确形态，就是底层机制逐渐统一，而面向不同调用者的契约继续分立。</p>
+<h2 id="未来可能怎样收敛"><a href="#未来可能怎样收敛" class="headerlink" title="未来可能怎样收敛"></a>未来可能怎样收敛</h2><p>下面是基于公开接口与仓库演进作出的设计推断，不是官方路线图。最可能出现的不是“五合一 API”，而是三层收敛。</p>
+<h3 id="公共机制下沉"><a href="#公共机制下沉" class="headerlink" title="公共机制下沉"></a>公共机制下沉</h3><p>驱动页表、物理 handle、Export&#x2F;Import、权限、注册缓存、拓扑探测、错误码和 DFX 最适合成为公共机制：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">共享驱动、页表、handle、注册缓存与 transport 资源</span><br><span class="line">            ↑                         ↑</span><br><span class="line">       CANN VMM / IPC             HCOMM resources</span><br><span class="line">            ↑                         ↑</span><br><span class="line">  SHMEM Runtime / HiXL FabricMem / Ascend MemFabric</span><br></pre></td></tr></table></figure>
+
+<p>这可以减少重复注册、重复建链和多份映射缓存，也能让不同上层共享 Ascend 950 的 UDMA&#x2F;UBMEM 等资源。</p>
+<h3 id="上层语义继续分立"><a href="#上层语义继续分立" class="headerlink" title="上层语义继续分立"></a>上层语义继续分立</h3><p>IPC 仍需要“一块已有 allocation 怎样共享”的短流程；VMM 仍需要对 VA 和物理页的精细控制；SHMEM 仍要承诺 PE、Team、RMA、Atomic、Fence 和 Quiet；Fabric Memory 仍要编排容量、介质和路径；HCOMM 仍要服务不限定为 PGAS 的通信资源。</p>
+<p>这种分立不是保守，而是防止调用者为缺失语义各自补协议。一个表面统一的 <code>remote_memory_op()</code> 如果把完成、故障和生命周期留给上层，通常只是把复杂度从库中赶回应用。</p>
+<h3 id="产品适配层逐步变薄"><a href="#产品适配层逐步变薄" class="headerlink" title="产品适配层逐步变薄"></a>产品适配层逐步变薄</h3><p>HiXL FabricMem、SHMEM 对称堆和 MemFabric GVA 若逐步消费同一套 VMM&#x2F;Fabric handle，产品层 wrapper 可以减少重复逻辑。是否能够删除某条专用路径，应至少观察以下信号：</p>
+<ul>
+<li>HCOMM 对 UB_MEM、URMA、UDMA 等 Endpoint&#x2F;Channel 资源形成稳定兼容面。</li>
+<li>SHMEM 动态对称堆和 Fabric Memory 使用相同的物理 handle、权限与注册缓存。</li>
+<li>HiXL 或 MemFabric 能覆盖上层已有的 allocator、并发、映射缓存和故障恢复要求。</li>
+<li>同一后端在正确性、p99 时延、CPU&#x2F;AIV 占用和中间副本上不把成本转嫁给调用者。</li>
+</ul>
+<p>如果这些条件尚未满足，删除适配层只会把真实差异藏进不可见分支。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>推断边界</p>
+</div>
+        <div class="message-body">
+            <p>公开证据支持“底层资源正在收敛”，不支持“HCOMM、SHMEM Runtime、IPC、VMM 与 Fabric Memory 将合并成同一 API”。内部立项时间、闭源固件、完整硬件矩阵和未来删除版本仍无法从公开资料确认。</p>
+
+        </div>
+    </article>
+
+<h2 id="怎样验证抽象边界"><a href="#怎样验证抽象边界" class="headerlink" title="怎样验证抽象边界"></a>怎样验证抽象边界</h2><p>名字和架构图只能给出假设。要判断两个概念是否真的可合并，可以在同一硬件与 CANN 版本上建立四条最小路径：</p>
+<ol>
+<li>用 IPC 导出已有 Device allocation，并在另一进程导入、访问和关闭。</li>
+<li>用 VMM Reserve、创建物理对象、Map、SetAccess，再导出和导入 handle。</li>
+<li>用 SHMEM 建立 PE&#x2F;Team 与对称堆，在 Kernel 中执行 Put + Signal，并用 Quiet&#x2F;Wait 建立完成关系。</li>
+<li>用 HiXL FabricMem 或 MemFabric 映射远端 DRAM&#x2F;HBM，重复建立映射并传输相同 Payload。</li>
+</ol>
+<p>比较时不能只看峰值带宽，还要记录：</p>
+<ul>
+<li><strong>建立成本：</strong>初始化、建链、注册、Reserve&#x2F;Map 和首次访问时间。</li>
+<li><strong>稳态成本：</strong>p50&#x2F;p99 时延、带宽、CPU 占用、AIV 占用和队列深度。</li>
+<li><strong>语义成本：</strong>调用者额外实现了多少同步、权限和生命周期协议。</li>
+<li><strong>数据路径：</strong>是否发生 staging copy，真正执行搬运的是 MTE、SDMA、RDMA 还是 UDMA。</li>
+<li><strong>故障成本：</strong>导出进程退出、远端节点失联、异步任务未完成时能否安全恢复。</li>
+</ul>
+<p>只有当一个公共后端既保留各入口的完成与故障契约，又没有显著恶化关键工作负载，才说明统一边界放对了。<strong>删掉一个 API 不是统一；让调用者不再重复处理同一机制，才是统一。</strong></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>HCOMM、SHMEM Runtime、IPC、CANN VMM 与 Fabric Memory 没有统一，根因不是项目彼此无知，而是它们从不同矛盾出发：</p>
+<ul>
+<li>HCOMM 把异构通信资源从 collective 算法中解耦。</li>
+<li>SHMEM Runtime 把 PGAS 远端操作和完成语义交给 Host 与 Device 程序。</li>
+<li>IPC 在进程隔离下共享已有 allocation。</li>
+<li>CANN VMM 把 VA、物理内存、映射和权限拆开管理。</li>
+<li>Fabric Memory 把远端 HBM&#x2F;DRAM 提升为可发现、可分配和可恢复的容量服务。</li>
+</ul>
+<p>纵向看，五条路线分别继承了 SHMEM 编程模型、设备 Runtime、虚拟内存、集合通信资源化和大模型内存池化的历史；横向看，它们拥有不同的参与者、命名空间、操作、完成和生命周期。<strong>未来最合理的方向是实现机制收敛、产品适配层变薄、上层语义继续分立。</strong></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><h3 id="华为与-CANN"><a href="#华为与-CANN" class="headerlink" title="华为与 CANN"></a>华为与 CANN</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm">CANN HCOMM 仓库</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm/blob/master/README.md">HCOMM README</a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm/blob/master/docs/zh/architecture/architecture.md">HCOMM 架构说明</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm/blob/master/docs/zh/api_ref/comm_opdev/datatype_definition/CommProtocol.md"><code>CommProtocol</code> 硬件矩阵</a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem">CANN SHMEM 仓库</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/master/docs/glossary.md">术语表</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/master/docs/quickstart.md">硬件&#x2F;版本矩阵</a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/runtime">CANN Runtime 仓库</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/runtime/tree/master/example/1_basic_features/memory">Runtime 内存样例</a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/700/inferapplicationdev/aclcppdevg/aclcppdevg_03_0115.html">CANN 7.0 <code>aclrtFreePhysical</code></a>、<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/900/programug/acldevg/runtime_doc_dev_0007.html">CANN 9.0 VMM 编程指南</a>与<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/API/appdevgapi/aclcppdevg_03_0112.html"><code>aclrtMallocPhysical</code></a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/910/API/runtimeapi/aclcppdevg_03_1934.html">CANN 9.1 IPC 内存导出接口</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/runtime/tree/master/example/1_basic_features/memory/10_ipc_memory_withpid">Runtime IPC 样例</a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl">CANN HiXL 仓库</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl/blob/master/docs/zh/FabricMem.md">FabricMem 模式</a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/Ascend/memfabric_hybrid">Ascend MemFabric</a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://e.huawei.com/cn/news/ebg/201810101135">华为 2018：昇腾全栈全场景 AI 方案与 CANN 1.0</a>，2018-10-10。</li>
+<li><a target="_blank" rel="noopener" href="https://www.huawei.com/cn/news/2020/8/huawei-hai-ascend/">华为 2020：CANN 3.0 与 AscendCL</a>，2020-08-10。</li>
+</ol>
+<h3 id="标准与跨生态资料"><a href="#标准与跨生态资料" class="headerlink" title="标准与跨生态资料"></a>标准与跨生态资料</h3><ol start="11">
+<li><a target="_blank" rel="noopener" href="https://github.com/openshmem-org/specification/releases">OpenSHMEM Specification Releases</a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://www.osti.gov/servlets/purl/1107065">Sandia：Implementing OpenSHMEM for the Adapteva Parallella</a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__VA.html">CUDA Driver API：Virtual Memory Management</a>与<a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__MEM.html">CUDA IPC Memory</a>，访问于 2026-08-27。</li>
+<li><a target="_blank" rel="noopener" href="https://docs.nvidia.com/nvshmem/api/latest/using.html">NVSHMEM：Using NVSHMEM</a>与<a target="_blank" rel="noopener" href="https://docs.nvidia.com/nvshmem/api/latest/gen/api/memory.html">Symmetric Heap Memory Management</a>，访问于 2026-08-27。</li>
+</ol>
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>证据口径</p>
+</div>
+        <div class="message-body">
+            <p>以上资料支持的是公开接口、仓库状态、版本节点和设计能力。<strong>公开首提交只表示不晚于该日已有可见代码；内部立项、闭源实现、芯片微架构和未发布路线图均不作确定性补写。</strong></p>
+
+        </div>
+    </article>
+
+</div><div class="article-licensing box"><div class="licensing-title"><p>Ascend Communication Runtime Evolution</p><p><a href="http://icarus.shaojiemike.top/2026/08/27/Work/Artificial Intelligence/AIInfra/Ascend-Communication-Runtime-Evolution/">http://icarus.shaojiemike.top/2026/08/27/Work/Artificial Intelligence/AIInfra/Ascend-Communication-Runtime-Evolution/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-27</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-28</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/SHMEM/">SHMEM</a><a class="link-muted mr-2" rel="tag" href="/tags/HCOMM/">HCOMM</a><a class="link-muted mr-2" rel="tag" href="/tags/CANN-VMM/">CANN VMM</a><a class="link-muted mr-2" rel="tag" href="/tags/Fabric-Memory/">Fabric Memory</a><a class="link-muted mr-2" rel="tag" href="/tags/PGAS/">PGAS</a><a class="link-muted mr-2" rel="tag" href="/tags/IPC/">IPC</a><a class="link-muted mr-2" rel="tag" href="/tags/Memory-Semantics/">Memory Semantics</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Interconnect-Evolution/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Ascend Interconnect Evolution</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-API-Evolution/"><span class="level-item">Ascend Communication API Evolution</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">622</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">51</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">950</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#从同层不同物开始"><span class="level-left"><span class="level-item">1</span><span class="level-item">从同层不同物开始</span></span></a></li><li><a class="level is-mobile" href="#第一性拆解"><span class="level-left"><span class="level-item">2</span><span class="level-item">第一性拆解</span></span></a></li><li><a class="level is-mobile" href="#五个概念怎样长出"><span class="level-left"><span class="level-item">3</span><span class="level-item">五个概念怎样长出</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#HCOMM：从集合算法中抽资源"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">HCOMM：从集合算法中抽资源</span></span></a></li><li><a class="level is-mobile" href="#SHMEM-Runtime：把远端操作下沉到程序"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">SHMEM Runtime：把远端操作下沉到程序</span></span></a></li><li><a class="level is-mobile" href="#IPC：从进程隔离中共享已有对象"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">IPC：从进程隔离中共享已有对象</span></span></a></li><li><a class="level is-mobile" href="#CANN-VMM：把地址与物理内存解耦"><span class="level-left"><span class="level-item">3.4</span><span class="level-item">CANN VMM：把地址与物理内存解耦</span></span></a></li><li><a class="level is-mobile" href="#Fabric-Memory：从映射走向池化"><span class="level-left"><span class="level-item">3.5</span><span class="level-item">Fabric Memory：从映射走向池化</span></span></a></li></ul></li><li><a class="level is-mobile" href="#时间线不是替代链"><span class="level-left"><span class="level-item">4</span><span class="level-item">时间线不是替代链</span></span></a></li><li><a class="level is-mobile" href="#横向看不可互换处"><span class="level-left"><span class="level-item">5</span><span class="level-item">横向看不可互换处</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#HCOMM-与-SHMEM-Runtime"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">HCOMM 与 SHMEM Runtime</span></span></a></li><li><a class="level is-mobile" href="#IPC-与-VMM"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">IPC 与 VMM</span></span></a></li><li><a class="level is-mobile" href="#VMM-与-Fabric-Memory"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">VMM 与 Fabric Memory</span></span></a></li><li><a class="level is-mobile" href="#SHMEM-与-Fabric-Memory"><span class="level-left"><span class="level-item">5.4</span><span class="level-item">SHMEM 与 Fabric Memory</span></span></a></li></ul></li><li><a class="level is-mobile" href="#新思想何时需要新仓库"><span class="level-left"><span class="level-item">6</span><span class="level-item">新思想何时需要新仓库</span></span></a></li><li><a class="level is-mobile" href="#跨生态旁证"><span class="level-left"><span class="level-item">7</span><span class="level-item">跨生态旁证</span></span></a></li><li><a class="level is-mobile" href="#未来可能怎样收敛"><span class="level-left"><span class="level-item">8</span><span class="level-item">未来可能怎样收敛</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#公共机制下沉"><span class="level-left"><span class="level-item">8.1</span><span class="level-item">公共机制下沉</span></span></a></li><li><a class="level is-mobile" href="#上层语义继续分立"><span class="level-left"><span class="level-item">8.2</span><span class="level-item">上层语义继续分立</span></span></a></li><li><a class="level is-mobile" href="#产品适配层逐步变薄"><span class="level-left"><span class="level-item">8.3</span><span class="level-item">产品适配层逐步变薄</span></span></a></li></ul></li><li><a class="level is-mobile" href="#怎样验证抽象边界"><span class="level-left"><span class="level-item">9</span><span class="level-item">怎样验证抽象边界</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">10</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">11</span><span class="level-item">参考资料</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#华为与-CANN"><span class="level-left"><span class="level-item">11.1</span><span class="level-item">华为与 CANN</span></span></a></li><li><a class="level is-mobile" href="#标准与跨生态资料"><span class="level-left"><span class="level-item">11.2</span><span class="level-item">标准与跨生态资料</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">39</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">42</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-28T02:30:00.000Z">2026-08-28</time></p><p class="title"><a href="/2026/08/28/Work/Artificial%20Intelligence/AIInfra/Mooncake-Codebase-Architecture/">Mooncake Codebase Architecture</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-27T13:30:00.000Z">2026-08-27</time></p><p class="title"><a href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/SHMEM-Symmetric-Memory/">SHMEM Symmetric Memory</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-27T10:00:00.000Z">2026-08-27</time></p><p class="title"><a href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Mooncake-TENT-Request-Path/">Mooncake TENT Request Path</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-27T08:41:34.000Z">2026-08-27</time></p><p class="title"><a href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Interconnect-Evolution/">Ascend Interconnect Evolution</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">46</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Chip/"><span class="tag">AI Chip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

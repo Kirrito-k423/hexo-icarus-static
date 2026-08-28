@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Ascend Communication API Evolution - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       《Ascend Communication Stack》把 HCCL、HiXL、CANN SHMEM 和 Mooncake UBShmem 放在第一轴。既然它们最终都在昇腾设备之间搬数据，也会复用相似的 Runtime、内存和硬件资源，一个很自然的问题是：为什么没有统一成一个库？ 关键不在名字，也不在 payload 最后走 HC"><meta property="og:type" content="blog"><meta property="og:title" content="Ascend Communication API Evolution"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-API-Evolution/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       《Ascend Communication Stack》把 HCCL、HiXL、CANN SHMEM 和 Mooncake UBShmem 放在第一轴。既然它们最终都在昇腾设备之间搬数据，也会复用相似的 Runtime、内存和硬件资源，一个很自然的问题是：为什么没有统一成一个库？ 关键不在名字，也不在 payload 最后走 HC"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-08-27T08:29:12.000Z"><meta property="article:modified_time" content="2026-08-28T02:37:01.334Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="HCCL"><meta property="article:tag" content="SHMEM"><meta property="article:tag" content="HCOMM"><meta property="article:tag" content="HiXL"><meta property="article:tag" content="Mooncake"><meta property="article:tag" content="CANN VMM"><meta property="article:tag" content="Fabric Memory"><meta property="article:tag" content="PGAS"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-API-Evolution/"},"headline":"Ascend Communication API Evolution","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-08-27T08:29:12.000Z","dateModified":"2026-08-28T02:37:01.334Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       《Ascend Communication Stack》把 HCCL、HiXL、CANN SHMEM 和 Mooncake UBShmem 放在第一轴。既然它们最终都在昇腾设备之间搬数据，也会复用相似的 Runtime、内存和硬件资源，一个很自然的问题是：为什么没有统一成一个库？ 关键不在名字，也不在 payload 最后走 HC"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-API-Evolution/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-27T08:29:12.000Z" title="8/27/2026, 8:29:12 AM">2026-08-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-28T02:37:01.334Z" title="8/28/2026, 2:37:01 AM">2026-08-28</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">an hour read (About 6970 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Ascend Communication API Evolution</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p><a target="_blank" rel="noopener" href="https://shaojiemike.top/1-ai-systems/2026/08/26/Ascend-Communication-Stack/#%E6%80%BB%E4%BD%93%E6%9E%B6%E6%9E%84">《Ascend Communication Stack》</a>把 HCCL、HiXL、CANN SHMEM 和 Mooncake UBShmem 放在第一轴。既然它们最终都在昇腾设备之间搬数据，也会复用相似的 Runtime、内存和硬件资源，一个很自然的问题是：<strong>为什么没有统一成一个库？</strong></p>
+<p>关键不在名字，也不在 payload 最后走 HCCS、RoCE 还是 UB，而在调用者究竟声明了什么契约。HCCL 声明 collective，HiXL 声明一批 buffer transfer，CANN SHMEM 声明 PE 对对称对象的 RMA&#x2F;AMO，Mooncake UBShmem 则服务项目自己的映射型 KV 快路。本文沿公开时间线还原四条路线的提出契机与设计转折，再横向判断哪些差异必须保留、哪些历史包袱可以收敛。研究截止日为 <strong>2026 年 8 月 26 日</strong>。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="同层为何看起来应该统一"><a href="#同层为何看起来应该统一" class="headerlink" title="同层为何看起来应该统一"></a>同层为何看起来应该统一</h2><p>把四个方框并排放在总图最上面，很容易把“同一责任轴”读成“同一抽象层”。这个期待并不荒唐：</p>
+<ul>
+<li>它们都要识别通信参与者和远端地址；</li>
+<li>都要注册、映射或管理通信内存；</li>
+<li>都可能使用 HCCS、RoCE、RDMA、UDMA 或 Fabric Memory；</li>
+<li>都需要异步提交、完成通知、错误处理和性能观测；</li>
+<li>多个仓库里确实能看到相似的 Endpoint、Channel、Memory、Request 或 Handle。</li>
+</ul>
+<p>如果只从“代码复用”看，合成一个大库似乎更简单。但软件抽象是否相同，不能用共同依赖判断。四条通信路径都搬字节，也不表示调用者对<strong>参与关系、内存对象、完成顺序和故障处理</strong>提出了相同要求。</p>
+<p>可以先用四句话建立直觉：</p>
+<ul>
+<li><strong>HCCL 解决“大家一起算完”。</strong></li>
+<li><strong>HiXL 解决“把这些 buffer 搬过去”。</strong></li>
+<li><strong>CANN SHMEM 解决“算子自己操作远端内存”。</strong></li>
+<li><strong>Mooncake UBShmem 解决“在通用库成熟前，把特定 KV 路径先跑通”。</strong></li>
+</ul>
+<p>这四句话不是宣传语，而是四种不同的完成条件。完成条件一旦不同，API 就很难靠改名统一。</p>
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>事实与推断</p>
+</div>
+        <div class="message-body">
+            <p>下文把仓库首个可见提交、公开 PR、文档状态和 release 作为<strong>事实</strong>；把项目为何分叉、未来如何吸收作为基于接口与代码演进的<strong>推断</strong>。公开资料不足以还原 HCCL、ADXL、HiXL、SHMEM 和 UBShmem 的内部立项会议与闭源开发起点。</p>
+
+        </div>
+    </article>
+
+<h2 id="先拆回语义契约"><a href="#先拆回语义契约" class="headerlink" title="先拆回语义契约"></a>先拆回语义契约</h2><p>判断两个库是否应该统一，可以先暂时忘掉项目名，问五个不能省略的问题。</p>
+<ol>
+<li><strong>通信意图是什么。</strong>调用者要整个通信组得到 collective 结果，还是只要某段内存到达某个目标？</li>
+<li><strong>参与者怎样组织。</strong>是固定 communicator 中的一组 rank、动态选择的源和目标，还是 PE&#x2F;Team？</li>
+<li><strong>内存对象是什么。</strong>是 collective buffer、注册 Memory Region、对称堆对象，还是通过 Fabric&#x2F;IPC handle 导入的映射？</li>
+<li><strong>谁在热路径发起。</strong>是 Host request、AICPU&#x2F;AIV collective engine，还是 Kernel 内 Device API？</li>
+<li><strong>何时允许继续。</strong>等待整个 collective、某个异步 request、<code>quiet/fence/signal</code>，还是 ACL stream 上的一次 copy？</li>
+</ol>
+<p>若把库 A 替换为库 B 后，调用者必须补充新的参与者信息、改变内存分配方式，或重写完成与顺序逻辑，那么 A 与 B 就不是同一抽象。它们可以共享实现，却不能无损折叠为同一契约。</p>
+<table>
+<thead>
+<tr>
+<th>入口</th>
+<th>应用声明的意图</th>
+<th>核心对象</th>
+<th>发起位置</th>
+<th>完成或顺序边界</th>
+<th>主要优化对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>HCCL</strong></td>
+<td>一组 rank 完成 AllReduce、AllGather、AlltoAll 等 collective</td>
+<td>communicator、rank、collective buffer、算法与拓扑</td>
+<td>Host、AICPU、AIV 或 CCU</td>
+<td>整个 collective 的阶段与结果</td>
+<td>拓扑算法、分块流水与组内协作</td>
+</tr>
+<tr>
+<td><strong>HiXL</strong></td>
+<td>动态源和目标之间传输一批已注册 buffer</td>
+<td>engine、memory registration、transfer request</td>
+<td>当前公开主路径主要由 Host 单边提交</td>
+<td>request 的同步、异步完成与错误</td>
+<td>建链、批量传输、多链路选择与兼容</td>
+</tr>
+<tr>
+<td><strong>CANN SHMEM</strong></td>
+<td>PE 对远端对称对象执行 RMA、AMO、signal 和同步</td>
+<td>PE、Team、symmetric heap、Device API</td>
+<td>Host bootstrap；AICore&#x2F;SIMT 可直接发起</td>
+<td><code>quiet</code>、<code>fence</code>、signal&#x2F;wait、barrier 与内存序</td>
+<td>细粒度 Device RMA 与通算融合</td>
+</tr>
+<tr>
+<td><strong>Mooncake UBShmem</strong></td>
+<td>KV Cache 走 VMM 映射后的项目专用 copy 快路</td>
+<td>segment metadata、Fabric&#x2F;IPC handle、remapped VA、worker&#x2F;stream pool</td>
+<td>Mooncake Host worker + ACL stream</td>
+<td>映射生命周期与 <code>aclrtMemcpyAsync</code> 完成</td>
+<td>既有 transport ABI 下的 KV 路径落地速度</td>
+</tr>
+</tbody></table>
+<p>这些入口与公共资源的关系更接近下图。上层语义各自稳定，重复的地址、注册、拓扑和数据执行能力向下收敛。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">flowchart TB</span><br><span class="line">    subgraph SEM[&quot;语义入口：保留差异&quot;]</span><br><span class="line">        HCCL[&quot;HCCL\nCollective&quot;]</span><br><span class="line">        HIXL[&quot;HiXL\nBuffer Transfer&quot;]</span><br><span class="line">        SHMEM[&quot;CANN SHMEM\nDevice PGAS RMA&quot;]</span><br><span class="line">        UBS[&quot;Mooncake UBShmem\nMapped KV Fast Path&quot;]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph RES[&quot;公共资源：逐步收敛&quot;]</span><br><span class="line">        HCOMM[&quot;HCOMM\nEndpoint / Channel / Memory&quot;]</span><br><span class="line">        VMM[&quot;CANN VMM / IPC\nHandle / Map / Access&quot;]</span><br><span class="line">        CAP[&quot;Topology / Capability / Registration / DFX&quot;]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph EXEC[&quot;数据执行与互联&quot;]</span><br><span class="line">        ENGINE[&quot;MTE / SDMA / RDMA / UDMA / ACL Copy&quot;]</span><br><span class="line">        LINK[&quot;PCIe / HCCS / RoCE / UnifiedBus&quot;]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    HCCL --&gt; HCOMM</span><br><span class="line">    HIXL --&gt; VMM</span><br><span class="line">    HIXL -. &quot;能力与资源复用&quot; .-&gt; CAP</span><br><span class="line">    SHMEM --&gt; HCOMM</span><br><span class="line">    SHMEM --&gt; VMM</span><br><span class="line">    UBS --&gt; VMM</span><br><span class="line">    HCOMM --&gt; CAP</span><br><span class="line">    VMM --&gt; CAP</span><br><span class="line">    CAP --&gt; ENGINE --&gt; LINK</span><br></pre></td></tr></table></figure>
+
+<p>图中箭头表示公开实现里可确认或正在增强的资源复用方向，不表示每次调用都经过所有节点，也不表示 UBShmem 已经被 HiXL 或 HCOMM 吸收。</p>
+<h2 id="四条路线如何分叉"><a href="#四条路线如何分叉" class="headerlink" title="四条路线如何分叉"></a>四条路线如何分叉</h2><p>横向契约解释了“现在为什么不同”，历史纵轴则回答另一个问题：<strong>为什么旧库没有顺势扩成新库，而要出现新的 API、模块甚至代码仓？</strong></p>
+<h3 id="HCCL：先稳定集体结果"><a href="#HCCL：先稳定集体结果" class="headerlink" title="HCCL：先稳定集体结果"></a>HCCL：先稳定集体结果</h3><p><strong>提出契机。</strong>HCCL 面对的早期核心负载是分布式训练。参与 rank 相对稳定，框架关心 AllReduce、AllGather、AlltoAll 等完整 collective；库不仅要搬数据，还要决定怎样分块、先与谁交换、在哪个阶段归约，以及如何利用 Ring、Mesh、RHD 或 Pipeline。</p>
+<p>这使 HCCL 的基本对象从一开始就不是“源地址、目的地址和长度”，而是 <strong>communicator + rank group + collective operation</strong>。底层的点对点搬运只有被组织成一致算法，才能得到正确的集体结果。</p>
+<p><strong>公开时机。</strong>公开 MindSpore 材料表明，HCCL 不晚于 <strong>2020 年 3 月</strong>已经作为产品能力出现。当前 <code>cann/hccl</code> 与 <code>cann/hcomm</code> 仓库分别在 2025 年 11 月前后出现首个可见提交，并于 <strong>2025 年 11 月 30 日</strong>正式开源。这个时间只能说明公开节点，不能把 HCCL 的内部诞生日期写成 2025 年。</p>
+<p><strong>设计演进。</strong>当硬件从 A2&#x2F;A3 扩到 Ascend 950，链路从 HCCS、PCIe、RoCE 扩到 UB，执行位置又增加 Host、AICPU、AIV 和 CCU 时，把所有资源管理都留在 collective 仓里会越来越重。HCCL&#x2F;HCOMM 的拆分给出了演进方向：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">早期：collective 算法 + 通信资源紧密耦合</span><br><span class="line">  ↓</span><br><span class="line">HCCL：算子、算法、拓扑、executor、template</span><br><span class="line">HCOMM：RankGraph、Endpoint、Channel、Memory、Notify、基础操作</span><br></pre></td></tr></table></figure>
+
+<p>这里发生的是<strong>内部资源统一、外部 collective 语义稳定</strong>。HCCL 没有扩成 HiXL，是因为“整个组是否完成”不能等价改写成“若干 request 是否完成”；它也没有扩成 SHMEM，因为 collective buffer 不承诺对称堆、PE 寻址或 Device 内存序。</p>
+<h3 id="HiXL：动态-buffer-不再伪装成-collective"><a href="#HiXL：动态-buffer-不再伪装成-collective" class="headerlink" title="HiXL：动态 buffer 不再伪装成 collective"></a>HiXL：动态 buffer 不再伪装成 collective</h3><p><strong>提出契机。</strong>Prefill&#x2F;Decode 分离、RL 参数切换和 KV Cache 迁移改变了通信形态。源、目标、大小和生命周期都更动态，接收端也不希望为每次 READ&#x2F;WRITE 配对一个 <code>recv</code>。应用需要的是注册一批 buffer、动态建链、提交同步或异步传输，再由库选择 HCCS、RoCE、UB 或 FabricMem。</p>
+<p>若继续沿用集合通信式的固定 rank group，问题不会只是不够优雅。早期演进仍能看到 communicator&#x2F;rank table 风格的资源组织；连接规模扩大后，这种方式会给弹性建链和生命周期带来压力。公开讨论曾出现过<strong>约 512 条链路量级</strong>的约束信号；该数字受版本和组网影响，不能写成 HiXL 的永久硬上限，但足以说明固定通信域不适合无限扩展的推理服务。</p>
+<p><strong>公开时机。</strong>Mooncake 在 <strong>2025 年 8 月 18 日</strong>合入 Ascend Direct&#x2F;ADXL，说明旧接口已经进入真实 KV 传输项目。<code>cann/hixl</code> 于 <strong>2025 年 10 月 14 日</strong>出现首个可见代码提交，11 月继续补异步能力；<strong>2026 年 1 月 6 日</strong>加入 Fabric Memory 直传代码，3 月进入正式说明。<strong>2026 年 4 月 13 日</strong>，仓库把 ADXL 接口标为“待废弃”，但兼容头文件、实现和调用方仍然存在。</p>
+<p><strong>设计演进。</strong>HiXL 把核心对象改成 Engine、RegisterMem、Transfer Request 和完成查询：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ADXL compatibility API ─┐</span><br><span class="line">HIXL current API ───────┴→ common EngineFactory / HIXL Engine</span><br><span class="line">                         → HCCS / RoCE / UB / FabricMem</span><br></pre></td></tr></table></figure>
+
+<p>后续 AutoConnect、HixlCS、Device UBoE 和跨代际路径继续把资源组织从“预先定义一组 rank”推向“按服务、能力和内存对象取得连接”。HixlCS 的 client&#x2F;server 方向尤其重要：连接资源开始围绕服务端点而不是刚性的集合通信域组织。</p>
+<p>所以 HiXL 值得独立，不是因为它发现了一条 HCCL 从未使用的物理链路，而是因为它建立了另一套<strong>北向对象、生命周期、错误与完成模型</strong>。ADXL 与 HIXL 也不是两套串行协议；它们是迁移中的两个 API 面，最终在共同引擎层会合。</p>
+<h3 id="CANN-SHMEM：把控制权下沉到算子"><a href="#CANN-SHMEM：把控制权下沉到算子" class="headerlink" title="CANN SHMEM：把控制权下沉到算子"></a>CANN SHMEM：把控制权下沉到算子</h3><p><strong>提出契机。</strong>Host 单边传输仍要由 CPU&#x2F;Runtime 组织 request。MoE、MC2、自定义融合算子和细粒度 token&#x2F;tile 流水希望在数据刚就绪时，由 AICore 立即 put、get、signal、wait 或 atomic，减少 Host 下发和粗粒度同步。这里缺少的不是又一个 Host copy 接口，而是一套 Kernel 可见的 PGAS 契约。</p>
+<p>OpenSHMEM 的思想早于 CANN 项目：PE、Team、对称对象、RMA、AMO 和同步来自长期发展的 SHMEM&#x2F;OpenSHMEM 编程模型。CANN SHMEM 的新意在于把这套对象映射到昇腾 Host&#x2F;Device API，并按芯片选择 MTE、SDMA、RDMA、UDMA 等后端。</p>
+<p><strong>公开时机。</strong><code>cann/shmem</code> 于 <strong>2025 年 12 月 12 日</strong>出现首个可见提交，README 称 2025 年 12 月首次上线；2026 年 2 月出现首批 v1.0 tag。<strong>2026 年 4 月 8 日</strong>的 v1.3 加入 AICore 直驱和 40+ 接口，<strong>2026 年 7 月 30 日</strong>的 v1.6 继续完善 Ascend 950 的 UDMA&#x2F;MTE&#x2F;RDMA&#x2F;SIMT 与诊断。</p>
+<p><strong>设计演进。</strong>新仓库需要自己拥有一组无法藏入 HiXL compatibility layer 或 HCCL executor 的对象：</p>
+<ul>
+<li><strong>PE 与 Team</strong>决定参与者和子组；</li>
+<li><strong>symmetric heap</strong>决定远端对象如何命名；</li>
+<li><strong>RMA&#x2F;AMO</strong>定义可执行的远端操作；</li>
+<li><strong>signal&#x2F;wait、quiet、fence、barrier</strong>定义完成、发布和顺序；</li>
+<li><strong>Device headers 与 transport</strong>允许 AICore&#x2F;SIMT 在 Kernel 内发起。</li>
+</ul>
+<p>CANN SHMEM 与 HiXL 都可以被称为“单边通信”，但单边只表示 payload 不需要逐次匹配接收。HiXL 把一次传输建模为 Host request，SHMEM 把远端操作建模为并行程序中的内存动作。底层都能使用 RDMA 或 UDMA，不足以抹平这个差异。</p>
+<p>当前公开资料也不足以声称 <code>cann/shmem</code> 已通过完整 OpenSHMEM 1.6 一致性测试；<code>cann/shmem v1.6</code> 与 OpenSHMEM 1.6 版本号相同不能被解释为完整兼容证明。</p>
+<h3 id="UBShmem：通用能力成熟前的项目快路"><a href="#UBShmem：通用能力成熟前的项目快路" class="headerlink" title="UBShmem：通用能力成熟前的项目快路"></a>UBShmem：通用能力成熟前的项目快路</h3><p>Mooncake UBShmem 最能解释“为什么会出现新代码”，也最容易因为名字被误读。</p>
+<p><strong>提出契机。</strong>Mooncake Transfer Engine 已有自己的 Segment、Metadata、Allocator、Worker、Stream Pool 和 transport plugin ABI。项目希望把远端 NPU HBM 通过 CANN VMM&#x2F;Fabric handle 导入当前进程，缓存重映射关系，再在 ACL stream 上直接复制 KV Cache。等待通用库完全覆盖部署矩阵，会拖慢项目自己的交付节奏。</p>
+<p><strong>公开时机。</strong>Mooncake issue #1312 于 <strong>2025 年 12 月 31 日</strong>提出 VMM&#x2F;Fabric Memory 路径；PR #1399 在 <strong>2026 年 1 月 18 日</strong>创建、1 月 26 日合入。2 月的 PR #1519 增加 IPC 与 allocator，3 月继续加入线程池、stream pool 和 Store 适配。</p>
+<p>这里有一个重要的时间重叠：HiXL FabricMem 的首个可定位公开代码提交是 <strong>2026 年 1 月 6 日</strong>，Mooncake UBShmem 的实现 PR 是 1 月 18 日。两条路线几乎同时公开，更像<strong>通用产品能力与项目集成快路的并行试验</strong>，而不是一个成熟标准已经存在，Mooncake 又无视它重新实现。</p>
+<p><strong>实际设计。</strong>当前公开代码关系是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Mooncake Store / KV Cache</span><br><span class="line">  → UBShmemTransport：metadata、地址重定位、worker/stream pool</span><br><span class="line">  → Fabric：MallocPhysical → ReserveVA → Map → Export/Import handle</span><br><span class="line">    或 IPC：GetExportKey → ImportByKey → peer access</span><br><span class="line">  → aclrtMemcpyAsync</span><br><span class="line">  → CANN Runtime / Driver / NPU Fabric</span><br></pre></td></tr></table></figure>
+
+<p>它的 CMake 链接 AscendCL，固定公开源码没有链接 <code>cann/shmem</code>，也没有调用 <code>aclshmem_*</code>。所以 <code>UBShmem</code> 里的 <code>SHMEM</code> 不能推出 PE、Team、对称堆或 AIV 直驱。它甚至不是一个独立顶层仓库，而是 Mooncake 内部的新 transport 模块；这再次说明<strong>新抽象与新代码边界不必一一对应于新仓库名</strong>。</p>
+<p><strong>后续收敛信号。</strong>2026 年 8 月，Mooncake PR #3285 用 ADXL&#x2F;HiXL VMM 组织共享 Host KV segment，PR #3302 开始探测 AutoConnect&#x2F;HixlCS 能力，PR #3453 又清理同设备 HCCS legacy offset。它们表明项目快路正在更多地消费通用建链和内存资源。</p>
+<p>但这不是官方吸收公告。UBShmem 是否能退化为 HiXL FabricMem 的薄适配器，仍取决于 allocator、映射缓存、并发、连续与多页内存、拓扑覆盖、错误恢复和性能阈值是否一致。</p>
+<h2 id="时间轴揭示了什么"><a href="#时间轴揭示了什么" class="headerlink" title="时间轴揭示了什么"></a>时间轴揭示了什么</h2><p>把四条路线放回同一张时间表，可以看到它们并非线性替代。</p>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>公开节点</th>
+<th>暴露的新问题</th>
+<th>设计方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2020-03 前后</td>
+<td>HCCL 已作为 MindSpore 产品能力出现</td>
+<td>固定 rank 组怎样高效完成 collective</td>
+<td>算法、拓扑、分块和组内完成</td>
+</tr>
+<tr>
+<td>2025-08</td>
+<td>Mooncake 合入 Ascend Direct&#x2F;ADXL</td>
+<td>PD&#x2F;KV 传输需要 Host 单边 buffer API</td>
+<td>注册内存、批量 READ&#x2F;WRITE、多链路</td>
+</tr>
+<tr>
+<td>2025-10</td>
+<td>HiXL 公开仓出现</td>
+<td>旧通信域难覆盖动态推理服务</td>
+<td>Engine&#x2F;Request 与兼容层并行</td>
+</tr>
+<tr>
+<td>2025-11</td>
+<td>HCCL&#x2F;HCOMM 正式开源</td>
+<td>collective 与通信资源需要独立演进</td>
+<td>算法层和资源层拆仓</td>
+</tr>
+<tr>
+<td>2025-12</td>
+<td>CANN SHMEM 公开；Mooncake 提出 UBShmem</td>
+<td>Kernel 内细粒度 RMA 与项目映射快路同时出现</td>
+<td>Device PGAS 与 VMM plugin 分叉</td>
+</tr>
+<tr>
+<td>2026-01</td>
+<td>HiXL FabricMem 与 Mooncake UBShmem 几乎同时公开代码</td>
+<td>远端 HBM 映射和 KV 快路进入工程集成期</td>
+<td>通用 capability 与项目 adapter 并行试验</td>
+</tr>
+<tr>
+<td>2026-04</td>
+<td>SHMEM v1.3；ADXL 标为待废弃</td>
+<td>Device 直驱成熟，新旧 Host API 开始收口</td>
+<td>SHMEM 扩展、HiXL API 迁移</td>
+</tr>
+<tr>
+<td>2026-07</td>
+<td>SHMEM v1.6</td>
+<td>Ascend 950 多后端与 SIMT 能力继续补齐</td>
+<td>UDMA&#x2F;MTE&#x2F;RDMA 组合而非单一替代</td>
+</tr>
+<tr>
+<td>2026-08</td>
+<td>Mooncake 探测 AutoConnect&#x2F;HixlCS 并复用 HiXL VMM</td>
+<td>项目快路需要接入通用资源管理</td>
+<td>wrapper 变薄的早期信号</td>
+</tr>
+</tbody></table>
+<p>时间密度在 2025–2026 年突然增加，不能推出这些需求都在这一时期才出现。更稳妥的解释是三次重心变化：</p>
+<ol>
+<li><strong>训练 collective 阶段</strong>先稳定组语义和拓扑算法，HCCL 成为框架主入口。</li>
+<li><strong>分离式推理阶段</strong>把动态 buffer、内存注册和弹性建链推到前台，HiXL&#x2F;ADXL 出现。</li>
+<li><strong>通算融合与 Fabric 阶段</strong>要求 Device 侧 RMA 和远端内存映射，CANN SHMEM 与 UBShmem 分别从通用编程模型和项目落地两端推进。</li>
+</ol>
+<p>因此，这不是 <code>HCCL → HiXL → SHMEM → UBShmem</code> 的代际链，而是工作负载增加后，语义入口不断分化、底层资源逐步汇合的过程。</p>
+<h2 id="哪些差异不能抹平"><a href="#哪些差异不能抹平" class="headerlink" title="哪些差异不能抹平"></a>哪些差异不能抹平</h2><p>从横轴比较，四者之间既有<strong>本质差异</strong>，也有可以被历史演进消化的<strong>偶然差异</strong>。</p>
+<h3 id="本质差异"><a href="#本质差异" class="headerlink" title="本质差异"></a>本质差异</h3><ol>
+<li><strong>参与关系不同。</strong>HCCL 要求一组 rank 对同一 collective 达成共同进度；HiXL 允许动态源和目标；SHMEM 以 PE&#x2F;Team 组织并行程序；UBShmem 受 Mooncake Segment 与 transport 生命周期约束。</li>
+<li><strong>内存对象不同。</strong>collective buffer、registered buffer、symmetric object 和 imported mapping 不能只用一个裸指针概括。</li>
+<li><strong>发起位置不同。</strong>Host request、collective engine、AICore Device API 和 ACL worker 的热路径成本与故障处理完全不同。</li>
+<li><strong>完成与顺序不同。</strong>collective completion、request completion、quiet&#x2F;fence&#x2F;signal 和 stream completion 不能共用一个含义模糊的 <code>done</code>。</li>
+<li><strong>性能区间不同。</strong>规则 collective、动态大块 KV、细粒度 token&#x2F;tile RMA 和重复映射的主要瓶颈分别落在算法、建链、提交&#x2F;同步和映射缓存。</li>
+</ol>
+<p>这些差异如果被塞进一个 API，只会得到两种结果：要么退化成最小公共 copy 接口，丢掉 collective、atomic 和内存序；要么形成一个包含大量 mode、flag 和隐式约束的万能对象，把复杂度推回调用者。</p>
+<h3 id="偶然差异"><a href="#偶然差异" class="headerlink" title="偶然差异"></a>偶然差异</h3><p>以下差异更可能随演进被收敛：</p>
+<ul>
+<li>HCCL 与 HCOMM 的仓库边界和资源所有权；</li>
+<li>ADXL 与 HIXL 两套北向命名及兼容头文件；</li>
+<li>各库重复的内存注册、拓扑探测和错误码；</li>
+<li>Mooncake transport plugin 为赶上项目发布节奏形成的专用 wrapper；</li>
+<li>同一种 Fabric&#x2F;VMM handle 在不同上层的封装方式；</li>
+<li>不同仓库各自维护的 DFX、capability probe 和回退判断。</li>
+</ul>
+<p>所以“为什么没有统一”不能只回答“因为需求不同”。更完整的判断是：<strong>语义契约的差异需要长期保留，资源管理和历史兼容的差异才是收敛对象。</strong></p>
+<h2 id="新思想何时值得新仓库"><a href="#新思想何时值得新仓库" class="headerlink" title="新思想何时值得新仓库"></a>新思想何时值得新仓库</h2><p>“演进会产生新代码仓”只在特定条件下成立。一个新后端、一个新芯片分支或一次性能优化，并不自动需要独立仓库。更可操作的判断标准有四个：</p>
+<ol>
+<li><strong>新的北向对象。</strong>旧 API 是否无法稳定表达新的参与者、内存对象和操作？</li>
+<li><strong>独立生命周期与故障域。</strong>新能力是否必须自己处理初始化、连接、异步完成、对端退出和资源回收？</li>
+<li><strong>多后端策略。</strong>它是否需要在多芯片、多链路、多内存类型之间独立选择与回退？</li>
+<li><strong>独立兼容矩阵。</strong>它是否需要与原仓库不同的版本、测试、发布和调用方迁移节奏？</li>
+</ol>
+<p>按这个标准回看四条路线：</p>
+<ul>
+<li><strong>HCCL&#x2F;HCOMM 的拆分成立</strong>，因为 collective 算法与通信资源已经拥有不同的复用范围和发布责任。</li>
+<li><strong>HiXL 独立成立</strong>，因为动态 buffer transfer、Engine&#x2F;Request、注册内存与多链路选择形成完整产品面。</li>
+<li><strong>CANN SHMEM 独立成立</strong>，因为 PE&#x2F;Team、对称堆、Device RMA&#x2F;AMO 和内存序构成新的编程模型。</li>
+<li><strong>Mooncake UBShmem 更适合作为项目内模块</strong>，因为它优先服从 Mooncake transport ABI，并未形成跨项目的完整北向标准。</li>
+</ul>
+<p>反过来，如果变化只是在相同 API 下增加 UDMA 后端、替换 descriptor 格式或优化某个拓扑算法，把它留在原仓库通常更合理。<strong>新仓库应该承载新的稳定契约，而不是为每个新缩写建立纪念碑。</strong></p>
+<h2 id="未来会怎样收敛"><a href="#未来会怎样收敛" class="headerlink" title="未来会怎样收敛"></a>未来会怎样收敛</h2><p>以下是根据公开接口与代码变化连接得到的推断，不是华为或 Mooncake 的正式路线承诺。</p>
+<h3 id="语义入口继续并存"><a href="#语义入口继续并存" class="headerlink" title="语义入口继续并存"></a>语义入口继续并存</h3><p>HCCL、HiXL 与 CANN SHMEM 很可能长期保留三个入口：collective、Host buffer transfer 和 Device PGAS RMA。它们可以互相调用或复用资源，但调用者仍需要明确自己等待的是什么结果。</p>
+<p>这种结构并非昇腾独有。NVIDIA 生态同时保留 NCCL、NIXL 和 NVSHMEM：分别面向 collective、异构单边数据传输和 Device PGAS。这个横向旁证不能证明 Ascend 的官方路线，却说明<strong>共享 CUDA&#x2F;NIC&#x2F;内存基础设施与保留多种上层语义并不矛盾</strong>。</p>
+<h3 id="公共资源继续下沉"><a href="#公共资源继续下沉" class="headerlink" title="公共资源继续下沉"></a>公共资源继续下沉</h3><p>更值得统一的部分包括：</p>
+<ul>
+<li>HCOMM Endpoint、Channel、Memory、Notify 与基础操作；</li>
+<li>CANN VMM&#x2F;IPC 的 physical handle、VA、Map 与 Access；</li>
+<li>注册缓存、拓扑与 capability discovery；</li>
+<li>HCCS、RoCE、UB&#x2F;FabricMem 路径选择；</li>
+<li>错误码、日志、profiling、回退和故障恢复。</li>
+</ul>
+<p>当这些能力成为稳定公共层，新语义库不必再次实现芯片和链路细节，旧库也更容易在不改变 API 的情况下获得新后端。</p>
+<h3 id="项目快路逐步变薄"><a href="#项目快路逐步变薄" class="headerlink" title="项目快路逐步变薄"></a>项目快路逐步变薄</h3><p>Mooncake UBShmem 最可能的长期形态不是与 HiXL 永久维护两套完整 Fabric Memory 产品，也不是立刻删除，而是逐步缩成 Mooncake 语义与通用能力之间的适配层。</p>
+<p>这个判断成立至少需要六个条件：</p>
+<ol>
+<li>HiXL FabricMem 覆盖 Mooncake 的 allocator 和 Segment 生命周期；</li>
+<li>映射缓存与重复传输的 p99 不劣于 UBShmem；</li>
+<li>连续、多页和不同粒度的内存都能正确处理；</li>
+<li>A3、Ascend 950 及目标拓扑具有清楚的 capability matrix；</li>
+<li>对端退出、异步失败和资源回收语义一致；</li>
+<li>Mooncake 现有 transport ABI 不需要暴露大量 HiXL 私有细节。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>收敛不等于已合并</p>
+</div>
+        <div class="message-body">
+            <p>当前证据只支持“底层资源与能力探测正在收敛”。它不支持“四个上层概念会统一成一个 API”，也不支持“UBShmem 已被 HiXL FabricMem 吸收”。ADXL 的最终删除版本、UBShmem 的长期归属和内部项目路线仍未公开确认。</p>
+
+        </div>
+    </article>
+
+<h2 id="用实验判断统一边界"><a href="#用实验判断统一边界" class="headerlink" title="用实验判断统一边界"></a>用实验判断统一边界</h2><p>名字和架构图只能提出假设。要验证统一边界是否放对，最小实验应在<strong>同一硬件、同一 CANN 版本和可比内存位置</strong>上覆盖四种负载。</p>
+<table>
+<thead>
+<tr>
+<th>负载</th>
+<th>要保护的上层契约</th>
+<th>关键观测</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>规则 AllReduce</td>
+<td>全组 collective 结果与算法进度</td>
+<td>算法选择、分块、尾延迟、组内异常</td>
+</tr>
+<tr>
+<td>动态 KV 批量传输</td>
+<td>注册、弹性建链与 request completion</td>
+<td>建链成本、p99、CPU、并发 request、回退</td>
+</tr>
+<tr>
+<td>Kernel 内 put + signal</td>
+<td>Device 发起、远端完成与消费者可见</td>
+<td>AIV 占用、提交时延、quiet&#x2F;fence、内存序</td>
+</tr>
+<tr>
+<td>重复 Fabric&#x2F;VMM 映射</td>
+<td>handle、VA、mapping cache 与生命周期</td>
+<td>首次映射、缓存命中、页粒度、释放与失败恢复</td>
+</tr>
+</tbody></table>
+<p>除了峰值带宽，还要同时记录：</p>
+<ul>
+<li>初始化、注册、建链和映射的一次性成本；</li>
+<li>小消息、tile 与大块 buffer 的吞吐拐点；</li>
+<li>CPU、AICPU、AIV 和内存资源占用；</li>
+<li>中间 copy、staging buffer 与真实 payload bytes；</li>
+<li>完成通知到远端消费者安全可见的时间；</li>
+<li>对端退出、超时、重试、回退和资源清理行为。</li>
+</ul>
+<p>如果同一个公共后端能以薄适配器保持四种契约，并且没有把某类负载的关键成本转嫁给调用者，说明实现层统一是成功的。若统一 API 迫使 collective 调用者管理 request、让 HiXL 用户理解 PE 对称地址，或让 SHMEM Kernel 等待 Host worker，那么统一边界就放得太高了。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>回到开头：HCCL、HiXL、CANN SHMEM 和 Mooncake UBShmem 为什么没有统一？</p>
+<p>因为它们不是四个版本的同一种通信库。<strong>HCCL 以集体结果为中心，HiXL 以动态 buffer request 为中心，CANN SHMEM 以 Device PGAS 内存动作和顺序为中心，UBShmem 则以 Mooncake 的映射型 KV 快路为中心。</strong>相同硬件只说明它们可以共享底层实现，不足以证明上层契约相同。</p>
+<p>现在可以确认的是：公开代码已经显示 HCOMM、VMM、注册、拓扑和 capability probe 在被更多入口复用；时间线也显示 HiXL FabricMem 与 UBShmem 是几乎同时出现的并行尝试，而不是简单的前后替代。</p>
+<p>仍不能确认的是内部立项日期、ADXL 最终删除版本、UBShmem 的正式归宿，以及所有硬件组合下的性能等价性。下一步若要判断哪条路线会被吸收，应比较同一组参与者、内存对象、完成语义和故障条件，而不是继续从 <code>Direct</code>、<code>SHMEM</code> 或 <code>Fabric</code> 这些名字推断包含关系。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://shaojiemike.top/1-ai-systems/2026/08/26/Ascend-Communication-Stack/#%E6%80%BB%E4%BD%93%E6%9E%B6%E6%9E%84">Ascend Communication Stack：总体架构</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hccl">CANN HCCL 仓库</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/hccl/blob/master/docs/zh/user_guide/hccl_intro.md">HCCL 简介</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm">CANN HCOMM 仓库</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm/blob/master/README.md">HCOMM README</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl">CANN HiXL 仓库</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl/blob/master/docs/zh/api/cpp/deprecated_ADXL-interface.md">HiXL：待废弃 ADXL 接口</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl/blob/master/docs/zh/FabricMem.md">HiXL：FabricMem 模式</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem">CANN SHMEM 仓库</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/master/docs/glossary.md">术语表</a>与<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/master/docs/quickstart.md">硬件&#x2F;版本矩阵</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/openshmem-org/specification/releases">OpenSHMEM Specification Releases</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/pull/740">Mooncake PR #740：Ascend Direct&#x2F;ADXL</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/issues/1312">Mooncake issue #1312：Ascend UBShmem transport</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/pull/1399">Mooncake PR #1399：UBShmem&#x2F;Fabric Memory</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/pull/1519">Mooncake PR #1519：UBShmem IPC 与 allocator</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/tree/main/mooncake-transfer-engine/src/transport/ascend_transport/ubshmem_transport">Mooncake UBShmem transport</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/pull/3285">Mooncake PR #3285：共享 Host KV segment</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/pull/3302">Mooncake PR #3302：AutoConnect&#x2F;HixlCS 能力探测</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/pull/3453">Mooncake PR #3453：同设备 HCCS legacy offset 清理</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/">NVIDIA NCCL User Guide</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.nvidia.com/nvshmem/api/">NVIDIA NVSHMEM Documentation</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/ai-dynamo/nixl">NVIDIA NIXL</a></li>
+</ol>
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>证据口径</p>
+</div>
+        <div class="message-body">
+            <p>以上链接用于支持公开接口、代码状态和时间节点。内部立项、闭源固件、芯片 RTL 沿革与尚未公告的产品路线仍保持未确认状态。</p>
+
+        </div>
+    </article>
+
+</div><div class="article-licensing box"><div class="licensing-title"><p>Ascend Communication API Evolution</p><p><a href="http://icarus.shaojiemike.top/2026/08/27/Work/Artificial Intelligence/AIInfra/Ascend-Communication-API-Evolution/">http://icarus.shaojiemike.top/2026/08/27/Work/Artificial Intelligence/AIInfra/Ascend-Communication-API-Evolution/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-27</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-28</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/HCCL/">HCCL</a><a class="link-muted mr-2" rel="tag" href="/tags/SHMEM/">SHMEM</a><a class="link-muted mr-2" rel="tag" href="/tags/HCOMM/">HCOMM</a><a class="link-muted mr-2" rel="tag" href="/tags/HiXL/">HiXL</a><a class="link-muted mr-2" rel="tag" href="/tags/Mooncake/">Mooncake</a><a class="link-muted mr-2" rel="tag" href="/tags/CANN-VMM/">CANN VMM</a><a class="link-muted mr-2" rel="tag" href="/tags/Fabric-Memory/">Fabric Memory</a><a class="link-muted mr-2" rel="tag" href="/tags/PGAS/">PGAS</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-Runtime-Evolution/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Ascend Communication Runtime Evolution</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Data-Movement-Evolution/"><span class="level-item">Ascend Data Movement Evolution</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">622</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">51</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">950</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#同层为何看起来应该统一"><span class="level-left"><span class="level-item">1</span><span class="level-item">同层为何看起来应该统一</span></span></a></li><li><a class="level is-mobile" href="#先拆回语义契约"><span class="level-left"><span class="level-item">2</span><span class="level-item">先拆回语义契约</span></span></a></li><li><a class="level is-mobile" href="#四条路线如何分叉"><span class="level-left"><span class="level-item">3</span><span class="level-item">四条路线如何分叉</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#HCCL：先稳定集体结果"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">HCCL：先稳定集体结果</span></span></a></li><li><a class="level is-mobile" href="#HiXL：动态-buffer-不再伪装成-collective"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">HiXL：动态 buffer 不再伪装成 collective</span></span></a></li><li><a class="level is-mobile" href="#CANN-SHMEM：把控制权下沉到算子"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">CANN SHMEM：把控制权下沉到算子</span></span></a></li><li><a class="level is-mobile" href="#UBShmem：通用能力成熟前的项目快路"><span class="level-left"><span class="level-item">3.4</span><span class="level-item">UBShmem：通用能力成熟前的项目快路</span></span></a></li></ul></li><li><a class="level is-mobile" href="#时间轴揭示了什么"><span class="level-left"><span class="level-item">4</span><span class="level-item">时间轴揭示了什么</span></span></a></li><li><a class="level is-mobile" href="#哪些差异不能抹平"><span class="level-left"><span class="level-item">5</span><span class="level-item">哪些差异不能抹平</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#本质差异"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">本质差异</span></span></a></li><li><a class="level is-mobile" href="#偶然差异"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">偶然差异</span></span></a></li></ul></li><li><a class="level is-mobile" href="#新思想何时值得新仓库"><span class="level-left"><span class="level-item">6</span><span class="level-item">新思想何时值得新仓库</span></span></a></li><li><a class="level is-mobile" href="#未来会怎样收敛"><span class="level-left"><span class="level-item">7</span><span class="level-item">未来会怎样收敛</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#语义入口继续并存"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">语义入口继续并存</span></span></a></li><li><a class="level is-mobile" href="#公共资源继续下沉"><span class="level-left"><span class="level-item">7.2</span><span class="level-item">公共资源继续下沉</span></span></a></li><li><a class="level is-mobile" href="#项目快路逐步变薄"><span class="level-left"><span class="level-item">7.3</span><span class="level-item">项目快路逐步变薄</span></span></a></li></ul></li><li><a class="level is-mobile" href="#用实验判断统一边界"><span class="level-left"><span class="level-item">8</span><span class="level-item">用实验判断统一边界</span></span></a></li><li><a class="level is-mobile" href="#结论"><span class="level-left"><span class="level-item">9</span><span class="level-item">结论</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">10</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">39</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">42</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-28T02:30:00.000Z">2026-08-28</time></p><p class="title"><a href="/2026/08/28/Work/Artificial%20Intelligence/AIInfra/Mooncake-Codebase-Architecture/">Mooncake Codebase Architecture</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-27T13:30:00.000Z">2026-08-27</time></p><p class="title"><a href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/SHMEM-Symmetric-Memory/">SHMEM Symmetric Memory</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-27T10:00:00.000Z">2026-08-27</time></p><p class="title"><a href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Mooncake-TENT-Request-Path/">Mooncake TENT Request Path</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-27T08:41:34.000Z">2026-08-27</time></p><p class="title"><a href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Interconnect-Evolution/">Ascend Interconnect Evolution</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">46</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Chip/"><span class="tag">AI Chip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

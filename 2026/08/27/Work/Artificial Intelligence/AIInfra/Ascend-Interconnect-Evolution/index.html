@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Ascend Interconnect Evolution - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       在昇腾通信栈的第五轴中，PCIe、片内 NoC、HCCS、RoCE 与 UnifiedBus 被放在同一行。看到这些概念，一个很自然的疑问是：它们为什么没有统一？是不是每一种新互联，都是为了解决上一代的缺陷，并最终取代前者？ 这个问题抓住了技术演进，却预设了一条并不存在的替换链。这些概念分别工作在芯片内部、服务器 I&amp;#x2F;O"><meta property="og:type" content="blog"><meta property="og:title" content="Ascend Interconnect Evolution"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Interconnect-Evolution/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       在昇腾通信栈的第五轴中，PCIe、片内 NoC、HCCS、RoCE 与 UnifiedBus 被放在同一行。看到这些概念，一个很自然的疑问是：它们为什么没有统一？是不是每一种新互联，都是为了解决上一代的缺陷，并最终取代前者？ 这个问题抓住了技术演进，却预设了一条并不存在的替换链。这些概念分别工作在芯片内部、服务器 I&amp;#x2F;O"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png"><meta property="article:published_time" content="2026-08-27T08:41:34.000Z"><meta property="article:modified_time" content="2026-08-28T02:37:01.332Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="PCIe"><meta property="article:tag" content="NoC"><meta property="article:tag" content="RoCE"><meta property="article:tag" content="HCCS"><meta property="article:tag" content="UnifiedBus"><meta property="article:tag" content="Scale-Up"><meta property="article:tag" content="Scale-Out"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Interconnect-Evolution/"},"headline":"Ascend Interconnect Evolution","image":["https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png"],"datePublished":"2026-08-27T08:41:34.000Z","dateModified":"2026-08-28T02:37:01.332Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       在昇腾通信栈的第五轴中，PCIe、片内 NoC、HCCS、RoCE 与 UnifiedBus 被放在同一行。看到这些概念，一个很自然的疑问是：它们为什么没有统一？是不是每一种新互联，都是为了解决上一代的缺陷，并最终取代前者？ 这个问题抓住了技术演进，却预设了一条并不存在的替换链。这些概念分别工作在芯片内部、服务器 I&#x2F;O"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Interconnect-Evolution/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-27T08:41:34.000Z" title="8/27/2026, 8:41:34 AM">2026-08-27</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-28T02:37:01.332Z" title="8/28/2026, 2:37:01 AM">2026-08-28</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AI-Systems/">1-AI Systems</a></span><span class="level-item">an hour read (About 7201 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Ascend Interconnect Evolution</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>在昇腾通信栈的第五轴中，PCIe、片内 NoC、HCCS、RoCE 与 UnifiedBus 被放在同一行。看到这些概念，一个很自然的疑问是：它们为什么没有统一？是不是每一种新互联，都是为了解决上一代的缺陷，并最终取代前者？</p>
+<p>这个问题抓住了技术演进，却预设了一条并不存在的替换链。<strong>这些概念分别工作在芯片内部、服务器 I&#x2F;O、节点内 Scale-Up 和集群 Scale-Out 等不同范围，提供的事务与内存语义也不相同。</strong>本文从无法绕开的物理约束出发，沿历史纵轴梳理它们出现的契机，再用同一组维度比较其设计取舍，最后说明：什么时候一种新思想只需要增加后端，什么时候它会形成新的编程契约和代码仓。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="一条不存在的替换链"><a href="#一条不存在的替换链" class="headerlink" title="一条不存在的替换链"></a>一条不存在的替换链</h2><p><a target="_blank" rel="noopener" href="https://shaojiemike.top/1-ai-systems/2026/08/26/Ascend-Communication-Stack/#%E6%80%BB%E4%BD%93%E6%9E%B6%E6%9E%84">《Ascend Communication Stack》</a>把一次通信拆成五个责任轴：应用选择什么通信语义，Runtime 如何建立地址与资源，谁提交任务，谁搬运 Payload，以及字节最终经过什么互联。第五轴回答的是最后一个问题。</p>
+<p><img src="https://pic.shaojiemike.top/shaojiemike/2026/08/706fd013dceae06e3ccd7d00d73170bf.png" alt="昇腾通信栈的五轴架构与内存语义契约面"></p>
+<p><em>图 1：昇腾通信栈五轴架构。根据既有研究内容整理的自绘示意图。</em></p>
+<p>“位于第五轴”只说明这些对象都参与承载字节，并不表示它们处于相同空间尺度。一笔跨设备传输可能连续经过多个对象：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">AICore</span><br><span class="line">  → 本芯片 NoC</span><br><span class="line">  → HCCS / PCIe / UB / RoCE 接口</span><br><span class="line">  → 板级走线、交换机或光网络</span><br><span class="line">  → 对端芯片 NoC</span><br><span class="line">  → 对端 HBM</span><br></pre></td></tr></table></figure>
+
+<p>同机 HCCS 传输通常是“本地 NoC → HCCS → 对端 NoC”；跨机 RoCE 传输则是“本地 NoC → RoCE Engine → Ethernet → 对端 RoCE Engine → 对端 NoC”。<strong>NoC 与 HCCS、RoCE 不是竞争后端，而是同一条端到端路径中的不同段。</strong></p>
+<p>另一方面，PCIe、HCCS、RoCE 和 UB 确实存在部分重叠：它们都可能承载设备间数据。但即使范围重叠，各自优先解决的矛盾仍不同：</p>
+<ul>
+<li><strong>PCIe</strong>优先保证通用设备接入和软件兼容。</li>
+<li><strong>HCCS</strong>优先优化固定昇腾平台内的高带宽、低时延 Scale-Up。</li>
+<li><strong>RoCE</strong>优先复用 Ethernet 实现跨节点 RDMA。</li>
+<li><strong>UB</strong>尝试把统一编址、远端操作、设备平等和资源池化提升为系统协议。</li>
+</ul>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>不要按发布时间排代际</p>
+</div>
+        <div class="message-body">
+            <p>NoC 与 PCIe 的代表性设计都在 2001—2002 年形成；RoCE v1 出现在 2010 年，早于 HCCS 的公开 Ascend 910 证据；UB 虽然到 2025 年才正式公开 2.0 规范，官方披露的研究起点却是 2019 年。<strong>发布时间不能直接转换成 <code>PCIe → NoC → HCCS → RoCE → UB</code> 的替换顺序。</strong></p>
+
+        </div>
+    </article>
+
+<h2 id="物理约束不会消失"><a href="#物理约束不会消失" class="headerlink" title="物理约束不会消失"></a>物理约束不会消失</h2><p>先暂时放下这些产品名。一条互联必须同时回答距离、端口、语义、可靠性和生态五类问题，而这些目标无法一起达到最优。</p>
+<h3 id="距离改变一切"><a href="#距离改变一切" class="headerlink" title="距离改变一切"></a>距离改变一切</h3><p>信号从芯片内部走向封装、主板、机架和数据中心时，会逐步增加：</p>
+<ul>
+<li>传播时延与每 bit 能耗；</li>
+<li>SerDes、时钟恢复和编码开销；</li>
+<li>串扰、衰减和误码；</li>
+<li>FEC、重传、交换与多路径需求；</li>
+<li>链路训练、故障隔离和运维成本。</li>
+</ul>
+<p>片内 NoC 可以使用超宽并行链路和与 Floorplan 紧密配合的 Router；跨机网络却必须处理数米甚至更远距离上的信号完整性与局部故障。把 RoCE 的完整协议栈放进每个 AI Core，面积和功耗不可接受；反过来，裸片内 NoC 也不能直接驱动机架级光网络。</p>
+<h3 id="端口数量限制-Full-Mesh"><a href="#端口数量限制-Full-Mesh" class="headerlink" title="端口数量限制 Full Mesh"></a>端口数量限制 Full Mesh</h3><p>如果让每个节点都与其他节点直接相连，连接数为：</p>
+<p>$$<br>L&#x3D;\frac{N(N-1)}{2}.<br>$$</p>
+<p>8 个 NPU 尚可通过专用端口构造紧耦合互联；节点规模上升到数百、数千乃至数万后，端口、线缆和布线复杂度会迅速失控。系统必须从直连转向交换、分层和路由。</p>
+<p>这也是不同拓扑长期共存的原因：</p>
+<ul>
+<li>片内 NoC 常用 Mesh，以线性数量的局部链路替代全局交叉开关；</li>
+<li>有限规模的 HCCS 可以利用 Full Mesh、Ring 或产品定制拓扑；</li>
+<li>RoCE 依赖以太交换网络获得跨机架扩展；</li>
+<li>UB 把多级交换、大规模路由和高可用纳入超节点目标。</li>
+</ul>
+<h3 id="一致性不能无限外推"><a href="#一致性不能无限外推" class="headerlink" title="一致性不能无限外推"></a>一致性不能无限外推</h3><p>远端内存若要表现得更像本地内存，就必须维护地址、权限、顺序、可见性、原子性和缓存状态。参与者越多，目录状态、失效流量和故障恢复成本越高。</p>
+<p>因此，下列推导都不成立：</p>
+<ul>
+<li>PCIe 支持 MMIO 和 Load&#x2F;Store，不能推出全系统 Cache Coherent；</li>
+<li>HCCS 名称包含 Cache Coherence，不能推出所有产品、内存和观察者属于同一无限扩展的一致性域；</li>
+<li>RoCE 支持 RDMA，不能推出远端 CPU&#x2F;NPU Cache 自动一致；</li>
+<li>UB 支持统一内存语义，不能推出所有远端操作具有最强顺序和本地 HBM 延迟。</li>
+</ul>
+<p><strong>地址可达、操作完成、对端可见和缓存一致是四份需要分别确认的契约。</strong>系统规模越大，越不能用一个“共享内存”标签覆盖全部问题。</p>
+<h3 id="专用效率与开放兼容冲突"><a href="#专用效率与开放兼容冲突" class="headerlink" title="专用效率与开放兼容冲突"></a>专用效率与开放兼容冲突</h3><p>HCCS 可以围绕固定芯片、拓扑和固件深度协同；PCIe 和 Ethernet 却要兼容多厂商设备、操作系统、交换机和旧软件。专用协议容易获得更高效率，开放协议则更容易形成稳定生态。</p>
+<p>这不是设计成熟度的单向差距，而是产品目标的差异。<strong>如果一种协议既要求专用互联的效率，又要求通用 I&#x2F;O 的兼容、网络的距离和全系统强一致，它最终仍会在内部拆成多种 Profile。</strong></p>
+<h2 id="五种互联怎样形成"><a href="#五种互联怎样形成" class="headerlink" title="五种互联怎样形成"></a>五种互联怎样形成</h2><p>这些互联的历史不是一条线，而是不同空间尺度上的问题逐步暴露。下面按首次公开的关键节点梳理，内部立项时间无法核实的部分单独保留。</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>公开事件</th>
+<th>当时需要解决的矛盾</th>
+<th>主要设计变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2001—2002</td>
+<td>NoC 研究范式形成</td>
+<td>全局导线延迟、时钟偏斜、能耗与 SoC 组件扩展</td>
+<td>把 SoC 看作微型网络，以 Router、分组、Mesh 和 QoS 组织片内通信</td>
+</tr>
+<tr>
+<td>2002-04 至 07</td>
+<td>3GIO 更名为 PCI Express，1.0 规范形成</td>
+<td>并行 PCI 的频率、引脚和共享总线瓶颈，同时必须兼容既有软件</td>
+<td>高速串行、点到点、分组化、分层协议，保留 PCI 配置与编程模型</td>
+</tr>
+<tr>
+<td>2010</td>
+<td>RoCE v1 发布</td>
+<td>希望获得 RDMA 的直接放置和低 CPU 开销，但复用 Ethernet 基础设施</td>
+<td>将 InfiniBand RDMA Transport 承载于 Ethernet L2</td>
+</tr>
+<tr>
+<td>2014-09</td>
+<td>RoCE v2 发布</td>
+<td>RoCE v1 受单一二层广播域限制</td>
+<td>增加 UDP&#x2F;IP 外层，获得 L3 路由能力</td>
+</tr>
+<tr>
+<td>2018—2019</td>
+<td>Ascend 910、片内 Mesh NoC、HCCS 与 RoCE 路径公开</td>
+<td>单芯片内部数据供给与单机多 NPU Scale-Up 同时成为瓶颈</td>
+<td>片内 Mesh 汇聚 Core&#x2F;Cache&#x2F;HBM&#x2F;I&#x2F;O；HCCS 服务节点内互联；RoCE 服务网络扩展</td>
+</tr>
+<tr>
+<td>2019</td>
+<td>UB 研究启动</td>
+<td>先进工艺受限，需要通过多芯片与系统架构延续算力增长</td>
+<td>把“更多芯片像一台计算机工作”设为目标，重新设计互联、编址与资源语义</td>
+</tr>
+<tr>
+<td>2025-03</td>
+<td>UB 1.0 随 Atlas 900 A3 SuperPoD 交付</td>
+<td>大规模超节点进入产品验证</td>
+<td>从协议研究进入规模化部署</td>
+</tr>
+<tr>
+<td>2025-09-18</td>
+<td>UB 2.0 发布并开放规范</td>
+<td>从单一产品走向万卡超节点和开放生态</td>
+<td>强调总线级互联、平等协同、全量池化、协议归一、大规模组网和高可用</td>
+</tr>
+</tbody></table>
+<h3 id="NoC：先把芯片变成网络"><a href="#NoC：先把芯片变成网络" class="headerlink" title="NoC：先把芯片变成网络"></a>NoC：先把芯片变成网络</h3><p>2002 年的代表性 NoC 论文已经指出：工艺继续缩小时，全局导线延迟可能超过时钟周期，单一全局时钟难以维持，通信能耗也不会像逻辑门那样自然下降。解决思路不是继续增加共享总线，而是<strong>用网络设计方法抽象片内电气、链路、路由和服务质量</strong>。<a target="_blank" rel="noopener" href="https://www.cecs.uci.edu/~papers/compendium94-03/papers/2002/date02/pdffiles/05a_1.pdf">NoC 原始论文</a></p>
+<p>NoC 的关键设计包括：</p>
+<ul>
+<li>用 Network Interface 把 Core、Cache、HBM Controller 和 I&#x2F;O 接入网络；</li>
+<li>用 Router 和局部链路替代全局共享导线；</li>
+<li>使用 Mesh、Ring 或应用定制拓扑；</li>
+<li>通过流控、路由和调度区分延迟敏感与带宽敏感流量；</li>
+<li>允许不同模块跨时钟域通信。</li>
+</ul>
+<p>Ascend 910 后来采用 4×6 的二维 Mesh NoC，连接 32 个 Ascend Core、Cache 和 I&#x2F;O；官方研究资料还描述了 1024-bit 相邻链路、无缓存设计和全局 QoS 调度。<a target="_blank" rel="noopener" href="https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf">华为 Ascend 架构论文</a></p>
+<p>NoC 没有统一成 PCIe 或 HCCS，是因为它首先服务芯片物理设计。其拓扑、位宽、Buffer 和路由策略要与 Floorplan、功耗和目标 Workload 一起决定。<strong>NoC 是一种设计范式，而不是等待所有芯片共同实现的一份外部线缆标准。</strong></p>
+<h3 id="PCIe：先保护软件投资"><a href="#PCIe：先保护软件投资" class="headerlink" title="PCIe：先保护软件投资"></a>PCIe：先保护软件投资</h3><p>传统并行 PCI 提升频率时，需要同时控制多根信号的时钟偏斜，Pin Count 和共享总线也越来越难扩展。2002 年完成的 3GIO 草案因此选择高速串行、点到点和分组化架构，并更名为 PCI Express。</p>
+<p>PCIe 最重要的设计选择不是单纯增加带宽，而是<strong>硬件重新设计、软件尽量兼容</strong>：</p>
+<ul>
+<li>使用 Transaction、Data Link 和 Physical 分层；</li>
+<li>通过 x1、x4、x8、x16 Lane 组合扩展带宽；</li>
+<li>用 Root Complex、Switch 和 Endpoint 构造系统；</li>
+<li>保留 PCI Configuration Space、BAR、MMIO 和既有驱动模型；</li>
+<li>支持设备发现、电源管理、热插拔、虚拟化和错误报告。</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://www.intel.com/pressroom/archive/releases/2002/20020417net.htm">PCI Express 早期公告</a>明确把串行点到点、分组协议、Load&#x2F;Store 架构和 PCI 软件兼容列为设计目标；这些能力至今仍是 PCIe 难以被专用互联取代的原因。</p>
+<p>但 PCIe 是 Root-Centric 的通用 I&#x2F;O。多加速器 P2P 可能受到 Switch 层级、ACS、IOMMU 和 Host 拓扑影响，Collective 也不是它的原生抽象。因此更现实的长期分工是：</p>
+<blockquote>
+<p><strong>PCIe 保留启动、枚举、管理与通用 I&#x2F;O，专用 Scale-Up Fabric 承担主要加速器数据面。</strong></p>
+</blockquote>
+<h3 id="RoCE：保留-RDMA，替换承载网络"><a href="#RoCE：保留-RDMA，替换承载网络" class="headerlink" title="RoCE：保留 RDMA，替换承载网络"></a>RoCE：保留 RDMA，替换承载网络</h3><p>InfiniBand&#x2F;RDMA 已经形成注册内存、Queue Pair、Completion Queue、直接放置和单边操作等成熟语义，但为此单独建设 InfiniBand Fabric 会增加设备和运维体系。RoCE 的思路十分克制：<strong>保留 InfiniBand Transport 与 Verbs，把承载换成 Ethernet。</strong></p>
+<p>它经历了两次关键变化：</p>
+<ol>
+<li><strong>RoCE v1，2010。</strong>直接运行在 Ethernet L2，只能工作在同一二层网络。</li>
+<li><strong>RoCE v2，2014。</strong>增加 UDP&#x2F;IP 外层，获得跨 L3 路由能力。<a target="_blank" rel="noopener" href="https://infinibandta.org/infiniband-trade-association-releases-updated-specification-for-remote-direct-memory-access-over-converged-ethernet-roce/">IBTA RoCEv2 公告</a></li>
+</ol>
+<p>RoCE 的价值来自复用：</p>
+<ul>
+<li>复用 Ethernet 交换机、线缆和运维经验；</li>
+<li>复用 RDMA Verbs、MR、QP 与 CQ 软件模型；</li>
+<li>让跨服务器通信绕开普通 TCP 数据路径中的部分 CPU 与复制开销；</li>
+<li>通过交换和路由扩展到机架与集群。</li>
+</ul>
+<p>代价也来自复用。RDMA 对丢包、乱序和尾延迟敏感，规模部署需要处理 PFC、ECN、DCQCN、QoS 和多路径；如果配置不当，暂停传播和拥塞会放大故障。<a target="_blank" rel="noopener" href="https://www.infinibandta.org/wp-content/uploads/2024/07/Demartek_IBTA_RoCE_Deployment_Guide_2018-07.pdf">IBTA RoCE 部署指南</a></p>
+<p>这解释了为什么 RoCE 不会被 HCCS 取代：前者解决跨服务器、跨机架和可路由网络，后者首先解决受控平台内的 Scale-Up。UB 出现后 RoCE 也不会立即消失，因为已经部署的 Ethernet&#x2F;RDMA 生态仍然具有独立价值。</p>
+<h3 id="HCCS：为昇腾-Scale-Up-做专用协同"><a href="#HCCS：为昇腾-Scale-Up-做专用协同" class="headerlink" title="HCCS：为昇腾 Scale-Up 做专用协同"></a>HCCS：为昇腾 Scale-Up 做专用协同</h3><p>Ascend 910 时代，单芯片内部的 NoC 只能连接本芯片组件。多颗 NPU 组成训练服务器后，仍然需要一种比普通 Host-Centric PCIe 更贴近 NPU—NPU 与 CPU—NPU 通信的互联。</p>
+<p>HCCS 因而重点处理：</p>
+<ul>
+<li>有限平台内的高带宽、低时延 NPU 互联；</li>
+<li>NUMA 式远端访问和缓存&#x2F;内存协同；</li>
+<li>单机多卡 Collective 的稳定拓扑；</li>
+<li>与 HCCL、HCCP、SDMA 和平台固件共同优化。</li>
+</ul>
+<p>当前 CANN 文档将 HCCS 定义为 Huawei Cache Coherent System，是 CPU&#x2F;NPU 或 NPU&#x2F;NPU 间的高速总线。<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC22/developmentguide/hccl/hcclug/hcclug_000002.html">CANN HCCS 术语定义</a></p>
+<p>HCCS 的<strong>内部提出和立项时间没有公开一手证据</strong>。可确认的公开边界是：</p>
+<ul>
+<li>Ascend 910 于 2018 年公布、2019 年上市；</li>
+<li>2019 年 Hot Chips 的 Ascend 910 架构已经展示 HCCS、片内 NoC 与 RoCE 接口；</li>
+<li>2020 年 Atlas 900 官方资料明确列出 HCCS、PCIe 4.0 和 100G Ethernet；</li>
+<li>后续华为研究资料描述过组内 HCCS、组间 PCIe 的 Ascend 910 服务器。</li>
+</ul>
+<p>这组证据反而说明 HCCS 从一开始就没有全面替代 PCIe：旧服务器能够同时使用 HCCS 和 PCIe，不同代际又出现 Ring、Full Mesh、HCCS-L1&#x2F;L2 与 SIO 等拓扑。它的性能来自产品专用协同，代价则是协议、端口、拓扑和软件栈与昇腾代际绑定。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>Cache Coherence 的边界</p>
+</div>
+        <div class="message-body">
+            <p>HCCS 的全称不能代替具体产品的一致性说明。判断一块远端内存能否透明 Load&#x2F;Store，仍需核对参与者、地址空间、Cache Domain、顺序、可见性与 Runtime API，而不能只看链路名称。</p>
+
+        </div>
+    </article>
+
+<h3 id="UB：把互联提升为系统协议"><a href="#UB：把互联提升为系统协议" class="headerlink" title="UB：把互联提升为系统协议"></a>UB：把互联提升为系统协议</h3><p>华为官方披露，UnifiedBus 的研究始于 2019 年。直接背景是先进工艺受限，单芯片算力不能只依赖制程推进，需要通过连接更多芯片延续系统能力。<a target="_blank" rel="noopener" href="https://www.huawei.com/cn/news/2025/9/hc-xu-keynote-speech">华为 UnifiedBus 主题演讲</a></p>
+<p>UB 的变化不只是增加链路带宽，而是重新定义目标：</p>
+<ol>
+<li><strong>总线级互联。</strong>希望远端资源能够以事务和内存语义访问，而不只发送网络报文。</li>
+<li><strong>平等协同。</strong>CPU、NPU、内存、网络与存储不再完全受 Root—Endpoint 角色限制。</li>
+<li><strong>全量池化。</strong>把分散的计算、内存和 I&#x2F;O 组织成可分配资源。</li>
+<li><strong>协议归一。</strong>统一设备标识、寻址、事务、可靠性与管理框架。</li>
+<li><strong>大规模组网。</strong>从服务器内部扩展到万卡超节点，并继续连接超节点集群。</li>
+<li><strong>高可用。</strong>把故障检测、隔离、绕路和运维作为大规模系统的基本能力。</li>
+</ol>
+<p>从公开软件看，这些目标落到了 EID、UMMU、URMA、Memory&#x2F;Message&#x2F;Atomic 操作以及 UMDK 等对象上。它们说明 UB 的“统一”首先发生在<strong>事务、地址、权限和资源模型</strong>，而不是要求所有距离使用同一套电气信号。</p>
+<p>官方在 Atlas 950 SuperCluster 中仍同时支持 UBoE 与 RoCE：UBoE 把 UB 承载到 Ethernet，使客户能够利用现有以太交换机；RoCE 则保留既有 RDMA 路径。这个设计直接给出了边界：</p>
+<blockquote>
+<p><strong>UB 试图统一互联语义，但仍允许原生 UB、UBoE、RoCE、PCIe 和旧代 HCCS 按硬件、距离与部署条件并存。</strong></p>
+</blockquote>
+<h2 id="放进同一坐标系"><a href="#放进同一坐标系" class="headerlink" title="放进同一坐标系"></a>放进同一坐标系</h2><p>逐个理解之后，才能进行有意义的横向比较。下面的“语义”只写各体系主要公开契约，不把某一产品的局部能力外推为整个协议的保证。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>片内 NoC</th>
+<th>PCIe</th>
+<th>HCCS</th>
+<th>RoCE</th>
+<th>UnifiedBus</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>典型范围</strong></td>
+<td>芯片内部</td>
+<td>芯片、卡、服务器 I&#x2F;O</td>
+<td>服务器或受控超节点内 Scale-Up</td>
+<td>服务器、机架、集群 Scale-Out</td>
+<td>卡间、超节点，并通过 UBoE 延伸到集群</td>
+</tr>
+<tr>
+<td><strong>核心矛盾</strong></td>
+<td>全局导线、功耗、QoS</td>
+<td>通用设备接入与软件兼容</td>
+<td>昇腾多 NPU 低时延高带宽</td>
+<td>Ethernet 上的 RDMA</td>
+<td>统一事务、内存语义、池化和大规模可靠组网</td>
+</tr>
+<tr>
+<td><strong>拓扑倾向</strong></td>
+<td>Mesh、Ring、定制</td>
+<td>Rooted Tree</td>
+<td>Full Mesh、Ring、分层专用拓扑</td>
+<td>Ethernet Switch、L3 路由</td>
+<td>平等节点、多级交换、原生 UB 或 UBoE</td>
+</tr>
+<tr>
+<td><strong>主要语义</strong></td>
+<td>芯片内部定制事务</td>
+<td>配置、MMIO、DMA、Atomic 等</td>
+<td>平台相关的一致性与高速内存访问</td>
+<td>MR、QP、CQ、RDMA Read&#x2F;Write&#x2F;Atomic</td>
+<td>EID、UMMU、Load&#x2F;Store、URMA Memory&#x2F;Message&#x2F;Atomic</td>
+</tr>
+<tr>
+<td><strong>开放程度</strong></td>
+<td>范式开放，实现定制</td>
+<td>开放行业标准</td>
+<td>华为产品协议</td>
+<td>IBTA + Ethernet 生态</td>
+<td>2.0 规范已开放，生态仍在形成</td>
+</tr>
+<tr>
+<td><strong>最大资产</strong></td>
+<td>面积、能耗和带宽密度</td>
+<td>OS、驱动、设备和管理生态</td>
+<td>昇腾软硬件协同</td>
+<td>交换网络和 RDMA 软件生态</td>
+<td>跨设备语义与超节点系统设计</td>
+</tr>
+<tr>
+<td><strong>主要代价</strong></td>
+<td>无法直接跨芯片复用</td>
+<td>加速器 P2P&#x2F;Collective 不是设计中心</td>
+<td>产品、端口和拓扑绑定</td>
+<td>拥塞与无损网络工程复杂</td>
+<td>新硬件、ABI、互操作与运维成熟度</td>
+</tr>
+</tbody></table>
+<p>这张表揭示了一个容易忽略的事实：<strong>UB 与 HCCS、RoCE 的差异不只在带宽，而在抽象边界。</strong>HCCS 更像特定平台的 Scale-Up 互联，RoCE 更像具有远端内存能力的网络，UB 则尝试把互联、内存语义和资源池化放入同一系统体系。</p>
+<p>类似趋势也出现在其他生态。UALink 1.0 使用 Read、Write 和 Atomic 内存语义构造开放的加速器 Scale-Up 网络；CXL 在 PCIe PHY 上增加缓存与内存协议；NVLink&#x2F;NVSwitch 则通过全栈协同扩大 GPU Scale-Up Domain。这些方案并没有汇聚成唯一协议，说明产业共同追求的是<strong>远端资源的一等公民化</strong>，但各家仍在开放程度、语义强度和软硬件协同上选择不同位置。<a target="_blank" rel="noopener" href="https://ualinkconsortium.org/wp-content/uploads/2025/04/UALink-1.0-White_Paper_FINAL_UPDATED.pdf">UALink 1.0 白皮书</a></p>
+<h2 id="新思想为什么形成新仓库"><a href="#新思想为什么形成新仓库" class="headerlink" title="新思想为什么形成新仓库"></a>新思想为什么形成新仓库</h2><p>“新互联出现，所以一定会新建代码仓”仍然不够准确。PCIe 和 RoCE 的演进恰好展示了另一条路线：尽量复用原软件模型。</p>
+<ul>
+<li>PCIe 保留 PCI 配置与编程模型，因此主要扩展既有内核 PCI 子系统和设备驱动。</li>
+<li>RoCE 保留 InfiniBand Verbs，因此能力进入 RDMA Core、内核 RDMA 子系统和厂商驱动。</li>
+<li>片内 NoC 与 HCCS 的大量实现位于 RTL、固件和闭源驱动中，也未必存在独立公开仓库。</li>
+</ul>
+<p>只有新思想越过“链路实现”边界，形成新的北向语义、资源生命周期、多后端编排或独立兼容矩阵时，才需要一个独立仓库承载。</p>
+<table>
+<thead>
+<tr>
+<th>新的软件责任</th>
+<th>公开仓库与时间</th>
+<th>为什么需要独立演进</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>统一远端内存语义</strong></td>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/openeuler/umdk"><code>openEuler/umdk</code></a>，公开历史始于 2022-08，URMA 主体于 2023-09 出现</td>
+<td>URMA、远端 Memory&#x2F;Message&#x2F;Atomic、驱动接口、RPC 和 Socket 加速形成 UB 原生软件边界</td>
+</tr>
+<tr>
+<td><strong>通信资源与 Collective 算法解耦</strong></td>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm"><code>cann/hcomm</code></a>，首个可见提交 2025-10-17</td>
+<td>Endpoint、Channel、Memory、Notify、控制面与数据面需要独立于某个 Collective 算法演进</td>
+</tr>
+<tr>
+<td><strong>Host 单边传输跨多代链路</strong></td>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl"><code>cann/hixl</code></a>，首个可见提交 2025-10-14</td>
+<td>用稳定 Engine&#x2F;Register&#x2F;Transfer API 屏蔽 HCCS、RDMA、UB、UBoE 与 FabricMem 差异</td>
+</tr>
+<tr>
+<td><strong>Device 侧对称内存与 RMA</strong></td>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem"><code>cann/shmem</code></a>，首个可见提交 2025-12-12</td>
+<td>PE、Team、对称堆、RMA、Atomic、Signal 和 Device 直驱构成完整编程模型</td>
+</tr>
+<tr>
+<td><strong>Collective 语义继续独立</strong></td>
+<td><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hccl"><code>cann/hccl</code></a></td>
+<td>AllReduce 等操作仍需要拓扑、分块、算法选择和 Executor，不会因底层统一内存语义而消失</td>
+</tr>
+</tbody></table>
+<p>这些仓库并不与五种互联一一对应。更准确的关系是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HCCL：一组 Rank 要共同完成什么</span><br><span class="line">HIXL：Host 要把哪些 Buffer 搬到哪里</span><br><span class="line">SHMEM：Device PE 要访问哪个 PE 的对称对象</span><br><span class="line">HCOMM：操作需要哪些通信域、Endpoint、Channel 和硬件资源</span><br><span class="line">UMDK / URMA：UB 上允许哪些远端内存与消息操作</span><br></pre></td></tr></table></figure>
+
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>仓库时间口径</p>
+</div>
+        <div class="message-body">
+            <p>首个公开提交只说明代码“不晚于该日公开可见”。它不能代替内部立项、闭源产品首次实现、芯片 RTL 定版或正式发布日。尤其不能因为 HCOMM、HIXL、SHMEM 在 2025 年密集开源，就断言相关需求也在 2025 年才出现。</p>
+
+        </div>
+    </article>
+
+<p>所以，新代码仓真正反映的是<strong>责任边界重画</strong>：从只提供链路和搬运，演进到稳定表达地址、权限、操作、完成、故障与多后端选择。</p>
+<h2 id="未来会统一什么"><a href="#未来会统一什么" class="headerlink" title="未来会统一什么"></a>未来会统一什么</h2><p>从当前证据看，近期最可能发生的是三条并行路径。</p>
+<h3 id="多互联继续共存"><a href="#多互联继续共存" class="headerlink" title="多互联继续共存"></a>多互联继续共存</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">片内互联：NoC</span><br><span class="line">通用接入与管理：PCIe</span><br><span class="line">A2 / A3 Scale-Up：HCCS</span><br><span class="line">Ascend 950 Scale-Up：UB</span><br><span class="line">跨超节点：UBoE 或 RoCE</span><br></pre></td></tr></table></figure>
+
+<p>新硬件会移动主路径，但已经部署的系统、驱动和交换网络不会随新协议发布而消失。描述状态时，应使用“新代际重心迁移”，而不是“旧协议已废弃”。</p>
+<h3 id="上层语义先收敛"><a href="#上层语义先收敛" class="headerlink" title="上层语义先收敛"></a>上层语义先收敛</h3><p>HCCL、HIXL 和 SHMEM 可以保持不同编程模型，HCOMM、Runtime 和 UMDK 则逐渐复用：</p>
+<ul>
+<li>内存注册、Handle、页表和权限；</li>
+<li>Endpoint、Channel、Queue 与 Completion；</li>
+<li>拓扑发现、能力查询和路径选择；</li>
+<li>故障诊断、重连与多路径资源。</li>
+</ul>
+<p>这是一种更现实的统一：<strong>应用意图稳定，底层后端可发现，真实路径可验证。</strong></p>
+<h3 id="UB-扩大系统边界"><a href="#UB-扩大系统边界" class="headerlink" title="UB 扩大系统边界"></a>UB 扩大系统边界</h3><p>如果 UB 规范、ABI、交换生态和软件工具成熟，它可能吸收更多 HCCS Scale-Up 和部分 RoCE 场景。但判断这一趋势不能只看带宽，需要观察：</p>
+<ol>
+<li>UB 是否从可选后端变为新产品默认数据面；</li>
+<li>UBoE 是否获得通用交换机和跨厂商互操作支持；</li>
+<li>URMA&#x2F;UMDK ABI 是否稳定并被更多上层框架直接采用；</li>
+<li>大规模拥塞、故障隔离、热插拔和可观测性是否达到生产要求；</li>
+<li>HCCS 是否停止获得新硬件支持，而不只是某一代产品未枚举；</li>
+<li>PCIe 是否逐步收缩到启动、管理和通用 I&#x2F;O，而不再承担主要 NPU 数据面。</li>
+</ol>
+<p>即使这些条件全部满足，NoC、PCIe 和 Ethernet PHY 仍不会消失。被统一的将是更靠上的事务、地址和资源语义，而不是不同距离上的全部物理实现。</p>
+<h2 id="怎样验证一次互联演进"><a href="#怎样验证一次互联演进" class="headerlink" title="怎样验证一次互联演进"></a>怎样验证一次互联演进</h2><p>面对新的协议名、性能数字或代码仓，可以先按一条真实路径追问，而不是立即判断“谁取代了谁”。</p>
+<ol>
+<li><strong>空间范围是什么。</strong>它服务 Die、Package、Board、Rack 还是 Cluster？</li>
+<li><strong>谁是发起者。</strong>CPU、AICPU、AIV、NIC 还是 DMA Engine？</li>
+<li><strong>地址怎样表示。</strong>本地 VA、BAR、MR&#x2F;rkey、EID&#x2F;UMMU 地址还是项目私有 Handle？</li>
+<li><strong>操作语义是什么。</strong>Memcpy、Load&#x2F;Store、RDMA Read&#x2F;Write、Message 还是 Atomic？</li>
+<li><strong>完成到哪里。</strong>本地提交、本地完成、远端内存完成还是消费者已可见？</li>
+<li><strong>真实物理路径是什么。</strong>是否依次经过本地 NoC、I&#x2F;O Die、专用链路、交换机和对端 NoC？</li>
+<li><strong>故障域是什么。</strong>链路丢包、节点复位、对端进程退出后由谁发现和恢复？</li>
+<li><strong>旧系统怎样兼容。</strong>新增的是后端、兼容层、全新 API，还是独立产品契约？</li>
+</ol>
+<p>只有这些问题的答案发生实质变化，才能判断一次演进究竟是速率升级、协议封装、软件重构，还是新的系统架构。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>回到最初的问题，PCIe、片内 NoC、HCCS、RoCE 与 UB 没有统一，并不是因为产业遗漏了一次显而易见的合并，而是因为它们面对的距离、端口规模、语义强度、故障模型和生态成本不同。</p>
+<p>现在可以确认的是：</p>
+<ul>
+<li><strong>NoC 解决芯片内部的可扩展通信；</strong></li>
+<li><strong>PCIe 保护通用 I&#x2F;O 与软件生态；</strong></li>
+<li><strong>HCCS 服务受控昇腾平台的高性能 Scale-Up；</strong></li>
+<li><strong>RoCE 用 Ethernet 承载成熟 RDMA 语义；</strong></li>
+<li><strong>UB 尝试把事务、内存语义、设备角色和资源池化提升为超节点系统协议。</strong></li>
+</ul>
+<p>仍不能确认的是 HCCS 的内部立项时间，以及部分 A3 产品中 HCCS&#x2F;SIO 与 UB 1.0 的精确协议包含关系。公开资料不足时，最稳妥的写法仍然是保留版本与产品边界。</p>
+<p>因此，观察未来互联时，真正值得追踪的不是又出现了多少新名字，而是：<strong>新的设计是否改变了地址、权限、操作、完成和故障契约；它是否形成了一个需要独立演进的软件责任。</strong>这才是新协议走向新代码仓的分界线。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://shaojiemike.top/1-ai-systems/2026/08/26/Ascend-Communication-Stack/#%E6%80%BB%E4%BD%93%E6%9E%B6%E6%9E%84">Ascend Communication Stack：总体架构</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cecs.uci.edu/~papers/compendium94-03/papers/2002/date02/pdffiles/05a_1.pdf">Luca Benini、Giovanni De Micheli：Networks on Chip</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.intel.com/pressroom/archive/releases/2002/20020417net.htm">PCI-SIG &#x2F; Intel：PCI Express 早期公告</a></li>
+<li><a target="_blank" rel="noopener" href="https://pcisig.com/what-pci-express-pcie-architecture">PCI-SIG：PCI Express Architecture</a></li>
+<li><a target="_blank" rel="noopener" href="https://www-file.huawei.com/admin/asset/v1/pro/view/6ca306adab0a4852bacffce25f5573ec.pdf">华为 Ascend 架构论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC22/developmentguide/hccl/hcclug/hcclug_000002.html">CANN：HCCS 术语定义</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.huawei.com/en/news/2020/6/atlas-900-interop-tokyo-best-of-show-award">华为 Atlas 900 互联说明</a></li>
+<li><a target="_blank" rel="noopener" href="https://infinibandta.org/infiniband-trade-association-releases-updated-specification-for-remote-direct-memory-access-over-converged-ethernet-roce/">IBTA：RoCEv2 发布公告</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.infinibandta.org/wp-content/uploads/2024/07/Demartek_IBTA_RoCE_Deployment_Guide_2018-07.pdf">IBTA：RoCE Deployment Guide</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.huawei.com/cn/news/2025/9/hc-xu-keynote-speech">华为：UnifiedBus 主题演讲</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/openeuler/umdk">openEuler UMDK</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hcomm">CANN HCOMM</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/hixl">CANN HIXL</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem">CANN SHMEM</a></li>
+<li><a target="_blank" rel="noopener" href="https://ualinkconsortium.org/wp-content/uploads/2025/04/UALink-1.0-White_Paper_FINAL_UPDATED.pdf">UALink 1.0 White Paper</a></li>
+</ol>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Ascend Interconnect Evolution</p><p><a href="http://icarus.shaojiemike.top/2026/08/27/Work/Artificial Intelligence/AIInfra/Ascend-Interconnect-Evolution/">http://icarus.shaojiemike.top/2026/08/27/Work/Artificial Intelligence/AIInfra/Ascend-Interconnect-Evolution/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-27</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-28</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/PCIe/">PCIe</a><a class="link-muted mr-2" rel="tag" href="/tags/NoC/">NoC</a><a class="link-muted mr-2" rel="tag" href="/tags/RoCE/">RoCE</a><a class="link-muted mr-2" rel="tag" href="/tags/HCCS/">HCCS</a><a class="link-muted mr-2" rel="tag" href="/tags/UnifiedBus/">UnifiedBus</a><a class="link-muted mr-2" rel="tag" href="/tags/Scale-Up/">Scale-Up</a><a class="link-muted mr-2" rel="tag" href="/tags/Scale-Out/">Scale-Out</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Mooncake-TENT-Request-Path/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Mooncake TENT Request Path</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Communication-Runtime-Evolution/"><span class="level-item">Ascend Communication Runtime Evolution</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">622</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">51</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">950</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#一条不存在的替换链"><span class="level-left"><span class="level-item">1</span><span class="level-item">一条不存在的替换链</span></span></a></li><li><a class="level is-mobile" href="#物理约束不会消失"><span class="level-left"><span class="level-item">2</span><span class="level-item">物理约束不会消失</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#距离改变一切"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">距离改变一切</span></span></a></li><li><a class="level is-mobile" href="#端口数量限制-Full-Mesh"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">端口数量限制 Full Mesh</span></span></a></li><li><a class="level is-mobile" href="#一致性不能无限外推"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">一致性不能无限外推</span></span></a></li><li><a class="level is-mobile" href="#专用效率与开放兼容冲突"><span class="level-left"><span class="level-item">2.4</span><span class="level-item">专用效率与开放兼容冲突</span></span></a></li></ul></li><li><a class="level is-mobile" href="#五种互联怎样形成"><span class="level-left"><span class="level-item">3</span><span class="level-item">五种互联怎样形成</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#NoC：先把芯片变成网络"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">NoC：先把芯片变成网络</span></span></a></li><li><a class="level is-mobile" href="#PCIe：先保护软件投资"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">PCIe：先保护软件投资</span></span></a></li><li><a class="level is-mobile" href="#RoCE：保留-RDMA，替换承载网络"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">RoCE：保留 RDMA，替换承载网络</span></span></a></li><li><a class="level is-mobile" href="#HCCS：为昇腾-Scale-Up-做专用协同"><span class="level-left"><span class="level-item">3.4</span><span class="level-item">HCCS：为昇腾 Scale-Up 做专用协同</span></span></a></li><li><a class="level is-mobile" href="#UB：把互联提升为系统协议"><span class="level-left"><span class="level-item">3.5</span><span class="level-item">UB：把互联提升为系统协议</span></span></a></li></ul></li><li><a class="level is-mobile" href="#放进同一坐标系"><span class="level-left"><span class="level-item">4</span><span class="level-item">放进同一坐标系</span></span></a></li><li><a class="level is-mobile" href="#新思想为什么形成新仓库"><span class="level-left"><span class="level-item">5</span><span class="level-item">新思想为什么形成新仓库</span></span></a></li><li><a class="level is-mobile" href="#未来会统一什么"><span class="level-left"><span class="level-item">6</span><span class="level-item">未来会统一什么</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#多互联继续共存"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">多互联继续共存</span></span></a></li><li><a class="level is-mobile" href="#上层语义先收敛"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">上层语义先收敛</span></span></a></li><li><a class="level is-mobile" href="#UB-扩大系统边界"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">UB 扩大系统边界</span></span></a></li></ul></li><li><a class="level is-mobile" href="#怎样验证一次互联演进"><span class="level-left"><span class="level-item">7</span><span class="level-item">怎样验证一次互联演进</span></span></a></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">8</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">9</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">39</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">42</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-28T02:30:00.000Z">2026-08-28</time></p><p class="title"><a href="/2026/08/28/Work/Artificial%20Intelligence/AIInfra/Mooncake-Codebase-Architecture/">Mooncake Codebase Architecture</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-27T13:30:00.000Z">2026-08-27</time></p><p class="title"><a href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/SHMEM-Symmetric-Memory/">SHMEM Symmetric Memory</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-27T10:00:00.000Z">2026-08-27</time></p><p class="title"><a href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Mooncake-TENT-Request-Path/">Mooncake TENT Request Path</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-27T08:41:34.000Z">2026-08-27</time></p><p class="title"><a href="/2026/08/27/Work/Artificial%20Intelligence/AIInfra/Ascend-Interconnect-Evolution/">Ascend Interconnect Evolution</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">46</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Chip/"><span class="tag">AI Chip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
