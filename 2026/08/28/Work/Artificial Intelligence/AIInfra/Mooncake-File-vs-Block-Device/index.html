@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Mooncake File vs Block Device - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       我最开始想确认的是一个很具体的问题：Mooncake Classic TE 和 TENT 打开的究竟都是文件系统普通文件，还是也能把 &amp;#x2F;dev&amp;#x2F;nvme0n1 这样的 SSD 裸块设备交给 GDS？源码里两边都会调用 open(path, O_DIRECT)，NVIDIA cuFile 又确实接受 device fd，看起来答案应"><meta property="og:type" content="blog"><meta property="og:title" content="Mooncake File vs Block Device"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/28/Work/Artificial%20Intelligence/AIInfra/Mooncake-File-vs-Block-Device/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       我最开始想确认的是一个很具体的问题：Mooncake Classic TE 和 TENT 打开的究竟都是文件系统普通文件，还是也能把 &amp;#x2F;dev&amp;#x2F;nvme0n1 这样的 SSD 裸块设备交给 GDS？源码里两边都会调用 open(path, O_DIRECT)，NVIDIA cuFile 又确实接受 device fd，看起来答案应"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-08-28T09:30:00.000Z"><meta property="article:modified_time" content="2026-08-29T02:51:38.632Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="MOONCAKE"><meta property="article:tag" content="GDS"><meta property="article:tag" content="TRANSFER ENGINE"><meta property="article:tag" content="TENT"><meta property="article:tag" content="NVMEOF"><meta property="article:tag" content="CUFILE"><meta property="article:tag" content="BLOCK DEVICE"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/28/Work/Artificial%20Intelligence/AIInfra/Mooncake-File-vs-Block-Device/"},"headline":"Mooncake File vs Block Device","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-08-28T09:30:00.000Z","dateModified":"2026-08-29T02:51:38.632Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       我最开始想确认的是一个很具体的问题：Mooncake Classic TE 和 TENT 打开的究竟都是文件系统普通文件，还是也能把 &#x2F;dev&#x2F;nvme0n1 这样的 SSD 裸块设备交给 GDS？源码里两边都会调用 open(path, O_DIRECT)，NVIDIA cuFile 又确实接受 device fd，看起来答案应"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/28/Work/Artificial%20Intelligence/AIInfra/Mooncake-File-vs-Block-Device/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-28T09:30:00.000Z" title="8/28/2026, 9:30:00 AM">2026-08-28</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-29T02:51:38.632Z" title="8/29/2026, 2:51:38 AM">2026-08-29</time></span><span class="level-item"><a class="link-muted" href="/categories/1-Infer/">1-Infer</a></span><span class="level-item">37 minutes read (About 5584 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Mooncake File vs Block Device</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>我最开始想确认的是一个很具体的问题：Mooncake Classic TE 和 TENT 打开的究竟都是文件系统普通文件，还是也能把 <code>/dev/nvme0n1</code> 这样的 SSD 裸块设备交给 GDS？源码里两边都会调用 <code>open(path, O_DIRECT)</code>，NVIDIA cuFile 又确实接受 device fd，看起来答案应该是“可以”。继续向上追到 Segment 层后，结论却发生了分叉。</p>
+<p>这篇文章把这条调用链从头串起来：先解释普通文件、块设备、<code>S_ISREG</code> 与 <code>S_ISBLK</code>，再看 GDS 提供了什么 API、Mooncake 实际用了什么，最后落到 <code>cuFileBatchIOSubmit</code> 的同一组参数为什么在两个场景里具有不同含义。核心判断是：<strong>GDS 统一了 I&#x2F;O 接口，却没有替 Mooncake 补上块设备的容量、对齐、越界和独占语义。</strong></p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<p>本文分别核对 Classic TE 提交 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/commit/468fbf6397c975367b776f16e41a87264a3440a6"><code>468fbf63</code></a>、TENT 提交 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/commit/89da2c3a48fca9715a832b66051bb492adf7b35a"><code>89da2c3a</code></a> 和 2026-08-28 的 <code>main</code> 提交 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/commit/0518784d486eefa4343ef38b69b1dccd96b1bad4"><code>0518784d</code></a>。下述关键判断在三个相应代码截面中保持一致。TENT 的全称是 <strong>Transfer Engine NEXT</strong>，是 Classic TE 的后继运行时，见<a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/0518784d486eefa4343ef38b69b1dccd96b1bad4/docs/source/design/tent/overview.md#L1-L6">官方概览</a>。</p>
+<h2 id="两条路径不是同一种对象"><a href="#两条路径不是同一种对象" class="headerlink" title="两条路径不是同一种对象"></a>两条路径不是同一种对象</h2><p>最容易误判的地方，是 <code>/mnt/nvme/segment.bin</code> 和 <code>/dev/nvme0n1</code> 看起来都只是一个字符串，也都能传给 <code>open(2)</code>。但 pathname 只是门牌号，门后面的对象并不相同。</p>
+<p>可以先用图书馆建立直觉：</p>
+<ul>
+<li><strong>普通文件</strong>像借阅系统里的一本书。应用按文件名、文件内页码读写，文件系统负责把“第几页”映射到 SSD 上真正的数据块。</li>
+<li><strong>裸块设备</strong>像绕过借阅系统，直接进入仓库按货架编号取放纸张。没有文件名、目录、inode，也没有文件系统替应用保护元数据。</li>
+<li><strong>文件系统所在 SSD</strong>只是介质相同。打开 <code>/mnt/nvme/segment.bin</code>，并不等于直接打开承载它的 <code>/dev/nvme0n1</code>。</li>
+</ul>
+<p>更准确地说：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>内核类型</th>
+<th>容量来源</th>
+<th>偏移含义</th>
+<th>写入风险</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/mnt/nvme/segment.bin</code></td>
+<td>普通文件，<code>S_ISREG</code></td>
+<td><code>st_size</code></td>
+<td>从文件开头计算</td>
+<td>文件系统管理文件映射与空间</td>
+</tr>
+<tr>
+<td><code>/dev/nvme0n1</code></td>
+<td>块特殊文件，<code>S_ISBLK</code></td>
+<td><code>BLKGETSIZE64</code></td>
+<td>从整块设备开头计算</td>
+<td>可直接覆盖分区表、文件系统和已有数据</td>
+</tr>
+<tr>
+<td><code>/dev/nvme0n1p1</code></td>
+<td>块特殊文件，<code>S_ISBLK</code></td>
+<td><code>BLKGETSIZE64</code></td>
+<td>从该分区开头计算</td>
+<td>可直接破坏该分区内容</td>
+</tr>
+</tbody></table>
+<p><code>S_ISREG</code> 和 <code>S_ISBLK</code> 不是文件，也不是 GDS API。它们是检查 <code>stat</code> 结果中 <code>st_mode</code> 类型位的宏：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">stat</span> st;</span><br><span class="line"><span class="built_in">stat</span>(path.<span class="built_in">c_str</span>(), &amp;st);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">S_ISREG</span>(st.st_mode)) &#123;</span><br><span class="line">    <span class="comment">// 普通文件</span></span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">S_ISBLK</span>(st.st_mode)) &#123;</span><br><span class="line">    <span class="comment">// 块设备节点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因此，“传入的是一个路径”不等于“只支持 filesystem file”，而“底层 cuFile 接受 device file”也不等于 Mooncake 的上层 Segment API 已经接通块设备。</p>
+<h2 id="结论矩阵"><a href="#结论矩阵" class="headerlink" title="结论矩阵"></a>结论矩阵</h2><table>
+<thead>
+<tr>
+<th>路径</th>
+<th align="right">普通文件</th>
+<th align="right"><code>/dev/nvme*</code> 裸块设备</th>
+<th>判断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Classic TE 官方 NVMeoF SOP</td>
+<td align="right">支持</td>
+<td align="right">未形成一等支持</td>
+<td>文档要求先挂载，注册工具按普通文件读取长度</td>
+</tr>
+<tr>
+<td>Classic <code>NVMeoFTransport</code> 数据面</td>
+<td align="right">支持</td>
+<td align="right"><strong>代码上没有主动排除</strong></td>
+<td>直接 <code>open(O_DIRECT)</code> 后注册 cuFile handle，但缺少块设备容量、校验和专门测试</td>
+</tr>
+<tr>
+<td>TENT <code>file://</code> Segment</td>
+<td align="right">支持</td>
+<td align="right"><strong>明确拒绝</strong></td>
+<td><code>stat</code> 后强制 <code>S_ISREG</code></td>
+</tr>
+<tr>
+<td>TENT <code>GdsTransport</code> 类内部</td>
+<td align="right">支持</td>
+<td align="right">cuFile 层理论可接收 device fd</td>
+<td>正常调用在进入该类之前已经被 Segment 校验拦截</td>
+</tr>
+<tr>
+<td>TENT <code>IOUringTransport</code> 类内部</td>
+<td align="right">支持</td>
+<td align="right">Linux I&#x2F;O 层理论可打开</td>
+<td>同样被 <code>file://</code> Segment 校验拦截，且没有块容量与对齐建模</td>
+</tr>
+<tr>
+<td>NVIDIA cuFile API</td>
+<td align="right">支持</td>
+<td align="right">API 契约允许 device file&#x2F;raw device file</td>
+<td>实际 direct path 仍取决于 CUDA&#x2F;GDS、驱动、设备、权限和配置</td>
+</tr>
+</tbody></table>
+<p>这里的“代码上没有主动排除”不应表述成“Mooncake 已正式支持”。正式支持至少还需要公开建模、容量发现、边界校验、对齐处理、错误语义和硬件测试。</p>
+<h2 id="Classic-TE-的真实边界"><a href="#Classic-TE-的真实边界" class="headerlink" title="Classic TE 的真实边界"></a>Classic TE 的真实边界</h2><p>Classic 的 <code>NVMeoFTransport</code> 从 Segment 元数据的 <code>local_path_map</code> 取得当前机器上的路径，然后创建 <code>CuFileContext</code>。构造函数只做三件事：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = <span class="built_in">open</span>(filename, O_RDWR | O_DIRECT);</span><br><span class="line">desc.type = CU_FILE_HANDLE_TYPE_OPAQUE_FD;</span><br><span class="line">desc.handle.fd = fd;</span><br><span class="line"><span class="built_in">cuFileHandleRegister</span>(&amp;handle, &amp;desc);</span><br></pre></td></tr></table></figure>
+
+<p>这段代码见 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/468fbf6397c975367b776f16e41a87264a3440a6/mooncake-transfer-engine/include/transport/nvmeof_transport/cufile_context.h#L67-L74"><code>cufile_context.h:67-74</code></a>。它没有执行 <code>stat</code>，也没有检查 <code>S_ISREG</code>，所以<strong>数据面本身不会因为路径是块设备节点而主动拒绝它</strong>。</p>
+<p>但是，Classic 的公开使用方式明显围绕普通文件设计：</p>
+<ol>
+<li>官方设计文档写的是先把远端存储挂载到本机，再传入文件路径，示例也是 <code>/mnt/.../nvme0</code>，见 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/0518784d486eefa4343ef38b69b1dccd96b1bad4/docs/source/design/transfer-engine/index.md#L29-L30"><code>transfer-engine/index.md:29-30</code></a> 与 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/0518784d486eefa4343ef38b69b1dccd96b1bad4/docs/source/design/transfer-engine/index.md#L221-L245"><code>221-245</code></a>。</li>
+<li><code>register.py</code> 使用 <code>os.path.getsize(file)</code> 生成 <code>buffer.length</code>，随后把同一路径写入 <code>file_path</code> 与 <code>local_path_map</code>，见 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/468fbf6397c975367b776f16e41a87264a3440a6/mooncake-transfer-engine/scripts/register.py#L41-L49"><code>register.py:41-49</code></a>。脚本没有使用块设备容量查询接口。</li>
+<li><code>NVMeoFBufferDesc.length</code> 完全来自元数据，传输时靠它把逻辑 Segment 切成文件区间；底层 transport 不会为块设备重新发现容量，见 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/0518784d486eefa4343ef38b69b1dccd96b1bad4/mooncake-transfer-engine/src/transfer_metadata.cpp#L979-L989"><code>transfer_metadata.cpp:979-989</code></a>。</li>
+</ol>
+<p>所以 Classic 应分成两句话描述：</p>
+<ul>
+<li><strong>官方和开箱即用路径</strong>：打开已挂载文件系统中的普通文件；</li>
+<li><strong>核心数据面潜力</strong>：如果人工构造正确的 Segment 长度与 <code>/dev/nvme*</code> 路径，并且当前 cuFile 环境接受该设备文件，现有代码没有 <code>S_ISREG</code> 阻止它；但这属于未完整建模、未见专门测试覆盖的路径。</li>
+</ul>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>Classic 的绕过路径不是安全承诺</p>
+</div>
+        <div class="message-body">
+            <p>对整盘或分区设备执行 <code>WRITE</code> 会直接覆盖 LBA，可能破坏分区表、文件系统或已有数据。没有独占、容量和边界保护的情况下，不应仅因为 <code>open</code> 与 <code>cuFileHandleRegister</code> 成功就把它用于生产。</p>
+
+        </div>
+    </article>
+
+<h2 id="TENT-在-transport-前拒绝块设备"><a href="#TENT-在-transport-前拒绝块设备" class="headerlink" title="TENT 在 transport 前拒绝块设备"></a>TENT 在 transport 前拒绝块设备</h2><p>TENT 对本地文件使用 <code>file://</code> Segment。真正解析 Segment 时，<code>SegmentManager::makeFileRemote</code> 会去掉前缀、执行 <code>stat</code>，随后要求路径必须满足 <code>S_ISREG</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">stat</span> st;</span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">stat</span>(path.<span class="built_in">c_str</span>(), &amp;st) || !<span class="built_in">S_ISREG</span>(st.st_mode))</span><br><span class="line">    <span class="keyword">return</span> Status::<span class="built_in">InvalidArgument</span>(<span class="string">&quot;Invalid path: &quot;</span> + path);</span><br><span class="line"></span><br><span class="line">buffer.path = path;</span><br><span class="line">buffer.length = st.st_size;</span><br></pre></td></tr></table></figure>
+
+<p>见 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/89da2c3a48fca9715a832b66051bb492adf7b35a/mooncake-transfer-engine/tent/src/runtime/segment_manager.cpp#L192-L217"><code>segment_manager.cpp:192-217</code></a>。因此：</p>
+<ol>
+<li><code>openSegment(&quot;file:///dev/nvme0n1&quot;)</code> 创建 handle 时可能暂时不报错，因为 <code>openRemote</code> 先只登记名字；</li>
+<li>第一次解析或提交该 Segment 时会进入 <code>makeFileRemote</code>；</li>
+<li>块设备满足 <code>S_ISBLK</code> 而不是 <code>S_ISREG</code>，所以返回 <code>InvalidArgument</code>；</li>
+<li>GDS 与 io_uring selector 都拿不到一个有效的 <code>FileSegmentDesc</code>。</li>
+</ol>
+<p>这是一条<strong>确定的源码结论</strong>：当前 TENT 公开 File Segment 不支持 SSD 裸块设备。</p>
+<h2 id="TENT-GDS-为什么看起来又能打开"><a href="#TENT-GDS-为什么看起来又能打开" class="headerlink" title="TENT GDS 为什么看起来又能打开"></a>TENT GDS 为什么看起来又能打开</h2><p>如果只阅读 <code>GdsFileContext</code>，很容易得出相反结论。它与 Classic 几乎相同：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = <span class="built_in">open</span>(path.<span class="built_in">c_str</span>(), O_RDWR | O_DIRECT);</span><br><span class="line">desc_.type = CU_FILE_HANDLE_TYPE_OPAQUE_FD;</span><br><span class="line">desc_.handle.fd = fd;</span><br><span class="line"><span class="built_in">cuFileHandleRegister</span>(&amp;handle_, &amp;desc_);</span><br></pre></td></tr></table></figure>
+
+<p>见 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/89da2c3a48fca9715a832b66051bb492adf7b35a/mooncake-transfer-engine/tent/src/transport/gds/gds_transport.cpp#L32-L49"><code>gds_transport.cpp:32-49</code></a>。该类没有再次执行 <code>S_ISREG</code>，所以单独看它，普通文件与设备节点都可能产生 fd。</p>
+<p>问题在于 <code>GdsTransport::findFileContext</code> 的路径只能来自 <code>SegmentType::File</code> 的 <code>FileSegmentDesc</code>，见 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/89da2c3a48fca9715a832b66051bb492adf7b35a/mooncake-transfer-engine/tent/src/transport/gds/gds_transport.cpp#L404-L435"><code>gds_transport.cpp:404-435</code></a>。正常 <code>file://</code> 入口创建这个 descriptor 时已经通过 <code>S_ISREG</code> 筛选。</p>
+<p>因此更准确的回答是：</p>
+<blockquote>
+<p><strong>NVIDIA cuFile 和 TENT 的 <code>GdsFileContext</code> 具备接收 device fd 的底层形态，但 Mooncake TENT 的公开 Segment 层没有把 SSD 块设备放行，所以当前 TENT GDS 不支持直接打开裸 SSD 块设备。</strong></p>
+</blockquote>
+<p>TENT 的 <code>IOUringTransport</code> 也一样。它先尝试 <code>open(path, O_RDWR | O_DIRECT)</code>，失败后才回退到普通 <code>O_RDWR</code>，见 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/89da2c3a48fca9715a832b66051bb492adf7b35a/mooncake-transfer-engine/tent/src/transport/io_uring/io_uring_transport.cpp#L33-L50"><code>io_uring_transport.cpp:33-50</code></a>；但路径同样只能来自已经通过普通文件检查的 <code>FileSegmentDesc</code>。即便绕过元数据注入设备路径，当前实现也没有为块设备补充容量发现和完整的 offset&#x2F;length 对齐校验，不能算现成支持。</p>
+<h2 id="cuFile-底层是否支持-device-file"><a href="#cuFile-底层是否支持-device-file" class="headerlink" title="cuFile 底层是否支持 device file"></a>cuFile 底层是否支持 device file</h2><p>NVIDIA 当前 cuFile API 文档对 <code>cuFileHandleRegister</code> 的错误定义说明：路径既可以是 regular file，也可以是 symbolic link 或 device file；不属于这些类型时才返回 <code>CU_FILE_INVALID_FILE_TYPE</code>。同时，GDS Overview 在 cuFile Batch API 的 VFS 路径描述中明确包含 raw device files。</p>
+<p>开源 <code>gds-nvidia-fs</code> 的实现进一步排除了“文档只是泛指设备文件”的疑问：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/NVIDIA/gds-nvidia-fs/blob/328d1d8cce1175c013720985c30e123e9a35242c/src/nvfs-core.h#L255-L263"><code>nvfs-core.h:255-263</code></a> 对 <code>S_ISBLK</code> 使用 <code>inode-&gt;i_rdev</code> 取得块设备 major&#x2F;minor；</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/NVIDIA/gds-nvidia-fs/blob/328d1d8cce1175c013720985c30e123e9a35242c/src/nvfs-core.c#L1663-L1670"><code>nvfs-core.c:1663-1670</code></a> 在 I&#x2F;O 初始化阶段显式识别 block device file；</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/NVIDIA/gds-nvidia-fs/blob/328d1d8cce1175c013720985c30e123e9a35242c/src/nvfs-core.c#L1738-L1744"><code>nvfs-core.c:1738-1744</code></a> 要求该数据路径上的 fd 带 <code>O_DIRECT</code>；</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/NVIDIA/gds-nvidia-fs/blob/328d1d8cce1175c013720985c30e123e9a35242c/src/nvfs-core.c#L2007-L2012"><code>nvfs-core.c:2007-2012</code></a> 对 raw block device file 明确跳过普通文件的 <code>fallocate</code> 检查。</li>
+</ul>
+<p>这意味着<strong>cuFile API 层并不天然排斥裸设备节点</strong>。不过，能注册 handle、能完成 I&#x2F;O、能走真正的 GPU Direct Storage direct path 是三个不同层次：</p>
+<ul>
+<li>设备与驱动必须被当前 CUDA&#x2F;GDS 版本支持；</li>
+<li><code>O_DIRECT</code>、offset、长度和 buffer 需要满足实际路径的约束；</li>
+<li>容器需要暴露对应 <code>/dev</code> 节点与权限；</li>
+<li><code>cufile.json</code> 的兼容模式、设备黑名单和挂载配置会改变路径选择；</li>
+<li>不支持 direct path 时可能失败，也可能进入 compatibility path，取决于配置与 API 场景。</li>
+</ul>
+<p>因此，NVIDIA 的能力只能证明“Mooncake 可以设计这种后端”，不能替 Mooncake 当前的 Segment 校验补上公开支持。</p>
+<h2 id="GDS-基础-API-与-Mooncake-使用情况"><a href="#GDS-基础-API-与-Mooncake-使用情况" class="headerlink" title="GDS 基础 API 与 Mooncake 使用情况"></a>GDS 基础 API 与 Mooncake 使用情况</h2><p>GDS 没有单独的 <code>cuFileOpenBlockDevice</code> 或 <code>cuFileReadBlock</code>。它采用的是一套<strong>基于文件描述符的统一接口</strong>：应用先用 Linux <code>open</code> 打开普通文件或块设备节点，再把得到的 fd 包装成 <code>CU_FILE_HANDLE_TYPE_OPAQUE_FD</code> 并注册给 cuFile。此后的同步、批量或 CUDA Stream I&#x2F;O 接口不因对象是普通文件还是块设备而改名。</p>
+<p>最小同步读取流程可以概括为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = <span class="built_in">open</span>(<span class="string">&quot;/dev/nvme0n1&quot;</span>, O_RDWR | O_DIRECT);  <span class="comment">// Linux API</span></span><br><span class="line"></span><br><span class="line">CUfileDescr_t desc&#123;&#125;;</span><br><span class="line">desc.type = CU_FILE_HANDLE_TYPE_OPAQUE_FD;</span><br><span class="line">desc.handle.fd = fd;</span><br><span class="line"></span><br><span class="line">CUfileHandle_t handle;</span><br><span class="line"><span class="built_in">cuFileHandleRegister</span>(&amp;handle, &amp;desc);               <span class="comment">// cuFile API</span></span><br><span class="line"><span class="built_in">cuFileRead</span>(handle, gpu_buffer, length, device_offset, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">cuFileHandleDeregister</span>(handle);</span><br><span class="line"><span class="built_in">close</span>(fd);</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>BLKGETSIZE64</code>、<code>BLKSSZGET</code> 和 <code>STATX_DIOALIGN</code> 都属于 <strong>Linux 的设备发现与 direct-I&#x2F;O 约束接口</strong>，不是 NVIDIA GDS API。它们负责回答“设备多大、怎样对齐”；cuFile 负责回答“怎样在 GPU buffer 与已经打开的 fd 之间搬数据”。</p>
+<table>
+<thead>
+<tr>
+<th>功能层</th>
+<th>主要 API</th>
+<th align="right">Classic <code>NVMeoFTransport</code></th>
+<th align="right">TENT <code>GdsTransport</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>驱动会话</td>
+<td><code>cuFileDriverOpen</code>、<code>cuFileDriverClose</code></td>
+<td align="right">调用 <code>Open</code>，未见 <code>Close</code></td>
+<td align="right">调用 <code>Open</code>，未见 <code>Close</code></td>
+</tr>
+<tr>
+<td>fd 注册</td>
+<td><code>cuFileHandleRegister</code>、<code>cuFileHandleDeregister</code></td>
+<td align="right">已使用</td>
+<td align="right">已使用</td>
+</tr>
+<tr>
+<td>GPU buffer 注册</td>
+<td><code>cuFileBufRegister</code>、<code>cuFileBufDeregister</code></td>
+<td align="right">已使用</td>
+<td align="right">已使用</td>
+</tr>
+<tr>
+<td>同步 I&#x2F;O</td>
+<td><code>cuFileRead</code>、<code>cuFileWrite</code></td>
+<td align="right">未使用</td>
+<td align="right">未使用</td>
+</tr>
+<tr>
+<td>批量 I&#x2F;O</td>
+<td><code>cuFileBatchIOSetUp</code>、<code>Submit</code>、<code>GetStatus</code>、<code>Cancel</code>、<code>Destroy</code></td>
+<td align="right"><strong>已使用</strong></td>
+<td align="right"><strong>已使用</strong></td>
+</tr>
+<tr>
+<td>CUDA Stream I&#x2F;O</td>
+<td><code>cuFileStreamRegister</code>、<code>cuFileReadAsync</code>、<code>cuFileWriteAsync</code>、<code>cuFileStreamDeregister</code></td>
+<td align="right">未使用</td>
+<td align="right">未使用</td>
+</tr>
+<tr>
+<td>能力与配置</td>
+<td><code>cuFileDriverGetProperties</code>、P2P flag 等接口</td>
+<td align="right">未见使用</td>
+<td align="right">未见使用</td>
+</tr>
+<tr>
+<td>块设备容量与对齐</td>
+<td><code>BLKGETSIZE64</code>、<code>BLKSSZGET</code>、<code>STATX_DIOALIGN</code></td>
+<td align="right">未使用</td>
+<td align="right">未使用</td>
+</tr>
+</tbody></table>
+<p>Mooncake 实际选择的是 <strong>cuFile Batch API</strong>：先创建 batch handle，提交多条 I&#x2F;O，再轮询完成状态，必要时取消，最后销毁。Classic 的调用分别位于 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/0518784d486eefa4343ef38b69b1dccd96b1bad4/mooncake-transfer-engine/src/transport/nvmeof_transport/nvmeof_transport.cpp"><code>nvmeof_transport.cpp</code></a>、<a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/0518784d486eefa4343ef38b69b1dccd96b1bad4/mooncake-transfer-engine/include/transport/nvmeof_transport/cufile_context.h"><code>cufile_context.h</code></a> 与 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/0518784d486eefa4343ef38b69b1dccd96b1bad4/mooncake-transfer-engine/src/transport/nvmeof_transport/cufile_desc_pool.cpp"><code>cufile_desc_pool.cpp</code></a>；TENT 的对应调用集中在 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/0518784d486eefa4343ef38b69b1dccd96b1bad4/mooncake-transfer-engine/tent/src/transport/gds/gds_transport.cpp"><code>gds_transport.cpp</code></a>。</p>
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>底层 API 已有，上层块设备语义仍缺失</p>
+</div>
+        <div class="message-body">
+            <p>NVIDIA 已经提供让 raw block device fd 参与 GDS I&#x2F;O 的基础能力，Mooncake 也已经使用了这套 fd 注册与批量 I&#x2F;O API。但当前 Mooncake 没有使用块设备容量、对齐、越界和独占管理接口；TENT 还在进入 GDS transport 前要求 <code>S_ISREG</code>。所以“cuFile 基础 API 已有”与“Mooncake 已完整支持裸块设备”是两个不同结论。</p>
+
+        </div>
+    </article>
+
+<h2 id="同一个-Batch-参数为何含义不同"><a href="#同一个-Batch-参数为何含义不同" class="headerlink" title="同一个 Batch 参数为何含义不同"></a>同一个 Batch 参数为何含义不同</h2><p>顺着 API 继续追，会遇到一个自然的问题：既然普通文件和块设备都调用 <code>cuFileBatchIOSubmit</code>，它们提交的参数到底有什么区别？</p>
+<p>接口本身没有区别：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">CUfileError_t <span class="title">cuFileBatchIOSubmit</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    CUfileBatchHandle_t batch_id,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">unsigned</span> nr,</span></span></span><br><span class="line"><span class="params"><span class="function">    CUfileIOParams_t* iocbp,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">unsigned</span> flags)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>batch_id</code> 都表示批量队列，<code>nr</code> 都表示请求数，<code>flags</code> 当前都传 <code>0</code>。真正描述每条 I&#x2F;O 的是 <code>iocbp</code> 指向的 <code>CUfileIOParams_t</code> 数组：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">CUfileIOParams</span> &#123;</span><br><span class="line">    CUfileBatchMode_t mode;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        <span class="keyword">struct</span> &#123;</span><br><span class="line">            <span class="type">void</span>*  devPtr_base;</span><br><span class="line">            <span class="type">off_t</span>  file_offset;</span><br><span class="line">            <span class="type">off_t</span>  devPtr_offset;</span><br><span class="line">            <span class="type">size_t</span> size;</span><br><span class="line">        &#125; batch;</span><br><span class="line">    &#125; u;</span><br><span class="line"></span><br><span class="line">    CUfileHandle_t fh;</span><br><span class="line">    CUfileOpcode_t opcode;</span><br><span class="line">    <span class="type">void</span>* cookie;</span><br><span class="line">&#125; CUfileIOParams_t;</span><br></pre></td></tr></table></figure>
+
+<p>逐项对齐后，差异其实很集中：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>普通文件</th>
+<th>裸块设备</th>
+<th>差异</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>mode</code></td>
+<td><code>CUFILE_BATCH</code></td>
+<td><code>CUFILE_BATCH</code></td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>opcode</code></td>
+<td><code>CUFILE_READ</code> 或 <code>CUFILE_WRITE</code></td>
+<td>相同</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>devPtr_base</code></td>
+<td>GPU buffer 地址</td>
+<td>GPU buffer 地址</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>devPtr_offset</code></td>
+<td>GPU buffer 内偏移</td>
+<td>GPU buffer 内偏移</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>传输字节数</td>
+<td>传输字节数</td>
+<td>字段相同，合法约束可能不同</td>
+</tr>
+<tr>
+<td><code>cookie</code></td>
+<td>请求标识</td>
+<td>请求标识</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>fh</code></td>
+<td>普通文件 fd 注册出的 handle</td>
+<td>块设备 fd 注册出的 handle</td>
+<td><strong>对象不同</strong></td>
+</tr>
+<tr>
+<td><code>file_offset</code></td>
+<td>从文件开头计算的字节偏移</td>
+<td>从设备或分区开头计算的字节偏移</td>
+<td><strong>坐标系不同</strong></td>
+</tr>
+</tbody></table>
+<p>例如，两边都提交 <code>file_offset = 1 MiB</code>、<code>size = 4 KiB</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">普通文件 /mnt/cache.bin</span><br><span class="line">    文件开头 + 1 MiB</span><br><span class="line">        ↓</span><br><span class="line">    文件系统把文件偏移映射到 extent 和 SSD 数据块</span><br><span class="line"></span><br><span class="line">裸设备 /dev/nvme0n1</span><br><span class="line">    整块设备开头 + 1 MiB</span><br><span class="line">        ↓</span><br><span class="line">    Linux 块层访问对应设备区域</span><br></pre></td></tr></table></figure>
+
+<p>字段仍叫 <code>file_offset</code>，但更贴切的理解是“<strong>当前 handle 所代表对象内的字节偏移</strong>”。cuFile 不需要在 <code>cuFileBatchIOSubmit</code> 时再接收一个 <code>is_block_device</code> 参数，因为 <code>fh</code> 是由前面的 fd 注册而来，对象类型已经确定。</p>
+<p>Mooncake TENT 当前组装参数的方式也印证了这一点：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">params.mode = CUFILE_BATCH;</span><br><span class="line">params.opcode =</span><br><span class="line">    request.opcode == Request::READ ? CUFILE_READ : CUFILE_WRITE;</span><br><span class="line">params.u.batch.devPtr_base = request.source;</span><br><span class="line">params.u.batch.devPtr_offset = offset;</span><br><span class="line">params.u.batch.file_offset = request.target_offset + offset;</span><br><span class="line">params.u.batch.size = length;</span><br><span class="line">params.fh = context-&gt;<span class="built_in">getHandle</span>();</span><br><span class="line"></span><br><span class="line"><span class="built_in">cuFileBatchIOSubmit</span>(batch_handle, num_params, params_array, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>见 <a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/0518784d486eefa4343ef38b69b1dccd96b1bad4/mooncake-transfer-engine/tent/src/transport/gds/gds_transport.cpp#L459-L484"><code>gds_transport.cpp:459-484</code></a>。如果未来增加 <code>block://</code>，这段提交代码可能几乎不用改：<code>fh</code> 换成块设备 fd 注册的 handle，<code>target_offset</code> 改为设备地址空间中的偏移即可。</p>
+<p>真正不能省略的改动仍在提交之前。普通文件用 <code>st_size</code> 建立边界；块设备要查询容量和对齐，还要确保它没有被文件系统或其他写者同时使用。统一接口消除了数据搬运代码的分叉，却不会自动消除存储对象的语义差异。</p>
+<h2 id="真正接入块设备需要什么"><a href="#真正接入块设备需要什么" class="headerlink" title="真正接入块设备需要什么"></a>真正接入块设备需要什么</h2><p>不能只把 <code>!S_ISREG</code> 删除。Linux 把普通读写之外的设备控制操作统一放在 <code>ioctl</code> 一类接口中，可以把它理解成“拿着已经打开的 fd，向对应驱动询问或下达一条设备命令”。这次涉及的几个名字分别回答不同问题：</p>
+<table>
+<thead>
+<tr>
+<th>接口或检查</th>
+<th>回答的问题</th>
+<th>Mooncake 为什么需要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>BLKGETSIZE64</code></td>
+<td>这个块设备总共有多少字节？</td>
+<td>建立 Segment 容量，不能沿用普通文件的 <code>st_size</code></td>
+</tr>
+<tr>
+<td><code>BLKSSZGET</code></td>
+<td>这个设备的逻辑块大小是多少？</td>
+<td>建立 offset 与 length 的基本对齐要求</td>
+</tr>
+<tr>
+<td><code>STATX_DIOALIGN</code></td>
+<td>direct I&#x2F;O 的内存地址和文件偏移需要怎样对齐？</td>
+<td>避免把不合法请求提交后才收到 <code>EINVAL</code></td>
+</tr>
+<tr>
+<td><code>offset + length &lt;= capacity</code></td>
+<td>本次读写是否落在设备范围内？</td>
+<td>防止越界；加法本身也要防整数溢出</td>
+</tr>
+<tr>
+<td>挂载与占用检查</td>
+<td>是否有文件系统或其他写者正在使用这个设备？</td>
+<td>避免两套写入方同时修改同一批底层数据</td>
+</tr>
+</tbody></table>
+<p>有了这些基础信息，一个可维护的实现至少还需要：</p>
+<ol>
+<li><strong>独立命名</strong>：增加 <code>block://</code> 或显式 <code>SegmentType::BlockDevice</code>，避免把普通文件语义与破坏性更高的裸盘语义混在一起。</li>
+<li><strong>类型白名单</strong>：只接受 <code>S_ISBLK</code>，拒绝任意字符设备、目录和其他特殊文件。</li>
+<li><strong>容量发现</strong>：使用 <code>BLKGETSIZE64</code> 取得设备总字节数，而不是沿用 <code>st_size</code>；把容量写入 Segment 并在每次请求前验证 <code>offset + length</code>。</li>
+<li><strong>对齐建模</strong>：使用 <code>BLKSSZGET</code> 等接口发现逻辑块大小与 direct-I&#x2F;O 约束，校验文件偏移、长度和本地 buffer；不能等到异步完成时才返回模糊的 <code>EINVAL</code>。</li>
+<li><strong>独占与权限</strong>：确认设备没有被挂载或被其他写者使用，考虑独占打开策略，并明确容器设备映射与最小权限。</li>
+<li><strong>cuFile 能力探测</strong>：区分 handle 注册成功、compatibility path 与真实 GDS direct path，暴露可诊断的错误和指标。</li>
+<li><strong>测试矩阵</strong>：覆盖整盘、分区、NVMe-oF namespace、只读、越界、非对齐、并发、取消、重启和故障恢复；写测试只能在专用空设备上运行。</li>
+</ol>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>最小修改位置</p>
+</div>
+        <div class="message-body">
+            <p>如果目标只是做实验，最小代码切口在 <code>SegmentManager::makeFileRemote</code>：为 <code>S_ISBLK</code> 增加独立分支，查询容量并构造 descriptor。若目标是生产支持，则应新增明确的块设备 Segment 语义，而不是让 <code>file://</code> 同时代表普通文件和裸设备。</p>
+
+        </div>
+    </article>
+
+<h2 id="最终判断"><a href="#最终判断" class="headerlink" title="最终判断"></a>最终判断</h2><p><strong>Classic TE 与 TENT 默认、文档化的路径都是文件系统上的普通文件。</strong> 两者的数据面都最终把一个 fd 交给 cuFile，但上层约束不同：</p>
+<ul>
+<li>Classic 没有检查 <code>S_ISREG</code>，所以人工补齐元数据后存在直接传入块设备节点的技术可能；官方脚本、容量处理和测试没有把它做成完整能力。</li>
+<li>TENT 明确要求 <code>S_ISREG</code>，所以当前 <code>file://</code>、GDS 与 io_uring 的正常调用链都不能打开 <code>/dev/nvme*</code>。</li>
+<li>NVIDIA cuFile 本身允许 device file&#x2F;raw device file，但这只是底层必要条件，不代表 Mooncake TENT 已经支持。</li>
+</ul>
+<p>回到最开始的困惑：<code>cuFileBatchIOSubmit</code> 在两个场景中确实可以长得一模一样，差异藏在 <code>fh</code> 指向的对象和 <code>file_offset</code> 所使用的坐标系中。<strong>如果问题是“GDS 能不能搬”，答案是底层能力已经存在；如果问题是“Mooncake 能不能安全地把裸盘当作 Segment 使用”，当前答案仍然是否定的。</strong>下一步不是重写 Batch I&#x2F;O，而是给块设备建立明确的 <code>block://</code> 语义，并补齐提交前的容量、对齐、越界与独占检查。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/468fbf6397c975367b776f16e41a87264a3440a6/mooncake-transfer-engine/include/transport/nvmeof_transport/cufile_context.h">Mooncake Classic <code>CuFileContext</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/468fbf6397c975367b776f16e41a87264a3440a6/mooncake-transfer-engine/scripts/register.py">Mooncake Classic NVMeoF registration script</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/89da2c3a48fca9715a832b66051bb492adf7b35a/mooncake-transfer-engine/tent/src/runtime/segment_manager.cpp">Mooncake TENT <code>SegmentManager</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/89da2c3a48fca9715a832b66051bb492adf7b35a/mooncake-transfer-engine/tent/src/transport/gds/gds_transport.cpp">Mooncake TENT <code>GdsTransport</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kvcache-ai/Mooncake/blob/89da2c3a48fca9715a832b66051bb492adf7b35a/mooncake-transfer-engine/tent/src/transport/io_uring/io_uring_transport.cpp">Mooncake TENT <code>IOUringTransport</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.nvidia.com/gpudirect-storage/api-reference-guide/index.html#cufile-file-handle-apis">NVIDIA cuFile API Reference</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.nvidia.com/gpudirect-storage/overview-guide/">NVIDIA GPUDirect Storage Overview</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.nvidia.com/gpudirect-storage/troubleshooting-guide/">NVIDIA GPUDirect Storage Troubleshooting Guide</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/NVIDIA/gds-nvidia-fs/blob/328d1d8cce1175c013720985c30e123e9a35242c/src/nvfs-core.c">NVIDIA <code>gds-nvidia-fs</code> raw block handling</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/v6.18/include/uapi/linux/fs.h#L272-L295">Linux block-device ioctl definitions</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Mooncake File vs Block Device</p><p><a href="http://icarus.shaojiemike.top/2026/08/28/Work/Artificial Intelligence/AIInfra/Mooncake-File-vs-Block-Device/">http://icarus.shaojiemike.top/2026/08/28/Work/Artificial Intelligence/AIInfra/Mooncake-File-vs-Block-Device/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-28</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-29</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/MOONCAKE/">MOONCAKE</a><a class="link-muted mr-2" rel="tag" href="/tags/GDS/">GDS</a><a class="link-muted mr-2" rel="tag" href="/tags/TRANSFER-ENGINE/">TRANSFER ENGINE</a><a class="link-muted mr-2" rel="tag" href="/tags/TENT/">TENT</a><a class="link-muted mr-2" rel="tag" href="/tags/NVMEOF/">NVMEOF</a><a class="link-muted mr-2" rel="tag" href="/tags/CUFILE/">CUFILE</a><a class="link-muted mr-2" rel="tag" href="/tags/BLOCK-DEVICE/">BLOCK DEVICE</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/08/28/Work/Artificial%20Intelligence/AIInfra/GPU-Initiated-IO/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">GPU-Initiated I/O</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/28/Work/Artificial%20Intelligence/AIInfra/Mooncake-Classic-vs-TENT-Engine/"><span class="level-item">Mooncake Classic vs TENT Engine</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">631</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">51</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">981</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#两条路径不是同一种对象"><span class="level-left"><span class="level-item">1</span><span class="level-item">两条路径不是同一种对象</span></span></a></li><li><a class="level is-mobile" href="#结论矩阵"><span class="level-left"><span class="level-item">2</span><span class="level-item">结论矩阵</span></span></a></li><li><a class="level is-mobile" href="#Classic-TE-的真实边界"><span class="level-left"><span class="level-item">3</span><span class="level-item">Classic TE 的真实边界</span></span></a></li><li><a class="level is-mobile" href="#TENT-在-transport-前拒绝块设备"><span class="level-left"><span class="level-item">4</span><span class="level-item">TENT 在 transport 前拒绝块设备</span></span></a></li><li><a class="level is-mobile" href="#TENT-GDS-为什么看起来又能打开"><span class="level-left"><span class="level-item">5</span><span class="level-item">TENT GDS 为什么看起来又能打开</span></span></a></li><li><a class="level is-mobile" href="#cuFile-底层是否支持-device-file"><span class="level-left"><span class="level-item">6</span><span class="level-item">cuFile 底层是否支持 device file</span></span></a></li><li><a class="level is-mobile" href="#GDS-基础-API-与-Mooncake-使用情况"><span class="level-left"><span class="level-item">7</span><span class="level-item">GDS 基础 API 与 Mooncake 使用情况</span></span></a></li><li><a class="level is-mobile" href="#同一个-Batch-参数为何含义不同"><span class="level-left"><span class="level-item">8</span><span class="level-item">同一个 Batch 参数为何含义不同</span></span></a></li><li><a class="level is-mobile" href="#真正接入块设备需要什么"><span class="level-left"><span class="level-item">9</span><span class="level-item">真正接入块设备需要什么</span></span></a></li><li><a class="level is-mobile" href="#最终判断"><span class="level-left"><span class="level-item">10</span><span class="level-item">最终判断</span></span></a></li><li><a class="level is-mobile" href="#参考文献"><span class="level-left"><span class="level-item">11</span><span class="level-item">参考文献</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">44</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">42</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-28T09:41:32.000Z">2026-08-28</time></p><p class="title"><a href="/2026/08/28/Work/Artificial%20Intelligence/AIInfra/FuseLink-Multi-NIC-Communication/">FuseLink Multi-NIC Communication</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-28T09:36:13.000Z">2026-08-28</time></p><p class="title"><a href="/2026/08/28/Work/Artificial%20Intelligence/AIInfra/NVIDIA-SCADA/">NVIDIA SCADA</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-28T09:30:00.000Z">2026-08-28</time></p><p class="title"><a href="/2026/08/28/Work/Artificial%20Intelligence/AIInfra/GPU-Centric-Communication/">GPU-Centric Communication</a></p><p class="categories"><a href="/categories/1-Distributed-Parallelism/">1-Distributed Parallelism</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-28T09:30:00.000Z">2026-08-28</time></p><p class="title"><a href="/2026/08/28/Work/Artificial%20Intelligence/AIInfra/GPU-Initiated-IO/">GPU-Initiated I/O</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">55</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Chip/"><span class="tag">AI Chip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
