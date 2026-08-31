@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Ascend DeepEP MoE Dispatch Optimization - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       我面对的是一个很具体、也很容易被“理论带宽”带偏的问题：Ascend DeepEP 的 MoE dispatch 吞吐只有硬件理论值的一半，128P 跨机场景尤其明显，而且系统里还有两层路由。麻烦在于，我既不熟悉 MoE dispatch 的接口与数据协议，也没写过典型 URMA&amp;#x2F;UDMA 算子，更不知道应该在哪里计时、"><meta property="og:type" content="blog"><meta property="og:title" content="Ascend DeepEP MoE Dispatch Optimization"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/08/31/Work/Artificial%20Intelligence/AIInfra/Ascend-DeepEP-MoE-Dispatch-Optimization/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       我面对的是一个很具体、也很容易被“理论带宽”带偏的问题：Ascend DeepEP 的 MoE dispatch 吞吐只有硬件理论值的一半，128P 跨机场景尤其明显，而且系统里还有两层路由。麻烦在于，我既不熟悉 MoE dispatch 的接口与数据协议，也没写过典型 URMA&amp;#x2F;UDMA 算子，更不知道应该在哪里计时、"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-08-31T12:00:00.000Z"><meta property="article:modified_time" content="2026-08-31T12:08:38.414Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="AIV"><meta property="article:tag" content="MOE"><meta property="article:tag" content="ALL-TO-ALL"><meta property="article:tag" content="UDMA"><meta property="article:tag" content="DEEPEP"><meta property="article:tag" content="URMA"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/08/31/Work/Artificial%20Intelligence/AIInfra/Ascend-DeepEP-MoE-Dispatch-Optimization/"},"headline":"Ascend DeepEP MoE Dispatch Optimization","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-08-31T12:00:00.000Z","dateModified":"2026-08-31T12:08:38.414Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       我面对的是一个很具体、也很容易被“理论带宽”带偏的问题：Ascend DeepEP 的 MoE dispatch 吞吐只有硬件理论值的一半，128P 跨机场景尤其明显，而且系统里还有两层路由。麻烦在于，我既不熟悉 MoE dispatch 的接口与数据协议，也没写过典型 URMA&#x2F;UDMA 算子，更不知道应该在哪里计时、"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/08/31/Work/Artificial%20Intelligence/AIInfra/Ascend-DeepEP-MoE-Dispatch-Optimization/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-08-31T12:00:00.000Z" title="8/31/2026, 12:00:00 PM">2026-08-31</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-08-31T12:08:38.414Z" title="8/31/2026, 12:08:38 PM">2026-08-31</time></span><span class="level-item"><a class="link-muted" href="/categories/1-Distributed-Parallelism/">1-Distributed Parallelism</a></span><span class="level-item">an hour read (About 9879 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Ascend DeepEP MoE Dispatch Optimization</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>我面对的是一个很具体、也很容易被“理论带宽”带偏的问题：Ascend DeepEP 的 MoE dispatch 吞吐只有硬件理论值的一半，128P 跨机场景尤其明显，而且系统里还有两层路由。麻烦在于，我既不熟悉 MoE dispatch 的接口与数据协议，也没写过典型 URMA&#x2F;UDMA 算子，更不知道应该在哪里计时、打印和判断瓶颈。</p>
+<p>这篇文章不从零散优化技巧出发，而是沿一条 token 的真实旅程，依次读懂 Python 接口、Host 侧 workspace&#x2F;notify、Device 侧 AIV&#x2F;UDMA&#x2F;QP、目标 rank 的接收布局与反向 combine；再把 <code>ascend_deepep</code>、海思 hierarchy 和 MoonEP 的 peer 调度放进同一张拓扑图。最终目标不是立即猜出一个“神奇参数”，而是建立一条可证伪的优化路线：<strong>先区分数据面、控制面和同步面，再判断 128P 下真正撞到的是字节带宽、WQE 提交率、P 维路由扫描、拓扑扇出还是最慢 rank 的尾延迟。</strong></p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="问题不只是“带宽没跑满”"><a href="#问题不只是“带宽没跑满”" class="headerlink" title="问题不只是“带宽没跑满”"></a>问题不只是“带宽没跑满”</h2><p>看到吞吐只有硬件理论值的一半，第一反应通常是增加 AIV、增加 QP、做双缓冲或者把通信和计算异步起来。这些方向并非错误，但它们默认了一个尚未证明的前提：<strong>当前瓶颈就是负责搬 payload 的硬件引擎。</strong></p>
+<p>MoE dispatch 的端到端时间更接近：</p>
+<p>[<br>T_{dispatch} &#x3D; T_{layout} + T_{notify} + T_{route\ scan} + T_{WQE\ submit}</p>
+<ul>
+<li>T_{network} + T_{quiet&#x2F;barrier} + T_{epilogue}<br>]</li>
+</ul>
+<p>这几项不一定完全串行，实际延迟取决于依赖关系和重叠程度；多 rank 场景最终看到的又往往不是平均值，而是最慢 rank：</p>
+<p>[<br>T_{step} \approx \max_{r \in ranks} T_{dispatch}^{(r)}<br>]</p>
+<p>于是，“理论带宽的一半”至少可能来自五类不同问题：</p>
+<ul>
+<li><strong>数据面受限</strong>：hidden payload 真正压满了链路、UDMA 引擎或 GM 读写带宽。</li>
+<li><strong>控制面受限</strong>：单包太小，WQE 生成、提交、CQE&#x2F;quiet 的固定成本占比过高。</li>
+<li><strong>路由规划受限</strong>：Top-K 很小，却仍按 <code>[num_tokens, world_size]</code> 扫描和保存路由。</li>
+<li><strong>拓扑受限</strong>：128 个 peer 同时展开，跨机链路、交换框或某条 rail 出现热点。</li>
+<li><strong>尾延迟受限</strong>：平均 rank 不慢，但少数 expert&#x2F;rank 收到更多 token，所有人最终等它完成。</li>
+</ul>
+<p>这也是后续读代码时最重要的视角：不要只找“拷贝循环”，要同时找 <strong>payload 在哪里走、offset 谁算、完成由谁确认、下一阶段在等谁</strong>。</p>
+<h2 id="一条-token-如何走完-MoE"><a href="#一条-token-如何走完-MoE" class="headerlink" title="一条 token 如何走完 MoE"></a>一条 token 如何走完 MoE</h2><p>设 EP 域共有 (P) 个 rank，每个 rank 持有 (E_l) 个本地专家；输入 <code>x</code> 的 shape 为 <code>[S, H]</code>，Router 为每个 token 选择 (K) 个专家：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x[token]                     一行 hidden</span><br><span class="line">topk_idx[token, 0:K]         目标专家</span><br><span class="line">topk_weights[token, 0:K]     combine 权重</span><br></pre></td></tr></table></figure>
+
+<p>一个全局专家 <code>expert_id</code> 对应：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dst_rank         = expert_id / experts_per_rank</span><br><span class="line">dst_local_expert = expert_id % experts_per_rank</span><br></pre></td></tr></table></figure>
+
+<p>如果一个 token 的 Top-2 专家分别位于 rank 0 和 rank 3，dispatch 就要把同一行 hidden 复制到两个目标 rank；目标 rank 按本地专家重排成连续输入，完成 expert FFN 后，再把两份结果发回 token owner，最后按 Top-K 权重归约。<strong>dispatch 是一趟不等长、由路由结果驱动的 All-to-AllV；combine 是携带反向索引的逆过程。</strong></p>
+<p>下面这张图把容易混在一起的三条线分开：蓝色是 payload，绿色是路由与 offset，紫色是完成和缓冲区复用协议。</p>
+<figure markdown>
+  ![MoE Dispatch 数据面与控制面](https://pic.shaojiemike.top/shaojiemike/2026/08/b9da212c3e603b87d91e8111f3119a96.png){ width=100% }
+  <figcaption>图 1：根据会话内容与固定 revision 源码整理的自绘示意图。重点不是组件数量，而是 payload、路由 offset 和完成信号不能互相替代。</figcaption>
+</figure>
+
+<p>一个正确的单边通信顺序通常是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">计算目标地址和接收 offset</span><br><span class="line">    → 把 payload Put 到目标 SHMEM window</span><br><span class="line">    → 确认 payload 已经对端可见</span><br><span class="line">    → 再发布 ready/count/completion</span><br><span class="line">    → 接收方消费并复用缓冲区</span><br></pre></td></tr></table></figure>
+
+<p>如果 flag 先于 payload 可见，接收方就可能读到旧数据；如果缓冲区在 <code>quiet</code> 前被复用，后续 WQE 可能读到被覆盖的源数据。因此，通信和计算能否重叠，首先是依赖图与内存可见性问题，其次才是调度技巧。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>最小概念账本：rank、AIV、SHMEM、URMA、QP、WQE、quiet</p>
+</div>
+        <div class="message-body">
+            <ul>
+<li><strong>Rank</strong>：EP 通信域中的一个参与者，通常对应一张 NPU 卡上的进程或设备执行上下文。</li>
+<li><strong>AIV</strong>：Ascend AI Core 的 Vector 侧执行单元。这里不只做数值计算，也负责扫描路由、搬运 GM&#x2F;UB、构造和提交通信任务。</li>
+<li><strong>GM &#x2F; UB</strong>：GM 是设备全局内存，容量大、延迟高；UB 是核内高速缓冲，容量小，常用来做 staging、向量处理和 WQE 暂存。</li>
+<li><strong>SHMEM</strong>：为每个 rank 建立对称内存窗口，使相同 offset 可以映射到不同 peer 的远端地址，适合 one-sided Put&#x2F;Get。</li>
+<li><strong>URMA&#x2F;UDMA</strong>：URMA 更接近远端内存访问语义和资源体系；UDMA 是这里执行远端搬运的具体 DMA 路径。不要把 API 语义、Runtime 资源和硬件引擎压成同一个概念。</li>
+<li><strong>QP（Queue Pair）</strong>：远端通信队列。发送侧把工作提交到 QP，底层引擎异步执行。</li>
+<li><strong>WQE（Work Queue Element）</strong>：一次通信工作的描述符，包含源&#x2F;目标地址、长度和操作类型等信息。小包很多时，瓶颈可能是每秒能处理多少 WQE，而不是每秒能搬多少字节。</li>
+<li><strong>CQE &#x2F; completion</strong>：某批通信工作的完成记录或完成信号。</li>
+<li>**<code>quiet()</code>**：等待此前提交到指定范围的非阻塞通信完成，并建立后续复用或发布 flag 所需的顺序边界。它不是普通函数调用开销，而可能直接暴露网络和队列尾延迟。</li>
+<li><strong>Barrier</strong>：所有参与者到齐后再推进。它很容易保证正确性，也很容易把一个慢 rank 的延迟放大到全局。</li>
+</ul>
+
+        </div>
+    </article>
+
+<h2 id="从-Python-接口进入真实调用链"><a href="#从-Python-接口进入真实调用链" class="headerlink" title="从 Python 接口进入真实调用链"></a>从 Python 接口进入真实调用链</h2><p>本节以 <code>ascend_deepep@18e2dd4b</code> 为代码锚点。Python 入口位于 <code>ascend_deepep/buffer.py::Buffer.dispatch</code>，它先区分是否提供 <code>handle</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> handle <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    (</span><br><span class="line">        rank_prefix_matrix,</span><br><span class="line">        channel_prefix_matrix,</span><br><span class="line">        _recv_channel_prefix_matrix,</span><br><span class="line">        recv_src_idx,</span><br><span class="line">        is_token_in_rank_from_handle,</span><br><span class="line">        _send_head,</span><br><span class="line">    ) = _unpack_v1_handle(handle)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">self</span>._native.intranode_dispatch(</span><br><span class="line">        x_tensor,</span><br><span class="line">        x_scales,</span><br><span class="line">        <span class="literal">None</span>,</span><br><span class="line">        <span class="literal">None</span>,</span><br><span class="line">        <span class="literal">None</span>,</span><br><span class="line">        is_token_in_rank_from_handle,</span><br><span class="line">        <span class="literal">None</span>,</span><br><span class="line">        num_recv_tokens,</span><br><span class="line">        rank_prefix_matrix,</span><br><span class="line">        channel_prefix_matrix,</span><br><span class="line">        ...,</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+
+<p>没有 <code>handle</code> 时，需要传入当前路由的统计和矩阵：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> num_tokens_per_rank <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">raise</span> ValueError(<span class="string">&quot;num_tokens_per_rank is required&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> is_token_in_rank <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">raise</span> ValueError(<span class="string">&quot;is_token_in_rank is required&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> num_tokens_per_expert <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">raise</span> ValueError(<span class="string">&quot;num_tokens_per_expert is required&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>随后执行 native dispatch，并把这次生成的路由计划打包成 <code>v1_handle</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">v1_handle = (</span><br><span class="line">    rank_prefix_matrix,</span><br><span class="line">    channel_prefix_matrix,</span><br><span class="line">    recv_channel_prefix_matrix,</span><br><span class="line">    recv_src_idx,</span><br><span class="line">    is_token_in_rank,</span><br><span class="line">    send_head,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这段接口已经透露了一个重要优化边界：<strong>hidden 可以每轮变化，但如果路由关系不变，prefix、offset 和反向索引没有必要每轮重建。</strong>cached dispatch 就是在复用这部分控制面工作。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>Fresh dispatch 是什么意思</p>
+</div>
+        <div class="message-body">
+            <p><code>Fresh dispatch</code> 不是正式 API 名称，只是为了区分两条路径使用的简称：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">handle is None</span><br><span class="line">    → 当前路由第一次出现或发生变化</span><br><span class="line">    → 重新计算 prefix、offset、src_idx、send_head</span><br><span class="line">    → 返回新的 handle</span><br><span class="line"></span><br><span class="line">handle is not None</span><br><span class="line">    → 路由关系与上次一致</span><br><span class="line">    → 复用 handle，只搬运新的 x</span><br><span class="line">    → cached dispatch</span><br></pre></td></tr></table></figure>
+
+<p>因而“Fresh”更准确的中文是<strong>重新规划路由的 dispatch</strong>，不代表第一次调用整个程序，也不代表输入 hidden 必须是新 Tensor。</p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>Dispatch handle 六项分别保存什么</p>
+</div>
+        <div class="message-body">
+            <p><code>handle</code> 不是一个不透明的通信句柄，而是一组让 cached dispatch 和 combine 找回数据位置的 Tensor：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>直观作用</th>
+<th>后续消费者</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>rank_prefix_matrix</code></td>
+<td>各 source rank 向各 destination rank 发送后的累计边界，决定一个源 rank 的数据落在目标接收区哪一段</td>
+<td>cached dispatch、combine</td>
+</tr>
+<tr>
+<td><code>channel_prefix_matrix</code></td>
+<td>当前源 rank 内，各 channel 面向每个目标 rank 的累计发送边界</td>
+<td>cached dispatch</td>
+</tr>
+<tr>
+<td><code>recv_channel_prefix_matrix</code></td>
+<td>目标 rank 收集到的“各 source rank × channel”前缀，用于还原本地接收段和规划反向发送</td>
+<td>combine</td>
+</tr>
+<tr>
+<td><code>recv_src_idx</code></td>
+<td>每一行 compact 接收 token 对应源 rank 上的原始 token 下标</td>
+<td>combine 把 expert 结果送回原 token</td>
+</tr>
+<tr>
+<td><code>is_token_in_rank</code></td>
+<td>shape 为 <code>[S,P]</code> 的布尔路由矩阵，表示某 token 是否需要发到某 rank</td>
+<td>cached dispatch</td>
+</tr>
+<tr>
+<td><code>send_head</code></td>
+<td>shape 为 <code>[S,P]</code> 的发送序号&#x2F;存在性表；<code>-1</code> 表示该 token 没有发给这个 contributor</td>
+<td>combine 判断需要归约哪些 rank，并找到对应槽位</td>
+</tr>
+</tbody></table>
+<p>可以把它压缩成一句话：<strong>prefix 决定“段在哪里”，<code>recv_src_idx</code> 决定“这一行原来是谁”，<code>send_head</code> 决定“combine 应该等谁”。</strong></p>
+
+        </div>
+    </article>
+
+<h2 id="Host-侧先造一张通信地图"><a href="#Host-侧先造一张通信地图" class="headerlink" title="Host 侧先造一张通信地图"></a>Host 侧先造一张通信地图</h2><p>进入 <code>csrc/ops/dispatch.cpp</code> 后，Host 侧主要完成四件事：校验输入、规划 symmetric workspace、启动 notify、创建输出 view 并启动真正的 dispatch kernel。</p>
+<h3 id="Workspace-不是一个-Tensor，而是一块地址空间"><a href="#Workspace-不是一个-Tensor，而是一块地址空间" class="headerlink" title="Workspace 不是一个 Tensor，而是一块地址空间"></a>Workspace 不是一个 Tensor，而是一块地址空间</h3><p>代码首先解析 AIV 数量：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">int64_t</span> resolved_num_aiv = <span class="built_in">ResolveNumAiv</span>(num_aiv);</span><br><span class="line"><span class="type">const</span> <span class="type">int64_t</span> num_channels = resolved_num_aiv;</span><br></pre></td></tr></table></figure>
+
+<p>随后按极端情况预留内部接收容量：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">int64_t</span> recv_buffer_tokens = <span class="built_in">CheckedMulInt64</span>(</span><br><span class="line">    num_tokens, world_size, <span class="string">&quot;dispatch receive capacity&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>原因是：每个 source rank 最多有 <code>num_tokens</code> 行可以发给当前 rank；共有 <code>world_size</code> 个 source rank，所以当前实现给内部接收区保留 <code>num_tokens × world_size</code> 行。</p>
+<p><code>MakeDispatchWorkspaceLayout()</code> 再用一个不断前移的 <code>cursor</code>，把一整块 symmetric buffer 切成多个互不重叠的区域：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">layout.recv_channel_prefix_offset = cursor;</span><br><span class="line">cursor = <span class="built_in">AppendWorkspaceRegion</span>(cursor, ...);</span><br><span class="line"></span><br><span class="line">layout.x_buffer_offset = cursor;</span><br><span class="line">cursor = <span class="built_in">AppendWorkspaceRegion</span>(cursor, recv_buffer_tokens * hidden_bytes, ...);</span><br><span class="line"></span><br><span class="line">layout.src_idx_buffer_offset = cursor;</span><br><span class="line">cursor = <span class="built_in">AppendWorkspaceRegion</span>(cursor, recv_buffer_tokens * <span class="built_in">sizeof</span>(<span class="type">int32_t</span>), ...);</span><br><span class="line"></span><br><span class="line">layout.topk_idx_buffer_offset = cursor;</span><br><span class="line">...</span><br><span class="line">layout.topk_weights_buffer_offset = cursor;</span><br><span class="line">...</span><br><span class="line">layout.x_scales_buffer_offset = cursor;</span><br></pre></td></tr></table></figure>
+
+<p>这些 offset 随后写入 tiling，Device kernel 只要拿到 symmetric buffer 基地址，就能定位 payload、反向索引、Top-K 元数据、scale 和 completion signal。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>这里的 layout 到底是什么布局</p>
+</div>
+        <div class="message-body">
+            <p>它不是 NCHW、ND、TND 之类的 Tensor 维度布局，而是<strong>一块大 workspace 的内存地图</strong>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">symmetric_buffer base</span><br><span class="line">├── notify workspace</span><br><span class="line">├── recv_channel_prefix      [P, num_channels]</span><br><span class="line">├── x payload                [S×P, H]</span><br><span class="line">├── src_idx                  [S×P]</span><br><span class="line">├── topk_idx                 [S×P, K]，可选</span><br><span class="line">├── topk_weights             [S×P, K]，可选</span><br><span class="line">├── x_scales                 [S×P, scale_cols]，可选</span><br><span class="line">└── UDMA completion signals  [P, 2, 512B]</span><br></pre></td></tr></table></figure>
+
+<p><code>offset</code> 就是每个区域相对 <code>symmetric_buffer base</code> 的字节偏移。这样做可以复用一次大的对称内存分配，并保证远端 rank 使用相同 offset 找到对应区域。</p>
+
+        </div>
+    </article>
+
+<h3 id="Notify-先交换数量和前缀"><a href="#Notify-先交换数量和前缀" class="headerlink" title="Notify 先交换数量和前缀"></a>Notify 先交换数量和前缀</h3><p>Host 在 payload dispatch 前启动 notify kernel：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">LaunchNotifyDispatchKernel</span>(</span><br><span class="line">    *num_tokens_per_rank,</span><br><span class="line">    *num_tokens_per_expert,</span><br><span class="line">    is_token_in_rank,</span><br><span class="line">    rank_prefix_matrix,</span><br><span class="line">    channel_prefix_matrix,</span><br><span class="line">    notify_num_recv_tokens,</span><br><span class="line">    notify_num_recv_tokens_per_expert,</span><br><span class="line">    tiling,</span><br><span class="line">    symmetric_buffer,</span><br><span class="line">    shmem.<span class="built_in">FftsAddr</span>());</span><br></pre></td></tr></table></figure>
+
+<p>notify 的核心任务不是提醒一句“开始接收”，而是把不规则路由转成通信双方都能使用的边界：当前 rank 实际要收多少 token、每个本地 expert 收多少、每个 source rank 和 channel 应写到接收区的什么位置。真正的 payload kernel 依靠这些 prefix，才能让多个 AIV 和多个 rank 并行写入而不互相覆盖。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>Notify kernel 是不是让每个 rank 知道要接收什么</p>
+</div>
+        <div class="message-body">
+            <p>可以这样理解，但要再精确一步：它不是发送一张 token 明细表，而是在生产<strong>计数和 offset</strong>。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Router 结果</span><br><span class="line">    → 每个 token 要去哪些 rank</span><br><span class="line">    → 每个 source→destination 有多少行</span><br><span class="line">    → 每个 channel 负责其中哪一段</span><br><span class="line">    → prefix sum 得到接收起点</span><br></pre></td></tr></table></figure>
+
+<p>有了起点后，数据面可以直接执行：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">remote_address</span><br><span class="line">  = remote_shmem_base</span><br><span class="line">  + x_buffer_offset</span><br><span class="line">  + recv_position * row_stride</span><br></pre></td></tr></table></figure>
+
+<p>所以 notify 更像 dispatch 的<strong>控制面规划与发布阶段</strong>。即使调用方提供了固定 <code>num_worst_tokens</code>，notify 仍然要运行；省掉的只是 Host 回读实际接收行数，而不是 prefix 计算本身。</p>
+
+        </div>
+    </article>
+
+<h3 id="输出长度有动态和固定两种模式"><a href="#输出长度有动态和固定两种模式" class="headerlink" title="输出长度有动态和固定两种模式"></a>输出长度有动态和固定两种模式</h3><p>notify 之后，Host 决定公开输出 Tensor 的第一维：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (cached_mode) &#123;</span><br><span class="line">    num_recv_tokens = cached_num_recv_tokens;</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (num_worst_tokens &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    num_recv_tokens = num_worst_tokens;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">auto</span> recv_tokens_cpu = notify_num_recv_tokens.<span class="built_in">cpu</span>();</span><br><span class="line">    num_recv_tokens = recv_tokens_cpu.<span class="built_in">item</span>&lt;<span class="type">int32_t</span>&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后用 SHMEM 内部地址创建非 owning view：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> recv_x = <span class="built_in">MakeShmemTensor</span>(</span><br><span class="line">    symmetric_buffer,</span><br><span class="line">    dispatch_workspace.x_buffer_offset,</span><br><span class="line">    &#123;num_recv_tokens, hidden&#125;,</span><br><span class="line">    x.<span class="built_in">scalar_type</span>());</span><br></pre></td></tr></table></figure>
+
+<p>最后才启动 <code>LaunchV1DispatchKernel()</code>。因此 Host 路径可以概括成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">validate</span><br><span class="line">  → resolve AIV/channel</span><br><span class="line">  → reserve worst internal workspace</span><br><span class="line">  → launch notify</span><br><span class="line">  → choose public output rows</span><br><span class="line">  → create SHMEM Tensor views</span><br><span class="line">  → launch dispatch payload kernel</span><br></pre></td></tr></table></figure>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>双层解释：num_worst_tokens &gt; 0 到底是什么</p>
+</div>
+        <div class="message-body">
+            <p><strong>直觉层。</strong>把输出 Tensor 想成提前摆好的货架：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">num_worst_tokens = 0</span><br><span class="line">    → 等 notify 统计实际收到 237 行</span><br><span class="line">    → Host 回读 237</span><br><span class="line">    → 输出 shape = [237, H]</span><br><span class="line"></span><br><span class="line">num_worst_tokens = 256</span><br><span class="line">    → Host 不回读实际计数</span><br><span class="line">    → 直接输出 shape = [256, H]</span><br><span class="line">    → 前 237 行有效，后 19 行 padding</span><br></pre></td></tr></table></figure>
+
+<p><strong>源码层。</strong>Device 端执行：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">int32_t</span> actual_recv_tokens = ...;</span><br><span class="line"><span class="type">const</span> <span class="type">int32_t</span> recv_tokens_to_copy =</span><br><span class="line">    <span class="built_in">DispatchMin</span>(actual_recv_tokens, num_output_tokens);</span><br></pre></td></tr></table></figure>
+
+<p>所以调用方必须保证：</p>
+<p>[<br>actual_recv_tokens \le num_worst_tokens<br>]</p>
+<p>上界太大会增加 padding；上界小于真实值时，当前实现会只公开前 <code>num_worst_tokens</code> 行，存在静默截断风险。尾部 <code>x/scales/weights</code> 填 0，<code>topk_idx</code> 塄为 <code>-1</code>。</p>
+<p>还要区分两种容量：内部 SHMEM 仍按 <code>S × P</code> 预留，<code>num_worst_tokens</code> 只决定公开输出长度和是否需要 Device→Host 回读。它当前<strong>不会缩小内部 workspace</strong>。</p>
+<p>最理想的情况是 layout 阶段已经知道精确接收量，直接把精确值传进来：既没有 Host 同步，也没有 padding。只知道上界时，可以采用安全 bucket；完全不知道时先传 0 保证正确性。</p>
+
+        </div>
+    </article>
+
+<h2 id="Device-侧如何把-channel-变成远端-Put"><a href="#Device-侧如何把-channel-变成远端-Put" class="headerlink" title="Device 侧如何把 channel 变成远端 Put"></a>Device 侧如何把 channel 变成远端 Put</h2><p>普通 <code>dispatch.cpp</code> 的核心所有权模型是：<strong>一个 AIV 负责一个 channel，并维护面向所有 destination rank 的游标。</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int32_t</span> dst_rank = <span class="number">0</span>; dst_rank &lt; world_size; ++dst_rank) &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">int32_t</span> rank_base = rank &gt; <span class="number">0</span></span><br><span class="line">        ? rank_prefix_gm.<span class="built_in">GetValue</span>((rank - <span class="number">1</span>) * world_size + dst_rank)</span><br><span class="line">        : <span class="number">0</span>;</span><br><span class="line">    <span class="type">const</span> <span class="type">int32_t</span> channel_prefix_begin = core_idx &gt; <span class="number">0</span></span><br><span class="line">        ? channel_prefix_gm.<span class="built_in">GetValue</span>(dst_rank * num_channels + core_idx - <span class="number">1</span>)</span><br><span class="line">        : <span class="number">0</span>;</span><br><span class="line">    recv_position_ub.<span class="built_in">SetValue</span>(</span><br><span class="line">        dst_rank, rank_base + channel_prefix_begin);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>随后它遍历自己负责的 token 范围和全部目标 rank：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int32_t</span> token = token_begin; token &lt; token_end; ++token) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int32_t</span> dst_rank = <span class="number">0</span>; dst_rank &lt; world_size; ++dst_rank) &#123;</span><br><span class="line">        <span class="keyword">if</span> (is_token_in_rank_gm.<span class="built_in">GetValue</span>(</span><br><span class="line">                token * world_size + dst_rank) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码简单直接，但它也暴露了 128P 的一个结构性成本：即使 Top-K 只产生少数目标 rank，每个 token 仍可能扫描完整的 <code>world_size</code> 维度。</p>
+<p>UDMA 版本在 peer 调度上又增加了两个策略：按 source rank 旋转目标顺序，以及用两个 QP 承载 channel。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int32_t</span> logical_destination = destination_worker_index;</span><br><span class="line">     logical_destination &lt; world_size;</span><br><span class="line">     logical_destination += destination_worker_count) &#123;</span><br><span class="line">    <span class="type">int32_t</span> dst_rank = rank + logical_destination;</span><br><span class="line">    <span class="keyword">if</span> (dst_rank &gt;= world_size) &#123;</span><br><span class="line">        dst_rank -= world_size;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>为什么要把目的 rank 加上当前 source rank</p>
+</div>
+        <div class="message-body">
+            <p>如果所有 rank 都按 <code>0,1,2,...</code> 的顺序访问 peer，那么某一时刻可能出现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">rank 0 → peer 0</span><br><span class="line">rank 1 → peer 0</span><br><span class="line">rank 2 → peer 0</span><br><span class="line">...</span><br><span class="line">rank 127 → peer 0</span><br></pre></td></tr></table></figure>
+
+<p>旋转后则变成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rank 0 → 0,1,2,...</span><br><span class="line">rank 1 → 1,2,3,...,0</span><br><span class="line">rank 2 → 2,3,4,...,1</span><br></pre></td></tr></table></figure>
+
+<p>它的目的只是<strong>错开起始 peer，降低同一时刻的集中冲击</strong>。它没有减少 peer 数，也没有理解 server、交换框或 rail；每个源 rank 最终仍会面对全部目标 rank。因此它是一种低成本去同步化调度，不等于拓扑感知算法。</p>
+
+        </div>
+    </article>
+
+<h3 id="两个-QP-采用-3-1，而不是均分"><a href="#两个-QP-采用-3-1，而不是均分" class="headerlink" title="两个 QP 采用 3:1，而不是均分"></a>两个 QP 采用 3:1，而不是均分</h3><p>当前代码固定两个 QP，并按 channel 编号分配：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__aicore__ <span class="keyword">inline</span> <span class="type">int32_t</span> <span class="title">DispatchUdmaQpForChannel</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">int32_t</span> channel,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">int32_t</span> qp_count)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (qp_count == <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> (channel &amp; <span class="number">3</span>) == <span class="number">3</span> ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">channel: 0  1  2  3 | 4  5  6  7</span><br><span class="line">QP:      0  0  0  1 | 0  0  0  1</span><br></pre></td></tr></table></figure>
+
+<p>所有 peer 的 payload 提交完成后，每个 QP 分别追加一个 Strong Order completion，再执行 <code>qp_quiet(dst_rank, qp_slot)</code>；最后才是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">aclshmem_quiet</span>();</span><br><span class="line"><span class="built_in">aclshmemx_barrier_all_vec</span>();</span><br></pre></td></tr></table></figure>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>两个 QP 既然能并行，为什么不是 1</p>
+</div>
+        <div class="message-body">
+            <p><strong>并行机会</strong>和<strong>负载均分</strong>是两个问题。目标是让两个 QP 尽量同时结束：</p>
+<p>[<br>T &#x3D; \max\left(\frac{W_0}{R_0}, \frac{W_1}{R_1}\right)<br>]</p>
+<p>如果两个 QP 的有效速率相同，理想模型确实倾向 1:1；如果某次实验中 (R_0 \approx 3R_1)，3:1 反而更接近同时完成。</p>
+<p>但源码只明确说这是 MoonEP 的 two-QP performance experiment，没有记录底层原因。因此只能提出待验证假设：两个 QP 可能存在服务能力差异、共享资源竞争、CQE&#x2F;queue depth 差异，或者 3:1 只对当时的 shape 和拓扑有效。不能把“QP0 就是三倍快”写成事实。</p>
+<p>更重要的是，按 channel 计数 3:1 不等于按字节或 WQE 3:1。不同 channel 的 token 数可能高度不均。优化时应该记录每个 QP 的 WQE 数、payload 字节、提交周期和 quiet 周期，并至少比较 <code>1QP</code>、<code>2QP 1:1</code>、<code>2QP 3:1</code>、<code>2QP 1:3</code> 与 <code>4QP round-robin</code>。</p>
+
+        </div>
+    </article>
+
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>world_size × 2 QP × 512 bytes 怎么算</p>
+</div>
+        <div class="message-body">
+            <p>completion signal 的地址计算是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">signal_slot = rank * kDispatchUdmaQpCount + qp_slot;</span><br><span class="line">signal_addr = base + signal_slot * kDispatchUdmaCompletionSignalBytes;</span><br></pre></td></tr></table></figure>
+
+<p>常量是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kDispatchUdmaQpCount = <span class="number">2</span>;</span><br><span class="line">kDispatchUdmaCompletionSignalBytes = <span class="number">512</span>;</span><br></pre></td></tr></table></figure>
+
+<p>所以每个 symmetric workspace 需要为每个 peer、每个 QP 保留一个独立的 512B completion slot：</p>
+<p>[<br>bytes &#x3D; world_size \times 2 \times 512<br>]</p>
+<p>128P 时：</p>
+<p>[<br>128 \times 2 \times 512 &#x3D; 131072\ bytes &#x3D; 128\ KiB<br>]</p>
+<p>512B 是实现选定的 signal slot 间距和对齐单位，不是 <code>uint64_t</code> completion 值本身有 512B；真正的值仍是 8 字节，较大步长用于隔离和满足实现的缓存行&#x2F;顺序要求。</p>
+
+        </div>
+    </article>
+
+<h2 id="128P-为什么会放大问题"><a href="#128P-为什么会放大问题" class="headerlink" title="128P 为什么会放大问题"></a>128P 为什么会放大问题</h2><p>小规模下，“每个源 rank 直接面向每个目标 rank”简单且可能足够快；扩展到 128P 后，数据量未必线性增长，控制面却很容易增长：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">路由表示：      [S,P]</span><br><span class="line">token 路由扫描： O(S×P)</span><br><span class="line">peer 状态：      O(P)</span><br><span class="line">rank prefix：    O(P²)</span><br><span class="line">completion slot：O(P×QP)</span><br></pre></td></tr></table></figure>
+
+<p>与此同时，每个 peer 的消息变小，固定 WQE&#x2F;quiet 成本占比上升；不同源 rank 若在相近时刻访问相同拓扑区域，还会形成热点。这里要解决的已经不是单核 DataCopy 的问题，而是<strong>全系统同时有哪些通信关系处于活跃状态</strong>。</p>
+<p>下面把三套代码的调度单位放到同一张图里。</p>
+<figure markdown>
+  ![128P Dispatch 三种 peer 调度思路](https://pic.shaojiemike.top/shaojiemike/2026/08/29ad2acddb5a1526be1149a40a4f15a6.png){ width=100% }
+  <figcaption>图 2：根据会话内容与固定 revision 源码整理的自绘比较。三种实现的硬件与能力边界不同，图中只比较 peer 调度思想，不宣称可以逐行互相替换。</figcaption>
+</figure>
+
+<h3 id="ascend-deepep：扁平直达"><a href="#ascend-deepep：扁平直达" class="headerlink" title="ascend_deepep：扁平直达"></a>ascend_deepep：扁平直达</h3><p>当前 UDMA kernel 通过 rank 旋转错开起始目标，但没有显式的 server&#x2F;frame&#x2F;rail 分组。每个 source rank 仍会依次处理全部 destination rank；每个 peer 的两个 QP 完成后分别 quiet，最后进入全局 barrier。</p>
+<p>这个方案的优点是地址关系直接、没有额外 relay；风险则是 128P 下 peer 扇出、路由扫描、completion&#x2F;quiet 和尾延迟同时放大。若性能从 64P 到 128P 明显掉档，而 hidden size 增大后有效带宽反而改善，应优先怀疑固定控制成本与拓扑调度，而不是立即优化向量计算。</p>
+<h3 id="海思-hierarchy：跨机只面向-server"><a href="#海思-hierarchy：跨机只面向-server" class="headerlink" title="海思 hierarchy：跨机只面向 server"></a>海思 hierarchy：跨机只面向 server</h3><p><code>ops-transformer@8dc2fa04</code> 的公开说明把两种算法写得很直接：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">fullmesh:</span><br><span class="line">    token 直接通过 RDMA 发往 Top-K 专家所在 rank</span><br><span class="line"></span><br><span class="line">hierarchy:</span><br><span class="line">    token 经过跨机、机内两次发送</span><br><span class="line">    仅不同 server 同号卡之间使用 RDMA</span><br><span class="line">    server 内使用 HCCS</span><br></pre></td></tr></table></figure>
+
+<p>Layered kernel 固定：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constexpr</span> <span class="type">static</span> <span class="type">uint32_t</span> SERVER_RANK_SIZE = <span class="number">16</span>;</span><br><span class="line">serverNum_ = worldSize_ / SERVER_RANK_SIZE;</span><br></pre></td></tr></table></figure>
+
+<p>跨机目标中继 rank 的计算是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">uint32_t</span> dstRankId =</span><br><span class="line">    rankId_ % SERVER_RANK_SIZE</span><br><span class="line">    + dstServerId * SERVER_RANK_SIZE;</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，source rank 的 local lane 为 5 时，跨机只和目标 server 的 lane 5 通信；数据到达后，再通过 <code>Win2Ipc()</code>、<code>SendTokenToIpc()</code>、<code>Ipc2Out()</code> 等机内路径转发到真正持有 expert 的 rank。</p>
+<p>举一个抽象例子：每 server 16 rank，目标 expert 在 server 2 的 rank 42，而 source rank 的 local lane 是 5。跨机阶段先发送到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2 × 16 + 5 = rank 37</span><br></pre></td></tr></table></figure>
+
+<p>rank 37 是 server 2 的同号中继；随后 server 2 内部再把 hidden 送到 rank 42。若同一 token 在 server 2 上命中多个专家，跨机阶段还可以按 server 聚合 hidden，避免为同一 server 重复发送多份大 payload。</p>
+<p>代价也很明确：多一次 relay、机内 copy 与控制协议。只有当减少的跨机 peer、重复 hidden 和 RDMA 下发成本，大于新增机内搬运成本时，hierarchy 才会获益。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>当前公开 hierarchy 不能直接当作 128P 现成答案</p>
+</div>
+        <div class="message-body">
+            <p>固定 revision 的 README 声明：<code>fullmesh</code> 支持到 128P 及以上，而 <code>hierarchy</code> 当前只支持 16、32、64P。它仍然非常适合学习“先按 server 聚合，再机内展开”的设计，但不能据此声称这份实现已直接覆盖当前 128P 场景。要迁移思想，必须重新确认 server 数、每 server rank 数、HCCS&#x2F;RDMA 路径和 tiling 约束。</p>
+
+        </div>
+    </article>
+
+<h3 id="MoonEP：16-rank-group-与拓扑波次"><a href="#MoonEP：16-rank-group-与拓扑波次" class="headerlink" title="MoonEP：16-rank group 与拓扑波次"></a>MoonEP：16-rank group 与拓扑波次</h3><p><code>ascend-moonep@b67c6840</code> 为 128P 写出了明确的生产拓扑假设：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constexpr</span> <span class="type">uint32_t</span> kDispatchFrameCount = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">uint32_t</span> kDispatchRanksPerFrame = <span class="number">64</span>;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">uint32_t</span> kDispatchRanksPerDirectRow = <span class="number">8</span>;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">uint32_t</span> kDispatchGroupRows = <span class="number">4</span>;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">uint32_t</span> kDispatchGroupColumns = <span class="number">4</span>;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">uint32_t</span> kMaxDispatchGroupWidth = <span class="number">16</span>;</span><br></pre></td></tr></table></figure>
+
+<p>它把 128 rank 看成两个 64P frame；每个 frame 是 <code>8 × 8</code>，再切成四个 <code>4 × 4 = 16 rank</code> 的 group。全局共有 8 个 group，因此每个 rank 用 8 个逻辑轮次覆盖所有目标 group。<code>GetGroupDstRank()</code> 保证每轮映射是双射，使每个目标 group 在一轮中只接收一个源 group，避免多组同时集中冲击同一目标。</p>
+<p>这里最特殊的不是数字 16，而是 <strong>rank ID 被当成物理坐标使用</strong>：frame、row、column、group side 都由 rank 算术得到。如果真实 rank table 没有按这套物理位置编号，照搬公式可能主动制造热点。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>每轮开放 16 rank，是不是只使用 16 个 AIV</p>
+</div>
+        <div class="message-body">
+            <p>不是。首先，“16 rank”指<strong>每个 source rank 当前面对的 16 个目的 peer</strong>，不是全系统只有 16 个 rank 活跃；128 个 source rank 都在同时执行自己的映射。</p>
+<p>其次，kernel 固定启动 32 AIV，并明确分工：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">int64_t</span> token_aiv_count =</span><br><span class="line">    <span class="built_in">GetDispatchGroupWidth</span>(world_size);  <span class="comment">// 128P 时为 16</span></span><br><span class="line"><span class="type">const</span> <span class="type">bool</span> token_worker = aiv_index &lt; token_aiv_count;</span><br><span class="line"><span class="type">const</span> <span class="type">bool</span> weight_worker = !token_worker;</span><br></pre></td></tr></table></figure>
+
+<p>128P 时：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">AIV 0–15</span><br><span class="line">    → 16 个 token workers</span><br><span class="line">    → 每个 AIV 负责当前 group 的一个 peer</span><br><span class="line">    → 搬运大块 hidden</span><br><span class="line"></span><br><span class="line">AIV 16–31</span><br><span class="line">    → 16 个 weight workers</span><br><span class="line">    → 并行处理 Top-K weight 元数据</span><br><span class="line"></span><br><span class="line">汇合后</span><br><span class="line">    → 32 个 AIV 一起执行 DispatchEpilogue</span><br></pre></td></tr></table></figure>
+
+<p>如果 <code>with_weights == 0</code>，后 16 个 AIV 在 token 阶段可能没有有效工作；如果 weight 很小，它们也可能提前到达 barrier。于是 16:16 只是特定 workload 的静态划分，不保证所有 shape 都负载均衡。</p>
+
+        </div>
+    </article>
+
+<p>三种策略可以用同一组问题比较，而不是只看函数名：</p>
+<table>
+<thead>
+<tr>
+<th>实现</th>
+<th>同时面向的通信单位</th>
+<th>跨机路径</th>
+<th>控制协议</th>
+<th>主要边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ascend_deepep</code></td>
+<td>最终覆盖全部 peer；按 source rank 旋转顺序</td>
+<td>source → destination rank</td>
+<td>两个 QP、per-peer quiet、全局 barrier</td>
+<td>无显式 topology group</td>
+</tr>
+<tr>
+<td>海思 hierarchy</td>
+<td>先 destination server，再 server 内 rank</td>
+<td>source lane → 目标 server 同 lane 中继</td>
+<td>RDMA + HCCS&#x2F;IPC + flag</td>
+<td>当前公开支持范围不是 128P</td>
+</tr>
+<tr>
+<td>MoonEP</td>
+<td>每轮一个 16-rank group，8 轮覆盖 128P</td>
+<td>由 2×64、8×8 坐标映射决定</td>
+<td>1–4 QP、completion&#x2F;credit、group schedule</td>
+<td>拓扑与 rank 编号假设很强</td>
+</tr>
+</tbody></table>
+<h2 id="P-维路由为什么值得单独优化"><a href="#P-维路由为什么值得单独优化" class="headerlink" title="P 维路由为什么值得单独优化"></a>P 维路由为什么值得单独优化</h2><p>当前 <code>is_token_in_rank</code> 是 <code>[S,P]</code> 布尔矩阵：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">is_token_in_rank[token, rank] =</span><br><span class="line">    当前 token 是否有专家位于该 rank</span><br></pre></td></tr></table></figure>
+
+<p>它的优点是判断简单，缺点是在 128P 下表示和扫描都按 (P) 扩展。假设 Top-K 为 8，而这些专家最多落在 8 个 rank 上，那么每个 token 实际只需要保存少量 destination，却要读取 128 个布尔值。</p>
+<p>更紧凑的 plan 可以写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">token 0 → [dst rank 3, dst rank 17]</span><br><span class="line">token 1 → [dst rank 8]</span><br><span class="line">token 2 → [dst rank 3, dst rank 9, dst rank 17]</span><br><span class="line"></span><br><span class="line">destination_offsets:</span><br><span class="line">rank 3  → [begin, end)</span><br><span class="line">rank 8  → [begin, end)</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">每个 destination 段内再保存：</span><br><span class="line">token_id、local_expert_id、topk_slot</span><br></pre></td></tr></table></figure>
+
+<p>hierarchy 模式则先压成 destination server，再在 server 内展开 rank&#x2F;expert：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">token</span><br><span class="line">  → unique destination server list</span><br><span class="line">  → server segment offset</span><br><span class="line">  → destination rank / local expert list</span><br></pre></td></tr></table></figure>
+
+<p>这样既能减少 <code>[S,P]</code> 扫描，也能识别“同一 token 在同一 server 命中多个专家”，为跨机 hidden 去重创造条件。需要注意，plan 生成本身也有成本；如果把 planning 时间排除在 benchmark 外，就可能得到一个对端到端系统无效的优化结论。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>所谓 compact plan 到底压缩了什么</p>
+</div>
+        <div class="message-body">
+            <p>原来的表示像一张 128 列考勤表，即使一个 token 只去两个 rank，也要逐列看完：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">token 7: 0 0 0 1 0 0 ... 0 1 ... 0   共 P 列</span><br></pre></td></tr></table></figure>
+
+<p>compact plan 只保存非零项：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">token 7: [rank 3, rank 65]</span><br></pre></td></tr></table></figure>
+
+<p>再按 destination 聚合，就得到真正适合通信提交的连续段：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rank 3  : token [7, 12, 19, ...]</span><br><span class="line">rank 65 : token [7, 21, ...]</span><br></pre></td></tr></table></figure>
+
+<p>优化点不是把 <code>bool</code> 换成更小的 dtype，而是把工作量从“查看全部可能目标”改成“只处理真实目标”。理想情况下复杂度更接近 <code>S × unique_dst_per_token</code>，而不是 <code>S × P</code>。</p>
+
+        </div>
+    </article>
+
+<h2 id="先把时间和字节测对"><a href="#先把时间和字节测对" class="headerlink" title="先把时间和字节测对"></a>先把时间和字节测对</h2><p>在改调度前，需要建立一个同时覆盖 Host、Device、网络和多 rank 尾部的测量面。最少应该回答：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">本 rank 实际发送/接收了多少 hidden 字节？</span><br><span class="line">生成并提交了多少 WQE？</span><br><span class="line">每个 QP 分到多少 WQE 和字节？</span><br><span class="line">route scan、WQE submit、qp_quiet、final barrier、epilogue 各花多久？</span><br><span class="line">最慢 rank 是谁，它的 route histogram 是否异常？</span><br></pre></td></tr></table></figure>
+
+<p>有效 payload 带宽应按真实路由计算，而不是直接拿 <code>S × P × H</code> 当分子：</p>
+<p>[<br>BW_{effective}^{(r)} &#x3D;<br>\frac{actual\ received\ hidden\ bytes^{(r)}}<br>{T_{dispatch}^{(r)}}<br>]</p>
+<p>端到端报告同时给出平均延迟和 max-rank latency。只看 rank 0 或所有 rank 平均值，可能完全看不到负载不均和拓扑热点。</p>
+<h3 id="Host-侧计时"><a href="#Host-侧计时" class="headerlink" title="Host 侧计时"></a>Host 侧计时</h3><p>Host 侧适合用 NPU event 包住稳定的阶段边界：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">event_start</span><br><span class="line">  → layout/notify/dispatch enqueue</span><br><span class="line">event_end</span><br><span class="line">  → 最后统一 synchronize</span><br><span class="line">  → elapsed(event_start, event_end)</span><br></pre></td></tr></table></figure>
+
+<p>不要每个小阶段后立刻 Host synchronize，否则测到的是被人为串行化后的路径。正确性调试阶段可以同步定位，性能测量阶段则应连续提交多轮、丢弃 warmup，并明确是否冲刷 L2。</p>
+<h3 id="Device-侧计时"><a href="#Device-侧计时" class="headerlink" title="Device 侧计时"></a>Device 侧计时</h3><p>MoonEP 已经展示了一个适合借鉴的模式：用编译期 <code>Profile</code> 开关读取 cycle，把每个 AIV 的阶段周期和字节数写入独立 GM 槽位；<code>Profile=false</code> 时编译成零开销路径。</p>
+<p>建议每个 AIV 至少记录：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">route_scan_cycles</span><br><span class="line">wqe_build_cycles</span><br><span class="line">wqe_submit_cycles</span><br><span class="line">wqe_count</span><br><span class="line">payload_bytes</span><br><span class="line">qp0_quiet_cycles</span><br><span class="line">qp1_quiet_cycles</span><br><span class="line">barrier_cycles</span><br><span class="line">epilogue_cycles</span><br></pre></td></tr></table></figure>
+
+<p>记录位置必须按 <code>[rank, aiv, metric]</code> 或其他独占方式切开，不能为了计时再引入热点原子加。最后由 Host 一次性读取并聚合。</p>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>怎么打印，才不会把性能问题打印成另一个性能问题</p>
+</div>
+        <div class="message-body">
+            <p><code>printf</code> 适合确认控制流，不适合放在 token、peer 或 WQE 热循环中。调试时可以使用三道阀门：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">if</span> <span class="title">constexpr</span> <span class="params">(Debug)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (rank == debug_rank &amp;&amp; aiv_index == debug_aiv) &#123;</span><br><span class="line">        <span class="comment">// 只打印一个阶段的一次摘要</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>推荐顺序是：</p>
+<ol>
+<li>先把计数、cycle 和关键状态写到每 AIV 独占 GM buffer。</li>
+<li>kernel 结束后由 Host 统一读取并格式化。</li>
+<li>真正需要确认死锁位置时，再限制到一个 rank、一个 AIV、一个 peer 打印。</li>
+</ol>
+<p>高频 Device printf 会改变指令调度、同步和队列时序，甚至让原本不复现的竞态消失，因此不能把带打印版本的吞吐当作性能证据。</p>
+
+        </div>
+    </article>
+
+<h2 id="把优化变成可证伪的实验"><a href="#把优化变成可证伪的实验" class="headerlink" title="把优化变成可证伪的实验"></a>把优化变成可证伪的实验</h2><p>优化顺序不应是“哪个技巧听起来高级就先做哪个”，而应是每一步只验证一个瓶颈假设。</p>
+<h3 id="P0：建立可信基线"><a href="#P0：建立可信基线" class="headerlink" title="P0：建立可信基线"></a>P0：建立可信基线</h3><p>先固定：</p>
+<ul>
+<li><code>S/H/K/P</code>、dtype、expert 数、capacity&#x2F;alignment。</li>
+<li>rank 到 server、frame、交换路径和 local lane 的映射。</li>
+<li>实际 route histogram：每个 token 的 unique destination rank&#x2F;server 数，每个 rank&#x2F;expert 的接收量。</li>
+<li>计时是否包含 layout&#x2F;notify&#x2F;plan，是否使用 cached handle，是否使用 <code>num_worst_tokens</code>。</li>
+<li>带宽分子是 hidden payload、全部元数据，还是链路物理字节。</li>
+</ul>
+<p>同时做小规模分解：8P、16P、32P、64P、128P；均匀路由和倾斜路由；小 H 和大 H。只有 128P 掉档时，优先检查拓扑和 P 维控制面；所有规模都只有一半时，再检查数据路径、统计口径和底层引擎。</p>
+<h3 id="P1：先处理拓扑扇出"><a href="#P1：先处理拓扑扇出" class="headerlink" title="P1：先处理拓扑扇出"></a>P1：先处理拓扑扇出</h3><p>低风险起点是保留 rank 旋转，并把“全 128 peer”改成可调波次，例如每轮 8&#x2F;16&#x2F;32 peer，记录：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">group width</span><br><span class="line">→ 活跃 peer 数</span><br><span class="line">→ 每轮 WQE 数和字节</span><br><span class="line">→ 每轮 quiet/barrier</span><br><span class="line">→ max-rank latency</span><br></pre></td></tr></table></figure>
+
+<p>如果硬件拓扑确认与 MoonEP 的 2×64、8×8、4×4 一致，可以研究它的双射 group schedule；如果真实系统更接近每 server 16 rank，则可研究 hierarchy 的“同 lane 跨机 + server 内展开”。<strong>必须先建立 rank→物理位置表，再选择公式。</strong></p>
+<h3 id="P2：减少-WQE-和完成等待"><a href="#P2：减少-WQE-和完成等待" class="headerlink" title="P2：减少 WQE 和完成等待"></a>P2：减少 WQE 和完成等待</h3><p>对相同 peer 的连续 token 做聚合，使一次 WQE 搬更多字节；把 <code>quiet</code> 放在一批 payload 之后，而不是每个小块之后，同时保证 completion flag 晚于 payload 可见。</p>
+<p>两个 QP 的分流不要只看 channel 数。把策略做成可配置，对比：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1 QP</span><br><span class="line">2 QP 1:1</span><br><span class="line">2 QP 3:1</span><br><span class="line">2 QP 按累计字节加权</span><br><span class="line">4 QP round-robin</span><br></pre></td></tr></table></figure>
+
+<p>若增加 QP 只增加了 WQE&#x2F;CQE 管理而没有降低 quiet 周期，瓶颈可能在共享链路或共享引擎，不在单 QP 队列深度。</p>
+<h3 id="P3：压缩路由计划"><a href="#P3：压缩路由计划" class="headerlink" title="P3：压缩路由计划"></a>P3：压缩路由计划</h3><p>从 Top-K expert 直接生成 unique destination rank&#x2F;server list，并按 destination compact；尽量融合：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">expert → rank/server 映射</span><br><span class="line">    + count</span><br><span class="line">    + prefix</span><br><span class="line">    + token reorder plan</span><br></pre></td></tr></table></figure>
+
+<p>目标是避免多次读取 <code>[S,P]</code>，也避免所有 rank 重复读取完整 source-rank 计数。计划生成要纳入端到端计时，除非业务确实能长期复用 cached handle。</p>
+<h3 id="P4：再做细粒度通算掩盖"><a href="#P4：再做细粒度通算掩盖" class="headerlink" title="P4：再做细粒度通算掩盖"></a>P4：再做细粒度通算掩盖</h3><p>把工作拆成真正无依赖或仅有局部依赖的阶段：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">当前 peer group 的 UDMA 在途</span><br><span class="line">    ↔ 下一 group 的 route/offset/WQE 准备</span><br><span class="line"></span><br><span class="line">hidden token AIV</span><br><span class="line">    ↔ weight metadata AIV</span><br><span class="line"></span><br><span class="line">ping buffer 的 GM→UB</span><br><span class="line">    ↔ pong buffer 的 UB→remote GM</span><br></pre></td></tr></table></figure>
+
+<p>全局 barrier 若只用于保护某个 peer buffer，可以尝试改成 per-peer&#x2F;per-group completion 与 credit；但必须保留“payload 可见后才能发 ready”“consumer 完成后才能复用 slot”这两条 happens-before。</p>
+<h3 id="P5：最后压内存细节"><a href="#P5：最后压内存细节" class="headerlink" title="P5：最后压内存细节"></a>P5：最后压内存细节</h3><p>在确认 GM&#x2F;UB 搬运成为热点后，再处理：</p>
+<ul>
+<li>让同一 peer&#x2F;expert 的 token 在 GM 中连续，扩大 DataCopy 和 WQE 粒度。</li>
+<li>保证 UB 起点与传输粒度对齐，避免邻近 AIV 写同一缓存行。</li>
+<li>使用 ping-pong staging，把 MTE2 读、Vector 处理、MTE3&#x2F;UDMA 提交重叠。</li>
+<li>复用 symmetric workspace 与 cached plan，避免热路径分配和初始化。</li>
+<li>针对常见 <code>H/K/P</code> 做静态 specialization，同时保留通用 fallback。</li>
+</ul>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>复杂硬件上的通算掩盖，流程理解是否正确？常见几板斧是什么</p>
+</div>
+        <div class="message-body">
+            <p>你的理解方向基本正确：根据计算逻辑建立依赖图，把计算、通信、访存、原子和同步拆开，再根据 shape 精细调度，使多个硬件资源尽量同时工作。</p>
+<p>但要补上两道门：</p>
+<ol>
+<li><strong>先证明独立性。</strong>单边通信中的 payload、flag、credit 和 buffer reuse 有严格顺序，不能因为代码段看起来分开就并行。</li>
+<li><strong>先证明当前上限。</strong>如果瓶颈是 WQE 提交率，增加 payload AIV 没用；如果瓶颈是最慢 expert，优化平均 GM 带宽也没用。</li>
+</ol>
+<p>常见“几板斧”可以归纳为：</p>
+<ul>
+<li><strong>减数据</strong>：量化、去重、同 server 命中多个专家时 hidden 只跨机一次、避免重复元数据。</li>
+<li><strong>减任务</strong>：连续 token 合并成大 WQE，批量下发，降低 CQE、doorbell 和 quiet 次数。</li>
+<li><strong>懂拓扑</strong>：按 server&#x2F;frame&#x2F;rail 分组，限制每轮 fan-out，用双射或错峰 schedule 避免热点。</li>
+<li><strong>做流水</strong>：双缓冲，当前通信与下一批 planning&#x2F;pack 重叠，hidden 与 weight 分工。</li>
+<li><strong>减同步</strong>：用局部 completion&#x2F;credit 替代不必要的全局 barrier，但不破坏内存可见性。</li>
+<li><strong>压访存</strong>：连续布局、对齐、UB tiling、减少 GM 往返、避免伪共享和热点原子。</li>
+<li><strong>做均衡</strong>：按实际字节&#x2F;WQE 给 AIV 与 QP 分工，关注 expert&#x2F;rank skew 和 max-rank tail。</li>
+<li><strong>按 shape 特化</strong>：为常见 <code>P/H/K/S</code> 选择 group width、AIV 比例、QP 数和 bucket，避免一套参数覆盖所有场景。</li>
+</ul>
+<p>真正可复用的方法不是背下这些技巧，而是把每一项写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">假设 → 改动 → 指标 → 预期现象 → 失败时说明什么</span><br></pre></td></tr></table></figure>
+        </div>
+    </article>
+
+<h2 id="一份可以直接执行的实验表"><a href="#一份可以直接执行的实验表" class="headerlink" title="一份可以直接执行的实验表"></a>一份可以直接执行的实验表</h2><table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>假设</th>
+<th>最小改动</th>
+<th>必看指标</th>
+<th>支持假设的现象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0</td>
+<td>带宽口径或尾延迟判断有误</td>
+<td>记录实际 payload 和所有 rank 延迟</td>
+<td>bytes、avg&#x2F;p95&#x2F;max rank latency</td>
+<td>max 明显高于平均，或实际字节远小于理论分子</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>128P peer 扇出&#x2F;拓扑是主瓶颈</td>
+<td>group width 扫描 8&#x2F;16&#x2F;32&#x2F;128</td>
+<td>每轮 quiet、总 latency、链路分布</td>
+<td>中等 group 明显降低 max latency</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>WQE&#x2F;quiet 固定成本过高</td>
+<td>合并同 peer 连续 token</td>
+<td>WQE&#x2F;byte、submit&#x2F;quiet cycles</td>
+<td>WQE 数下降且有效带宽上升</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>3:1 QP 不适合当前 shape</td>
+<td>扫描 1QP、1:1、3:1、1:3、4QP</td>
+<td>per-QP bytes&#x2F;WQE&#x2F;quiet</td>
+<td>某策略稳定降低最后完成 QP 的时间</td>
+</tr>
+<tr>
+<td>P3</td>
+<td><code>[S,P]</code> route scan 在 128P 过重</td>
+<td>compact destination list 原型</td>
+<td>route cycles、GM bytes、plan time</td>
+<td>P 扩展时 route 时间不再近似线性增长</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>全局同步吞掉重叠</td>
+<td>per-group completion&#x2F;credit 原型</td>
+<td>barrier cycles、并发在途 WQE</td>
+<td>barrier 降低且 correctness 不变</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>AIV 分工失衡</td>
+<td>扫描 token&#x2F;weight AIV 比例</td>
+<td>每组 AIV 完成周期</td>
+<td>两组结束时间接近，总时间下降</td>
+</tr>
+<tr>
+<td>P5</td>
+<td>GM&#x2F;UB 路径受限</td>
+<td>重排连续化与 ping-pong</td>
+<td>MTE cycles、GM throughput</td>
+<td>大 H&#x2F;大 batch 下收益更明显</td>
+</tr>
+</tbody></table>
+<p>每次只改一个主要变量。若同时改拓扑、QP 数、路由格式和 AIV 分工，即使性能上涨，也无法知道收益来自哪里，更无法判断换一个 shape 后为什么回退。</p>
+<h2 id="回到“只有理论一半”"><a href="#回到“只有理论一半”" class="headerlink" title="回到“只有理论一半”"></a>回到“只有理论一半”</h2><p>现在可以把最初的问题改写得更精确：</p>
+<blockquote>
+<p>在 128P 两层拓扑上，当前 dispatch 是受 hidden payload 带宽限制，还是受全 peer 扇出、WQE&#x2F;quiet、<code>[S,P]</code> 规划和最慢 rank 同步限制？</p>
+</blockquote>
+<p>源码已经能确认几件事：<code>ascend_deepep</code> 当前使用扁平 peer 扫描、source-rank 旋转、固定两个 QP 和 3:1 channel 分配；Host 侧始终按 <code>S×P</code> 预留内部接收区；<code>num_worst_tokens</code> 能避免 Host 回读但不会缩小这块 workspace；海思 hierarchy 展示了“按 server 跨机聚合、机内再展开”的协议；MoonEP 展示了“16-rank group、拓扑双射波次、token&#x2F;weight AIV 分工和局部 completion&#x2F;credit”的另一条路线。</p>
+<p>源码还不能证明的是：3:1 为何在当前硬件上最优、MoonEP 的 2×64 拓扑是否等于实际部署、hierarchy 的 relay 收益能否覆盖当前 128P，以及理论带宽的一半究竟丢在哪个阶段。这些问题不能继续靠静态阅读裁决，只能靠分阶段 cycle、per-QP WQE&#x2F;bytes、route histogram 和 max-rank latency 去收束。</p>
+<p>因此第一版优化不必追求“大改架构”。先把计时面补齐，再做两个最小实验：<strong>QP 策略扫描</strong>和<strong>peer group width 扫描</strong>。如果前者无效、后者在 128P 明显有效，主矛盾就从“单 QP 不够并行”转向“拓扑与控制面扇出”；届时再投入 compact plan 或 hierarchy，路径会清楚得多。</p>
+<h2 id="源码锚点"><a href="#源码锚点" class="headerlink" title="源码锚点"></a>源码锚点</h2><p>本文只描述以下固定 revision 和会话中已经走读的实现，不把实验性策略升级为通用硬件结论：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/lishaoxun/ascend_deepep/tree/18e2dd4b45cf852496accfc494c4d558cde1722f"><code>ascend_deepep@18e2dd4b</code></a>：Python <code>Buffer.dispatch</code>、Host <code>csrc/ops/dispatch.cpp</code>、Device <code>kernels/dispatch.cpp</code> 与 <code>kernels/dispatch_udma.cpp</code>。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/ops-transformer/tree/8dc2fa0461e633fc254de6c9a4863da9aab7499d/mc2/moe_distribute_dispatch_v2"><code>ops-transformer@8dc2fa04</code></a>：README 中的 <code>fullmesh/hierarchy</code> 约束与 <code>moe_distribute_dispatch_v2_layered.h</code>。</li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/jayhua/ascend-moonep/tree/b67c6840f57524724293169404403b8b0880c5e7/kernels"><code>ascend-moonep@b67c6840</code></a>：<code>moonep_dispatch_udma.cpp</code> 中的 128P group schedule、QP 策略、AIV 分工和 profiling。</li>
+<li><a target="_blank" rel="noopener" href="https://shaojiemike.top/1-distributed-parallelism/2026/08/25/AIV-MoE-All-to-All/">AIV MoE All-to-All</a>：dispatch&#x2F;combine 的 one-sided Put、ready&#x2F;count 与反向归约背景。</li>
+<li><a target="_blank" rel="noopener" href="https://shaojiemike.top/1-ai-systems/2026/08/25/DMA-Communication-Terminology/">DMA Communication Terminology</a>：UDMA、IPC&#x2F;MTE、SHMEM 与完成语义的概念边界。</li>
+</ol>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Ascend DeepEP MoE Dispatch Optimization</p><p><a href="http://icarus.shaojiemike.top/2026/08/31/Work/Artificial Intelligence/AIInfra/Ascend-DeepEP-MoE-Dispatch-Optimization/">http://icarus.shaojiemike.top/2026/08/31/Work/Artificial Intelligence/AIInfra/Ascend-DeepEP-MoE-Dispatch-Optimization/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-08-31</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-08-31</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/AIV/">AIV</a><a class="link-muted mr-2" rel="tag" href="/tags/MOE/">MOE</a><a class="link-muted mr-2" rel="tag" href="/tags/ALL-TO-ALL/">ALL-TO-ALL</a><a class="link-muted mr-2" rel="tag" href="/tags/UDMA/">UDMA</a><a class="link-muted mr-2" rel="tag" href="/tags/DEEPEP/">DEEPEP</a><a class="link-muted mr-2" rel="tag" href="/tags/URMA/">URMA</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2027/03/15/Work/0-Exp/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/31/Work/Artificial%20Intelligence/Inference/vLLM-KV-Offloading-GDS/"><span class="level-item">vLLM KV Offloading and GDS</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">634</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">52</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">990</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#问题不只是“带宽没跑满”"><span class="level-left"><span class="level-item">1</span><span class="level-item">问题不只是“带宽没跑满”</span></span></a></li><li><a class="level is-mobile" href="#一条-token-如何走完-MoE"><span class="level-left"><span class="level-item">2</span><span class="level-item">一条 token 如何走完 MoE</span></span></a></li><li><a class="level is-mobile" href="#从-Python-接口进入真实调用链"><span class="level-left"><span class="level-item">3</span><span class="level-item">从 Python 接口进入真实调用链</span></span></a></li><li><a class="level is-mobile" href="#Host-侧先造一张通信地图"><span class="level-left"><span class="level-item">4</span><span class="level-item">Host 侧先造一张通信地图</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Workspace-不是一个-Tensor，而是一块地址空间"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">Workspace 不是一个 Tensor，而是一块地址空间</span></span></a></li><li><a class="level is-mobile" href="#Notify-先交换数量和前缀"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">Notify 先交换数量和前缀</span></span></a></li><li><a class="level is-mobile" href="#输出长度有动态和固定两种模式"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">输出长度有动态和固定两种模式</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Device-侧如何把-channel-变成远端-Put"><span class="level-left"><span class="level-item">5</span><span class="level-item">Device 侧如何把 channel 变成远端 Put</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#两个-QP-采用-3-1，而不是均分"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">两个 QP 采用 3:1，而不是均分</span></span></a></li></ul></li><li><a class="level is-mobile" href="#128P-为什么会放大问题"><span class="level-left"><span class="level-item">6</span><span class="level-item">128P 为什么会放大问题</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#ascend-deepep：扁平直达"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">ascend_deepep：扁平直达</span></span></a></li><li><a class="level is-mobile" href="#海思-hierarchy：跨机只面向-server"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">海思 hierarchy：跨机只面向 server</span></span></a></li><li><a class="level is-mobile" href="#MoonEP：16-rank-group-与拓扑波次"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">MoonEP：16-rank group 与拓扑波次</span></span></a></li></ul></li><li><a class="level is-mobile" href="#P-维路由为什么值得单独优化"><span class="level-left"><span class="level-item">7</span><span class="level-item">P 维路由为什么值得单独优化</span></span></a></li><li><a class="level is-mobile" href="#先把时间和字节测对"><span class="level-left"><span class="level-item">8</span><span class="level-item">先把时间和字节测对</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Host-侧计时"><span class="level-left"><span class="level-item">8.1</span><span class="level-item">Host 侧计时</span></span></a></li><li><a class="level is-mobile" href="#Device-侧计时"><span class="level-left"><span class="level-item">8.2</span><span class="level-item">Device 侧计时</span></span></a></li></ul></li><li><a class="level is-mobile" href="#把优化变成可证伪的实验"><span class="level-left"><span class="level-item">9</span><span class="level-item">把优化变成可证伪的实验</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#P0：建立可信基线"><span class="level-left"><span class="level-item">9.1</span><span class="level-item">P0：建立可信基线</span></span></a></li><li><a class="level is-mobile" href="#P1：先处理拓扑扇出"><span class="level-left"><span class="level-item">9.2</span><span class="level-item">P1：先处理拓扑扇出</span></span></a></li><li><a class="level is-mobile" href="#P2：减少-WQE-和完成等待"><span class="level-left"><span class="level-item">9.3</span><span class="level-item">P2：减少 WQE 和完成等待</span></span></a></li><li><a class="level is-mobile" href="#P3：压缩路由计划"><span class="level-left"><span class="level-item">9.4</span><span class="level-item">P3：压缩路由计划</span></span></a></li><li><a class="level is-mobile" href="#P4：再做细粒度通算掩盖"><span class="level-left"><span class="level-item">9.5</span><span class="level-item">P4：再做细粒度通算掩盖</span></span></a></li><li><a class="level is-mobile" href="#P5：最后压内存细节"><span class="level-left"><span class="level-item">9.6</span><span class="level-item">P5：最后压内存细节</span></span></a></li></ul></li><li><a class="level is-mobile" href="#一份可以直接执行的实验表"><span class="level-left"><span class="level-item">10</span><span class="level-item">一份可以直接执行的实验表</span></span></a></li><li><a class="level is-mobile" href="#回到“只有理论一半”"><span class="level-left"><span class="level-item">11</span><span class="level-item">回到“只有理论一半”</span></span></a></li><li><a class="level is-mobile" href="#源码锚点"><span class="level-left"><span class="level-item">12</span><span class="level-item">源码锚点</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">39</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/2-Communication/"><span class="level-start"><span class="level-item">2-Communication</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">42</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-31T12:00:00.000Z">2026-08-31</time></p><p class="title"><a href="/2026/08/31/Work/Artificial%20Intelligence/AIInfra/Ascend-DeepEP-MoE-Dispatch-Optimization/">Ascend DeepEP MoE Dispatch Optimization</a></p><p class="categories"><a href="/categories/1-Distributed-Parallelism/">1-Distributed Parallelism</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-31T02:44:03.000Z">2026-08-31</time></p><p class="title"><a href="/2026/08/31/Work/Artificial%20Intelligence/Inference/vLLM-KV-Offloading-GDS/">vLLM KV Offloading and GDS</a></p><p class="categories"><a href="/categories/1-AI-Systems/">1-AI Systems</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-29T02:30:00.000Z">2026-08-29</time></p><p class="title"><a href="/2026/08/29/Work/Artificial%20Intelligence/AIInfra/Mooncake-KV-Metadata-Snapshot/">Mooncake KV Metadata</a></p><p class="categories"><a href="/categories/1-Infer/">1-Infer</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-28T09:41:32.000Z">2026-08-28</time></p><p class="title"><a href="/2026/08/28/Work/Artificial%20Intelligence/AIInfra/FuseLink-Multi-NIC-Communication/">FuseLink Multi-NIC Communication</a></p><p class="categories"><a href="/categories/2-Communication/">2-Communication</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Chip/"><span class="tag">AI Chip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-INFRA/"><span class="tag">AI INFRA</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
