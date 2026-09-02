@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>URMA Mental Model - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       我刚开始接触 URMA 时，最容易卡住的问题不是某个函数不会调用，而是概念没有连成一条线：WQE 和 Jetty SQ 是什么关系，Segment 为什么要注册和导入，urma_post_jetty_send_wr() 提交之后又去了哪里。本文只做一件事：沿着一条 WRITE 请求的生命周期，把这些名词放回它们各自的位置。"><meta property="og:type" content="blog"><meta property="og:title" content="URMA Mental Model"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/09/02/Work/Artificial%20Intelligence/AIInfra/URMA-Mental-Model/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       我刚开始接触 URMA 时，最容易卡住的问题不是某个函数不会调用，而是概念没有连成一条线：WQE 和 Jetty SQ 是什么关系，Segment 为什么要注册和导入，urma_post_jetty_send_wr() 提交之后又去了哪里。本文只做一件事：沿着一条 WRITE 请求的生命周期，把这些名词放回它们各自的位置。"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-09-02T12:10:00.000Z"><meta property="article:modified_time" content="2026-09-02T12:37:49.635Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="WQE"><meta property="article:tag" content="UnifiedBus"><meta property="article:tag" content="URMA"><meta property="article:tag" content="UMDK"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/09/02/Work/Artificial%20Intelligence/AIInfra/URMA-Mental-Model/"},"headline":"URMA Mental Model","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-09-02T12:10:00.000Z","dateModified":"2026-09-02T12:37:49.635Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       我刚开始接触 URMA 时，最容易卡住的问题不是某个函数不会调用，而是概念没有连成一条线：WQE 和 Jetty SQ 是什么关系，Segment 为什么要注册和导入，urma_post_jetty_send_wr() 提交之后又去了哪里。本文只做一件事：沿着一条 WRITE 请求的生命周期，把这些名词放回它们各自的位置。"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/09/02/Work/Artificial%20Intelligence/AIInfra/URMA-Mental-Model/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-09-02T12:10:00.000Z" title="9/2/2026, 12:10:00 PM">2026-09-02</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-09-02T12:37:49.635Z" title="9/2/2026, 12:37:49 PM">2026-09-02</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AIV/">1-AIV</a></span><span class="level-item">16 minutes read (About 2394 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">URMA Mental Model</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>我刚开始接触 URMA 时，最容易卡住的问题不是某个函数不会调用，而是概念没有连成一条线：WQE 和 Jetty SQ 是什么关系，Segment 为什么要注册和导入，<code>urma_post_jetty_send_wr()</code> 提交之后又去了哪里。本文只做一件事：沿着一条 WRITE 请求的生命周期，把这些名词放回它们各自的位置。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>系列位置</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li><strong>URMA Mental Model：对象与数据路径</strong></li>
+<li>URMA Write and Read：最小读写程序</li>
+<li>URMA Completion and Concurrency：完成、顺序与并发</li>
+<li>SHMEM UDMA Programming：对称内存与 put 接口</li>
+<li>AIV UDMA Direct Drive：<code>st_dev</code>、多 QP 与 Relay</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>源码截面</p>
+</div>
+        <div class="message-body">
+            <p>本系列的原生 URMA 类型、函数和样例核对到 <code>openeuler/umdk@a2e11613f0f8174c0170413952ac4a5364a99a70</code>。若本机 UMDK 版本不同，应优先相信随版本安装的头文件。</p>
+
+        </div>
+    </article>
+
+<h2 id="先记住一条主线"><a href="#先记住一条主线" class="headerlink" title="先记住一条主线"></a>先记住一条主线</h2><p>一次最普通的远端写，可以先理解成下面这条流水线：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">应用填写 WR</span><br><span class="line">    ↓</span><br><span class="line">URMA/Provider 编码为 WQE</span><br><span class="line">    ↓</span><br><span class="line">WQE 写入 Jetty 的发送队列 SQ</span><br><span class="line">    ↓</span><br><span class="line">更新生产者索引并敲 Doorbell</span><br><span class="line">    ↓</span><br><span class="line">UDMA 设备执行远端写</span><br><span class="line">    ↓</span><br><span class="line">设备向完成队列写入 CQE</span><br><span class="line">    ↓</span><br><span class="line">应用从 JFC 轮询到 CR</span><br></pre></td></tr></table></figure>
+
+<p>这里最重要的判断是：<strong>WQE 不是与 SQ 并列的资源，WQE 是 SQ 中的一条工作项。</strong></p>
+<p>可以用餐厅来类比：</p>
+<ul>
+<li><strong>WR</strong> 是服务员写下的点菜单，仍是软件容易理解的格式。</li>
+<li><strong>WQE</strong> 是后厨系统识别的标准工单。</li>
+<li><strong>SQ</strong> 是等待后厨处理的一排工单槽位。</li>
+<li><strong>Doorbell</strong> 是通知后厨“有新单”的铃。</li>
+<li><strong>CQE</strong> 是后厨写回的完成小票。</li>
+<li><strong>JFC&#x2F;CQ</strong> 是存放完成小票的队列。</li>
+</ul>
+<p>这个类比只帮助建立直觉。编程时仍要回到对象、队列和内存权限三个维度。</p>
+<h2 id="对象关系"><a href="#对象关系" class="headerlink" title="对象关系"></a>对象关系</h2><h3 id="内存对象"><a href="#内存对象" class="headerlink" title="内存对象"></a>内存对象</h3><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>直观理解</th>
+<th>在一次 WRITE 中的作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本地缓冲区</td>
+<td>普通虚拟地址</td>
+<td>保存准备发送的数据</td>
+</tr>
+<tr>
+<td>Segment</td>
+<td>已向通信设备登记的一段内存</td>
+<td>告诉设备地址范围和访问权限</td>
+</tr>
+<tr>
+<td><code>urma_seg_t</code></td>
+<td>可交换的 Segment 描述</td>
+<td>通过带外通道发给对端</td>
+</tr>
+<tr>
+<td><code>urma_target_seg_t</code></td>
+<td>导入后的目标 Segment 句柄</td>
+<td>真正用于访问本地或远端 Segment</td>
+</tr>
+<tr>
+<td>SGE</td>
+<td>一个地址、长度和 Segment 句柄</td>
+<td>描述一段连续数据</td>
+</tr>
+<tr>
+<td>SG</td>
+<td>一组 SGE</td>
+<td>描述可能不连续的完整数据</td>
+</tr>
+</tbody></table>
+<p>普通指针只对当前进程有意义。设备若要直接访问一块内存，还需要知道这块内存是否已注册、允许什么操作。因此，<strong>地址和 Segment 句柄必须配套使用</strong>。</p>
+<p>对于远端内存，还要分清两步：</p>
+<ol>
+<li>对端把可交换的 <code>urma_seg_t</code> 描述发过来。</li>
+<li>本端调用导入接口，把描述变成可提交给设备的 <code>urma_target_seg_t *</code>。</li>
+</ol>
+<p>不要把“收到远端描述”误认为“已经能访问远端内存”。</p>
+<h3 id="队列与端点"><a href="#队列与端点" class="headerlink" title="队列与端点"></a>队列与端点</h3><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>全称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JFS</td>
+<td>Jetty for Send</td>
+<td>提供发送队列 SQ</td>
+</tr>
+<tr>
+<td>JFR</td>
+<td>Jetty for Receive</td>
+<td>提供接收队列 RQ</td>
+</tr>
+<tr>
+<td>Jetty</td>
+<td>JFS 与 JFR 的组合端点</td>
+<td>统一承载发送和接收能力</td>
+</tr>
+<tr>
+<td>JFC</td>
+<td>Jetty for Completion</td>
+<td>承载完成队列 CQ</td>
+</tr>
+<tr>
+<td>SQ</td>
+<td>Send Queue</td>
+<td>保存待设备执行的 WQE</td>
+</tr>
+<tr>
+<td>RQ</td>
+<td>Receive Queue</td>
+<td>保存接收方预先准备的接收 WQE</td>
+</tr>
+<tr>
+<td>CQ</td>
+<td>Completion Queue</td>
+<td>保存设备写回的 CQE</td>
+</tr>
+</tbody></table>
+<p><strong>Jetty 是通信端点对象，SQ 是它内部的一条发送队列。</strong> 一个 Jetty 可以被应用拿来提交请求，但应用通常不是直接把任意字节写入 SQ，而是先构造 URMA WR，再交给 Provider 编码和提交。</p>
+<h3 id="请求与完成"><a href="#请求与完成" class="headerlink" title="请求与完成"></a>请求与完成</h3><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>所在层次</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>WR</td>
+<td>URMA 软件接口</td>
+<td>应用描述 opcode、源、目标、标志和上下文</td>
+</tr>
+<tr>
+<td>WQE</td>
+<td>设备队列格式</td>
+<td>Provider 根据 WR 编码出的硬件工作项</td>
+</tr>
+<tr>
+<td>CQE</td>
+<td>设备完成格式</td>
+<td>设备写回的完成项</td>
+</tr>
+<tr>
+<td>CR</td>
+<td>URMA 软件接口</td>
+<td>应用从 JFC 轮询得到的完成结果</td>
+</tr>
+</tbody></table>
+<p>通常会把一个请求编号放入 <code>wr.user_ctx</code>。设备完成后，应用从 <code>cr.user_ctx</code> 取回同一个值，由此判断完成项属于哪个请求。这个编号只负责关联，<strong>不等于队列序号，也不自动保证数据顺序</strong>。</p>
+<h2 id="WRITE-到底描述了什么"><a href="#WRITE-到底描述了什么" class="headerlink" title="WRITE 到底描述了什么"></a>WRITE 到底描述了什么</h2><p>一条 WRITE WR 至少回答四个问题：</p>
+<ol>
+<li><strong>从哪里读</strong>：本地源 SGE。</li>
+<li><strong>向哪里写</strong>：远端目标 SGE。</li>
+<li><strong>通过哪个端点发出</strong>：目标 Jetty 句柄。</li>
+<li><strong>完成后如何识别</strong>：完成标志和 <code>user_ctx</code>。</li>
+</ol>
+<p>用结构关系表示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">urma_jfs_wr_t</span><br><span class="line">├── opcode = URMA_OPC_WRITE</span><br><span class="line">├── tjetty = 导入后的对端 Jetty</span><br><span class="line">├── user_ctx = 请求 ID</span><br><span class="line">├── flag.complete_enable = 1</span><br><span class="line">└── rw</span><br><span class="line">    ├── src = 本地 SG</span><br><span class="line">    │   └── SGE(addr, len, local_tseg)</span><br><span class="line">    └── dst = 远端 SG</span><br><span class="line">        └── SGE(addr, len, import_tseg)</span><br></pre></td></tr></table></figure>
+
+<p><code>complete_enable = 1</code> 表示这个请求需要产生完成通知。若没有请求完成项，却一直轮询 JFC，程序不会得到预期结果。</p>
+<h2 id="单边与双边语义"><a href="#单边与双边语义" class="headerlink" title="单边与双边语义"></a>单边与双边语义</h2><p>URMA 的常见数据操作可以先分成两组：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>谁描述数据地址</th>
+<th>接收端是否需要预投递</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>WRITE</td>
+<td>发起端同时描述本地源和远端目标</td>
+<td>不需要</td>
+</tr>
+<tr>
+<td>READ</td>
+<td>发起端同时描述远端源和本地目标</td>
+<td>不需要</td>
+</tr>
+<tr>
+<td>SEND&#x2F;RECV</td>
+<td>发送端描述发送数据，接收端描述接收缓冲区</td>
+<td>需要先投递 RECV</td>
+</tr>
+</tbody></table>
+<p>因此，<strong>WRITE&#x2F;READ 是单边操作</strong>：目标进程不必为每一条传输即时调用接收函数。不过，目标内存仍然必须提前注册、授权并把描述交换给发起端。</p>
+<h2 id="基础-API-地图"><a href="#基础-API-地图" class="headerlink" title="基础 API 地图"></a>基础 API 地图</h2><p>不必一次记住全部函数，先按生命周期分组：</p>
+<ol>
+<li><p><strong>发现设备并创建上下文</strong></p>
+<ul>
+<li><code>urma_init()</code></li>
+<li><code>urma_get_device_list()</code> 或 <code>urma_get_device_by_name()</code></li>
+<li><code>urma_get_eid_list()</code></li>
+<li><code>urma_query_device()</code></li>
+<li><code>urma_create_context()</code></li>
+</ul>
+</li>
+<li><p><strong>创建完成资源</strong></p>
+<ul>
+<li><code>urma_create_jfce()</code>：可选的完成事件对象。</li>
+<li><code>urma_create_jfc()</code>：创建完成队列。</li>
+<li><code>urma_poll_jfc()</code>：轮询完成结果。</li>
+</ul>
+</li>
+<li><p><strong>创建通信端点</strong></p>
+<ul>
+<li>分开创建：<code>urma_create_jfs()</code>、<code>urma_create_jfr()</code>。</li>
+<li>组合创建：<code>urma_create_jetty()</code>。</li>
+<li>导入对端：<code>urma_import_jfr()</code> 或 <code>urma_import_jetty()</code>。</li>
+</ul>
+</li>
+<li><p><strong>注册并交换内存</strong></p>
+<ul>
+<li><code>urma_register_seg()</code>：注册本地 Segment。</li>
+<li>通过 socket 等带外通道交换 Segment 描述和 token。</li>
+<li><code>urma_import_seg()</code>：导入远端 Segment。</li>
+</ul>
+</li>
+<li><p><strong>提交数据请求</strong></p>
+<ul>
+<li>简便接口：<code>urma_write()</code>、<code>urma_read()</code>、<code>urma_send()</code>、<code>urma_recv()</code>。</li>
+<li>通用接口：<code>urma_post_jfs_wr()</code>、<code>urma_post_jfr_wr()</code>。</li>
+<li>Jetty 接口：<code>urma_post_jetty_send_wr()</code>、<code>urma_post_jetty_recv_wr()</code>。</li>
+</ul>
+</li>
+<li><p><strong>按相反顺序清理</strong></p>
+<ul>
+<li>先确保请求已完成。</li>
+<li>再取消导入、注销 Segment、删除 Jetty&#x2F;JFC。</li>
+<li>最后释放 Context 和设备列表。</li>
+</ul>
+</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>提交不等于完成</p>
+</div>
+        <div class="message-body">
+            <p><code>urma_post_jetty_send_wr()</code> 返回成功，只说明 WR 已被接受并提交到发送路径；它不表示远端数据已经可用。只有轮询到成功 CR，或者使用接口规定的其他完成机制后，才能按完成语义继续复用缓冲区或消费结果。</p>
+
+        </div>
+    </article>
+
+<h2 id="st-dev-在哪里"><a href="#st-dev-在哪里" class="headerlink" title="st_dev 在哪里"></a><code>st_dev</code> 在哪里</h2><p><code>st_dev</code> <strong>不是 URMA 的 Host 侧公共 API</strong>。它是 Ascend C&#x2F;CCE 的 Device 侧写指令，可由 AIV 核在直驱 UDMA 时向 Doorbell 地址写入新的队列 head。</p>
+<p>两条路径不要混在一起：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Host 常规路径：WR → URMA API → Provider 填 WQE → CPU 写 Doorbell</span><br><span class="line">AIV 直驱路径：AIV 构造 WQE → 写 SQ → st_dev 写 Doorbell</span><br></pre></td></tr></table></figure>
+
+<p><code>st_dev</code> 只负责最后的 Doorbell 写入，<strong>不会替应用搬运 payload，也不会自动构造 WQE</strong>。AIV 直驱会在本系列第五篇单独展开。</p>
+<h2 id="学完本篇应能回答"><a href="#学完本篇应能回答" class="headerlink" title="学完本篇应能回答"></a>学完本篇应能回答</h2><ul>
+<li>WQE 是什么？——设备能执行的一条工作项。</li>
+<li>Jetty SQ 是什么？——Jetty 内保存发送 WQE 的环形队列。</li>
+<li>WR 和 WQE 有何区别？——前者是软件请求，后者是 Provider 编码后的设备格式。</li>
+<li>为什么要注册 Segment？——给设备提供地址范围、权限和可识别句柄。</li>
+<li>为什么还要 JFC？——请求异步执行，应用需要从完成队列确认结果。</li>
+<li><code>st_dev</code> 是 URMA API 吗？——不是，它属于 AIV 直驱路径中的 Device 指令。</li>
+</ul>
+<article class="message is-success">
+        <div class="message-header"><p><i class="fa-brands fa-gripfire mr-2"></i>下一步</p>
+</div>
+        <div class="message-body">
+            <p>带着这张概念图阅读下一篇。下一篇会从官方样例中抽出一条最小 WRITE，并逐行解释每个字段为什么存在。</p>
+
+        </div>
+    </article>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/openeuler/umdk">openEuler UMDK 源码仓</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.openeuler.org/zh/docs/24.03_LTS_SP4/unifiedbus/unifiedbus/urma/URMA%20API%20Guide.ch.html">URMA API Guide</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/openeuler/umdk/blob/a2e11613f0f8174c0170413952ac4a5364a99a70/src/urma/lib/urma/core/include/urma_api.h">URMA 公共 API 头文件</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/openeuler/umdk/blob/a2e11613f0f8174c0170413952ac4a5364a99a70/src/urma/lib/urma/core/include/urma_types.h">URMA 类型定义</a></li>
+<li>进阶背景：<a href="OpenURMA-Unified-Bus.md">OpenURMA Unified Bus</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>URMA Mental Model</p><p><a href="http://icarus.shaojiemike.top/2026/09/02/Work/Artificial Intelligence/AIInfra/URMA-Mental-Model/">http://icarus.shaojiemike.top/2026/09/02/Work/Artificial Intelligence/AIInfra/URMA-Mental-Model/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-09-02</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-09-02</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/WQE/">WQE</a><a class="link-muted mr-2" rel="tag" href="/tags/UnifiedBus/">UnifiedBus</a><a class="link-muted mr-2" rel="tag" href="/tags/URMA/">URMA</a><a class="link-muted mr-2" rel="tag" href="/tags/UMDK/">UMDK</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/URMA-Write-and-Read/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">URMA Write and Read</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/Ascend-DeepEP-Dispatch-Code-Walkthrough/"><span class="level-item">Ascend DeepEP Dispatch Code Walkthrough</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">640</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">52</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">1003</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#先记住一条主线"><span class="level-left"><span class="level-item">1</span><span class="level-item">先记住一条主线</span></span></a></li><li><a class="level is-mobile" href="#对象关系"><span class="level-left"><span class="level-item">2</span><span class="level-item">对象关系</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#内存对象"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">内存对象</span></span></a></li><li><a class="level is-mobile" href="#队列与端点"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">队列与端点</span></span></a></li><li><a class="level is-mobile" href="#请求与完成"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">请求与完成</span></span></a></li></ul></li><li><a class="level is-mobile" href="#WRITE-到底描述了什么"><span class="level-left"><span class="level-item">3</span><span class="level-item">WRITE 到底描述了什么</span></span></a></li><li><a class="level is-mobile" href="#单边与双边语义"><span class="level-left"><span class="level-item">4</span><span class="level-item">单边与双边语义</span></span></a></li><li><a class="level is-mobile" href="#基础-API-地图"><span class="level-left"><span class="level-item">5</span><span class="level-item">基础 API 地图</span></span></a></li><li><a class="level is-mobile" href="#st-dev-在哪里"><span class="level-left"><span class="level-item">6</span><span class="level-item">st_dev 在哪里</span></span></a></li><li><a class="level is-mobile" href="#学完本篇应能回答"><span class="level-left"><span class="level-item">7</span><span class="level-item">学完本篇应能回答</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">8</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">38</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">10</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/2-Communication/"><span class="level-start"><span class="level-item">2-Communication</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">42</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-02T12:50:00.000Z">2026-09-02</time></p><p class="title"><a href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/AIV-UDMA-Direct-Drive/">AIV UDMA Direct Drive</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-02T12:40:00.000Z">2026-09-02</time></p><p class="title"><a href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/SHMEM-UDMA-Programming/">SHMEM UDMA Programming</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-02T12:30:00.000Z">2026-09-02</time></p><p class="title"><a href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/URMA-Completion-and-Concurrency/">URMA Completion and Concurrency</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-02T12:20:00.000Z">2026-09-02</time></p><p class="title"><a href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/URMA-Write-and-Read/">URMA Write and Read</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/09/"><span class="level-start"><span class="level-item">September 2026</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-CODING/"><span class="tag">AI CODING</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Chip/"><span class="tag">AI Chip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

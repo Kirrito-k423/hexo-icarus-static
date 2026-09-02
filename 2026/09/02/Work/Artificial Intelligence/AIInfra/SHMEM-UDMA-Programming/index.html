@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>SHMEM UDMA Programming - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       原生 URMA 要显式管理 Context、Segment、Jetty、WR 和完成队列。cann&amp;#x2F;shmem 提供了更高层的 PGAS 编程模型：程序主要面对“对称地址、目标 PE、put&amp;#x2F;get 和同步”。本文先解释 aclshmem_my_pe()、aclshmem_n_pes() 和 aclshmemx_udma"><meta property="og:type" content="blog"><meta property="og:title" content="SHMEM UDMA Programming"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/09/02/Work/Artificial%20Intelligence/AIInfra/SHMEM-UDMA-Programming/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       原生 URMA 要显式管理 Context、Segment、Jetty、WR 和完成队列。cann&amp;#x2F;shmem 提供了更高层的 PGAS 编程模型：程序主要面对“对称地址、目标 PE、put&amp;#x2F;get 和同步”。本文先解释 aclshmem_my_pe()、aclshmem_n_pes() 和 aclshmemx_udma"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-09-02T12:40:00.000Z"><meta property="article:modified_time" content="2026-09-02T12:37:49.631Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="SHMEM"><meta property="article:tag" content="UDMA"><meta property="article:tag" content="Symmetric Memory"><meta property="article:tag" content="Signal"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/09/02/Work/Artificial%20Intelligence/AIInfra/SHMEM-UDMA-Programming/"},"headline":"SHMEM UDMA Programming","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-09-02T12:40:00.000Z","dateModified":"2026-09-02T12:37:49.631Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       原生 URMA 要显式管理 Context、Segment、Jetty、WR 和完成队列。cann&#x2F;shmem 提供了更高层的 PGAS 编程模型：程序主要面对“对称地址、目标 PE、put&#x2F;get 和同步”。本文先解释 aclshmem_my_pe()、aclshmem_n_pes() 和 aclshmemx_udma"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/09/02/Work/Artificial%20Intelligence/AIInfra/SHMEM-UDMA-Programming/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-09-02T12:40:00.000Z" title="9/2/2026, 12:40:00 PM">2026-09-02</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-09-02T12:37:49.631Z" title="9/2/2026, 12:37:49 PM">2026-09-02</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AIV/">1-AIV</a></span><span class="level-item">21 minutes read (About 3131 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">SHMEM UDMA Programming</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>原生 URMA 要显式管理 Context、Segment、Jetty、WR 和完成队列。<code>cann/shmem</code> 提供了更高层的 PGAS 编程模型：程序主要面对“对称地址、目标 PE、put&#x2F;get 和同步”。本文先解释 <code>aclshmem_my_pe()</code>、<code>aclshmem_n_pes()</code> 和 <code>aclshmemx_udma_put_nbi()</code>，再用两 PE 的 put-with-signal Case 说明数据和通知如何配合。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-circle-info mr-2"></i>系列位置</p>
+</div>
+        <div class="message-body">
+            <ol>
+<li>URMA Mental Model：对象与数据路径</li>
+<li>URMA Write and Read：最小读写程序</li>
+<li>URMA Completion and Concurrency：完成、顺序与并发</li>
+<li><strong>SHMEM UDMA Programming：对称内存与 put 接口</strong></li>
+<li>AIV UDMA Direct Drive：<code>st_dev</code>、多 QP 与 Relay</li>
+</ol>
+
+        </div>
+    </article>
+
+<article class="message is-primary">
+        <div class="message-header"><p><i class="fa-solid fa-pen-to-square mr-2"></i>源码截面</p>
+</div>
+        <div class="message-body">
+            <p>本文的 UDMA 扩展签名与并发限制核对到 <code>cann/shmem@59f0313325ef3179306ce6fa3bfef8ba2ff4cbc5</code>。这类新接口仍在演进，使用其他 revision 时应重新检查公共头文件和示例。</p>
+
+        </div>
+    </article>
+
+<h2 id="从-URMA-到-SHMEM"><a href="#从-URMA-到-SHMEM" class="headerlink" title="从 URMA 到 SHMEM"></a>从 URMA 到 SHMEM</h2><p>两层接口解决的是同一类远端内存访问，但暴露的抽象不同：</p>
+<table>
+<thead>
+<tr>
+<th>原生 URMA</th>
+<th><code>cann/shmem</code></th>
+<th>封装后的变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本地、远端 Segment 句柄</td>
+<td>对称堆中的指针</td>
+<td>库维护远端内存映射</td>
+</tr>
+<tr>
+<td>Jetty 或目标端点</td>
+<td>PE 编号</td>
+<td>用逻辑参与者选择目标</td>
+</tr>
+<tr>
+<td>显式构造 WR&#x2F;SGE</td>
+<td><code>put/get</code> 参数</td>
+<td>库生成底层传输请求</td>
+</tr>
+<tr>
+<td>轮询 JFC</td>
+<td><code>quiet</code>、signal、wait 等</td>
+<td>用 SHMEM 同步语义表达完成和发布</td>
+</tr>
+<tr>
+<td>应用管理队列资源</td>
+<td>初始化阶段建立通信资源</td>
+<td>数据面调用更短</td>
+</tr>
+</tbody></table>
+<p>所以，<code>aclshmem_put...</code> 并不要求用户先手写 <code>urma_jfs_wr_t</code>。它把底层资源和 WQE 构造藏在了库内部。</p>
+<h2 id="PE-是什么"><a href="#PE-是什么" class="headerlink" title="PE 是什么"></a>PE 是什么</h2><p><strong>PE，Processing Element，是 SHMEM 世界中的逻辑通信参与者。</strong> 在常见部署中，一个进程或一张卡对应一个 PE，编号范围为 <code>0</code> 到 <code>n_pes - 1</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> my_pe = <span class="built_in">aclshmem_my_pe</span>();</span><br><span class="line"><span class="type">int</span> n_pes = <span class="built_in">aclshmem_n_pes</span>();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>**<code>aclshmem_my_pe()</code>**：返回当前代码属于哪个 PE，可类比通信库中的 rank。</li>
+<li>**<code>aclshmem_n_pes()</code>**：返回本次 SHMEM 作业一共有多少个 PE，可类比 world size。</li>
+</ul>
+<p>例如，两进程启动时：</p>
+<table>
+<thead>
+<tr>
+<th>进程</th>
+<th align="right"><code>aclshmem_my_pe()</code></th>
+<th align="right"><code>aclshmem_n_pes()</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>进程 A</td>
+<td align="right">0</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td>进程 B</td>
+<td align="right">1</td>
+<td align="right">2</td>
+</tr>
+</tbody></table>
+<p>PE 不是 AIV 核编号。一个 PE 内仍然可以启动多个 AIV block；AIV 使用 <code>GetBlockIdx()</code> 区分，PE 使用 <code>aclshmem_my_pe()</code> 区分。</p>
+<h2 id="对称内存是什么"><a href="#对称内存是什么" class="headerlink" title="对称内存是什么"></a>对称内存是什么</h2><p>所有 PE 要以相同顺序和大小从对称堆分配对象。由此，每个 PE 都能用相同的“对称地址表达”指定另一个 PE 上对应的对象。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PE 0 对称堆：payload(offset X)  signal(offset Y)</span><br><span class="line">PE 1 对称堆：payload(offset X)  signal(offset Y)</span><br></pre></td></tr></table></figure>
+
+<p>当 PE 0 调用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">aclshmem_putmem</span>(dst, src, bytes, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p><code>dst</code> 在代码中表现为本地可计算的对称指针，最后一个参数 <code>1</code> 才指定实际目标是 <strong>PE 1 上相同对称偏移的对象</strong>。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>对称不等于内容相同</p>
+</div>
+        <div class="message-body">
+            <p>对称约束的是分配布局和寻址规则，不要求各 PE 的对象内容相同，也不要求所有 PE 执行完全相同的数据操作。</p>
+
+        </div>
+    </article>
+
+<h2 id="aclshmemx-udma-put-nbi-逐参数解释"><a href="#aclshmemx-udma-put-nbi-逐参数解释" class="headerlink" title="aclshmemx_udma_put_nbi 逐参数解释"></a><code>aclshmemx_udma_put_nbi</code> 逐参数解释</h2><p>显式 UDMA 扩展接口可写成：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">aclshmemx_udma_put_nbi</span>&lt;T&gt;(</span><br><span class="line">    dst,</span><br><span class="line">    src,</span><br><span class="line">    buf,</span><br><span class="line">    elem_size,</span><br><span class="line">    pe,</span><br><span class="line">    sync_id);</span><br></pre></td></tr></table></figure>
+
+<p>函数名可以拆成六部分：</p>
+<ul>
+<li>**<code>aclshmemx</code>**：扩展接口，而不是基础 SHMEM API。</li>
+<li>**<code>udma</code>**：明确选择 UDMA 传输引擎。</li>
+<li>**<code>put</code>**：从本地向远端写。</li>
+<li>**<code>nbi</code>**：non-blocking immediate，调用返回不代表传输已完成。</li>
+<li>**<code>&lt;T&gt;</code>**：模板元素类型。</li>
+<li><strong>无 <code>qp</code> 后缀</strong>：使用默认选择的 QP；多 QP 版本会显式接收 <code>qp_idx</code>。</li>
+</ul>
+<p>参数含义如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>所在内存&#x2F;含义</th>
+<th>初学者最容易错的地方</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dst</code></td>
+<td>目标对象的对称地址表达</td>
+<td>它不是普通远端裸指针；真正目标由 <code>pe</code> 决定</td>
+</tr>
+<tr>
+<td><code>src</code></td>
+<td>当前 PE 的本地 GM 源地址</td>
+<td>nbi 完成前不要覆盖或释放</td>
+</tr>
+<tr>
+<td><code>buf</code></td>
+<td>AIV 提供的 UB 临时区</td>
+<td>默认 <code>PIPE_MTE3</code> 路径用它暂存 WQE，至少提供 <code>ACLSHMEM_UDMA_MTE_STAGING_UB_SIZE</code> 字节；它不是 payload 目标</td>
+</tr>
+<tr>
+<td><code>elem_size</code></td>
+<td><code>T</code> 类型的元素数量</td>
+<td>不要在模板类型非字节时误传字节数</td>
+</tr>
+<tr>
+<td><code>pe</code></td>
+<td>目标 PE 编号</td>
+<td>合法范围是 <code>0</code> 到 <code>n_pes - 1</code></td>
+</tr>
+<tr>
+<td><code>sync_id</code></td>
+<td>Device 流水同步事件编号</td>
+<td>默认 <code>PIPE_MTE3</code> 路径使用；选择 <code>PIPE_S</code> 时被忽略</td>
+</tr>
+</tbody></table>
+<p>当前源码截面规定单次显式 UDMA put 最多传输 <strong>256 MB</strong>，实际字节数为 <code>elem_size * sizeof(T)</code>。更大消息需要切成多条请求；升级版本后仍应重新检查公共头文件。</p>
+<p>调用后需要建立完成边界：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">aclshmemx_udma_put_nbi</span>&lt;<span class="type">uint8_t</span>&gt;(</span><br><span class="line">    dst, src, wqe_ub, bytes, peer, sync_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在复用 src、wqe_ub 或依赖远端结果前等待相应 UDMA 操作完成。</span></span><br><span class="line"><span class="built_in">aclshmemx_udma_quiet</span>(peer);</span><br></pre></td></tr></table></figure>
+
+<p>具体 quiet 接口是否按 PE、按 QP 或按全局生效，应以选择的 UDMA API 变体为准。</p>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>默认 UDMA 接口不能被多核随意共享</p>
+</div>
+        <div class="message-body">
+            <p>当前公共头明确写明：使用不带 <code>qp_idx</code> 的 UDMA RMA&#x2F;AMO 接口时，不支持对同一个 PE 并发操作。需要多 AIV 并行时，应先配置多个 QP，再让每个 AIV 使用不同 <code>qp_idx</code> 的接口。</p>
+
+        </div>
+    </article>
+
+<h2 id="SHMEM-暴露了哪些接口"><a href="#SHMEM-暴露了哪些接口" class="headerlink" title="SHMEM 暴露了哪些接口"></a>SHMEM 暴露了哪些接口</h2><p>API 很多时，按“操作、完成、引擎”三个维度分类比背函数名有效。</p>
+<h3 id="通用-RMA"><a href="#通用-RMA" class="headerlink" title="通用 RMA"></a>通用 RMA</h3><table>
+<thead>
+<tr>
+<th>接口族</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>aclshmem_putmem()</code></td>
+<td>按字节把本地数据写到远端</td>
+</tr>
+<tr>
+<td><code>aclshmem_getmem()</code></td>
+<td>按字节把远端数据读到本地</td>
+</tr>
+<tr>
+<td><code>aclshmem_&lt;type&gt;_put/get()</code></td>
+<td>以具体数据类型和元素数操作</td>
+</tr>
+<tr>
+<td><code>aclshmem_*_put_nbi/get_nbi()</code></td>
+<td>非阻塞发起 put&#x2F;get</td>
+</tr>
+</tbody></table>
+<p>通用接口可以由库根据拓扑和配置选择 MTE、SDMA、UDMA 或 RDMA 等数据路径。调用者表达的是“我要做 RMA”，不一定固定某个引擎。</p>
+<h3 id="数据加通知"><a href="#数据加通知" class="headerlink" title="数据加通知"></a>数据加通知</h3><table>
+<thead>
+<tr>
+<th>接口族</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>aclshmem_putmem_signal()</code></td>
+<td>写数据后更新远端 signal</td>
+</tr>
+<tr>
+<td><code>aclshmem_putmem_signal_nbi()</code></td>
+<td>非阻塞发起写数据加 signal</td>
+</tr>
+<tr>
+<td><code>aclshmem_&lt;type&gt;_put_signal()</code></td>
+<td>typed 版本的 put-with-signal</td>
+</tr>
+<tr>
+<td><code>aclshmem_signal_wait_until()</code></td>
+<td>等待当前 PE 的本地 signal 满足条件</td>
+</tr>
+<tr>
+<td><code>aclshmemx_signal_op()</code></td>
+<td>对远端 signal 执行 SET&#x2F;ADD</td>
+</tr>
+</tbody></table>
+<p><code>putmem_signal</code> 的价值不只是少调用一个函数，而是把“<strong>数据先到，signal 后发布</strong>”表达成一个有顺序保证的操作。</p>
+<h3 id="完成与顺序"><a href="#完成与顺序" class="headerlink" title="完成与顺序"></a>完成与顺序</h3><table>
+<thead>
+<tr>
+<th>接口</th>
+<th>核心问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>aclshmem_quiet()</code></td>
+<td>此前由当前 PE 发起的 SHMEM 操作是否完成</td>
+</tr>
+<tr>
+<td><code>aclshmem_fence()</code></td>
+<td>此前操作与后续操作之间如何排序</td>
+</tr>
+<tr>
+<td><code>aclshmem_barrier()</code> &#x2F; <code>aclshmem_barrier_all()</code></td>
+<td>多个 PE 是否都到达同步点，并满足相应完成语义</td>
+</tr>
+</tbody></table>
+<p>在 <code>cann/shmem</code> 的某些固定实现版本中，<code>aclshmem_fence()</code> 可能使用与 <code>quiet</code> 相同的强实现。但编写可移植逻辑时仍应区分：<strong>Fence 主要表达顺序，Quiet 主要表达完成。</strong></p>
+<h3 id="显式-UDMA-扩展"><a href="#显式-UDMA-扩展" class="headerlink" title="显式 UDMA 扩展"></a>显式 UDMA 扩展</h3><p>公开 UDMA 头文件还提供以下接口族：</p>
+<ul>
+<li><code>aclshmemx_udma_put_nbi()</code>、<code>aclshmemx_udma_get_nbi()</code>。</li>
+<li><code>aclshmemx_udma_qp_put_nbi()</code>、<code>aclshmemx_udma_qp_get_nbi()</code>：显式指定 <code>qp_idx</code>。</li>
+<li><code>aclshmemx_udma_relay_put_nbi()</code>、对应 Get 版本：通过 <code>relay_pe</code> 选择中继路径。</li>
+<li><code>aclshmemx_udma_qp_put_signal_nbi()</code> 等 UDMA put-with-signal 版本。</li>
+<li><code>aclshmemx_udma_quiet(pe)</code>、<code>aclshmemx_udma_qp_quiet(pe, qp_idx)</code>：按 PE 或指定 QP 等待完成。</li>
+<li>UDMA 原子操作和 QP 数量配置接口。</li>
+</ul>
+<p>这些扩展让调用者直接控制 UDMA 数据面，但同时也承担更多 QP 所有权、UB 临时区、完成和同步责任。</p>
+<h2 id="两-PE-的数据发布-Case"><a href="#两-PE-的数据发布-Case" class="headerlink" title="两 PE 的数据发布 Case"></a>两 PE 的数据发布 Case</h2><p>目标：PE 0 把 payload 写给 PE 1，PE 1 只有在数据可用后才读取。</p>
+<h3 id="对称资源"><a href="#对称资源" class="headerlink" title="对称资源"></a>对称资源</h3><p>Host 侧需要让所有 PE 以相同顺序分配：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 教学骨架：初始化、错误检查和实际类型按对应版本补齐。</span></span><br><span class="line"><span class="type">uint8_t</span> *payload = (<span class="type">uint8_t</span> *)<span class="built_in">aclshmem_malloc</span>(payload_bytes);</span><br><span class="line"><span class="type">int32_t</span> *data_ready = (<span class="type">int32_t</span> *)<span class="built_in">aclshmem_malloc</span>(ACLSHMEM_SIGNAL_SIZE);</span><br></pre></td></tr></table></figure>
+
+<p>两个 PE 都执行这两次分配，即使只有 PE 1 最终消费远端 payload。</p>
+<h3 id="Device-侧协议"><a href="#Device-侧协议" class="headerlink" title="Device 侧协议"></a>Device 侧协议</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> pe = <span class="built_in">aclshmem_my_pe</span>();</span><br><span class="line"><span class="type">int</span> npes = <span class="built_in">aclshmem_n_pes</span>();</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (npes != <span class="number">2</span> || <span class="built_in">GetBlockIdx</span>() != <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (pe == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">fill_local_payload</span>(payload);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">aclshmem_putmem_signal</span>(</span><br><span class="line">        payload,                 <span class="comment">// PE 1 上对应的对称 payload</span></span><br><span class="line">        payload,                 <span class="comment">// PE 0 的本地源</span></span><br><span class="line">        payload_bytes,</span><br><span class="line">        data_ready,              <span class="comment">// PE 1 上对应的 signal</span></span><br><span class="line">        <span class="number">1</span>,                       <span class="comment">// signal 值</span></span><br><span class="line">        ACLSHMEM_SIGNAL_SET,</span><br><span class="line">        <span class="number">1</span>);                      <span class="comment">// 目标 PE</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">aclshmem_signal_wait_until</span>(</span><br><span class="line">        data_ready,</span><br><span class="line">        ACLSHMEM_CMP_EQ,</span><br><span class="line">        <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">consume_local_payload</span>(payload);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>逐步发生的事情是：</p>
+<ol>
+<li>PE 0 的 AIV 填好本地 payload。</li>
+<li><code>putmem_signal</code> 把 payload 写到 PE 1 的对称地址。</li>
+<li>同一个有序操作再把 PE 1 的 <code>data_ready</code> 设置为 <code>1</code>。</li>
+<li>PE 1 的 wait 轮询的是<strong>自己的本地 signal 地址</strong>。</li>
+<li>wait 满足后，PE 1 才读取自己的 payload。</li>
+</ol>
+<p>这解释了“发送端传的是 <code>data_ready</code>，接收端为什么也拿本地 <code>data_ready</code> 等待”：对称指针表达的是相同偏移，<code>pe</code> 决定实际远端实例。</p>
+<h3 id="wait-先执行还是后执行"><a href="#wait-先执行还是后执行" class="headerlink" title="wait 先执行还是后执行"></a>wait 先执行还是后执行</h3><p>两种时序都应工作：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">情况 A：PE 1 先 wait ───────────────→ signal 到达后退出</span><br><span class="line">情况 B：signal 已经是 1 → PE 1 再 wait → 立即满足</span><br></pre></td></tr></table></figure>
+
+<p>它等待的是内存中的条件，而不是只能接住一次的瞬时通知。</p>
+<h3 id="多轮不能一直等待-1"><a href="#多轮不能一直等待-1" class="headerlink" title="多轮不能一直等待 == 1"></a>多轮不能一直等待 <code>== 1</code></h3><p>若第二轮仍把 signal 设置为 <code>1</code>，PE 1 可能直接看到上一轮留下的值。更稳妥的做法是使用递增序号：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 第 round 轮，round 从 1 开始。</span></span><br><span class="line"><span class="type">uint64_t</span> expected = round;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 发送端发布 expected。</span></span><br><span class="line"><span class="comment">// 接收端等待 signal &gt;= expected。</span></span><br><span class="line"><span class="built_in">aclshmem_signal_wait_until</span>(signal, ACLSHMEM_CMP_GE, expected);</span><br></pre></td></tr></table></figure>
+
+<p>另一种做法是复位后握手，但必须保证发送端不会在接收端复位前开始下一轮。多生产者场景还应使用独立 signal，避免不同写者互相覆盖。</p>
+<h2 id="nbi-版本如何配合"><a href="#nbi-版本如何配合" class="headerlink" title="nbi 版本如何配合"></a>nbi 版本如何配合</h2><p><code>aclshmem_putmem_signal_nbi()</code> 适合让发起与后续计算重叠，但返回后不能立即复用相关资源：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">aclshmem_putmem_signal_nbi</span>(...);</span><br><span class="line"></span><br><span class="line"><span class="built_in">do_independent_compute</span>();</span><br><span class="line"></span><br><span class="line"><span class="built_in">aclshmem_quiet</span>();</span><br><span class="line"><span class="built_in">reuse_source_buffer</span>();</span><br></pre></td></tr></table></figure>
+
+<p>接收端仍可通过 <code>aclshmem_signal_wait_until()</code> 建立消费边界。发送端的 quiet 解决本端完成，接收端的 wait 解决远端何时可消费，两者站在不同参与者的视角。</p>
+<h2 id="cann-shmem-内部如何接到-UDMA"><a href="#cann-shmem-内部如何接到-UDMA" class="headerlink" title="cann/shmem 内部如何接到 UDMA"></a><code>cann/shmem</code> 内部如何接到 UDMA</h2><p>不能简单理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aclshmem_put → Host 调用 urma_post_jetty_send_wr</span><br></pre></td></tr></table></figure>
+
+<p>更接近实际的分层是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Host 控制面</span><br><span class="line">  HCOMM 创建 Endpoint、注册内存、创建 Channel</span><br><span class="line">  获取 SQ/CQ、Doorbell、远端内存等描述</span><br><span class="line">  把 PE/QP 表和设备状态下发给 Device</span><br><span class="line"></span><br><span class="line">Device 数据面</span><br><span class="line">  AIV 根据 pe/qp 找到资源</span><br><span class="line">  把对称地址换算成目标地址</span><br><span class="line">  检查队列信用</span><br><span class="line">  在 UB 中组装 UDMA WQE</span><br><span class="line">  把 WQE 写入 HBM SQ</span><br><span class="line">  更新 head 并敲 Doorbell</span><br><span class="line">  统计或轮询 CQ 完成</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，SHMEM 在 Host 初始化阶段准备资源，在 AIV 执行期间直接驱动数据面。应用少写了 URMA 对象管理代码，但底层的 Segment、队列、WQE、Doorbell 和完成机制仍然存在。</p>
+<h2 id="本篇结论"><a href="#本篇结论" class="headerlink" title="本篇结论"></a>本篇结论</h2><ul>
+<li><strong>PE 是逻辑通信参与者，不是 QP，也不是 AIV block。</strong></li>
+<li><strong>对称指针给出远端对象的偏移坐标，<code>pe</code> 选择目标实例。</strong></li>
+<li><strong><code>nbi</code> 只表示非阻塞发起，必须再建立完成边界。</strong></li>
+<li><strong>put-with-signal 把数据传输和发布通知按正确顺序组合起来。</strong></li>
+<li><strong>wait 在接收端轮询本地 signal；它与发送端指向的远端对称 signal 是同一逻辑对象。</strong></li>
+<li><strong>SHMEM 封装了 URMA 风格资源管理，但没有消除底层队列和 WQE。</strong></li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem">CANN SHMEM 源码仓</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/59f0313325ef3179306ce6fa3bfef8ba2ff4cbc5/include/device/gm2gm/engine/shmem_device_udma.h">UDMA Device 公共头文件</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/59f0313325ef3179306ce6fa3bfef8ba2ff4cbc5/include/device/gm2gm/shmem_device_so.h">Signal Operations 公共头文件</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/59f0313325ef3179306ce6fa3bfef8ba2ff4cbc5/include/device/team/shmem_device_team.h">Device Team 公共头文件</a></li>
+<li>深入对称寻址：<a href="SHMEM-Symmetric-Memory.md">SHMEM Symmetric Memory</a></li>
+<li>完整单向教学工程：<a href="AIV-Direct-Drive-Programming.md">AIV Direct Drive Programming</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>SHMEM UDMA Programming</p><p><a href="http://icarus.shaojiemike.top/2026/09/02/Work/Artificial Intelligence/AIInfra/SHMEM-UDMA-Programming/">http://icarus.shaojiemike.top/2026/09/02/Work/Artificial Intelligence/AIInfra/SHMEM-UDMA-Programming/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-09-02</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-09-02</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/SHMEM/">SHMEM</a><a class="link-muted mr-2" rel="tag" href="/tags/UDMA/">UDMA</a><a class="link-muted mr-2" rel="tag" href="/tags/Symmetric-Memory/">Symmetric Memory</a><a class="link-muted mr-2" rel="tag" href="/tags/Signal/">Signal</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/AIV-UDMA-Direct-Drive/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">AIV UDMA Direct Drive</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/URMA-Completion-and-Concurrency/"><span class="level-item">URMA Completion and Concurrency</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">640</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">52</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">1003</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#从-URMA-到-SHMEM"><span class="level-left"><span class="level-item">1</span><span class="level-item">从 URMA 到 SHMEM</span></span></a></li><li><a class="level is-mobile" href="#PE-是什么"><span class="level-left"><span class="level-item">2</span><span class="level-item">PE 是什么</span></span></a></li><li><a class="level is-mobile" href="#对称内存是什么"><span class="level-left"><span class="level-item">3</span><span class="level-item">对称内存是什么</span></span></a></li><li><a class="level is-mobile" href="#aclshmemx-udma-put-nbi-逐参数解释"><span class="level-left"><span class="level-item">4</span><span class="level-item">aclshmemx_udma_put_nbi 逐参数解释</span></span></a></li><li><a class="level is-mobile" href="#SHMEM-暴露了哪些接口"><span class="level-left"><span class="level-item">5</span><span class="level-item">SHMEM 暴露了哪些接口</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#通用-RMA"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">通用 RMA</span></span></a></li><li><a class="level is-mobile" href="#数据加通知"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">数据加通知</span></span></a></li><li><a class="level is-mobile" href="#完成与顺序"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">完成与顺序</span></span></a></li><li><a class="level is-mobile" href="#显式-UDMA-扩展"><span class="level-left"><span class="level-item">5.4</span><span class="level-item">显式 UDMA 扩展</span></span></a></li></ul></li><li><a class="level is-mobile" href="#两-PE-的数据发布-Case"><span class="level-left"><span class="level-item">6</span><span class="level-item">两 PE 的数据发布 Case</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#对称资源"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">对称资源</span></span></a></li><li><a class="level is-mobile" href="#Device-侧协议"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">Device 侧协议</span></span></a></li><li><a class="level is-mobile" href="#wait-先执行还是后执行"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">wait 先执行还是后执行</span></span></a></li><li><a class="level is-mobile" href="#多轮不能一直等待-1"><span class="level-left"><span class="level-item">6.4</span><span class="level-item">多轮不能一直等待 == 1</span></span></a></li></ul></li><li><a class="level is-mobile" href="#nbi-版本如何配合"><span class="level-left"><span class="level-item">7</span><span class="level-item">nbi 版本如何配合</span></span></a></li><li><a class="level is-mobile" href="#cann-shmem-内部如何接到-UDMA"><span class="level-left"><span class="level-item">8</span><span class="level-item">cann/shmem 内部如何接到 UDMA</span></span></a></li><li><a class="level is-mobile" href="#本篇结论"><span class="level-left"><span class="level-item">9</span><span class="level-item">本篇结论</span></span></a></li><li><a class="level is-mobile" href="#参考资料"><span class="level-left"><span class="level-item">10</span><span class="level-item">参考资料</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">38</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">10</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/2-Communication/"><span class="level-start"><span class="level-item">2-Communication</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">42</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-02T12:50:00.000Z">2026-09-02</time></p><p class="title"><a href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/AIV-UDMA-Direct-Drive/">AIV UDMA Direct Drive</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-02T12:40:00.000Z">2026-09-02</time></p><p class="title"><a href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/SHMEM-UDMA-Programming/">SHMEM UDMA Programming</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-02T12:30:00.000Z">2026-09-02</time></p><p class="title"><a href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/URMA-Completion-and-Concurrency/">URMA Completion and Concurrency</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-02T12:20:00.000Z">2026-09-02</time></p><p class="title"><a href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/URMA-Write-and-Read/">URMA Write and Read</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/09/"><span class="level-start"><span class="level-item">September 2026</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-CODING/"><span class="tag">AI CODING</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Chip/"><span class="tag">AI Chip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Engineering/"><span class="tag">AI Engineering</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
