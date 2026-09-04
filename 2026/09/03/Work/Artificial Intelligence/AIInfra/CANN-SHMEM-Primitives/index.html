@@ -1,0 +1,1360 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>CANN SHMEM Primitives - SHAOJIE&#039;S BOOK</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="SHAOJIE&#039;S BOOK"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SHAOJIE&#039;S BOOK"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="导言                       我是零基础的算子开发初学者。第一次面对混合了 C++、Ascend C、SIMT 和 SHMEM 的通信算子，难点并不只是某个 API 不认识，而是同一行里往往同时出现模板参数、地址空间、数据搬运和同步语义。我想迁移这样的文件，就需要先回答四个问题：数据在哪里、谁在执行、这一句改变什么、下一步何时能使用结果。 这篇文章从实际遇到的"><meta property="og:type" content="blog"><meta property="og:title" content="CANN SHMEM Primitives"><meta property="og:url" content="http://icarus.shaojiemike.top/2026/09/03/Work/Artificial%20Intelligence/AIInfra/CANN-SHMEM-Primitives/"><meta property="og:site_name" content="SHAOJIE&#039;S BOOK"><meta property="og:description" content="导言                       我是零基础的算子开发初学者。第一次面对混合了 C++、Ascend C、SIMT 和 SHMEM 的通信算子，难点并不只是某个 API 不认识，而是同一行里往往同时出现模板参数、地址空间、数据搬运和同步语义。我想迁移这样的文件，就需要先回答四个问题：数据在哪里、谁在执行、这一句改变什么、下一步何时能使用结果。 这篇文章从实际遇到的"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://icarus.shaojiemike.top/img/og_image.png"><meta property="article:published_time" content="2026-09-03T10:10:00.000Z"><meta property="article:modified_time" content="2026-09-04T11:27:56.324Z"><meta property="article:author" content="Shaojie Tan"><meta property="article:tag" content="Ascend C"><meta property="article:tag" content="CANN"><meta property="article:tag" content="SHMEM"><meta property="article:tag" content="SIMT"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="http://icarus.shaojiemike.top/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://icarus.shaojiemike.top/2026/09/03/Work/Artificial%20Intelligence/AIInfra/CANN-SHMEM-Primitives/"},"headline":"CANN SHMEM Primitives","image":["http://icarus.shaojiemike.top/img/og_image.png"],"datePublished":"2026-09-03T10:10:00.000Z","dateModified":"2026-09-04T11:27:56.324Z","author":{"@type":"Person","name":"Shaojie Tan"},"publisher":{"@type":"Organization","name":"SHAOJIE'S BOOK","logo":{"@type":"ImageObject","url":"http://icarus.shaojiemike.top/img/logo.svg"}},"description":"导言                       我是零基础的算子开发初学者。第一次面对混合了 C++、Ascend C、SIMT 和 SHMEM 的通信算子，难点并不只是某个 API 不认识，而是同一行里往往同时出现模板参数、地址空间、数据搬运和同步语义。我想迁移这样的文件，就需要先回答四个问题：数据在哪里、谁在执行、这一句改变什么、下一步何时能使用结果。 这篇文章从实际遇到的"}</script><link rel="canonical" href="http://icarus.shaojiemike.top/2026/09/03/Work/Artificial%20Intelligence/AIInfra/CANN-SHMEM-Primitives/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2026-09-03T10:10:00.000Z" title="9/3/2026, 10:10:00 AM">2026-09-03</time></span><span class="level-item">Updated&nbsp;<time dateTime="2026-09-04T11:27:56.324Z" title="9/4/2026, 11:27:56 AM">2026-09-04</time></span><span class="level-item"><a class="link-muted" href="/categories/1-AIV/">1-AIV</a></span><span class="level-item">an hour read (About 12193 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">CANN SHMEM Primitives</h1><div class="content"><article class="message is-info">
+        <div class="message-header"><p><i class="fa-solid fa-clipboard mr-2"></i>导言</p>
+</div>
+        <div class="message-body">
+            <p>我是零基础的算子开发初学者。第一次面对混合了 C++、Ascend C、SIMT 和 SHMEM 的通信算子，难点并不只是某个 API 不认识，而是同一行里往往同时出现模板参数、地址空间、数据搬运和同步语义。我想迁移这样的文件，就需要先回答四个问题：<strong>数据在哪里、谁在执行、这一句改变什么、下一步何时能使用结果</strong>。</p>
+<p>这篇文章从实际遇到的代码片段出发，把接口拆成尽量小的学习单元，再逐项解释模板参数、普通参数、返回值、地址偏移和同步范围。内容核对了 CANN 官方文档及 <code>CANN/asc-devkit</code>、<code>CANN/shmem</code> 公开源码。<strong>尚未取得原算子完整文件，因此不虚构原文件行号，也不把业务封装的推测写成 API 定义。</strong> 文中的示意代码用于理解语义，未在 NPU 上编译运行。</p>
+
+        </div>
+    </article>
+
+<span id="more"></span>
+
+<h2 id="阅读地图"><a href="#阅读地图" class="headerlink" title="阅读地图"></a>阅读地图</h2><p>这些名称属于不同层次，不能全部当作同一种“基础 API”。</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>要学习什么</th>
+<th>本文中的例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>C++ 语法</td>
+<td>如何定义、取值、转换、赋值</td>
+<td><code>constexpr</code>、<code>static_cast</code>、<code>reinterpret_cast</code>、<code>sizeof</code>、<code>[]</code>、<code>return</code></td>
+</tr>
+<tr>
+<td>编译器扩展</td>
+<td>函数在哪执行、指针指向哪种内存</td>
+<td><code>__aicore__</code>、<code>__simt_vf__</code>、<code>__gm__</code>、<code>__ubuf__</code>、launch bounds</td>
+</tr>
+<tr>
+<td>Ascend C 内存与计算</td>
+<td>建立内存视图、分配片上缓冲、搬运与填充</td>
+<td><code>InitBuffer</code>、<code>SetGlobalBuffer</code>、<code>DataCopyPad</code>、<code>DataCopy</code>、<code>Duplicate</code></td>
+</tr>
+<tr>
+<td>执行与可见性</td>
+<td>哪些工作必须先完成，哪些线程必须等待</td>
+<td><code>SetFlag/WaitFlag</code>、<code>ThreadBarrier</code>、<code>asc_threadfence</code>、<code>DataCacheCleanAndInvalid</code></td>
+</tr>
+<tr>
+<td>SIMT 并行原语</td>
+<td>启动线程、获得编号、并发修改同一位置</td>
+<td><code>Simt::VF_CALL</code>、<code>GetThreadIdx</code>、<code>atomicAdd</code>、<code>atomicOr</code></td>
+</tr>
+<tr>
+<td>SHMEM 通信</td>
+<td>识别参与者、翻译对端地址、读取通信上下文</td>
+<td><code>aclshmem_my_pe</code>、<code>aclshmem_n_pes</code>、<code>aclshmem_ptr</code>、<code>aclshmemi_udma_qp_info_fetch</code></td>
+</tr>
+<tr>
+<td>算子业务封装</td>
+<td>选择通信窗口、组织状态区和数据区</td>
+<td><code>GetBaseWindOutAddrByRankId</code>、<code>GetBaseWindAddrByRankId</code>、<code>SyncFunc</code></td>
+</tr>
+</tbody></table>
+<p><strong>输入&#x2F;输出有两个不同概念：</strong>函数返回值，以及函数通过指针或 Tensor 修改的数据。<code>void</code> 只说明没有返回值，不表示没有输出。例如 <code>DataCopy(dst, src, count)</code> 没有返回值，但会写入 <code>dst</code> 指向的内存。</p>
+<p>为避免混淆，下文的“读写”表示数据的实际作用方向。官方文档有时把用于读改写的地址参数标成“输出”，把需要初始化的对象标成“输入”；理解代码时还要看它指向的数据或对象状态是否被修改。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    GM[&quot;GM 中的数据&quot;] --&gt;|&quot;DataCopyPad / MTE2&quot;| UB[&quot;本核 UB&quot;]</span><br><span class="line">    UB --&gt;|&quot;Duplicate / SIMD / SIMT&quot;| RESULT[&quot;UB 中的结果&quot;]</span><br><span class="line">    RESULT --&gt;|&quot;DataCopy / MTE3&quot;| OUT[&quot;GM 中的结果&quot;]</span><br><span class="line">    PTR[&quot;本地对称地址 + 目标 PE&quot;] --&gt;|&quot;aclshmem_ptr：地址翻译&quot;| REMOTE[&quot;目标 PE 对应地址&quot;]</span><br></pre></td></tr></table></figure>
+
+<p>图中最后一条路径只计算地址，<strong>没有搬运数据</strong>。GM 与本地内存之间的搬入、计算、搬出模型可参考 <a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/910beta1/programug/Ascendcopdevg/docs/guide/%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/%E5%9F%BA%E4%BA%8ESIMD%E7%BC%96%E7%A8%8B/Add%E8%87%AA%E5%AE%9A%E4%B9%89%E7%AE%97%E5%AD%90%E5%BC%80%E5%8F%91.md">CANN Add 入门教程</a>；对端地址翻译参见 <a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/include/device/gm2gm/engine/shmem_device_mte.h">SHMEM 接口定义</a>。</p>
+<h2 id="最小-C-语法"><a href="#最小-C-语法" class="headerlink" title="最小 C++ 语法"></a>最小 C++ 语法</h2><h3 id="看懂一行代码"><a href="#看懂一行代码" class="headerlink" title="看懂一行代码"></a>看懂一行代码</h3><table>
+<thead>
+<tr>
+<th>语法</th>
+<th>最小含义</th>
+<th>你的代码中的读法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>T name;</code></td>
+<td>声明类型为 <code>T</code> 的对象</td>
+<td><code>DataCopyExtParams elasticInfoParams</code>：声明搬运配置对象</td>
+</tr>
+<tr>
+<td><code>T name = expression;</code></td>
+<td>用右侧表达式的值初始化左侧新变量</td>
+<td><code>int64_t pos = ScalarGetSFFValue&lt;1&gt;(mask)</code></td>
+</tr>
+<tr>
+<td><code>name = expression;</code></td>
+<td>将右侧结果赋给已有左侧对象</td>
+<td><code>wqeWords[0] = make_ulonglong4(...)</code></td>
+</tr>
+<tr>
+<td><code>T name&#123;a, b, c&#125;;</code></td>
+<td>列表初始化；对这里的配置结构体按成员声明顺序填字段</td>
+<td><code>&#123;false, 0U, 0U, 0U&#125;</code> 对应四个 padding 字段</td>
+</tr>
+<tr>
+<td><code>T* p</code></td>
+<td><code>p</code> 是指向 <code>T</code> 的指针，保存地址</td>
+<td><code>__gm__ float*</code> 是 GM 中 <code>float</code> 数据的地址</td>
+</tr>
+<tr>
+<td><code>*p</code></td>
+<td>访问 <code>p</code> 指向的对象</td>
+<td><code>*counter</code> 是计数值；<code>counter</code> 是计数器地址</td>
+</tr>
+<tr>
+<td><code>&amp;x</code></td>
+<td>取得变量 <code>x</code> 的地址</td>
+<td>可用于将计数器地址传给原子操作</td>
+</tr>
+<tr>
+<td><code>T&amp; x</code></td>
+<td>引用，是已有对象的别名</td>
+<td><code>InitBuffer(TBuf&lt;pos&gt;&amp; buf, ...)</code> 可以修改传入缓冲对象的管理状态</td>
+</tr>
+<tr>
+<td><code>p[i]</code></td>
+<td>对原生指针，访问第 <code>i</code> 个元素，下标从 0 开始</td>
+<td><code>dw[0]</code>、<code>wqeWords[0]</code></td>
+</tr>
+<tr>
+<td><code>tensor[i]</code></td>
+<td>对 Ascend C Tensor，是重载操作，通常取得偏移后的 Tensor 视图</td>
+<td>不能直接套用“返回一个数”的原生数组含义</td>
+</tr>
+<tr>
+<td><code>object.Method(...)</code></td>
+<td>在对象上调用成员函数</td>
+<td><code>scalesGMTensor_.SetGlobalBuffer(...)</code></td>
+</tr>
+<tr>
+<td><code>p-&gt;field</code></td>
+<td>访问指针所指结构体的成员</td>
+<td><code>qp_ctx_entry-&gt;db_addr</code> 取 QP 上下文中的门铃地址</td>
+</tr>
+<tr>
+<td><code>Namespace::Name</code></td>
+<td>指定名称所属命名空间或类型</td>
+<td><code>AscendC::HardEvent::MTE2_V</code> 是枚举值</td>
+</tr>
+<tr>
+<td><code>Fn&lt;T&gt;(...)</code></td>
+<td>用模板参数 <code>T</code> 选择函数版本</td>
+<td><code>Duplicate&lt;float&gt;</code>：选择处理 <code>float</code> 的版本</td>
+</tr>
+<tr>
+<td><code>Fn&lt;1&gt;(...)</code></td>
+<td>模板参数也可以是编译期数值</td>
+<td><code>ScalarGetSFFValue&lt;1&gt;</code>：查找第一个 1</td>
+</tr>
+<tr>
+<td><code>sizeof(T)</code></td>
+<td>一个 <code>T</code> 占多少字节</td>
+<td>在这里 <code>sizeof(int32_t)</code> 为 4，<code>sizeof</code> 表达式的类型为 <code>size_t</code></td>
+</tr>
+<tr>
+<td><code>static_cast&lt;T&gt;(x)</code></td>
+<td>按 C++ 转换规则将值转为 <code>T</code></td>
+<td>将搬运字节数转成 <code>uint32_t</code>，不会做范围校验</td>
+</tr>
+<tr>
+<td><code>reinterpret_cast&lt;T*&gt;(x)</code></td>
+<td>将地址或指针重新解释为指定指针类型</td>
+<td>把 UB 地址解释为 <code>int32_t</code> 指针；不会复制数据或转换元素数值</td>
+</tr>
+<tr>
+<td><code>(T*)x</code></td>
+<td>C 风格强制转换</td>
+<td><code>(__gm__ float*)scales</code>；阅读时要同时检查元素类型和地址空间</td>
+</tr>
+<tr>
+<td><code>constexpr</code></td>
+<td>变量初始化必须能在编译期求值</td>
+<td>适合线程数上限、固定长度等</td>
+</tr>
+<tr>
+<td><code>const</code></td>
+<td>不允许通过该限定对象进行相应修改</td>
+<td><strong>不必然是编译期常量</strong>，也不必然保证指针指向的数据不变</td>
+</tr>
+<tr>
+<td><code>inline</code></td>
+<td>C++ 函数声明属性，允许满足规则的多处定义</td>
+<td>不表示强制内联，更不表示同步执行</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td>函数不通过 <code>return value</code> 返回值</td>
+<td>输出可以写到参数指向的内存</td>
+</tr>
+<tr>
+<td><code>return expr;</code></td>
+<td>把表达式值返回给调用者</td>
+<td>返回窗口地址，本身不发送数据</td>
+</tr>
+<tr>
+<td><code>0U</code> &#x2F; <code>1U</code></td>
+<td>无符号整数常量</td>
+<td>配置计数、步长字段</td>
+</tr>
+<tr>
+<td><code>0.0F</code></td>
+<td><code>float</code> 类型的零</td>
+<td><code>Duplicate&lt;float&gt;(..., 0.0F, ...)</code></td>
+</tr>
+<tr>
+<td><code>args...</code></td>
+<td>展开参数包</td>
+<td>把 VF 的各个参数按顺序传递进去</td>
+</tr>
+<tr>
+<td><code>&amp;</code> &#x2F; <code>|</code> &#x2F; <code>~</code> &#x2F; <code>&lt;&lt;</code></td>
+<td>在整数表达式中分别表示按位与、或、非、左移</td>
+<td>位图、标志位和 WQE 字段编码；与取地址符 <code>&amp;x</code> 要按上下文区分</td>
+</tr>
+</tbody></table>
+<p>变量名尾部的 <code>_</code> 通常是成员变量命名习惯，<strong>没有额外语言语义</strong>。<code>scalesGMTensor_</code>、<code>elasticInfoGMTensor_</code> 都是具体对象名，不是独立 API。</p>
+<h3 id="地址偏移的单位"><a href="#地址偏移的单位" class="headerlink" title="地址偏移的单位"></a>地址偏移的单位</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">__gm__ <span class="type">uint8_t</span>* bytes = <span class="comment">/* 已存在的合法地址 */</span>;</span><br><span class="line">__gm__ <span class="type">int32_t</span>* ints = <span class="comment">/* 已存在的合法地址 */</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// bytes + 3：向后移动 3 字节。</span></span><br><span class="line"><span class="comment">// ints  + 3：向后移动 3 个 int32_t，即 12 字节。</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>偏移单位由参与运算的指针类型决定，不由变量名中的 <code>Offset</code> 决定。</strong> 对整数形式的地址进行加法时，则是普通整数运算，需要调用方自己约定单位。</p>
+<p><code>void*</code> 没有元素大小，标准 C++ 不允许直接对其做 <code>+ offset</code>。部分设备编译器可能提供扩展，但迁移时应确认规则，或先明确转换成字节指针。SHMEM 的公开示例也采用先转 <code>GM_ADDR</code>、再加偏移的写法。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/examples/shmem_mega_moe/kernel/arch35/shmem_mega_moe_types.h">源码示例</a></p>
+<h2 id="内存对象与数据搬运"><a href="#内存对象与数据搬运" class="headerlink" title="内存对象与数据搬运"></a>内存对象与数据搬运</h2><h3 id="地址空间与-Tensor"><a href="#地址空间与-Tensor" class="headerlink" title="地址空间与 Tensor"></a>地址空间与 Tensor</h3><table>
+<thead>
+<tr>
+<th>语法 &#x2F; 类型</th>
+<th>作用</th>
+<th>需要区分的事情</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>__gm__ T*</code></td>
+<td>指向设备 Global Memory 的 <code>T</code> 类型数据</td>
+<td>修饰符不分配内存，也不自动建立跨卡映射</td>
+</tr>
+<tr>
+<td><code>__ubuf__ T*</code></td>
+<td>指向本核 Unified Buffer 中的数据</td>
+<td>同一个 SIMT 线程块可通过共享 UB 协作；不表示所有核共用同一 UB</td>
+</tr>
+<tr>
+<td><code>GM_ADDR</code></td>
+<td>Ascend C 中常见的 GM 地址宏，通常为 <code>__gm__ uint8_t*</code></td>
+<td>属于宏，不是普通 C++ 内置类型；具体展开以所用头文件为准</td>
+</tr>
+<tr>
+<td><code>GlobalTensor&lt;T&gt;</code></td>
+<td>描述 GM 中一段数据的视图</td>
+<td>绑定地址不等于申请显存，不等于搬运</td>
+</tr>
+<tr>
+<td><code>LocalTensor&lt;T&gt;</code></td>
+<td>描述片上本地内存中一段数据的视图</td>
+<td>本地位置不只 UB；不能将任意 LocalTensor 都强转为 UB 指针</td>
+</tr>
+<tr>
+<td><code>TBuf&lt;pos&gt;</code></td>
+<td>管理一段本地缓冲空间</td>
+<td><code>pos</code> 指定逻辑位置，<code>VECCALC</code> 等位置对应 UB</td>
+</tr>
+<tr>
+<td><code>TQue&lt;pos, depth&gt;</code></td>
+<td>管理流水阶段之间传递的 Tensor</td>
+<td>队列深度和物理 buffer 数是不同参数，不要混为一谈</td>
+</tr>
+<tr>
+<td><code>TPipe</code></td>
+<td>管理片上缓冲和相关流水资源</td>
+<td>与主机侧显存分配职责不同</td>
+</tr>
+</tbody></table>
+<p>地址限定符见 <a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMT-API/SIMD_SIMT_hybrid_programming_intro/extended_syntax/memory_space_qualifier.md">官方扩展语法</a>；GM 地址和 Tensor 使用方式见 <a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/910beta1/programug/Ascendcopdevg/docs/guide/%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/%E5%9F%BA%E4%BA%8ESIMD%E7%BC%96%E7%A8%8B/Add%E8%87%AA%E5%AE%9A%E4%B9%89%E7%AE%97%E5%AD%90%E5%BC%80%E5%8F%91.md">Add 教程</a>。跨卡访问还依赖 SHMEM 的初始化、内存映射、传输引擎与拓扑。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/include/device/gm2gm/engine/shmem_device_mte.h">SHMEM 地址接口</a></p>
+<h3 id="InitBuffer：先准备缓冲空间"><a href="#InitBuffer：先准备缓冲空间" class="headerlink" title="InitBuffer：先准备缓冲空间"></a>InitBuffer：先准备缓冲空间</h3><p>两个最常见的调用形式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pipe.<span class="built_in">InitBuffer</span>(buf, lenBytes);</span><br><span class="line">pipe.<span class="built_in">InitBuffer</span>(queue, numBuffers, lenBytesPerBuffer);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>输入 &#x2F; 输出</th>
+<th>含义与单位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pipe</code></td>
+<td>管理状态被修改</td>
+<td><code>TPipe</code> 对象，负责分配和登记本地缓冲</td>
+</tr>
+<tr>
+<td><code>buf</code></td>
+<td>传入并初始化</td>
+<td><code>TBuf&lt;pos&gt;&amp;</code>；为这个缓冲对象建立内存信息</td>
+</tr>
+<tr>
+<td><code>queue</code></td>
+<td>传入并初始化</td>
+<td>队列对象；为其准备物理 buffer</td>
+</tr>
+<tr>
+<td><code>numBuffers</code></td>
+<td>输入</td>
+<td><code>uint8_t</code>，物理内存块个数；常用 1 或 2</td>
+</tr>
+<tr>
+<td><code>lenBytes</code> &#x2F; <code>lenBytesPerBuffer</code></td>
+<td>输入</td>
+<td><code>uint32_t</code>，<strong>字节数</strong>；队列版本表示每块大小</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td>返回 <code>bool</code></td>
+<td>所核对实现正常路径返回 <code>true</code>；它不是申请到的地址，也不是 Tensor</td>
+</tr>
+</tbody></table>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AscendC::TBuf&lt;AscendC::TPosition::VECCALC&gt; buffer;</span><br><span class="line">pipe.<span class="built_in">InitBuffer</span>(buffer, <span class="number">128</span> * <span class="built_in">sizeof</span>(<span class="type">int32_t</span>));</span><br><span class="line">AscendC::LocalTensor&lt;<span class="type">int32_t</span>&gt; local = buffer.<span class="built_in">Get</span>&lt;<span class="type">int32_t</span>&gt;();</span><br></pre></td></tr></table></figure>
+
+<p>这里申请 512 字节，再取一个按 <code>int32_t</code> 访问的视图。<code>Get&lt;int32_t&gt;()</code> 的模板参数选择元素类型，无普通参数；返回 <code>LocalTensor&lt;int32_t&gt;</code>，<strong>不会再次申请一份内存</strong>。</p>
+<p><code>InitBuffer</code> 的长度不足 32 字节对齐时会向上补齐。<code>numBuffers=2</code> 为 double buffer 准备两块存储，但实际流水重叠还需要队列和正确的生产消费流程。<strong>InitBuffer 不负责把数据清零。</strong> 如果需要零值，应另做填充。</p>
+<p>依据：<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMD-API/basic_api/resource_management/TPipe/InitBuffer.md">TPipe::InitBuffer 文档</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/impl/basic_api/kernel_tpipe_impl.h">实现</a>。部分官方页面虽在原型中写 <code>bool</code>，却在“返回值”处写“无”；这里按源码解释，不能将 <code>false</code> 当作一套已承诺的完整错误处理协议。</p>
+<h3 id="SetGlobalBuffer：给已有-GM-地址建立视图"><a href="#SetGlobalBuffer：给已有-GM-地址建立视图" class="headerlink" title="SetGlobalBuffer：给已有 GM 地址建立视图"></a>SetGlobalBuffer：给已有 GM 地址建立视图</h3><p>原片段：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scalesGMTensor_.<span class="built_in">SetGlobalBuffer</span>((__gm__ <span class="type">float</span>*)scales);</span><br></pre></td></tr></table></figure>
+
+<p>从内向外读：</p>
+<ol>
+<li><code>scales</code>：已有地址，通常来自核函数参数。</li>
+<li><code>(__gm__ float*)scales</code>：按 GM 中的 <code>float</code> 数组地址解释；<strong>不将其他类型的数据逐元素转成 float</strong>。</li>
+<li><code>scalesGMTensor_</code>：预计是 <code>GlobalTensor&lt;float&gt;</code> 对象，最终仍应以声明为准。</li>
+<li><code>.SetGlobalBuffer(...)</code>：把地址绑定到这个对象，后续通过它做访问或搬运。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>参数 &#x2F; 返回</th>
+<th>方向</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>buffer</code></td>
+<td>输入</td>
+<td>指向 GM 数据的指针，基础元素类型与 Tensor 匹配</td>
+</tr>
+<tr>
+<td><code>bufferSize</code>，仅双参数版本存在</td>
+<td>输入</td>
+<td><code>uint64_t</code>，<strong>元素个数</strong>，不是字节数</td>
+</tr>
+<tr>
+<td>Tensor 对象状态</td>
+<td>被修改</td>
+<td>保存数据地址，以及显式传入时的长度信息</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td>无</td>
+<td><code>void</code></td>
+</tr>
+</tbody></table>
+<p>双参数示例：<code>scalesGMTensor_.SetGlobalBuffer((__gm__ float*)scales, 128)</code> 表示绑定 128 个 float。单参数调用并没有提供真实数组长度，不能据此判断可访问范围；所引较新文档说明此时 <code>GetSize()</code> 为 0。<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/900beta2/API/ascendcopapi/atlasascendc_api_07_00024.html">官方文档</a></p>
+<h3 id="DataCopyExtParams：描述“搬多少、怎么跨块”"><a href="#DataCopyExtParams：描述“搬多少、怎么跨块”" class="headerlink" title="DataCopyExtParams：描述“搬多少、怎么跨块”"></a>DataCopyExtParams：描述“搬多少、怎么跨块”</h3><p>原片段：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">DataCopyExtParams elasticInfoParams = &#123;</span><br><span class="line">    <span class="number">1U</span>,</span><br><span class="line">    <span class="built_in">static_cast</span>&lt;<span class="type">uint32_t</span>&gt;(</span><br><span class="line">        (ELASTIC_INFO_OFFSET + RANK_LIST_NUM * epWorldSizeOriginal_)</span><br><span class="line">        * <span class="built_in">sizeof</span>(<span class="type">int32_t</span>)),</span><br><span class="line">    <span class="number">0U</span>,</span><br><span class="line">    <span class="number">0U</span>,</span><br><span class="line">    <span class="number">0U</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>这是一条结构体初始化语句，还没有开始搬数据。</strong> 左侧声明配置对象，右侧按成员顺序提供五个值。</p>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>字段与类型</th>
+<th>本例输入</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>blockCount: uint16_t</code></td>
+<td><code>1U</code></td>
+<td>搬 1 个连续块；不是 1 个线程块，也不是 1 个元素</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>blockLen: uint32_t</code></td>
+<td>计算后的字节数</td>
+<td>每个连续块要搬多少<strong>字节</strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>srcStride: uint32_t</code></td>
+<td><code>0U</code></td>
+<td>相邻源块之间额外留出的间隔；本例 GM 侧单位是字节</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>dstStride: uint32_t</code></td>
+<td><code>0U</code></td>
+<td>相邻目的块之间额外间隔；本例 UB 侧按 <strong>32 字节块</strong>计</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>rsv: uint32_t</code></td>
+<td><code>0U</code></td>
+<td>保留字段，置零；不是偏移地址或事件编号</td>
+</tr>
+</tbody></table>
+<p>本例只搬一块，因此不存在“下一块”的跨块步长效果。对多块情况，stride 描述前块结束到后块开始的额外间隔，不能直接当成两块起点之间的距离。</p>
+<p>右侧长度表达式分解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">元素数量 E = ELASTIC_INFO_OFFSET + RANK_LIST_NUM × epWorldSizeOriginal_</span><br><span class="line">字节数量 B = E × sizeof(int32_t) = E × 4</span><br><span class="line">blockLen   = 将 B 转为 uint32_t</span><br></pre></td></tr></table></figure>
+
+<p><strong>由表达式可以确定：括号整体在这里被当作 int32 元素数量使用。</strong> 各个常量具体表示多少个头字段、几份 rank 列表，必须结合定义确认。</p>
+<p>为了演示，假设三个数依次为 8、2、4，则 <code>E=16</code>、<code>B=64</code>，本次配置搬运 64 字节。这只是演算例子，不是原算子的常量。</p>
+<p><code>static_cast&lt;uint32_t&gt;</code> 不会防止溢出；如果前面的乘法已溢出，最后转换不能补救。迁移时应检查中间类型、API 的实际长度上限和 UB 容量，必要时先提升为较宽整数再运算。字段和单位依据 <a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC2/apiref/opdevgapi/atlasascendc_api_07_0258.html">DataCopyPad 文档</a>。</p>
+<h3 id="DataCopyPadExtParams：描述“如何填充”"><a href="#DataCopyPadExtParams：描述“如何填充”" class="headerlink" title="DataCopyPadExtParams：描述“如何填充”"></a>DataCopyPadExtParams：描述“如何填充”</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DataCopyPadExtParams&lt;<span class="type">int32_t</span>&gt; elasticInfoCopyPadParams&#123;</span><br><span class="line">    <span class="literal">false</span>, <span class="number">0U</span>, <span class="number">0U</span>, <span class="number">0U</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>字段 &#x2F; 类型</th>
+<th>本例含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&lt;int32_t&gt;</code></td>
+<td>模板元素类型</td>
+<td>填充值按 <code>int32_t</code> 表示</td>
+</tr>
+<tr>
+<td><code>false</code></td>
+<td><code>isPad: bool</code></td>
+<td>不采用结构体中 <code>paddingValue</code> 指定的填充值</td>
+</tr>
+<tr>
+<td>第一个 <code>0U</code></td>
+<td><code>leftPadding: uint8_t</code></td>
+<td>左侧显式填充 0 个元素</td>
+</tr>
+<tr>
+<td>第二个 <code>0U</code></td>
+<td><code>rightPadding: uint8_t</code></td>
+<td>右侧显式填充 0 个元素</td>
+</tr>
+<tr>
+<td>第三个 <code>0U</code></td>
+<td><code>paddingValue: int32_t</code></td>
+<td>字段数值为 0，但本例不能据此推出硬件执行补零</td>
+</tr>
+</tbody></table>
+<p><strong>“没有要求自定义填充”与“没有对齐填充”是两回事。</strong> 非对齐搬运仍可能占用向上对齐后的 UB 空间；尾部 dummy 的规则随配置和架构变化。所核对较新源码文档还允许 <code>isPad=false</code> 时使用外部 <code>SetPadValue</code> 配置。不要把未声明为有效数据的尾部参与后续计算。<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC2/apiref/opdevgapi/atlasascendc_api_07_0258.html">官方字段说明</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMD-API/basic_api/memory_vector_compute/data_move/DataCopyPad_GMToUB.md">较新 GM→UB 文档</a></p>
+<h3 id="DataCopyPad：真正发起-GM-→-UB-搬运"><a href="#DataCopyPad：真正发起-GM-→-UB-搬运" class="headerlink" title="DataCopyPad：真正发起 GM → UB 搬运"></a>DataCopyPad：真正发起 GM → UB 搬运</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">DataCopyPad</span>(</span><br><span class="line">    elasticInfoTensor_,</span><br><span class="line">    elasticInfoGMTensor_,</span><br><span class="line">    elasticInfoParams,</span><br><span class="line">    elasticInfoCopyPadParams</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>参数</th>
+<th>输入 &#x2F; 输出</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>elasticInfoTensor_</code></td>
+<td><strong>输出数据</strong></td>
+<td>目的 <code>LocalTensor&lt;int32_t&gt;</code>，接收搬入数据</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>elasticInfoGMTensor_</code></td>
+<td><strong>输入数据</strong></td>
+<td>源 <code>GlobalTensor&lt;int32_t&gt;</code>，指向 GM 中原数据</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>elasticInfoParams</code></td>
+<td>输入配置</td>
+<td>块数、每块字节数、源目的间隔</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>elasticInfoCopyPadParams</code></td>
+<td>输入配置</td>
+<td>左右填充和填充值规则</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td><code>void</code></td>
+<td>无</td>
+<td>结果写入第一个参数所指内存</td>
+</tr>
+</tbody></table>
+<p>阅读为：<strong>按指定搬运和填充规则，将源 GM 中一块 int32 数据搬到目标本地缓冲。</strong> Tensor 类型以匹配此重载为前提，原声明仍需核对。</p>
+<p>常见原型中的 <code>const LocalTensor&lt;T&gt;&amp; dst</code> 仍可以是数据输出。这里 <code>const</code> 约束的是传入的 Tensor 视图对象，不能据此推出它描述的存储永远只读。</p>
+<p>搬运属于 MTE2 流水；后续由 Vector 或 Scalar 消费时，需要建立相应依赖，见下一节。接口及方向依据 <a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMD-API/basic_api/memory_vector_compute/data_move/DataCopyPad_GMToUB.md">DataCopyPad 官方说明</a>。</p>
+<h3 id="DataCopy-与-Duplicate"><a href="#DataCopy-与-Duplicate" class="headerlink" title="DataCopy 与 Duplicate"></a>DataCopy 与 Duplicate</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">DataCopy</span>(stageDoneTensor, cleanStageDoneTensor, UB_ALIGN_DATA_COUNT);</span><br><span class="line"><span class="built_in">Duplicate</span>&lt;<span class="type">float</span>&gt;(cleanStageDoneTensor, <span class="number">0.0F</span>, UB_ALIGN_DATA_COUNT);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>接口部分</th>
+<th>方向</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DataCopy</code> 第 1 参数 <code>stageDoneTensor</code></td>
+<td>输出</td>
+<td>目的 Tensor，接收复制的数据</td>
+</tr>
+<tr>
+<td>第 2 参数 <code>cleanStageDoneTensor</code></td>
+<td>输入</td>
+<td>源 Tensor，复制其现有内容</td>
+</tr>
+<tr>
+<td>第 3 参数 <code>UB_ALIGN_DATA_COUNT</code></td>
+<td>输入</td>
+<td>连续搬运的<strong>元素个数</strong>，原型类型为 <code>uint32_t</code></td>
+</tr>
+<tr>
+<td><code>Duplicate&lt;float&gt;</code> 的 <code>&lt;float&gt;</code></td>
+<td>模板输入</td>
+<td>操作的数据类型</td>
+</tr>
+<tr>
+<td>第 1 参数 <code>cleanStageDoneTensor</code></td>
+<td>输出</td>
+<td>被填充的本地 Tensor</td>
+</tr>
+<tr>
+<td>第 2 参数 <code>0.0F</code></td>
+<td>输入</td>
+<td>每个元素要写入的 float 值</td>
+</tr>
+<tr>
+<td>第 3 参数 <code>UB_ALIGN_DATA_COUNT</code></td>
+<td>输入</td>
+<td>要填充的元素数量，常见原型为 <code>const int32_t&amp;</code></td>
+</tr>
+<tr>
+<td>两个接口的返回值</td>
+<td>无</td>
+<td>均为 <code>void</code></td>
+</tr>
+</tbody></table>
+<p>若两个 Tensor 都在 UB，第一句是 UB→UB；<strong>如果 <code>stageDoneTensor</code> 是 GlobalTensor，则是 UB→GM</strong>。不能只靠名字猜地址空间。如果源数据已填成零，再执行复制，才会把零复制到目的地。</p>
+<p>连续版 <code>DataCopy</code> 要检查 <code>count * sizeof(T)</code> 的 32 字节对齐。所核对文档指出未对齐的搬运量会向下取整，尾部可能不被搬走。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMD-API/basic_api/memory_vector_compute/data_move/DataCopy_UBToUB_continuous.md">UB→UB 文档</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMD-API/basic_api/memory_vector_compute/data_move/DataCopy_GMAndUB_continuous.md">GM↔UB 文档</a></p>
+<p><code>Duplicate</code> 是批量填值，不复制另一个 Tensor。假设 <code>UB_ALIGN_DATA_COUNT=8</code>，float 情况下会写 8 个零，即 32 字节；常量实际值需看原文件。<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1alpha003/API/ascendcopapi/atlasascendc_api_07_0088.html">Duplicate 官方说明</a></p>
+<h3 id="GetPhyAddr-与-reinterpret-cast"><a href="#GetPhyAddr-与-reinterpret-cast" class="headerlink" title="GetPhyAddr 与 reinterpret_cast"></a>GetPhyAddr 与 reinterpret_cast</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">reinterpret_cast</span>&lt;__ubuf__ <span class="type">int32_t</span>*&gt;(</span><br><span class="line">    validExpertIdsTensor_.<span class="built_in">GetPhyAddr</span>()</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>输入 &#x2F; 输出</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>validExpertIdsTensor_</code></td>
+<td>输入对象</td>
+<td>已经建立的 LocalTensor 视图</td>
+</tr>
+<tr>
+<td><code>.GetPhyAddr()</code></td>
+<td>返回地址</td>
+<td>无普通参数；NPU 侧常见返回类型为 <code>uint64_t</code>，CPU 调试模式可返回指针</td>
+</tr>
+<tr>
+<td><code>&lt;__ubuf__ int32_t*&gt;</code></td>
+<td>转换目标类型</td>
+<td>告诉编译器将地址当作 UB 中 int32 数据的指针</td>
+</tr>
+<tr>
+<td>整个表达式</td>
+<td>返回指针值</td>
+<td>可作为 VF 的地址参数传入，不复制内存</td>
+</tr>
+</tbody></table>
+<p>它不提取“专家 ID 的数值”，而是提取“存放专家 ID 的地址”。如果原 Tensor 不是 UB、生命周期已结束、元素布局不匹配或对齐不满足，强制转换不会让这些问题消失。<code>GetPhyAddr(offset)</code> 还有带元素偏移的重载；这里调用的是无参数版本。<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/900beta2/API/ascendcopapi/atlasascendc_api_07_00111.html">官方说明</a></p>
+<h2 id="同步与缓存"><a href="#同步与缓存" class="headerlink" title="同步与缓存"></a>同步与缓存</h2><h3 id="SetFlag-WaitFlag：让后续流水等待前序流水"><a href="#SetFlag-WaitFlag：让后续流水等待前序流水" class="headerlink" title="SetFlag &#x2F; WaitFlag：让后续流水等待前序流水"></a>SetFlag &#x2F; WaitFlag：让后续流水等待前序流水</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AscendC::<span class="built_in">SetFlag</span>&lt;AscendC::HardEvent::MTE2_V&gt;(EVENT_ID0);</span><br><span class="line">AscendC::<span class="built_in">WaitFlag</span>&lt;AscendC::HardEvent::MTE2_V&gt;(EVENT_ID0);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>输入 &#x2F; 输出</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&lt;HardEvent::MTE2_V&gt;</code></td>
+<td>模板参数</td>
+<td>同步方向为 MTE2 → Vector，<strong>Vector 等待 MTE2</strong></td>
+</tr>
+<tr>
+<td><code>EVENT_ID0</code></td>
+<td>普通输入参数</td>
+<td>事件槽位标识；不是线程 ID、字节数或地址</td>
+</tr>
+<tr>
+<td><code>SetFlag</code></td>
+<td>建立事件</td>
+<td>源流水在前序工作完成后发出相应事件</td>
+</tr>
+<tr>
+<td><code>WaitFlag</code></td>
+<td>等待事件</td>
+<td>目标流水等待匹配事件，再执行依赖它的后续工作</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td>无</td>
+<td>两者均为 <code>void</code></td>
+</tr>
+</tbody></table>
+<p>将异步流水想成两名协作者：搬运单元搬完，计算单元才能读。C++ 代码行的先后顺序本身不够表达不同硬件流水之间的完成关系。</p>
+<table>
+<thead>
+<tr>
+<th>事件类型</th>
+<th>常见用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>MTE2_V</code></td>
+<td>GM→UB 搬完，Vector 再计算</td>
+</tr>
+<tr>
+<td><code>MTE2_S</code></td>
+<td>GM→UB 搬完，Scalar 再读取本地数据</td>
+</tr>
+<tr>
+<td><code>V_MTE3</code></td>
+<td>Vector 算完，MTE3 再把结果搬到 GM</td>
+</tr>
+<tr>
+<td><code>V_S</code></td>
+<td>Vector 算完，Scalar 再消费结果</td>
+</tr>
+<tr>
+<td><code>MTE3_MTE2</code></td>
+<td>搬出完成后，允许下一轮搬入复用相关缓冲</td>
+</tr>
+</tbody></table>
+<p>事件方向和编号需要配对；在 TPipe&#x2F;TQue 管理的代码中应考虑框架已使用的事件资源。官方建议通过分配或获取事件 ID 的接口管理资源，不能随意将全部同步都写成 <code>EVENT_ID0</code>。<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/900/API/ascendcopapi/atlasascendc_api_07_0270.html">SetFlag &#x2F; WaitFlag 官方文档</a></p>
+<h3 id="SyncFunc：需要识别封装内容"><a href="#SyncFunc：需要识别封装内容" class="headerlink" title="SyncFunc：需要识别封装内容"></a>SyncFunc：需要识别封装内容</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">SyncFunc</span>&lt;AscendC::HardEvent::MTE2_S&gt;();</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>能确定的含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&lt;MTE2_S&gt;</code></td>
+<td>传入编译期枚举值，表达 MTE2→Scalar 这一同步方向</td>
+</tr>
+<tr>
+<td><code>()</code></td>
+<td>没有显式普通参数；配置可能来自模板、局部常量或外部状态</td>
+</tr>
+<tr>
+<td><code>SyncFunc</code></td>
+<td><strong>不能仅凭名字确定返回类型、事件 ID 和完整实现</strong></td>
+</tr>
+</tbody></table>
+<p>未在此次核对的两个公开仓快照中找到这个精确函数定义，但 SHMEM 示例有 <code>SyncFuncStatic&lt;event, eventId&gt;()</code>，内部就是配对的 <code>SetFlag</code> 和 <code>WaitFlag</code>。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/examples/shmem_mega_moe/kernel/arch35/shmem_mega_moe_types.h">实际封装源码</a></p>
+<p>因此，原片段很可能是同类封装；这是推断。只有确认原定义后，才能断言它确实等待了什么、是否还包含事件分配或释放。<strong>不要把未知函数自动等同于“全设备同步”。</strong></p>
+<h3 id="DataCacheCleanAndInvalid：处理缓存可见性"><a href="#DataCacheCleanAndInvalid：处理缓存可见性" class="headerlink" title="DataCacheCleanAndInvalid：处理缓存可见性"></a>DataCacheCleanAndInvalid：处理缓存可见性</h3><p>常见形式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AscendC::<span class="built_in">DataCacheCleanAndInvalid</span>&lt;</span><br><span class="line">    <span class="type">uint64_t</span>,</span><br><span class="line">    AscendC::CacheLine::SINGLE_CACHE_LINE,</span><br><span class="line">    AscendC::DcciDst::CACHELINE_OUT</span><br><span class="line">&gt;(global);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>参数 &#x2F; 返回</th>
+<th>位置</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>uint64_t</code></td>
+<td>模板参数 <code>T</code></td>
+<td>Tensor 元素类型；这里不表示“只处理 8 字节”</td>
+</tr>
+<tr>
+<td><code>SINGLE_CACHE_LINE</code></td>
+<td>模板参数 <code>entireType</code></td>
+<td>针对传入地址所在缓存行操作</td>
+</tr>
+<tr>
+<td><code>ENTIRE_DATA_CACHE</code></td>
+<td>上一参数的另一种取值</td>
+<td>操作本核整个 Data Cache，传入地址不再选择范围</td>
+</tr>
+<tr>
+<td><code>CACHELINE_OUT</code></td>
+<td>模板参数 <code>dcciDst</code></td>
+<td>GM 相关一致性模式；不同模式和产品的适用性需查文档</td>
+</tr>
+<tr>
+<td><code>global</code></td>
+<td>普通参数</td>
+<td>提供地址的 GlobalTensor；单行模式下用于确定操作地址</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td>无</td>
+<td><code>void</code>，效果是缓存处理，不返回读到的数据</td>
+</tr>
+</tbody></table>
+<p>Scalar 访问 GM 可能经过本核 DCache。其他核或 DMA 更新 GM 后，缓存里可能仍是旧内容；Scalar 写入也可能需要刷新才能让外部看到。该接口处理这类缓存一致性问题。<strong>不是清零函数，也不是让所有 PE 到齐的 barrier。</strong></p>
+<p>所核对当前文档特别区分：单行模式下地址生效、<code>dcciDst</code> 不生效；全缓存模式下地址不生效、<code>dcciDst</code> 生效。还存在两模板参数重载和特定产品支持的 LocalTensor 版本；不能凭一个函数名泛化全部行为。<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1alpha001/API/ascendcopapi/atlasascendc_api_07_0177.html">官方文档</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMD-API/basic_api/cache_control/DataCacheCleanAndInvalid.md">当前源码文档</a></p>
+<h3 id="四种“同步”不能互换"><a href="#四种“同步”不能互换" class="headerlink" title="四种“同步”不能互换"></a>四种“同步”不能互换</h3><table>
+<thead>
+<tr>
+<th>机制</th>
+<th>解决的问题</th>
+<th>不应从它推出什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SetFlag/WaitFlag</code></td>
+<td>本核不同流水之间的生产消费依赖</td>
+<td>所有线程或所有卡已经到齐</td>
+</tr>
+<tr>
+<td><code>ThreadBarrier</code> &#x2F; <code>asc_syncthreads</code></td>
+<td>当前线程块内线程到齐和共享数据可见性</td>
+<td>所有核或所有 PE 已完成</td>
+</tr>
+<tr>
+<td><code>asc_threadfence</code></td>
+<td>调用线程内存写入的可见性与顺序</td>
+<td>其他线程已经执行到此处，或远端网络传输已经完成</td>
+</tr>
+<tr>
+<td><code>DataCacheCleanAndInvalid</code></td>
+<td>缓存中的数据与目标存储的一致性</td>
+<td>DMA、网络队列和所有线程都已结束</td>
+</tr>
+</tbody></table>
+<p>依据：<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/900/API/ascendcopapi/atlasascendc_api_07_0270.html">流水事件</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMT-API/sync_and_memory_fence/sync_interface/asc_syncthreads.md">线程同步</a>、<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/910beta3/API/ascendcopapi/atlasascendc_api_07_10307.html">内存栅栏</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMD-API/basic_api/cache_control/DataCacheCleanAndInvalid.md">缓存处理</a>。跨 PE 的通信完成条件还要依据具体 SHMEM 操作的完成语义。</p>
+<h2 id="SIMT-线程与原子操作"><a href="#SIMT-线程与原子操作" class="headerlink" title="SIMT 线程与原子操作"></a>SIMT 线程与原子操作</h2><h3 id="函数修饰、线程上限与启动"><a href="#函数修饰、线程上限与启动" class="headerlink" title="函数修饰、线程上限与启动"></a>函数修饰、线程上限与启动</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__simt_vf__ __aicore__ <span class="title">LAUNCH_BOUND</span><span class="params">(PREPARE_THREADS_NUM)</span></span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">Prepare</span><span class="params">(__ubuf__ <span class="type">int32_t</span>* counters, <span class="type">int32_t</span> count)</span></span>;</span><br><span class="line"></span><br><span class="line">Simt::<span class="built_in">VF_CALL</span>&lt;Prepare&gt;(Simt::Dim3&#123;N&#125;, counters, count);</span><br></pre></td></tr></table></figure>
+
+<p>这是沿用问题中名称的结构示意，<strong>不是已验证的可独立编译示例</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>语法 &#x2F; API</th>
+<th>参数或输出</th>
+<th>作用及注意点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>__aicore__</code></td>
+<td>无参数</td>
+<td>表示函数运行在 AI Core 设备侧；不是开启多核并行的指令</td>
+</tr>
+<tr>
+<td><code>__simt_vf__</code></td>
+<td>无参数</td>
+<td>标记 SIMT VF 入口；函数体描述每个线程执行的工作</td>
+</tr>
+<tr>
+<td><code>LAUNCH_BOUND(N)</code></td>
+<td><code>N</code> 为编译期上限</td>
+<td>这是片段中的宏拼写；精确定义还需配套编译器头文件。官方扩展文档描述的是 <code>__launch_bounds__(N)</code></td>
+</tr>
+<tr>
+<td><code>__launch_bounds__(N)</code></td>
+<td>输入最大线程数</td>
+<td>给编译器资源分配提供上限；<strong>声明上限不等于真正启动 N 个线程</strong></td>
+</tr>
+<tr>
+<td><code>Simt::Dim3&#123;x,y,z&#125;</code></td>
+<td>三个维度</td>
+<td>实际线程总数为 <code>x*y*z</code>；<code>Dim3</code> 在所查封装中是 <code>cce::dim3</code> 的别名</td>
+</tr>
+<tr>
+<td><code>Simt::VF_CALL&lt;Fn&gt;(dims, args...)</code></td>
+<td><code>Fn</code> 是模板参数；<code>dims</code> 和 VF 参数是普通参数</td>
+<td>提交指定 VF 子任务，返回类型为 <code>void</code></td>
+</tr>
+</tbody></table>
+<p>当前扩展文档说明 <code>dim3</code> 未指定的维度默认为 1，因而一维 <code>Dim3&#123;N&#125;</code> 的意图是启动 <code>N×1×1</code> 个线程。上限必须覆盖实际线程总数；所核对混合编程文档的上限范围是 1～2048，这个范围不应推广到所有芯片和所有 CANN 版本。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMT-API/SIMD_SIMT_hybrid_programming_intro/extended_syntax/kernel_function_config.md">线程配置</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMT-API/SIMD_SIMT_hybrid_programming_intro/extended_syntax/builtin_data_types.md">dim3 类型</a></p>
+<p>对 <code>Simt::VF_CALL&lt;Fn&gt;(Dim3&#123;N&#125;, a, b)</code>，参数逐项为：</p>
+<ol>
+<li>**<code>Fn</code>**：编译期选定的 VF 入口函数，可以是模板实例；不是运行时字符串。</li>
+<li>**<code>Dim3&#123;N&#125;</code>**：线程块形状，决定这次启动的线程数量；不是启用多少个核。</li>
+<li>**<code>a, b</code>**：按 <code>Fn</code> 声明顺序传进去。调用层传递的是值或地址，但指针所指数据是输入、输出还是读写，必须看 <code>Fn</code> 的函数体。</li>
+<li>**返回 <code>void</code>**：VF 结果通常通过传入地址写出。</li>
+</ol>
+<article class="message is-warning">
+        <div class="message-header"><p><i class="fa-solid fa-triangle-exclamation mr-2"></i>VF 调用不等于通用阻塞屏障</p>
+</div>
+        <div class="message-body">
+            <p>在此次核对的 <code>Simt::VF_CALL</code> 源码中，内部调用 <code>cce::async_invoke&lt;funcPtr&gt;(threadNums, args...)</code>，封装里没有显式等待。这个证据不足以支持“调用线程阻塞等待所有线程完成”的通用描述，也不能只根据 <code>async</code> 这个名字推断所有硬件依赖细节。迁移时需要结合目标编译器和后续消费者的流水依赖确认完成语义。</p>
+<p>也不能把 SIMD 寄存器 VF 和 SIMT VF 的同名调用规则混用。</p>
+
+        </div>
+    </article>
+
+<p>依据：<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/include/simt_api/cpp/kernel_simt_utils.h">Simt::VF_CALL 实现</a>。本例 <code>PREPARE_THREADS_NUM</code> 是否等于 1024、原文件哪些位置启动 VF，仍需原文件定义；用户提供的行号不在本文中当作已核实定位。</p>
+<h3 id="GetThreadIdx：我是哪一个线程"><a href="#GetThreadIdx：我是哪一个线程" class="headerlink" title="GetThreadIdx：我是哪一个线程"></a>GetThreadIdx：我是哪一个线程</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">uint32_t</span> tid = Simt::<span class="built_in">GetThreadIdx</span>&lt;<span class="number">0</span>&gt;();</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>输入 &#x2F; 输出</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&lt;0&gt;</code></td>
+<td>编译期模板参数 <code>dim</code></td>
+<td>取 x 维编号；1 对应 y，2 对应 z</td>
+</tr>
+<tr>
+<td><code>()</code></td>
+<td>无普通参数</td>
+<td>编号来自运行环境</td>
+</tr>
+<tr>
+<td>右侧返回值</td>
+<td><code>uint32_t</code></td>
+<td>x 维线程编号，即 <code>threadIdx.x</code></td>
+</tr>
+<tr>
+<td>左侧 <code>tid</code></td>
+<td>新变量</td>
+<td>保存当前线程自己的编号</td>
+</tr>
+</tbody></table>
+<p>一维启动 N 个线程时，编号范围为 0～N−1。若启用多个核，每个核的线程块可能都有自己的 <code>tid=0</code>，<strong>tid 不是全设备唯一编号，更不是 SHMEM rank</strong>。三维情况下仅取 x 维也不是整个线程块的线性编号。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/include/simt_api/cpp/kernel_simt_common_intf.h">接口</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/impl/simt_api/cpp/dav_3510/kernel_simt_common_impl.h">实现</a></p>
+<h3 id="atomicAdd：计数器与取号"><a href="#atomicAdd：计数器与取号" class="headerlink" title="atomicAdd：计数器与取号"></a>atomicAdd：计数器与取号</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int32_t</span> ticket = <span class="built_in">atomicAdd</span>(counter, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>输入 &#x2F; 输出</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>counter</code></td>
+<td>地址输入；所指数据读写</td>
+<td><code>int32_t*</code>，本例需指向此重载支持的 UB 或 GM</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>输入</td>
+<td>本次增加的值，类型与计数器匹配</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td>输出</td>
+<td><strong>加法之前的旧值</strong></td>
+</tr>
+<tr>
+<td>左侧 <code>ticket</code></td>
+<td>接收返回值</td>
+<td>当前线程拿到的编号</td>
+</tr>
+<tr>
+<td><code>*counter</code></td>
+<td>内存输出</td>
+<td>原值加 1</td>
+</tr>
+</tbody></table>
+<p>假设初值为 0，三个线程分别原子加 1，则返回值形成 0、1、2，最终计数为 3；<strong>哪个线程拿到哪个编号由执行顺序决定</strong>。这是“计数器 + 取号机”的准确含义。</p>
+<p>当前 Ascend C 的 <code>asc_atomic_add</code> 整数实现直接调用 <code>atomicAdd</code>，可据此核对片段中该 intrinsic 的语义。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/impl/simt_api/device_atomic_functions_impl.h">封装实现</a>、<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/910beta1/API/ascendcopapi/atlasascendc_api_07_10375.html">官方原子加说明</a></p>
+<p>原子性只覆盖同一地址的读改写，不能把整个复杂代码段变成原子事务。尤其要区分“已经领取多少个任务”和“已经完成多少个任务”：拿到 ticket 后再写数据，不代表增加计数器时数据就准备好了。</p>
+<p>本例以 32 位整数讲解。所核对接口中 64 位整数原子加只支持 GM；half&#x2F;bfloat16 的返回值还有专门限制，不能把 32 位整数的取号模式照搬到所有数据类型。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMT-API/atomic_operations/asc_atomic_add.md">当前数据类型约束</a></p>
+<h3 id="atomicOr：并发设置位图"><a href="#atomicOr：并发设置位图" class="headerlink" title="atomicOr：并发设置位图"></a>atomicOr：并发设置位图</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">uint32_t</span> bit = <span class="number">1U</span> &lt;&lt; k;      <span class="comment">// 前提：0 &lt;= k &lt; 32</span></span><br><span class="line"><span class="type">uint32_t</span> oldMask = <span class="built_in">atomicOr</span>(maskPtr, bit);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>参数 &#x2F; 输出</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>maskPtr</code></td>
+<td>指向共享位图的地址，所指数据会被读取和修改</td>
+</tr>
+<tr>
+<td><code>bit</code></td>
+<td>本次需要置 1 的位；也可以同时包含多个位</td>
+</tr>
+<tr>
+<td>返回值 <code>oldMask</code></td>
+<td>更新前的位图</td>
+</tr>
+<tr>
+<td>更新后 <code>*maskPtr</code></td>
+<td><code>旧位图 | bit</code></td>
+</tr>
+</tbody></table>
+<p>例如原值为二进制 <code>0010</code>、本次输入 <code>0100</code>，更新后为 <code>0110</code>，返回值仍为 <code>0010</code>。它可以安全合并多个线程的置位请求，避免普通 <code>*maskPtr |= bit</code> 在并发读改写时丢失更新。</p>
+<p>其公开包装 <code>asc_atomic_or</code> 调用 <code>atomicOr</code>；32 位整数支持 UB&#x2F;GM，所查 64 位整数重载只支持 GM。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/impl/simt_api/device_atomic_functions_impl.h">实现</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMT-API/atomic_operations/asc_atomic_or.md">原子或文档</a></p>
+<h3 id="ThreadBarrier-与-asc-threadfence"><a href="#ThreadBarrier-与-asc-threadfence" class="headerlink" title="ThreadBarrier 与 asc_threadfence"></a>ThreadBarrier 与 asc_threadfence</h3><table>
+<thead>
+<tr>
+<th>API</th>
+<th>输入 &#x2F; 返回</th>
+<th>核心含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Simt::ThreadBarrier()</code></td>
+<td>无普通参数，无返回值</td>
+<td>当前线程块内所有线程到达同步点后才能继续</td>
+</tr>
+<tr>
+<td><code>asc_syncthreads()</code></td>
+<td>无普通参数，无返回值</td>
+<td>当前公开接口的线程块同步原语，提供块内共享数据可见性</td>
+</tr>
+<tr>
+<td><code>asc_threadfence()</code></td>
+<td>无普通参数，无返回值</td>
+<td>约束调用线程对全局&#x2F;共享内存写入的可见性顺序；不等待其他线程到齐</td>
+</tr>
+</tbody></table>
+<p><code>ThreadBarrier</code> 的所查设备实现调用 <code>__sync_workitems()</code>。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/impl/simt_api/cpp/dav_3510/kernel_simt_warp_level_impl.h">实现</a>。要理解其用途，可以类比 CUDA 的线程块屏障，但不应把不同平台的全部细节当作相同。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMT-API/sync_and_memory_fence/sync_interface/asc_syncthreads.md">官方线程同步说明</a></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 结构示意：所有线程都必须走到下面的 barrier。</span></span><br><span class="line"><span class="keyword">if</span> (tid &lt; validCount) &#123;</span><br><span class="line">    shared[tid] = input[tid];</span><br><span class="line">&#125;</span><br><span class="line">Simt::<span class="built_in">ThreadBarrier</span>();</span><br><span class="line"><span class="comment">// 后续线程才可按算法读取其他线程写入的 shared 数据。</span></span><br></pre></td></tr></table></figure>
+
+<p>如果把 barrier 放进只有部分线程会进入的分支，或者部分线程提前退出，就可能死锁。</p>
+<p>在“先写数据、再发布就绪标志”的模式中，内存 fence 用来建立顺序；它<strong>不等于网络传输完成确认</strong>，也不能代替接收方必要的观察和同步操作。<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/910beta3/API/ascendcopapi/atlasascendc_api_07_10307.html">asc_threadfence 官方文档</a></p>
+<h3 id="ScalarGetSFFValue：从低位扫描-0-或-1"><a href="#ScalarGetSFFValue：从低位扫描-0-或-1" class="headerlink" title="ScalarGetSFFValue：从低位扫描 0 或 1"></a>ScalarGetSFFValue：从低位扫描 0 或 1</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int64_t</span> pos = AscendC::<span class="built_in">ScalarGetSFFValue</span>&lt;<span class="number">1</span>&gt;(mask);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>输入 &#x2F; 输出</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&lt;1&gt;</code> &#x2F; <code>&lt;0&gt;</code></td>
+<td>模板参数 <code>countValue</code></td>
+<td>1 查找第一个 1；0 查找第一个 0，只允许这两种取值</td>
+</tr>
+<tr>
+<td><code>mask</code></td>
+<td>输入 <code>uint64_t</code></td>
+<td>被扫描的 64 位无符号整数</td>
+</tr>
+<tr>
+<td>返回值 <code>pos</code></td>
+<td>输出 <code>int64_t</code></td>
+<td>从最低有效位开始计数，范围 0～63；找不到为 −1</td>
+</tr>
+</tbody></table>
+<p><code>28</code> 的低位二进制为 <code>11100</code>，因此 <code>&lt;1&gt;(28)</code> 返回 2，<code>&lt;0&gt;(28)</code> 返回 0。<code>&lt;1&gt;(0)</code> 返回 −1；<code>&lt;0&gt;(UINT64_MAX)</code> 返回 −1。用这个返回值做下标或移位前，必须先处理 −1。<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1/API/ascendcopapi/atlasascendc_api_07_0020.html">官方定义与示例</a></p>
+<p>它只是位扫描。将结果解释成“有效专家编号”“连续到达范围”还是“空闲槽位”，取决于原算子的位图编码。</p>
+<h3 id="make-ulonglong4：把四个数放进短向量"><a href="#make-ulonglong4：把四个数放进短向量" class="headerlink" title="make_ulonglong4：把四个数放进短向量"></a>make_ulonglong4：把四个数放进短向量</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wqeWords[<span class="number">0</span>] = <span class="built_in">make_ulonglong4</span>(dw[<span class="number">0</span>], dw[<span class="number">1</span>], dw[<span class="number">2</span>], dw[<span class="number">3</span>]);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>输入 &#x2F; 输出</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dw[0]</code></td>
+<td>输入参数 <code>x</code></td>
+<td>转为第一个 <code>unsigned long long</code> 分量</td>
+</tr>
+<tr>
+<td><code>dw[1]</code></td>
+<td>输入参数 <code>y</code></td>
+<td>第二个分量</td>
+</tr>
+<tr>
+<td><code>dw[2]</code></td>
+<td>输入参数 <code>z</code></td>
+<td>第三个分量</td>
+</tr>
+<tr>
+<td><code>dw[3]</code></td>
+<td>输入参数 <code>w</code></td>
+<td>第四个分量</td>
+</tr>
+<tr>
+<td>函数返回值</td>
+<td><code>ulonglong4</code></td>
+<td>含 <code>.x/.y/.z/.w</code> 四个 64 位分量的短向量</td>
+</tr>
+<tr>
+<td>左侧 <code>wqeWords[0]</code></td>
+<td>被赋值的第 0 个元素</td>
+<td>把整个返回对象保存到这里</td>
+</tr>
+</tbody></table>
+<p>所查实现就是依次设置四个成员后返回。<code>ulonglong4</code> 的对象大小和对齐要求在所查文档中均为 32 字节。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/impl/simt_api/vector_functions_impl.h">实现</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMT-API/SIMD_SIMT_hybrid_programming_intro/extended_syntax/builtin_data_types.md">类型说明</a></p>
+<p><strong>这不代表一次 32 字节原子写，也不会自动发送通信请求。</strong> 如果 <code>wqeWords</code> 是指向 GM WQE 区域的指针，赋值会写那个区域；如果它是局部数组，作用位置就不同。若 <code>dw</code> 实际是 32 位元素，传参会先扩展成 64 位数，并非把四个 32 位字原样打包成 16 字节。必须核对原声明。</p>
+<h2 id="SHMEM-地址与通信状态"><a href="#SHMEM-地址与通信状态" class="headerlink" title="SHMEM 地址与通信状态"></a>SHMEM 地址与通信状态</h2><h3 id="PE、rank、线程编号"><a href="#PE、rank、线程编号" class="headerlink" title="PE、rank、线程编号"></a>PE、rank、线程编号</h3><p><strong>PE（Processing Element）是 SHMEM 通信参与者。</strong> 在常见一进程一设备配置中，它对应一个进程所管理的设备，但不能把 PE 编号直接当作物理卡号。程序中的专家并行 rank、子 team rank 和全局 SHMEM PE 编号也可能需要映射。</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>显式输入</th>
+<th>返回类型与含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>aclshmem_my_pe()</code></td>
+<td>无</td>
+<td><code>int</code>，当前调用 PE 在全局参与者中的编号，范围 0～npes−1</td>
+<td><code>int me = aclshmem_my_pe();</code></td>
+</tr>
+<tr>
+<td><code>aclshmem_n_pes()</code></td>
+<td>无</td>
+<td><code>int</code>，当前 SHMEM 程序的 PE 总数</td>
+<td><code>int peers = aclshmem_n_pes();</code></td>
+</tr>
+</tbody></table>
+<p>这两个查询依赖已经初始化的 SHMEM 状态，调用本身不创建参与者。对于 8 个 PE，可以返回 <code>peers=8</code>、<code>me=3</code>。<code>me=3</code> 并不表示当前 SIMT 线程 <code>tid=3</code>。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/include/device/team/shmem_device_team.h">官方接口头文件</a></p>
+<h3 id="aclshmem-ptr：求同一对称位置在对端的地址"><a href="#aclshmem-ptr：求同一对称位置在对端的地址" class="headerlink" title="aclshmem_ptr：求同一对称位置在对端的地址"></a>aclshmem_ptr：求同一对称位置在对端的地址</h3><p>公开设备侧原型：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__gm__ <span class="type">void</span>* <span class="title">aclshmem_ptr</span><span class="params">(__gm__ <span class="type">void</span>* ptr, <span class="type">int</span> pe)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>参数 &#x2F; 输出</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ptr</code>，输入</td>
+<td>本 PE 上的<strong>对称内存地址</strong>；不是任意显存地址都能传入</td>
+</tr>
+<tr>
+<td><code>pe</code>，输入</td>
+<td>要访问的目标全局 PE 编号</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td>指定 PE 上对应对称位置的地址</td>
+</tr>
+<tr>
+<td>内存输出</td>
+<td>此查询不复制负载，也不改写目标数据</td>
+</tr>
+</tbody></table>
+<p>此次核对的设备实现采用如下地址换算：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">offset        = ptr - 本地对称堆基址</span><br><span class="line">remoteAddress = 目标 PE 的映射堆基址 + offset</span><br></pre></td></tr></table></figure>
+
+<p>例如本地基址为 <code>0x1000</code>、<code>ptr=0x1120</code>，偏移为 <code>0x120</code>。若目标 PE 的映射基址是 <code>0x8000</code>，对应地址就是 <code>0x8120</code>。这表示相同的对称位置，不表示两端当前数据内容相同。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/src/device/gm2gm/engine/shmem_device_mte.hpp">实现</a></p>
+<p>返回地址允许哪种方式访问，取决于传输引擎和拓扑，<strong>不能保证任何机器间都能直接用普通 load&#x2F;store 访问</strong>；也不能把 <code>aclshmem_ptr</code> 当作“远程 memcpy”。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/include/device/gm2gm/engine/shmem_device_mte.h">接口契约</a></p>
+<h3 id="你的-SHMEM-地址表达式"><a href="#你的-SHMEM-地址表达式" class="headerlink" title="你的 SHMEM 地址表达式"></a>你的 SHMEM 地址表达式</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">aclshmem_ptr</span>((GM_ADDR)shmemBuffer_, rankId)</span><br><span class="line">    + dataBaseOffset</span><br><span class="line">    + shmemDataSizeOffset_</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>能确定的作用</th>
+<th>还需核对的内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(GM_ADDR)shmemBuffer_</code></td>
+<td>将保存的地址转成常见的 GM 字节指针形式</td>
+<td>必须对应合法的 SHMEM 对称地址</td>
+</tr>
+<tr>
+<td><code>rankId</code></td>
+<td>选择目标 PE</td>
+<td>是否已经从 EP&#x2F;team rank 转成 SHMEM 全局编号</td>
+</tr>
+<tr>
+<td><code>aclshmem_ptr(...)</code></td>
+<td>返回对端对应地址</td>
+<td>返回地址的可访问方式由引擎和拓扑决定</td>
+</tr>
+<tr>
+<td><code>+ dataBaseOffset</code></td>
+<td>继续移动到某个子区域</td>
+<td>具体单位和区域定义</td>
+</tr>
+<tr>
+<td><code>+ shmemDataSizeOffset_</code></td>
+<td>再叠加一个偏移</td>
+<td>是否用于数据&#x2F;状态区或缓冲轮转，不能只凭名字确定</td>
+</tr>
+<tr>
+<td>整个表达式</td>
+<td>计算地址值</td>
+<td>没有函数调用来发送这些数据</td>
+</tr>
+</tbody></table>
+<p><strong>本次核对的 <code>aclshmem_ptr</code> 返回 <code>__gm__ void*</code>，所以原写法的指针加法依赖编译器扩展或另一版本的签名。</strong> 如果两个偏移确实都是字节数，更明确的写法是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> remoteBase = <span class="built_in">reinterpret_cast</span>&lt;__gm__ <span class="type">uint8_t</span>*&gt;(</span><br><span class="line">    <span class="built_in">aclshmem_ptr</span>(<span class="built_in">reinterpret_cast</span>&lt;GM_ADDR&gt;(shmemBuffer_), rankId)</span><br><span class="line">);</span><br><span class="line"><span class="keyword">auto</span> remoteData = remoteBase + dataBaseOffset + shmemDataSizeOffset_;</span><br></pre></td></tr></table></figure>
+
+<p>这里左侧 <code>remoteBase</code> 和 <code>remoteData</code> 都接收地址值，不接收远端内容。SHMEM 的公开 <code>GetRemoteAddress</code> 示例同样先转成 <code>GM_ADDR</code> 再加 offset，可作为阅读参照。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/examples/shmem_mega_moe/kernel/arch35/shmem_mega_moe_types.h">示例源码</a></p>
+<h3 id="GetBaseWindOutAddrByRankId-与-GetBaseWindAddrByRankId"><a href="#GetBaseWindOutAddrByRankId-与-GetBaseWindAddrByRankId" class="headerlink" title="GetBaseWindOutAddrByRankId 与 GetBaseWindAddrByRankId"></a>GetBaseWindOutAddrByRankId 与 GetBaseWindAddrByRankId</h3><p>原片段：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="built_in">GetBaseWindAddrByRankId</span>(</span><br><span class="line">    winContext_[COMM_EP_IDX],</span><br><span class="line">    rankId,</span><br><span class="line">    epRankIdOriginal_</span><br><span class="line">) + winDataSizeOffset_;</span><br></pre></td></tr></table></figure>
+
+<p><strong>没有在此次核对的两个公开仓快照中找到这两个名称的定义。</strong> 它们可能来自原算子、公共通信头文件或其他依赖。检索未找到不等于证明它们不是公开代码。</p>
+<p>可以确定的 C++ 语义如下：</p>
+<ol>
+<li><code>winContext_[COMM_EP_IDX]</code>：从上下文容器中选择一个元素，作为第 1 个实参。<code>COMM_EP_IDX</code> 是下标，具体值未知。</li>
+<li><code>rankId</code>：第 2 个实参；按名称推测是目标 rank，但需定义确认。</li>
+<li><code>epRankIdOriginal_</code>：第 3 个实参；按名称推测是原始 EP rank 编号，不能确定是否参与本地&#x2F;远端分支或映射。</li>
+<li><code>GetBaseWindAddrByRankId(...)</code>：调用函数得到一个可参与加法的值，按名称推测为窗口基地址。</li>
+<li><code>+ winDataSizeOffset_</code>：在返回值上增加偏移。<strong>若返回值是指针，单位由元素类型决定；若是整数地址，单位由业务约定决定。</strong></li>
+<li><code>return</code>：把最终结果返回外层调用者。语句中没有显式数据搬运。</li>
+</ol>
+<p>要完成原算子级解释，还缺函数声明、函数体、返回类型以及四个成员&#x2F;常量的定义。当前可标记为“地址计算封装”，不能将其写成已确认的 CANN 或 SHMEM 标准 API。</p>
+<h3 id="aclshmemi-udma-qp-info-fetch：取通信上下文指针"><a href="#aclshmemi-udma-qp-info-fetch：取通信上下文指针" class="headerlink" title="aclshmemi_udma_qp_info_fetch：取通信上下文指针"></a>aclshmemi_udma_qp_info_fetch：取通信上下文指针</h3><p>所查函数的核心签名为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__gm__ <span class="type">aclshmemi_aiv_udma_info_t</span>* <span class="title">aclshmemi_udma_qp_info_fetch</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>参数 &#x2F; 输出</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>显式普通参数</td>
+<td>无；调用者没有传 rank、QP 编号或长度</td>
+</tr>
+<tr>
+<td>隐式输入</td>
+<td>已初始化的 SHMEM UDMA 运行时状态</td>
+</tr>
+<tr>
+<td>返回类型</td>
+<td><code>__gm__ aclshmemi_aiv_udma_info_t*</code></td>
+</tr>
+<tr>
+<td>返回值</td>
+<td>GM 中 UDMA 信息结构的指针；<strong>不是一个 QP 编号，也不是新建出的 QP</strong></td>
+</tr>
+<tr>
+<td>负载传输</td>
+<td>这个函数本身不发送业务负载</td>
+</tr>
+</tbody></table>
+<p>当前实现取得 <code>aclshmemi_get_udma_info_address(0)</code> 的返回地址，转换为上述结构指针后返回。返回上下文可用于后续选择队列和对端内存信息；具体结构布局绑定到 SHMEM 版本。</p>
+<p>函数位于 <code>src/device/gm2gm/engine/</code> 内部实现，名称中的 <code>aclshmemi_</code> 也与这一内部用途一致。<strong>代码公开不等于接口承诺稳定。</strong> 在基础学习清单中应把它放在公开 RMA 接口之后，迁移调用它的代码时应固定 SHMEM commit。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/src/device/gm2gm/engine/shmem_device_udma.hpp">实现与声明</a></p>
+<h3 id="st-dev：底层存储与门铃"><a href="#st-dev：底层存储与门铃" class="headerlink" title="st_dev：底层存储与门铃"></a>st_dev：底层存储与门铃</h3><p>原片段：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">st_dev</span>(val, addr, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>输入 &#x2F; 输出</th>
+<th>本例的可确认解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>val</code></td>
+<td>输入</td>
+<td>待写入的标量；SHMEM 门铃示例中是 <code>uint32_t</code> 队列索引</td>
+</tr>
+<tr>
+<td><code>addr</code></td>
+<td>地址输入、目标存储输出</td>
+<td>所查门铃示例为 <code>__gm__ uint32_t*</code></td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>输入</td>
+<td>底层存储偏移参数取零；封装源码命名为 <code>ASC_C_API_DEFAULT_OFFSET</code>。非零值的单位、编码和范围需编译器 intrinsic 说明，不能在这里推定</td>
+</tr>
+<tr>
+<td>返回</td>
+<td>原样例不使用返回值</td>
+<td>关注的是写入目标地址的副作用</td>
+</tr>
+</tbody></table>
+<p><code>st_dev</code> <strong>并不是专门表示“触发 URMA”的通用函数名</strong>。CANN 公开 <code>asc_store_dev(addr, value)</code> 的实现用到了 <code>st_dev(value, addr, 0)</code>；其说明是绕过 DCache 向 GM 地址写数据。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/docs/zh/api/SIMD-API/c_api/scalar_compute/scalar_store/asc_store_dev.md">公开 store 接口说明</a>、<a target="_blank" rel="noopener" href="https://gitcode.com/cann/asc-devkit/blob/2ccf1031ba8085c0a6e44c2f271ba24f3363648f/impl/c_api/instr_impl/npu_arch_3510/scalar_compute_impl/asc_store_dev_impl.h">底层包装实现</a></p>
+<p>在 SHMEM 中，下面两个上下文把目标地址设置成门铃地址：</p>
+<table>
+<thead>
+<tr>
+<th>调用场景</th>
+<th>写什么</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>提交 SQ 工作</td>
+<td>新的生产者 head</td>
+<td>通知硬件有新的队列工作</td>
+</tr>
+<tr>
+<td>消费 CQ 完成项</td>
+<td>更新后的消费者 tail</td>
+<td>通知硬件完成队列的消费进度</td>
+</tr>
+</tbody></table>
+<p>例如 <code>aclshmemi_udma_post_send_update_info</code> 把 QP 的 <code>db_addr</code> 转成 <code>__gm__ uint32_t*</code>，通过 <code>st_dev(cur_head, door_bell_addr, 0)</code> 写门铃，再更新软件上下文中的 head。<a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/src/device/gm2gm/engine/shmem_device_udma.hpp">SHMEM 实现</a></p>
+<p>所以准确读法是：<strong>底层 store + 指向门铃的地址 + 对应硬件协议，共同构成通知操作。</strong> 不能用普通指针赋值随意替换，因为可能改变缓存路径和可见性；写了门铃也不代表传输已经完成。</p>
+<h2 id="把基础单元连起来"><a href="#把基础单元连起来" class="headerlink" title="把基础单元连起来"></a>把基础单元连起来</h2><h3 id="一条搬入与计算链"><a href="#一条搬入与计算链" class="headerlink" title="一条搬入与计算链"></a>一条搬入与计算链</h3><p>以下是逻辑顺序，不是可直接运行的完整算子：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">1. InitBuffer</span><br><span class="line">   给当前核准备 UB 空间。</span><br><span class="line"></span><br><span class="line">2. SetGlobalBuffer</span><br><span class="line">   把输入 GM 地址绑定到 GlobalTensor。</span><br><span class="line"></span><br><span class="line">3. DataCopyExtParams / DataCopyPadExtParams</span><br><span class="line">   描述真实数据长度、跨块间隔、填充策略。</span><br><span class="line"></span><br><span class="line">4. DataCopyPad(local, global, copy, pad)</span><br><span class="line">   发起 GM → UB 搬运。</span><br><span class="line"></span><br><span class="line">5. MTE2_V 或 MTE2_S 对应的同步</span><br><span class="line">   根据下一个消费者是 Vector 还是 Scalar 建立依赖。</span><br><span class="line"></span><br><span class="line">6. Duplicate / SIMD 运算 / SIMT VF</span><br><span class="line">   处理 UB 或相关 GM 数据；按执行模式处理线程和流水依赖。</span><br><span class="line"></span><br><span class="line">7. 对应的计算 → 搬出依赖，再 DataCopy</span><br><span class="line">   将结果写回目标存储。</span><br></pre></td></tr></table></figure>
+
+<p>源 Tensor、目的 Tensor 和有效长度应贯穿整个过程。例如实际搬入 13 个 int32，UB 因对齐占用更大空间，并不意味着后续算法可以把尾部都当作第 14～16 个有效元素。</p>
+<h3 id="一条通信提交链"><a href="#一条通信提交链" class="headerlink" title="一条通信提交链"></a>一条通信提交链</h3><p>按照 SHMEM 当前 UDMA 代码可概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">本 PE / 目标 PE 编号</span><br><span class="line">        ↓</span><br><span class="line">找到对称位置及对端地址 / 内存描述</span><br><span class="line">        ↓</span><br><span class="line">取得 UDMA 上下文，选择具体队列</span><br><span class="line">        ↓</span><br><span class="line">构造 WQE（Work Queue Element，工作队列项）</span><br><span class="line">        ↓</span><br><span class="line">保证描述符写入的可见性和所需依赖</span><br><span class="line">        ↓</span><br><span class="line">写 SQ 门铃，发布队列工作</span><br><span class="line">        ↓</span><br><span class="line">依据协议观察 CQE（Completion Queue Entry，完成队列项）</span><br></pre></td></tr></table></figure>
+
+<p><code>make_ulonglong4</code> 只能完成其中局部的数据组装；<code>st_dev</code> 可以承担门铃写入；<code>aclshmemi_udma_qp_info_fetch</code> 提供上下文指针。<strong>三者都不能单独等同于一次已完成的远端数据传输。</strong> 这条链是对 <a target="_blank" rel="noopener" href="https://gitcode.com/cann/shmem/blob/a759c51376b6e0b4b8fa7d967bf859121346d6cb/src/device/gm2gm/engine/shmem_device_udma.hpp">SHMEM UDMA 实现</a> 的概括，不表示已确认原算子的完整提交协议。</p>
+<h3 id="迁移前优先检查的差异"><a href="#迁移前优先检查的差异" class="headerlink" title="迁移前优先检查的差异"></a>迁移前优先检查的差异</h3><table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>容易产生的错误</th>
+<th>本文中的定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>元素数与字节数</td>
+<td>长度多乘或少乘 <code>sizeof(T)</code></td>
+<td><code>InitBuffer</code>、<code>SetGlobalBuffer</code>、<code>DataCopyExtParams</code>、<code>DataCopy</code></td>
+</tr>
+<tr>
+<td>地址空间与映射</td>
+<td>将本地地址当成远端可访问地址</td>
+<td><code>__gm__</code>、<code>__ubuf__</code>、<code>aclshmem_ptr</code></td>
+</tr>
+<tr>
+<td>原子返回值</td>
+<td>把旧值当新值，或把取号当完成</td>
+<td><code>atomicAdd</code>、<code>atomicOr</code></td>
+</tr>
+<tr>
+<td>编译期与运行期</td>
+<td>将启动上限误当实际启动数量</td>
+<td>launch bounds、<code>Dim3</code>、<code>VF_CALL</code></td>
+</tr>
+<tr>
+<td>完成与可见性</td>
+<td>只改同步函数名，却改变依赖范围</td>
+<td>event、barrier、fence、cache clean</td>
+</tr>
+<tr>
+<td>结构体与短向量布局</td>
+<td>WQE 宽度、对齐或字段编码改变</td>
+<td><code>reinterpret_cast</code>、<code>make_ulonglong4</code></td>
+</tr>
+<tr>
+<td>版本与内部 ABI</td>
+<td>使用另一版本的 QP 布局解释指针</td>
+<td><code>aclshmemi_udma_qp_info_fetch</code>、<code>st_dev</code></td>
+</tr>
+</tbody></table>
+<p>推荐学习顺序：<strong>C++ 类型与指针 → GM&#x2F;UB 与 Tensor → 搬运和填充 → 流水同步 → SIMT 线程与原子操作 → SHMEM 地址 → WQE 和门铃。</strong> 先能准确解释数据在哪里、多少字节、谁负责写，再进入通信队列细节。</p>
+<h2 id="回到迁移现场"><a href="#回到迁移现场" class="headerlink" title="回到迁移现场"></a>回到迁移现场</h2><p>再看到一条陌生语句时，我不必先记住整套 CANN。可以先把它拆成四层：</p>
+<ol>
+<li><strong>C++ 层</strong>：左侧接收什么，右侧返回什么，转换只改类型还是也改变数据。</li>
+<li><strong>内存层</strong>：地址指向 GM、UB 还是 SHMEM 对称内存；长度的单位是元素还是字节。</li>
+<li><strong>执行层</strong>：当前是 Scalar、Vector、MTE 还是 SIMT 线程在工作。</li>
+<li><strong>完成层</strong>：当前操作只发起任务、保证可见性，还是确实等到了所需范围内的完成。</li>
+</ol>
+<p>这套拆法已经能解释本文列出的公开基础单元，也暴露了仍然不能从片段确定的边界：<code>GetBaseWindAddrByRankId</code>、<code>GetBaseWindOutAddrByRankId</code> 和原算子的 <code>SyncFunc</code> 还缺定义；<code>st_dev</code> 的第三个参数在非零时如何解释，也需要对应编译器 intrinsic 的资料；完整迁移仍要回到目标芯片、CANN&#x2F;SHMEM 版本和原算子声明。</p>
+<p>所以下一步不是继续背函数名，而是拿到原文件后，从地址类型、长度单位和同步依赖开始逐段标注。只要这三件事没有猜，后续的接口替换才有可靠基础。</p>
+<h2 id="核对范围"><a href="#核对范围" class="headerlink" title="核对范围"></a>核对范围</h2><p>核对日期：2026-09-03。所用公开源码固定为：</p>
+<table>
+<thead>
+<tr>
+<th>仓库</th>
+<th>Commit</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CANN/asc-devkit</code></td>
+<td><code>2ccf1031ba8085c0a6e44c2f271ba24f3363648f</code></td>
+<td>Ascend C 文档、SIMT 包装、原子操作与 store 实现</td>
+</tr>
+<tr>
+<td><code>CANN/shmem</code></td>
+<td><code>a759c51376b6e0b4b8fa7d967bf859121346d6cb</code></td>
+<td>PE 查询、对称地址翻译、UDMA 上下文与门铃用法</td>
+</tr>
+</tbody></table>
+<p>CANN 网页引用包含不同版本，用来核对具体接口；<strong>不是声明这些 API 在所有版本和所有 Ascend 设备上都同时可用</strong>。原算子的目标芯片、CANN&#x2F;SHMEM 版本、完整声明与真实行号尚未核实；本文完成的是问题中所列公开基础单元的解释。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>CANN SHMEM Primitives</p><p><a href="http://icarus.shaojiemike.top/2026/09/03/Work/Artificial Intelligence/AIInfra/CANN-SHMEM-Primitives/">http://icarus.shaojiemike.top/2026/09/03/Work/Artificial Intelligence/AIInfra/CANN-SHMEM-Primitives/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Shaojie Tan</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2026-09-03</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2026-09-04</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Ascend-C/">Ascend C</a><a class="link-muted mr-2" rel="tag" href="/tags/CANN/">CANN</a><a class="link-muted mr-2" rel="tag" href="/tags/SHMEM/">SHMEM</a><a class="link-muted mr-2" rel="tag" href="/tags/SIMT/">SIMT</a></div><!--!--></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/09/04/Work/Artificial%20Intelligence/AIInfra/Data-as-Flag-Communication/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Data-as-Flag Communication</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/09/03/Work/Artificial%20Intelligence/AIInfra/Ascend-DeepEP-V2-Elastic-Dispatch/"><span class="level-item">Ascend DeepEP V2 Elastic Dispatch</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="https://octodex.github.com/images/hula_loop_octodex03.gif" alt="Shaojie Tan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Shaojie Tan</p><p class="is-size-6 is-block">𝘊𝘰𝘮𝘱𝘶𝘵𝘦𝘳 𝘈𝘳𝘤𝘩𝘪𝘵𝘦𝘤𝘵𝘶𝘳𝘦 &amp; 𝘏𝘗𝘊</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Anhui, Hefei, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">643</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">52</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">1008</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Kirrito-k423" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Kirrito-k423"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#阅读地图"><span class="level-left"><span class="level-item">1</span><span class="level-item">阅读地图</span></span></a></li><li><a class="level is-mobile" href="#最小-C-语法"><span class="level-left"><span class="level-item">2</span><span class="level-item">最小 C++ 语法</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#看懂一行代码"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">看懂一行代码</span></span></a></li><li><a class="level is-mobile" href="#地址偏移的单位"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">地址偏移的单位</span></span></a></li></ul></li><li><a class="level is-mobile" href="#内存对象与数据搬运"><span class="level-left"><span class="level-item">3</span><span class="level-item">内存对象与数据搬运</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#地址空间与-Tensor"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">地址空间与 Tensor</span></span></a></li><li><a class="level is-mobile" href="#InitBuffer：先准备缓冲空间"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">InitBuffer：先准备缓冲空间</span></span></a></li><li><a class="level is-mobile" href="#SetGlobalBuffer：给已有-GM-地址建立视图"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">SetGlobalBuffer：给已有 GM 地址建立视图</span></span></a></li><li><a class="level is-mobile" href="#DataCopyExtParams：描述“搬多少、怎么跨块”"><span class="level-left"><span class="level-item">3.4</span><span class="level-item">DataCopyExtParams：描述“搬多少、怎么跨块”</span></span></a></li><li><a class="level is-mobile" href="#DataCopyPadExtParams：描述“如何填充”"><span class="level-left"><span class="level-item">3.5</span><span class="level-item">DataCopyPadExtParams：描述“如何填充”</span></span></a></li><li><a class="level is-mobile" href="#DataCopyPad：真正发起-GM-→-UB-搬运"><span class="level-left"><span class="level-item">3.6</span><span class="level-item">DataCopyPad：真正发起 GM → UB 搬运</span></span></a></li><li><a class="level is-mobile" href="#DataCopy-与-Duplicate"><span class="level-left"><span class="level-item">3.7</span><span class="level-item">DataCopy 与 Duplicate</span></span></a></li><li><a class="level is-mobile" href="#GetPhyAddr-与-reinterpret-cast"><span class="level-left"><span class="level-item">3.8</span><span class="level-item">GetPhyAddr 与 reinterpret_cast</span></span></a></li></ul></li><li><a class="level is-mobile" href="#同步与缓存"><span class="level-left"><span class="level-item">4</span><span class="level-item">同步与缓存</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#SetFlag-WaitFlag：让后续流水等待前序流水"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">SetFlag / WaitFlag：让后续流水等待前序流水</span></span></a></li><li><a class="level is-mobile" href="#SyncFunc：需要识别封装内容"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">SyncFunc：需要识别封装内容</span></span></a></li><li><a class="level is-mobile" href="#DataCacheCleanAndInvalid：处理缓存可见性"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">DataCacheCleanAndInvalid：处理缓存可见性</span></span></a></li><li><a class="level is-mobile" href="#四种“同步”不能互换"><span class="level-left"><span class="level-item">4.4</span><span class="level-item">四种“同步”不能互换</span></span></a></li></ul></li><li><a class="level is-mobile" href="#SIMT-线程与原子操作"><span class="level-left"><span class="level-item">5</span><span class="level-item">SIMT 线程与原子操作</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#函数修饰、线程上限与启动"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">函数修饰、线程上限与启动</span></span></a></li><li><a class="level is-mobile" href="#GetThreadIdx：我是哪一个线程"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">GetThreadIdx：我是哪一个线程</span></span></a></li><li><a class="level is-mobile" href="#atomicAdd：计数器与取号"><span class="level-left"><span class="level-item">5.3</span><span class="level-item">atomicAdd：计数器与取号</span></span></a></li><li><a class="level is-mobile" href="#atomicOr：并发设置位图"><span class="level-left"><span class="level-item">5.4</span><span class="level-item">atomicOr：并发设置位图</span></span></a></li><li><a class="level is-mobile" href="#ThreadBarrier-与-asc-threadfence"><span class="level-left"><span class="level-item">5.5</span><span class="level-item">ThreadBarrier 与 asc_threadfence</span></span></a></li><li><a class="level is-mobile" href="#ScalarGetSFFValue：从低位扫描-0-或-1"><span class="level-left"><span class="level-item">5.6</span><span class="level-item">ScalarGetSFFValue：从低位扫描 0 或 1</span></span></a></li><li><a class="level is-mobile" href="#make-ulonglong4：把四个数放进短向量"><span class="level-left"><span class="level-item">5.7</span><span class="level-item">make_ulonglong4：把四个数放进短向量</span></span></a></li></ul></li><li><a class="level is-mobile" href="#SHMEM-地址与通信状态"><span class="level-left"><span class="level-item">6</span><span class="level-item">SHMEM 地址与通信状态</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#PE、rank、线程编号"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">PE、rank、线程编号</span></span></a></li><li><a class="level is-mobile" href="#aclshmem-ptr：求同一对称位置在对端的地址"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">aclshmem_ptr：求同一对称位置在对端的地址</span></span></a></li><li><a class="level is-mobile" href="#你的-SHMEM-地址表达式"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">你的 SHMEM 地址表达式</span></span></a></li><li><a class="level is-mobile" href="#GetBaseWindOutAddrByRankId-与-GetBaseWindAddrByRankId"><span class="level-left"><span class="level-item">6.4</span><span class="level-item">GetBaseWindOutAddrByRankId 与 GetBaseWindAddrByRankId</span></span></a></li><li><a class="level is-mobile" href="#aclshmemi-udma-qp-info-fetch：取通信上下文指针"><span class="level-left"><span class="level-item">6.5</span><span class="level-item">aclshmemi_udma_qp_info_fetch：取通信上下文指针</span></span></a></li><li><a class="level is-mobile" href="#st-dev：底层存储与门铃"><span class="level-left"><span class="level-item">6.6</span><span class="level-item">st_dev：底层存储与门铃</span></span></a></li></ul></li><li><a class="level is-mobile" href="#把基础单元连起来"><span class="level-left"><span class="level-item">7</span><span class="level-item">把基础单元连起来</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#一条搬入与计算链"><span class="level-left"><span class="level-item">7.1</span><span class="level-item">一条搬入与计算链</span></span></a></li><li><a class="level is-mobile" href="#一条通信提交链"><span class="level-left"><span class="level-item">7.2</span><span class="level-item">一条通信提交链</span></span></a></li><li><a class="level is-mobile" href="#迁移前优先检查的差异"><span class="level-left"><span class="level-item">7.3</span><span class="level-item">迁移前优先检查的差异</span></span></a></li></ul></li><li><a class="level is-mobile" href="#回到迁移现场"><span class="level-left"><span class="level-item">8</span><span class="level-item">回到迁移现场</span></span></a></li><li><a class="level is-mobile" href="#核对范围"><span class="level-left"><span class="level-item">9</span><span class="level-item">核对范围</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/0-hardwareSoftwareCodesign/"><span class="level-start"><span class="level-item">0-hardwareSoftwareCodesign</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/"><span class="level-start"><span class="level-item">1-AI Model Architecture</span></span><span class="level-end"><span class="level-item tag">3</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Model-Architecture/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AI-Systems/"><span class="level-start"><span class="level-item">1-AI Systems</span></span><span class="level-end"><span class="level-item tag">38</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-AI-Systems/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-AIV/"><span class="level-start"><span class="level-item">1-AIV</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/"><span class="level-start"><span class="level-item">1-Agent Workflow</span></span><span class="level-end"><span class="level-item tag">10</span></span></a><ul><li><a class="level is-mobile" href="/categories/1-Agent-Workflow/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/1-GeneralSkills/"><span class="level-start"><span class="level-item">1-GeneralSkills</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Infer/"><span class="level-start"><span class="level-item">1-Infer</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/1-Operator-Development/"><span class="level-start"><span class="level-item">1-Operator Development</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/2-Communication/"><span class="level-start"><span class="level-item">2-Communication</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Algorithms/"><span class="level-start"><span class="level-item">Algorithms</span></span><span class="level-end"><span class="level-item tag">12</span></span></a></li><li><a class="level is-mobile" href="/categories/Architecture/"><span class="level-start"><span class="level-item">Architecture</span></span><span class="level-end"><span class="level-item tag">42</span></span></a></li><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/"><span class="level-start"><span class="level-item">Artificial Intelligence</span></span><span class="level-end"><span class="level-item tag">74</span></span></a><ul><li><a class="level is-mobile" href="/categories/Artificial-Intelligence/1-Distributed-Parallelism/"><span class="level-start"><span class="level-item">1-Distributed Parallelism</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Camp/"><span class="level-start"><span class="level-item">Camp</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Databases/"><span class="level-start"><span class="level-item">Databases</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/HPC/"><span class="level-start"><span class="level-item">HPC</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Math/"><span class="level-start"><span class="level-item">Math</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Network/"><span class="level-start"><span class="level-item">Network</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">37</span></span></a><ul><li><a class="level is-mobile" href="/categories/OOW/0-TOP/"><span class="level-start"><span class="level-item">0-TOP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/Operating-system/"><span class="level-start"><span class="level-item">Operating system</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/categories/Overview/"><span class="level-start"><span class="level-item">Overview</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/categories/Programming/"><span class="level-start"><span class="level-item">Programming</span></span><span class="level-end"><span class="level-item tag">44</span></span></a></li><li><a class="level is-mobile" href="/categories/ProjectRecord/"><span class="level-start"><span class="level-item">ProjectRecord</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Software/"><span class="level-start"><span class="level-item">Software</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Thinking/"><span class="level-start"><span class="level-item">Thinking</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/Tips/"><span class="level-start"><span class="level-item">Tips</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/categories/Treasure/"><span class="level-start"><span class="level-item">Treasure</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Tutorials/"><span class="level-start"><span class="level-item">Tutorials</span></span><span class="level-end"><span class="level-item tag">119</span></span></a></li><li><a class="level is-mobile" href="/categories/Values/"><span class="level-start"><span class="level-item">Values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Work/"><span class="level-start"><span class="level-item">Work</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/architecture/"><span class="level-start"><span class="level-item">architecture</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/diary/"><span class="level-start"><span class="level-item">diary</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/english/"><span class="level-start"><span class="level-item">english</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/hardware/"><span class="level-start"><span class="level-item">hardware</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/love/"><span class="level-start"><span class="level-item">love</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/math/"><span class="level-start"><span class="level-item">math</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/network/"><span class="level-start"><span class="level-item">network</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/categories/operating-system/"><span class="level-start"><span class="level-item">operating system</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/programming/"><span class="level-start"><span class="level-item">programming</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/security/"><span class="level-start"><span class="level-item">security</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/software/"><span class="level-start"><span class="level-item">software</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/categories/thinking/"><span class="level-start"><span class="level-item">thinking</span></span><span class="level-end"><span class="level-item tag">9</span></span></a><ul><li><a class="level is-mobile" href="/categories/thinking/OOW/"><span class="level-start"><span class="level-item">OOW</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></li><li><a class="level is-mobile" href="/categories/tips/"><span class="level-start"><span class="level-item">tips</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/categories/toLearn/"><span class="level-start"><span class="level-item">toLearn</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/categories/values/"><span class="level-start"><span class="level-item">values</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://ibug.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ibugs</span></span><span class="level-right"><span class="level-item tag">ibug.io</span></span></a></li><li><a class="level is-mobile" href="https://jia.je/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">jiegec</span></span><span class="level-right"><span class="level-item tag">jia.je</span></span></a></li><li><a class="level is-mobile" href="https://leimao.github.io/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">leimao</span></span><span class="level-right"><span class="level-item tag">leimao.github.io</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2027-03-15T16:00:00.000Z">2027-03-15</time></p><p class="title"><a href="/2027/03/15/Work/0-Exp/">Building Large-Scale AI Systems on Ascend: Training, Inference, and Multimodal Optimization</a></p><p class="categories"><a href="/categories/Overview/">Overview</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-04T07:53:33.000Z">2026-09-04</time></p><p class="title"><a href="/2026/09/04/Work/Artificial%20Intelligence/AIInfra/Data-as-Flag-Communication/">Data-as-Flag Communication</a></p><p class="categories"><a href="/categories/1-Distributed-Parallelism/">1-Distributed Parallelism</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-03T10:10:00.000Z">2026-09-03</time></p><p class="title"><a href="/2026/09/03/Work/Artificial%20Intelligence/AIInfra/CANN-SHMEM-Primitives/">CANN SHMEM Primitives</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-03T04:00:00.000Z">2026-09-03</time></p><p class="title"><a href="/2026/09/03/Work/Artificial%20Intelligence/AIInfra/Ascend-DeepEP-V2-Elastic-Dispatch/">Ascend DeepEP V2 Elastic Dispatch</a></p><p class="categories"><a href="/categories/1-Distributed-Parallelism/">1-Distributed Parallelism</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-02T12:50:00.000Z">2026-09-02</time></p><p class="title"><a href="/2026/09/02/Work/Artificial%20Intelligence/AIInfra/AIV-UDMA-Direct-Drive/">AIV UDMA Direct Drive</a></p><p class="categories"><a href="/categories/1-AIV/">1-AIV</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2027/03/"><span class="level-start"><span class="level-item">March 2027</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/09/"><span class="level-start"><span class="level-item">September 2026</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">August 2026</span></span><span class="level-end"><span class="level-item tag">56</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">July 2026</span></span><span class="level-end"><span class="level-item tag">38</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/06/"><span class="level-start"><span class="level-item">June 2026</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/05/"><span class="level-start"><span class="level-item">May 2026</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">April 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">March 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">February 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/01/"><span class="level-start"><span class="level-item">January 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/12/"><span class="level-start"><span class="level-item">December 2025</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/11/"><span class="level-start"><span class="level-item">November 2025</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/10/"><span class="level-start"><span class="level-item">October 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/09/"><span class="level-start"><span class="level-item">September 2025</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/05/"><span class="level-start"><span class="level-item">May 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/04/"><span class="level-start"><span class="level-item">April 2025</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/03/"><span class="level-start"><span class="level-item">March 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/02/"><span class="level-start"><span class="level-item">February 2025</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2025/01/"><span class="level-start"><span class="level-item">January 2025</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/12/"><span class="level-start"><span class="level-item">December 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/11/"><span class="level-start"><span class="level-item">November 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/10/"><span class="level-start"><span class="level-item">October 2024</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/09/"><span class="level-start"><span class="level-item">September 2024</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/08/"><span class="level-start"><span class="level-item">August 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/07/"><span class="level-start"><span class="level-item">July 2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/06/"><span class="level-start"><span class="level-item">June 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/05/"><span class="level-start"><span class="level-item">May 2024</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">April 2024</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">March 2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">February 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/01/"><span class="level-start"><span class="level-item">January 2024</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">December 2023</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/11/"><span class="level-start"><span class="level-item">November 2023</span></span><span class="level-end"><span class="level-item tag">33</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">October 2023</span></span><span class="level-end"><span class="level-item tag">58</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">September 2023</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">August 2023</span></span><span class="level-end"><span class="level-item tag">23</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">July 2023</span></span><span class="level-end"><span class="level-item tag">24</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/06/"><span class="level-start"><span class="level-item">June 2023</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/05/"><span class="level-start"><span class="level-item">May 2023</span></span><span class="level-end"><span class="level-item tag">19</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/04/"><span class="level-start"><span class="level-item">April 2023</span></span><span class="level-end"><span class="level-item tag">9</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/03/"><span class="level-start"><span class="level-item">March 2023</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">February 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/11/"><span class="level-start"><span class="level-item">November 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/09/"><span class="level-start"><span class="level-item">September 2022</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/07/"><span class="level-start"><span class="level-item">July 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/05/"><span class="level-start"><span class="level-item">May 2022</span></span><span class="level-end"><span class="level-item tag">10</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/04/"><span class="level-start"><span class="level-item">April 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/03/"><span class="level-start"><span class="level-item">March 2022</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/01/"><span class="level-start"><span class="level-item">January 2022</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/12/"><span class="level-start"><span class="level-item">December 2021</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/11/"><span class="level-start"><span class="level-item">November 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">October 2021</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/09/"><span class="level-start"><span class="level-item">September 2021</span></span><span class="level-end"><span class="level-item tag">11</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/08/"><span class="level-start"><span class="level-item">August 2021</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">28</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/0-1-Adam/"><span class="tag">0/1 Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-Adam/"><span class="tag">1-bit Adam</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/1-bit-LAMB/"><span class="tag">1-bit LAMB</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/3FS/"><span class="tag">3FS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/4-1-View-Model/"><span class="tag">4+1 View Model</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/5G/"><span class="tag">5G</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/64bits-vs-32bits/"><span class="tag">64bits vs 32bits</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A3/"><span class="tag">A3</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A5/"><span class="tag">A5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ACLSHMEM/"><span class="tag">ACLSHMEM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADR/"><span class="tag">ADR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ADXL/"><span class="tag">ADXL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGENTX/"><span class="tag">AGENTX</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AGRS/"><span class="tag">AGRS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">10</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-AGENT/"><span class="tag">AI AGENT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-CODING/"><span class="tag">AI CODING</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Chip/"><span class="tag">AI Chip</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Cluster/"><span class="tag">AI Cluster</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="SHAOJIE&#039;S BOOK" height="28"></a><p class="is-size-7"><span>&copy; 2026 Shaojie Tan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Kirrito-k423/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
