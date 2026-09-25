@@ -18,7 +18,7 @@
   const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
   const rankLabel = (lane, model) => model.ranks === 8 ? `R${lane}` : `R${lane * 8}–${lane * 8 + 7}`;
   const state = {
-    preset: "ep8", scenario: "balanced", topK: 4, speed: 1,
+    preset: "ep64", scenario: "balanced", topK: 8, speed: 1,
     phase: 0, progress: 1, playing: false, frame: null, lastTime: 0, lastPaint: 0,
     box: { ...WORLD }, drag: null, dragged: false
   };
