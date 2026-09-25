@@ -3,85 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f9fc">
-  <meta name="description" content="逐步观察 MoE 的路由、Dispatch、专家计算、Combine 与原顺序恢复。可选择 token、切换 Top-k 和负载场景。">
-  <title>MoE Dispatch & Combine · 交互式原理解释</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23182d52'/%3E%3Cpath d='M13 19h13l11 13-11 13H13M51 19H38L27 32l11 13h13' fill='none' stroke='%2353d3c1' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="在可缩放画布上逐层探索 MoE 路由、Dispatch、专家计算与 Combine。点击模块查看真实形状的矩阵、任务记录和加权结果。">
+  <title>MoE Explainer · Dispatch & Combine</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fff'/%3E%3Cpath d='M11 20h14l12 12-12 12H11M53 20H39L27 32l12 12h14' fill='none' stroke='%236464e9' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./style.css">
+  <script defer src="./model.js"></script>
+  <script defer src="./details.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#lab">跳到交互演示</a>
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="返回页面顶部">
-      <span class="brand-mark" aria-hidden="true">⇄</span>
-      <span>MoE <strong>Flow Lab</strong></span>
-    </a>
-    <nav aria-label="主导航"><a href="#lab">交互演示</a><a href="#principle">原理速读</a><a href="#sources">来源与边界</a></nav>
-    <span class="header-tag">一个 token 的往返旅程</span>
-  </header>
+  <a class="skip-link" href="#scene">跳到 MoE 画布</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-glyph" aria-hidden="true">M<span>⇄</span>E</span><strong>MoE EXPLAINER</strong></div>
+      <div class="top-controls" role="group" aria-label="模型与播放控制">
+        <label class="select-control"><span>规模</span><select id="preset"><option value="ep8">EP8 · 128 token</option><option value="ep64">EP64 · 1024 token</option></select></label>
+        <label class="select-control"><span>路由</span><select id="scenario"><option value="balanced">分散</option><option value="hotspot">E2 热点</option></select></label>
+        <label class="select-control compact"><span>Top-k</span><select id="topk"><option value="2">2</option><option value="4" selected>4</option><option value="8">8</option></select></label>
+        <div class="play-controls"><button id="previous" class="control-button" type="button" aria-label="上一阶段" title="上一阶段">‹</button><button id="play" class="play-button" type="button" aria-label="播放">▶ <span>播放</span></button><button id="next" class="control-button" type="button" aria-label="下一阶段" title="下一阶段">›</button></div>
+        <label class="select-control compact speed"><span>速度</span><select id="speed"><option value="0.6">0.6×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option></select></label>
+      </div>
+      <button id="about" class="about-button" type="button" aria-label="查看模型来源与边界" title="模型来源与边界">?</button>
+    </header>
 
-  <main id="top">
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-copy">
-        <p class="eyebrow"><span class="eyebrow-dot"></span> INTERACTIVE EXPLAINER · EXPERT PARALLELISM</p>
-        <h1 id="hero-title">一个 token，为什么会去两个专家，<br><em>又如何回到原位？</em></h1>
-        <p class="hero-lead">先选专家，再把 token 副本送往专家所在的 rank；专家算完后，结果沿原路返回，并按路由权重合成。点选任意 token，跟着它走完整个往返。</p>
-        <a class="hero-cta" href="#lab">开始探索 <span aria-hidden="true">↘</span></a>
+    <div class="stagebar" role="group" aria-label="过程阶段">
+      <div class="stage-buttons" id="stage-buttons">
+        <button type="button" data-phase="0"><span>01</span>输入</button>
+        <button type="button" data-phase="1"><span>02</span>路由</button>
+        <button type="button" data-phase="2"><span>03</span>Dispatch</button>
+        <button type="button" data-phase="3"><span>04</span>专家</button>
+        <button type="button" data-phase="4"><span>05</span>Combine</button>
+        <button type="button" data-phase="5"><span>06</span>输出</button>
       </div>
-      <div class="hero-aside" aria-label="流程概览">
-        <div class="mini-flow"><span>01 ROUTE</span><b>决定去哪里</b></div>
-        <div class="mini-arrow" aria-hidden="true">↓</div>
-        <div class="mini-flow"><span>02 DISPATCH</span><b>发出 token 副本</b></div>
-        <div class="mini-arrow" aria-hidden="true">↓</div>
-        <div class="mini-flow"><span>03 COMBINE</span><b>带回结果并加权</b></div>
+      <label class="scrub-wrap"><span class="sr-only">过程进度</span><input id="scrub" type="range" min="0" max="600" value="0" aria-label="过程进度"></label>
+    </div>
+
+    <main class="canvas-shell" id="canvas-shell">
+      <svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1740 830" role="img" aria-label="可缩放的 MoE 输入、路由、Dispatch、专家、Combine 与输出画布" tabindex="0"></svg>
+      <div class="canvas-metrics" aria-label="当前模型统计">
+        <span id="metric-tokens">128 token</span><span id="metric-tasks">512 专家任务</span><span id="metric-cross">跨 rank 453</span><span id="metric-bytes">单向 3.5 MiB</span>
       </div>
+      <div class="canvas-tools" role="group" aria-label="画布缩放控制"><button id="zoom-in" type="button" aria-label="放大">＋</button><button id="zoom-out" type="button" aria-label="缩小">－</button><button id="fit" type="button" aria-label="适配画布">⌗</button></div>
+      <div class="canvas-hint">滚轮缩放 · 拖动画布 · 点击模块展开</div>
+    </main>
+  </div>
+
+  <div id="detail-layer" class="detail-layer" hidden>
+    <div id="detail-backdrop" class="detail-backdrop"></div>
+    <section class="detail-dialog" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+      <header class="detail-header"><div><span id="detail-number" class="detail-number"></span><h2 id="detail-title"></h2><span id="detail-shape" class="detail-shape"></span></div><div class="detail-head-actions"><button id="detail-prev" type="button" aria-label="上一个模块">←</button><button id="detail-next" type="button" aria-label="下一个模块">→</button><button id="detail-close" type="button" aria-label="关闭详情">×</button></div></header>
+      <div id="detail-subnav" class="detail-subnav" role="tablist" aria-label="模块内部步骤"></div>
+      <div id="detail-controls" class="detail-controls"></div>
+      <div id="detail-body" class="detail-body"></div>
+      <footer class="detail-footer"><span id="detail-status"></span><button id="detail-advance" type="button">下一小节 →</button></footer>
     </section>
-
-    <section id="lab" class="lab" aria-labelledby="lab-title">
-      <div class="section-heading"><div><p class="section-kicker">THE LAB / 可交互模型</p><h2 id="lab-title">沿着一份数据走一遍</h2></div><p>4 个 rank · 每个 rank 2 个 token 和 2 个专家</p></div>
-
-      <div class="lab-shell">
-        <div class="controls-bar">
-          <label class="control"><span>路由场景</span><select id="scenario"><option value="balanced">分散路由</option><option value="hotspot">集中到 E2</option></select></label>
-          <label class="control"><span>每 token 激活</span><select id="topk"><option value="2">Top-2 专家</option><option value="1">Top-1 专家</option></select></label>
-          <label class="control speed-control"><span>播放速度</span><select id="speed"><option value="1">1×</option><option value="1.5">1.5×</option><option value="0.6">0.6×</option></select></label>
-          <label class="toggle"><input type="checkbox" id="show-all"><span>突出全部路线</span></label>
-          <div class="control-actions"><button id="reset" class="icon-button" type="button" aria-label="重置">↺</button><button id="prev" class="icon-button" type="button" aria-label="上一步">‹</button><button id="play" class="play-button" type="button" aria-label="播放">▶ <span>播放</span></button><button id="next" class="icon-button" type="button" aria-label="下一步">›</button></div>
-        </div>
-
-        <div class="steps" role="group" aria-label="演示阶段">
-          <button class="step" data-phase="0" type="button"><span class="step-no">01</span><span><b>路由</b><small>选 Top-k 专家</small></span></button>
-          <button class="step" data-phase="1" type="button"><span class="step-no">02</span><span><b>Dispatch</b><small>发往专家 rank</small></span></button>
-          <button class="step" data-phase="2" type="button"><span class="step-no">03</span><span><b>专家计算</b><small>各专家处理副本</small></span></button>
-          <button class="step" data-phase="3" type="button"><span class="step-no">04</span><span><b>Combine</b><small>结果回原 rank</small></span></button>
-          <button class="step" data-phase="4" type="button"><span class="step-no">05</span><span><b>恢复顺序</b><small>按权重合成</small></span></button>
-        </div>
-
-        <div class="lab-content">
-          <div class="visual-panel">
-            <div class="panel-topline"><div><span class="live-dot"></span><strong id="phase-title">01 / 路由</strong><span id="phase-subtitle">先看每个 token 被分配到哪些专家</span></div><span class="diagram-tag">概念模型 · 非硬件跟踪</span></div>
-            <div class="svg-scroller"><svg id="flow" viewBox="0 0 1200 590" role="img" aria-label="四个 rank 中 token、专家和输出槽位的数据流图"></svg></div>
-            <div class="visual-footer"><div class="legend"><span><i class="swatch input"></i>原 token</span><span><i class="swatch expert"></i>专家计算</span><span><i class="swatch result"></i>回传结果</span><span><i class="swatch focused"></i>当前追踪</span></div><span>点击图中的 token 或输出槽位查看细节</span></div>
-          </div>
-          <aside class="detail-panel" aria-labelledby="detail-title">
-            <div class="detail-heading"><p class="section-kicker">FOLLOW A TOKEN</p><h3 id="detail-title">追踪 <span id="selected-id">R0:T0</span></h3><p id="stage-copy"></p></div>
-            <div class="detail-select"><label for="token-select">切换 token</label><select id="token-select"></select></div>
-            <div id="token-detail" class="token-detail"></div>
-            <div class="stage-callout" id="stage-callout"></div>
-          </aside>
-        </div>
-
-        <div class="transport-bar"><div><label for="scrub">阶段内进度</label><input id="scrub" type="range" min="0" max="100" value="0" aria-label="阶段内动画进度"></div><div class="transport-hint">空格播放 / 暂停 · ← → 切换阶段</div></div>
-      </div>
-
-      <div class="metric-strip" aria-label="当前路由的数据量"><div><span>发出的 token 副本</span><strong id="copies">16</strong><small>Top-k 使一个 token 可产生多份副本</small></div><div><span>跨 rank 路由</span><strong id="remote">—</strong><small>本 rank 专家无需跨 rank 传输</small></div><div><span>跨 rank 载荷（单向）</span><strong id="payload">—</strong><small>仅按 H=4096、BF16 的 token 向量估算</small></div><div><span>最忙的专家</span><strong id="busiest">—</strong><small>修改场景，观察接收负载怎样变化</small></div></div>
-    </section>
-
-    <section id="principle" class="principle" aria-labelledby="principle-title"><div class="section-heading"><div><p class="section-kicker">THE IDEA / 原理速读</p><h2 id="principle-title">两次跨 rank 通信，夹着一次专家计算</h2></div></div><div class="principle-grid"><article><span class="article-no">01</span><h3>路由决定副本</h3><p>Router 为每个 token 选出 Top-k 个专家。Top-2 时，一个 token 会对应两条专家任务；图中的两条线是两份<strong>逻辑副本</strong>，不是两个新 token。</p></article><article><span class="article-no">02</span><h3>Dispatch 改变布局</h3><p>副本带着来源位置和专家编号，到专家所在 rank 汇集。专家按接收到的任务处理；负载不均时，某些专家会收到更多 token。</p></article><article><span class="article-no">03</span><h3>Combine 回原槽位</h3><p>每份专家结果返回 token 的原 rank，再用路由权重加权求和：<code>y[t] = Σ w[t,e] · Fₑ(x[t])</code>。输出仍排在原来的 token 槽位。</p></article></div></section>
-
-    <section id="sources" class="sources" aria-labelledby="sources-title"><div><p class="section-kicker">SCOPE / 来源与边界</p><h2 id="sources-title">这是一张可操作的原理图</h2></div><div class="sources-copy"><p>交互数据是为讲解而设的确定性小例子：<code>x[0]</code> 是 token 向量的首元素示意值；动画中的专家函数 <code>Fₑ(x[0]) = x[0] + 4(e+1)</code> 只是让合成过程能手算，<strong>不代表真实 FFN</strong>。载荷估算只计 token 向量，不含权重、索引、对齐、元数据或协议开销。</p><p>图中“到达”和阶段顺序是教学状态，<strong>不代表真实网络完成、硬件同步或性能数据</strong>。真实实现的打包、缓存、同步、返回顺序与本图可能不同。</p><p class="source-links">原理参考：<a href="https://github.com/deepseek-ai/DeepEP" target="_blank" rel="noopener noreferrer">DeepEP 官方仓库 ↗</a><a href="https://poloclub.github.io/transformer-explainer/" target="_blank" rel="noopener noreferrer">Transformer Explainer（交互方式参考）↗</a></p></div></section>
-  </main>
-  <footer>MoE Flow Lab <span>为理解数据流而制作 · 2026</span></footer>
+  </div>
 </body>
 </html>

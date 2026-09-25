@@ -1,218 +1,438 @@
-(() => {
+(function (root) {
   "use strict";
 
-  const rankCount = 4;
-  const tokensPerRank = 2;
-  const expertsPerRank = 2;
-  const hiddenBytes = 4096 * 2; // 教学估算：H=4096，BF16=2 字节。
-  const balanced = [[0, 3], [2, 5], [1, 4], [3, 6], [4, 1], [6, 0], [7, 2], [5, 3]];
-  const hotspot = [[2, 5], [2, 6], [2, 0], [2, 7], [2, 4], [2, 1], [6, 2], [2, 3]];
-  const firstWeights = [.7, .65, .6, .75, .55, .7, .65, .6];
-  const phases = [
-    { title: "01 / 路由", subtitle: "先看每个 token 被分配到哪些专家", copy: "Router 决定每个 token 的 Top-k 专家。选中的 token 用红色边框标出；线条显示它将产生的专家任务。", callout: "路由只决定目的地。此时还没有跨 rank 传输。" },
-    { title: "02 / Dispatch", subtitle: "token 副本移动到专家所在 rank", copy: "Dispatch 为每条专家任务发送一份 token 副本，并保存来源位置。跨 rank 的路线要经过通信，本 rank 路线可在本地完成。", callout: "图上的粒子是逻辑数据流；到达图中终点不等于真实网络完成。" },
-    { title: "03 / 专家计算", subtitle: "每个专家处理收到的副本", copy: "同一个专家可能接收来自不同 rank 的 token。这里用可手算的标量变换演示，真实专家通常是向量上的 FFN。", callout: "示例函数 Fₑ(x[0]) = x[0] + 4(e+1)，仅用于理解数据从哪里来。" },
-    { title: "04 / Combine", subtitle: "专家结果沿来源信息回到原 rank", copy: "Combine 把每条专家任务的结果发回最初的 token 所在 rank，并利用保存的 token 槽位定位。", callout: "返回的是专家结果，不能把这一步理解为再次发送原始输入。" },
-    { title: "05 / 恢复顺序", subtitle: "按路由权重合成并写回原槽位", copy: "来自多个专家的结果按权重相加。即使 Dispatch 改变了专家侧布局，输出仍对应最初的 token 顺序。", callout: "Top-1 的示例权重为 1；Top-2 的两个示例权重之和为 1。" }
-  ];
-
+  const M = root.MoeModel;
   const $ = (id) => document.getElementById(id);
-  const ui = {
-    flow: $("flow"), scenario: $("scenario"), topk: $("topk"), speed: $("speed"), showAll: $("show-all"),
-    play: $("play"), prev: $("prev"), next: $("next"), reset: $("reset"), scrub: $("scrub"),
-    phaseTitle: $("phase-title"), phaseSubtitle: $("phase-subtitle"), stageCopy: $("stage-copy"),
-    stageCallout: $("stage-callout"), selectedId: $("selected-id"), tokenSelect: $("token-select"), tokenDetail: $("token-detail"),
-    copies: $("copies"), remote: $("remote"), payload: $("payload"), busiest: $("busiest")
+  const svg = $("scene");
+  const WORLD = { x: 0, y: 0, w: 1740, h: 830 };
+  const COLUMNS = [
+    { module: "input", x: 66, label: "INPUT", subtitle: "token × hidden" },
+    { module: "router", x: 337, label: "ROUTER", subtitle: "score → Top-k" },
+    { module: "dispatch", x: 608, label: "DISPATCH", subtitle: "pack · exchange" },
+    { module: "expert", x: 879, label: "EXPERTS", subtitle: "local compute" },
+    { module: "combine", x: 1150, label: "COMBINE", subtitle: "return · weighted sum" },
+    { module: "output", x: 1421, label: "OUTPUT", subtitle: "original slot" }
+  ];
+  const WIDTH = 205, TOP = 117, HEIGHT = 584;
+  const laneY = (lane) => 201 + lane * 59;
+  const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
+  const rankLabel = (lane, model) => model.ranks === 8 ? `R${lane}` : `R${lane * 8}–${lane * 8 + 7}`;
+  const state = {
+    preset: "ep8", scenario: "balanced", topK: 4, speed: 1,
+    phase: 0, progress: 1, playing: false, frame: null, lastTime: 0, lastPaint: 0,
+    box: { ...WORLD }, drag: null, dragged: false
   };
-  const state = { scenario: "balanced", topk: 2, phase: 0, progress: 0, selected: "R0:T0", playing: false, speed: 1, showAll: false };
-  let model;
-  let lastFrame = 0;
-  let frameHandle = null;
+  let model = M.buildModel(state);
+  let details;
 
-  function buildModel() {
-    const choices = state.scenario === "hotspot" ? hotspot : balanced;
-    const tokens = [];
-    const routes = [];
-    const counts = Array(rankCount * expertsPerRank).fill(0);
-    for (let rank = 0; rank < rankCount; rank++) {
-      for (let slot = 0; slot < tokensPerRank; slot++) {
-        const index = rank * tokensPerRank + slot;
-        const token = { key: `R${rank}:T${slot}`, rank, slot, x: 12 + rank * 20 + slot * 3 };
-        tokens.push(token);
-        for (let selection = 0; selection < state.topk; selection++) {
-          const expert = choices[index][selection];
-          const owner = Math.floor(expert / expertsPerRank);
-          const weight = state.topk === 1 ? 1 : selection === 0 ? firstWeights[index] : 1 - firstWeights[index];
-          const value = token.x + 4 * (expert + 1);
-          routes.push({ token, expert, owner, weight, value, selection });
-          counts[expert]++;
-        }
+  function esc(text) {
+    return String(text).replace(/[&<>"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" })[character]);
+  }
+  function rect(x, y, w, h, fill, attrs = "") {
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" ${attrs}/>`;
+  }
+  function text(x, y, value, className = "", attrs = "") {
+    return `<text x="${x}" y="${y}" class="${className}" ${attrs}>${esc(value)}</text>`;
+  }
+  function stageOpacity(phase, order) {
+    if (phase < state.phase) return .94;
+    if (phase > state.phase) return .52;
+    return order <= state.progress + .005 ? .98 : .24;
+  }
+  function bandPath(x1, y1, x2, y2) {
+    const reach = (x2 - x1) * .46;
+    return `M${x1},${y1} C${x1 + reach},${y1} ${x2 - reach},${y2} ${x2},${y2}`;
+  }
+  function trafficGroups() {
+    return M.groupedTraffic(model, 8);
+  }
+  function laneTotals(groups, source) {
+    return Array.from({ length: 8 }, (_, lane) => {
+      let value = 0;
+      for (let other = 0; other < 8; other++) value += groups[source ? lane * 8 + other : other * 8 + lane];
+      return value;
+    });
+  }
+  function flows(groups, type) {
+    const isDispatch = type === "dispatch";
+    const x1 = isDispatch ? 542 : 1087;
+    const x2 = isDispatch ? 876 : 1420;
+    const maximum = Math.max(...groups);
+    const bands = [];
+    const glints = [];
+    for (let src = 0; src < 8; src++) {
+      for (let dst = 0; dst < 8; dst++) {
+        const count = groups[src * 8 + dst];
+        if (!count) continue;
+        const from = isDispatch ? src : dst;
+        const to = isDispatch ? dst : src;
+        const inset = (isDispatch ? dst : src) * 1.5 - 5.25;
+        const d = bandPath(x1, laneY(from) + inset, x2, laneY(to) + inset);
+        const width = (1.3 + 7.3 * Math.sqrt(count / maximum)).toFixed(1);
+        const delay = ((src * 17 + dst * 7) % 23) / 23;
+        bands.push(`<path class="flow-band ${type}" d="${d}" stroke-width="${width}" data-visual-phase="${isDispatch ? 2 : 4}" data-order="${delay.toFixed(3)}" data-count="${count}"><title>${rankLabel(src, model)} → ${rankLabel(dst, model)} · ${count} 任务</title></path>`);
+        glints.push(`<path class="flow-glint ${type}" d="${d}" stroke-width="${Math.max(1, Number(width) * .32).toFixed(1)}" style="animation-delay:-${(delay * 1.35).toFixed(2)}s"></path>`);
       }
     }
-    return { tokens, routes, counts, remote: routes.filter((route) => route.owner !== route.token.rank).length };
+    return bands.join("") + glints.join("");
   }
-
-  function tokenX(slot) { return 169 + slot * 75; }
-  function expertX(expert) { return 565 + (expert % 2) * 77; }
-  function outputX(slot) { return 1022 + slot * 75; }
-  function rowY(rank) { return 154 + rank * 108; }
-  function dispatchPath(route) {
-    const x1 = tokenX(route.token.slot) + 21, y1 = rowY(route.token.rank);
-    const x2 = expertX(route.expert) - 28, y2 = rowY(route.owner);
-    return `M ${x1} ${y1} C ${x1 + 180} ${y1}, ${x2 - 150} ${y2}, ${x2} ${y2}`;
-  }
-  function combinePath(route) {
-    const x1 = expertX(route.expert) + 28, y1 = rowY(route.owner);
-    const x2 = outputX(route.token.slot) - 21, y2 = rowY(route.token.rank);
-    return `M ${x1} ${y1} C ${x1 + 150} ${y1}, ${x2 - 160} ${y2}, ${x2} ${y2}`;
-  }
-  function fmt(n) { return n.toFixed(1); }
-  function resultFor(token) {
-    return model.routes.filter((r) => r.token.key === token.key).reduce((sum, r) => sum + r.weight * r.value, 0);
-  }
-
-  function drawFlow() {
-    const lanes = Array.from({ length: rankCount }, (_, rank) => {
-      const cy = rowY(rank);
-      return `<g><rect class="rank-lane" x="17" y="${cy - 43}" width="1166" height="86" rx="13"/><text class="rank-label" x="39" y="${cy - 2}">R${rank}</text><text class="rank-detail" x="39" y="${cy + 14}">rank ${rank}</text><line class="row-divider" x1="100" y1="${cy - 29}" x2="100" y2="${cy + 29}"/></g>`;
+  function inputFlows() {
+    return Array.from({ length: 8 }, (_, lane) => {
+      const y = laneY(lane) + 7;
+      return `<path class="flow-band input" d="${bandPath(272, y, 335, y)}" stroke-width="8" data-visual-phase="0" data-order="${(lane / 8).toFixed(3)}"/>`;
     }).join("");
-
-    const routeType = state.phase >= 3 ? "combine" : "dispatch";
-    const paths = model.routes.map((route, index) => {
-      const focus = route.token.key === state.selected;
-      const klass = ["flow-line", routeType, focus ? "focus" : state.showAll ? "all-visible" : "", !focus && !state.showAll ? "secondary" : ""].join(" ");
-      const path = routeType === "dispatch" ? dispatchPath(route) : combinePath(route);
-      return `<path id="route-${index}" class="${klass}" d="${path}"/>`;
-    }).join("");
-
-    const tokenNodes = model.tokens.map((token) => {
-      const selected = token.key === state.selected ? "selected" : "";
-      const muted = state.phase >= 3 ? "node-muted" : "";
-      const y = rowY(token.rank), x = tokenX(token.slot);
-      return `<g class="node-click ${selected} ${muted}" data-token="${token.key}" role="button" tabindex="0" aria-label="追踪 ${token.key}，输入首元素 ${token.x}"><circle class="input-node" cx="${x}" cy="${y}" r="22"/><text class="node-text" x="${x}" y="${y}">T${token.slot}</text><text class="node-value" x="${x}" y="${y + 35}">x[0]=${token.x}</text></g>`;
-    }).join("");
-
-    const expertNodes = Array.from({ length: rankCount * expertsPerRank }, (_, expert) => {
-      const y = rowY(Math.floor(expert / expertsPerRank)), x = expertX(expert);
-      const highlighted = model.routes.some((r) => r.expert === expert && r.token.key === state.selected);
-      return `<g class="${highlighted ? "" : "node-muted"}"><rect class="expert-box" x="${x - 26}" y="${y - 24}" width="52" height="48" rx="9"/><text class="expert-text" x="${x}" y="${y - 3}">E${expert}</text><text class="expert-count" x="${x}" y="${y + 13}">${model.counts[expert]} 份</text></g>`;
-    }).join("");
-
-    const outputNodes = model.tokens.map((token) => {
-      const selected = token.key === state.selected ? "selected" : "";
-      const muted = state.phase < 3 ? "node-muted" : "";
-      const x = outputX(token.slot), y = rowY(token.rank);
-      const value = state.phase === 4 ? `y[0]=${fmt(resultFor(token))}` : "原槽位";
-      return `<g class="node-click ${selected} ${muted}" data-token="${token.key}" role="button" tabindex="0" aria-label="追踪 ${token.key} 的输出槽位"><circle class="output-node" cx="${x}" cy="${y}" r="22"/><text class="node-text output-text" x="${x}" y="${y}">T${token.slot}</text><text class="node-value" x="${x}" y="${y + 35}">${value}</text></g>`;
-    }).join("");
-
-    const packetType = state.phase === 1 || state.phase === 3 ? routeType : "";
-    const packets = packetType ? model.routes.map((route, index) => {
-      const focus = route.token.key === state.selected ? "focus" : "";
-      return `<circle id="packet-${index}" class="packet ${packetType} ${focus}" r="${focus ? 8 : 5}" cx="0" cy="0"/>`;
-    }).join("") : "";
-
-    ui.flow.innerHTML = `<text class="svg-head" x="125" y="69">原 rank · 输入 token</text><text class="svg-head" x="535" y="69">目标 rank · Experts</text><text class="svg-head" x="969" y="69">原 rank · 输出槽位</text>${lanes}<g class="routes">${paths}</g>${tokenNodes}${expertNodes}${outputNodes}<g class="packets">${packets}</g><text class="phase-note" x="25" y="576">每条线对应一次专家任务；同 rank 路线是本地路径。</text>`;
-    updatePackets();
   }
-
-  function updatePackets() {
-    if (state.phase !== 1 && state.phase !== 3) return;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const travel = reducedMotion ? (state.progress >= .5 ? 1 : 0) : state.progress;
-    model.routes.forEach((_, index) => {
-      const path = $("route-" + index);
-      const packet = $("packet-" + index);
-      if (!path || !packet) return;
-      const point = path.getPointAtLength(path.getTotalLength() * travel);
-      packet.setAttribute("cx", point.x.toFixed(2));
-      packet.setAttribute("cy", point.y.toFixed(2));
-    });
-  }
-
-  function renderDetail() {
-    const token = model.tokens.find((t) => t.key === state.selected) || model.tokens[0];
-    const routes = model.routes.filter((r) => r.token.key === token.key);
-    const terms = routes.map((r) => `${fmt(r.weight)} × ${r.value}`).join(" + ");
-    ui.selectedId.textContent = token.key;
-    ui.stageCopy.textContent = phases[state.phase].copy;
-    ui.stageCallout.textContent = phases[state.phase].callout;
-    ui.tokenSelect.value = token.key;
-    ui.tokenDetail.innerHTML = `<div class="fact"><span>来源</span><b>Rank ${token.rank} · token 槽位 ${token.slot}</b></div><div class="fact"><span>输入示意值 x[0]</span><b>${token.x}</b></div><div class="fact"><span>专家任务</span><b>${routes.length} 份副本</b></div><div class="route-list"><h4>每份副本去哪里</h4>${routes.map((r) => `<div class="route-card"><div class="route-top"><span>E${r.expert} · Rank ${r.owner}</span><small>${r.owner === token.rank ? "本地" : "跨 rank"}</small></div><p>权重 ${fmt(r.weight)} · F${r.expert}(x[0]) = ${token.x} + ${4 * (r.expert + 1)} = ${r.value}</p></div>`).join("")}</div><div class="formula"><small>Combine · 按原槽位汇合</small><div>${terms}</div><b>y[${token.slot}, 0] = ${fmt(resultFor(token))}</b></div>`;
-  }
-
-  function renderMetrics() {
-    ui.copies.textContent = String(model.routes.length);
-    ui.remote.textContent = `${model.remote} / ${model.routes.length}`;
-    ui.payload.textContent = `${(model.remote * hiddenBytes / 1024).toFixed(0)} KiB`;
-    const max = Math.max(...model.counts);
-    ui.busiest.textContent = `E${model.counts.indexOf(max)} · ${max} 份`;
-  }
-
-  function renderControls() {
-    const phase = phases[state.phase];
-    ui.phaseTitle.textContent = phase.title;
-    ui.phaseSubtitle.textContent = phase.subtitle;
-    ui.scrub.value = String(Math.round(state.progress * 100));
-    ui.play.innerHTML = state.playing ? "Ⅱ <span>暂停</span>" : "▶ <span>播放</span>";
-    ui.play.setAttribute("aria-label", state.playing ? "暂停" : "播放");
-    ui.prev.disabled = state.phase === 0;
-    ui.next.disabled = state.phase === phases.length - 1;
-    document.querySelectorAll(".step").forEach((button, index) => {
-      button.classList.toggle("active", index === state.phase);
-      button.classList.toggle("past", index < state.phase);
-      button.setAttribute("aria-current", index === state.phase ? "step" : "false");
-    });
-  }
-
-  function render() {
-    model = buildModel();
-    drawFlow();
-    renderDetail();
-    renderMetrics();
-    renderControls();
-  }
-
-  function pause() { state.playing = false; lastFrame = 0; if (frameHandle !== null) cancelAnimationFrame(frameHandle); frameHandle = null; renderControls(); }
-  function goToPhase(phase) { state.phase = Math.max(0, Math.min(phases.length - 1, phase)); state.progress = 0; pause(); render(); }
-  function tick(timestamp) {
-    frameHandle = null;
-    if (!state.playing) return;
-    if (lastFrame) state.progress += (timestamp - lastFrame) * state.speed / 2200;
-    lastFrame = timestamp;
-    if (state.progress >= 1) {
-      if (state.phase === phases.length - 1) { state.progress = 1; pause(); }
-      else { state.phase++; state.progress = 0; render(); }
+  function bank(lane, x, y, isOutput) {
+    let markup = "";
+    for (let token = 0; token < 16; token++) {
+      const px = x + token * 8.5;
+      const fill = isOutput ? "#b9aaf4" : "#98baf0";
+      markup += rect(px, y, 6.2, 15, fill, `rx="1.3" class="${isOutput ? "output-stripe" : "bank-stripe"}" data-visual-phase="${isOutput ? 5 : 0}" data-order="${(token / 16).toFixed(3)}"`);
     }
-    ui.scrub.value = String(Math.round(state.progress * 100));
-    updatePackets();
-    if (state.playing) frameHandle = requestAnimationFrame(tick);
+    return markup;
+  }
+  function cardBase(column, index, model) {
+    const { x, label, subtitle, module } = column;
+    const count = module === "input" || module === "output"
+      ? `${model.totalTokens} token · H${model.hidden}`
+      : module === "router" ? `${model.totalExperts} experts · Top-${model.topK}`
+      : module === "expert" ? `${model.totalExperts} experts`
+      : `${model.totalTasks} tasks`;
+    let shape = rect(x, TOP, WIDTH, HEIGHT, "white", `rx="12" class="module-frame"`);
+    shape += text(x + 18, TOP + 33, `${String(index + 1).padStart(2, "0")}`, "module-index");
+    shape += text(x + 18, TOP + 61, label, "module-label");
+    shape += text(x + 18, TOP + 83, count, "module-count");
+    shape += text(x + WIDTH - 31, TOP + 52, "⊕", "expand-icon");
+    shape += rect(x + 17, TOP + 99, WIDTH - 34, 1, "#edf0f5");
+    shape += text(x + 18, TOP + HEIGHT - 22, subtitle, "column-subtitle");
+    return shape;
+  }
+  function inputCard(column) {
+    let html = "";
+    const groupSize = model.ranks / 8;
+    for (let lane = 0; lane < 8; lane++) {
+      const y = laneY(lane);
+      html += text(column.x + 18, y - 11, rankLabel(lane, model), "rank-label");
+      html += text(column.x + 188, y - 11, `${groupSize * model.tokensPerRank} T`, "rank-count", `text-anchor="end"`);
+      html += bank(lane, column.x + 18, y - 1, false);
+      html += rect(column.x + 18, y + 21, 171, 1, "#eef2f7");
+    }
+    return html;
+  }
+  function routerCard(column, groups) {
+    let html = "";
+    const max = Math.max(...groups);
+    for (let row = 0; row < 8; row++) {
+      const y = laneY(row);
+      html += text(column.x + 18, y - 10, rankLabel(row, model), "rank-label");
+      for (let dst = 0; dst < 8; dst++) {
+        const count = groups[row * 8 + dst];
+        const alpha = .16 + .69 * (count / max);
+        const fill = `rgba(104,80,218,${alpha.toFixed(3)})`;
+        html += rect(column.x + 18 + dst * 21.2, y - 1, 18.2, 20, fill,
+          `rx="2" class="router-cell" data-visual-phase="1" data-order="${((row * 8 + dst) / 64).toFixed(3)}" aria-label="${rankLabel(row, model)} → ${rankLabel(dst, model)} · ${count} 次选择"`);
+      }
+    }
+    html += text(column.x + 18, TOP + HEIGHT - 45, "源 rank × 目标 rank", "rank-count");
+    return html;
+  }
+  function dispatchCard(column, groups) {
+    const totals = laneTotals(groups, false);
+    const maximum = Math.max(...totals);
+    let html = "";
+    for (let lane = 0; lane < 8; lane++) {
+      const y = laneY(lane);
+      html += text(column.x + 18, y - 11, rankLabel(lane, model), "rank-label");
+      html += text(column.x + 187, y - 11, `${totals[lane]}`, "rank-count", `text-anchor="end"`);
+      html += rect(column.x + 18, y, 171, 17, "#f0f4fb", `rx="2"`);
+      html += rect(column.x + 18, y, 171 * totals[lane] / maximum, 17, "#a5c5f5",
+        `rx="2" data-visual-phase="2" data-order="${(lane / 8).toFixed(3)}"`);
+      for (let src = 0; src < 8; src++) {
+        const count = groups[src * 8 + lane];
+        if (!count) continue;
+        html += rect(column.x + 20 + 167 * src / 8, y + 3, Math.max(1.5, 167 * count / (totals[lane] * 1.7)), 11,
+          src === lane ? "#6e84d7" : "#69a3ed", `opacity=".76" data-visual-phase="2" data-order="${((lane * 8 + src) / 64).toFixed(3)}"`);
+      }
+    }
+    return html;
+  }
+  function expertCard(column) {
+    let html = "";
+    const perGroup = model.totalExperts / 8;
+    const groupTotals = Array.from({ length: 8 }, (_, lane) => {
+      let sum = 0;
+      for (let e = lane * perGroup; e < (lane + 1) * perGroup; e++) sum += model.expertLoads[e];
+      return sum;
+    });
+    const groupMax = Math.max(...groupTotals);
+    for (let lane = 0; lane < 8; lane++) {
+      const y = laneY(lane);
+      const first = lane * perGroup, last = first + perGroup - 1;
+      html += text(column.x + 18, y - 10, `E${first}–${last}`, "rank-label");
+      html += text(column.x + 188, y - 10, `${groupTotals[lane]}`, "rank-count", `text-anchor="end"`);
+      const showCount = Math.min(perGroup, 16);
+      const block = 170 / showCount;
+      for (let i = 0; i < showCount; i++) {
+        let load = 0;
+        for (let e = first + Math.floor(i * perGroup / showCount); e < first + Math.floor((i + 1) * perGroup / showCount); e++) load += model.expertLoads[e];
+        const normalized = Math.min(1, load / (groupMax / showCount * 1.4));
+        const fill = `rgba(103,82,218,${(.22 + normalized * .68).toFixed(3)})`;
+        html += rect(column.x + 18 + i * block, y - 1, block - 2, 21, fill,
+          `rx="2" class="expert-cell" data-visual-phase="3" data-order="${((lane * showCount + i) / (8 * showCount)).toFixed(3)}" aria-label="E${first + i} · ${load} 任务"`);
+      }
+    }
+    return html;
+  }
+  function combineCard(column, groups) {
+    const totals = laneTotals(groups, true);
+    const maximum = Math.max(...totals);
+    let html = "";
+    for (let lane = 0; lane < 8; lane++) {
+      const y = laneY(lane);
+      html += text(column.x + 18, y - 11, rankLabel(lane, model), "rank-label");
+      html += text(column.x + 188, y - 11, `${totals[lane]}`, "rank-count", `text-anchor="end"`);
+      html += rect(column.x + 18, y, 171, 17, "#f3f0ff", `rx="2"`);
+      let cursor = 0;
+      for (let dst = 0; dst < 8; dst++) {
+        const count = groups[lane * 8 + dst];
+        if (!count) continue;
+        const width = 171 * count / totals[lane];
+        html += rect(column.x + 18 + cursor, y, Math.max(1, width - 1.2), 17, dst === lane ? "#8c72df" : "#b0a1ee",
+          `rx="1" data-visual-phase="4" data-order="${((lane * 8 + dst) / 64).toFixed(3)}" aria-label="${rankLabel(dst, model)} 返回 ${count} 项"`);
+        cursor += width;
+      }
+    }
+    return html;
+  }
+  function outputCard(column) {
+    let html = "";
+    const groupSize = model.ranks / 8;
+    for (let lane = 0; lane < 8; lane++) {
+      const y = laneY(lane);
+      html += text(column.x + 18, y - 11, rankLabel(lane, model), "rank-label");
+      html += text(column.x + 188, y - 11, `${groupSize * model.tokensPerRank} T`, "rank-count", `text-anchor="end"`);
+      html += bank(lane, column.x + 18, y - 1, true);
+      html += rect(column.x + 18, y + 21, 171, 1, "#eef2f7");
+    }
+    return html;
+  }
+  function renderScene() {
+    const groups = trafficGroups();
+    const def = `<defs>
+      <pattern id="dot-grid" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".7" fill="#edf1f6"/></pattern>
+      <filter id="soft-shadow" x="-15%" y="-12%" width="130%" height="135%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#8692a8" flood-opacity=".11"/></filter>
+    </defs>`;
+    let html = def + rect(-3000, -2000, 8000, 5000, "url(#dot-grid)", `class="world-grid"`);
+    html += text(69, 70, `${model.ranks / 8} rank / 泳道`, "column-title");
+    html += text(1627, 70, `${model.label} · K${model.topK} · H${model.hidden}`, "column-subtitle", `text-anchor="end"`);
+    html += inputFlows() + flows(groups, "dispatch") + flows(groups, "combine");
+    COLUMNS.forEach((column, index) => {
+      let inside = cardBase(column, index, model);
+      if (column.module === "input") inside += inputCard(column);
+      if (column.module === "router") inside += routerCard(column, groups);
+      if (column.module === "dispatch") inside += dispatchCard(column, groups);
+      if (column.module === "expert") inside += expertCard(column);
+      if (column.module === "combine") inside += combineCard(column, groups);
+      if (column.module === "output") inside += outputCard(column);
+      inside += rect(column.x, TOP, WIDTH, HEIGHT, "transparent", `rx="12" class="module-hit"`);
+      html += `<g class="module-card${index === state.phase ? " active" : ""}" data-module="${column.module}" tabindex="0" role="button" aria-label="展开${column.label}详细动画">${inside}</g>`;
+    });
+    html += `<g aria-hidden="true">${rect(797, 365, 78, 51, "white", `rx="9" class="center-badge"`)}${text(836, 389, model.totalTasks.toLocaleString(), "center-number")}${text(836, 404, "tasks", "center-caption")}</g>`;
+    html += `<g aria-hidden="true">${rect(1335, 365, 79, 51, "white", `rx="9" class="center-badge"`)}${text(1374, 389, model.totalTokens.toLocaleString(), "center-number")}${text(1374, 404, "tokens", "center-caption")}</g>`;
+    svg.innerHTML = html;
+    updateAnimation();
+  }
+  function updateAnimation() {
+    svg.querySelectorAll("[data-visual-phase]").forEach((element) => {
+      const phase = Number(element.dataset.visualPhase);
+      const order = Number(element.dataset.order || 0);
+      const opacity = stageOpacity(phase, order);
+      element.style.opacity = String(opacity);
+      if (element.classList.contains("flow-band")) element.classList.toggle("active", phase === state.phase);
+    });
+    svg.querySelectorAll(".flow-glint").forEach((element) => {
+      const phase = element.classList.contains("dispatch") ? 2 : 4;
+      element.classList.toggle("active", phase === state.phase && state.playing);
+    });
+    svg.querySelectorAll(".module-card").forEach((element, index) => {
+      element.classList.toggle("active", index === state.phase);
+    });
+  }
+  function setBox(box) {
+    state.box = box;
+    svg.setAttribute("viewBox", `${box.x} ${box.y} ${box.w} ${box.h}`);
+  }
+  function homeBox() {
+    return root.innerWidth <= 780 ? { x: 34, y: 0, w: 560, h: 830 } : { ...WORLD };
+  }
+  function zoom(factor, clientX, clientY) {
+    const bounds = svg.getBoundingClientRect();
+    const fx = clamp((clientX - bounds.left) / bounds.width, 0, 1);
+    const fy = clamp((clientY - bounds.top) / bounds.height, 0, 1);
+    const nextW = clamp(state.box.w * factor, 460, 5200);
+    const nextH = state.box.h * nextW / state.box.w;
+    setBox({
+      x: state.box.x + fx * (state.box.w - nextW),
+      y: state.box.y + fy * (state.box.h - nextH),
+      w: nextW, h: nextH
+    });
+  }
+  function pause() {
+    state.playing = false;
+    state.lastTime = 0;
+    if (state.frame !== null) cancelAnimationFrame(state.frame);
+    state.frame = null;
+    renderControls();
+    updateAnimation();
+  }
+  function tick(time) {
+    state.frame = null;
+    if (!state.playing) return;
+    if (state.lastTime) state.progress += (time - state.lastTime) * state.speed / 2000;
+    state.lastTime = time;
+    if (state.progress >= 1) {
+      if (state.phase === 5) { state.progress = 1; pause(); return; }
+      state.phase++;
+      state.progress = 0;
+      renderControls();
+    }
+    if (time - state.lastPaint > 35) {
+      state.lastPaint = time;
+      updateAnimation();
+      $("scrub").value = String(Math.round((state.phase + state.progress) * 100));
+    }
+    state.frame = requestAnimationFrame(tick);
+  }
+  function play() {
+    if (state.playing) { pause(); return; }
+    if (state.phase === 5 && state.progress >= 1) { state.phase = 0; state.progress = 0; }
+    else if (state.progress >= 1) {
+      state.phase = Math.min(5, state.phase + 1);
+      state.progress = 0;
+    }
+    state.playing = true;
+    state.lastTime = 0;
+    renderControls();
+    updateAnimation();
+    state.frame = requestAnimationFrame(tick);
+  }
+  function setPhase(phase, progress = 1) {
+    pause();
+    state.phase = clamp(phase, 0, 5);
+    state.progress = clamp(progress, 0, 1);
+    renderControls();
+    updateAnimation();
+  }
+  function renderControls() {
+    $("play").innerHTML = state.playing ? "Ⅱ <span>暂停</span>" : "▶ <span>播放</span>";
+    $("play").setAttribute("aria-label", state.playing ? "暂停" : "播放");
+    $("previous").disabled = state.phase === 0;
+    $("next").disabled = state.phase === 5;
+    $("scrub").value = String(Math.round((state.phase + state.progress) * 100));
+    document.querySelectorAll("[data-phase]").forEach((button) => {
+      const phase = Number(button.dataset.phase);
+      button.classList.toggle("active", phase === state.phase);
+      button.classList.toggle("past", phase < state.phase);
+      button.setAttribute("aria-pressed", String(phase === state.phase));
+    });
+    $("metric-tokens").textContent = `${model.totalTokens.toLocaleString()} token`;
+    $("metric-tasks").textContent = `${model.totalTasks.toLocaleString()} 专家任务`;
+    $("metric-cross").textContent = `跨 rank ${model.crossRankTasks.toLocaleString()}`;
+    $("metric-bytes").textContent = `单向 ${M.formatBytes(model.crossRankBytes)}`;
+  }
+  function rebuild() {
+    pause();
+    state.preset = $("preset").value;
+    state.scenario = $("scenario").value;
+    state.topK = Number($("topk").value);
+    model = M.buildModel(state);
+    state.phase = 0;
+    state.progress = 1;
+    renderControls();
+    renderScene();
+    details.refreshModel();
+  }
+  function openModule(name) {
+    pause();
+    details.open(name, 0);
   }
 
-  ui.scenario.addEventListener("change", () => { state.scenario = ui.scenario.value; state.progress = 0; pause(); render(); });
-  ui.topk.addEventListener("change", () => { state.topk = Number(ui.topk.value); state.progress = 0; pause(); render(); });
-  ui.speed.addEventListener("change", () => { state.speed = Number(ui.speed.value); });
-  ui.showAll.addEventListener("change", () => { state.showAll = ui.showAll.checked; drawFlow(); });
-  ui.tokenSelect.addEventListener("change", () => { state.selected = ui.tokenSelect.value; render(); });
-  ui.flow.addEventListener("click", (event) => { const node = event.target.closest("[data-token]"); if (node) { state.selected = node.dataset.token; render(); } });
-  ui.flow.addEventListener("keydown", (event) => { const node = event.target.closest("[data-token]"); if (node && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); state.selected = node.dataset.token; render(); } });
-  ui.scrub.addEventListener("input", () => { state.progress = Number(ui.scrub.value) / 100; pause(); updatePackets(); });
-  ui.play.addEventListener("click", () => {
-    if (state.playing) { pause(); return; }
-    if (state.phase === phases.length - 1 && state.progress >= 1) { state.phase = 0; state.progress = 0; render(); }
-    state.playing = true; lastFrame = 0; renderControls(); frameHandle = requestAnimationFrame(tick);
+  details = root.MoeDetails.create({
+    getModel: () => model,
+    onModuleChange: (index) => setPhase(index)
   });
-  ui.prev.addEventListener("click", () => goToPhase(state.phase - 1));
-  ui.next.addEventListener("click", () => goToPhase(state.phase + 1));
-  ui.reset.addEventListener("click", () => goToPhase(0));
-  document.querySelectorAll(".step").forEach((button) => button.addEventListener("click", () => goToPhase(Number(button.dataset.phase))));
-  document.addEventListener("keydown", (event) => {
-    if (["INPUT", "SELECT", "TEXTAREA", "BUTTON"].includes(document.activeElement.tagName)) return;
-    if (event.key === " ") { event.preventDefault(); ui.play.click(); }
-    if (event.key === "ArrowRight") { event.preventDefault(); ui.next.click(); }
-    if (event.key === "ArrowLeft") { event.preventDefault(); ui.prev.click(); }
-  });
+  renderControls();
+  renderScene();
+  setBox(homeBox());
 
-  ui.tokenSelect.innerHTML = Array.from({ length: rankCount * tokensPerRank }, (_, i) => `<option value="R${Math.floor(i / tokensPerRank)}:T${i % tokensPerRank}">R${Math.floor(i / tokensPerRank)}:T${i % tokensPerRank}</option>`).join("");
-  render();
-})();
+  $("preset").addEventListener("change", () => {
+    const preset = M.PRESETS[$("preset").value];
+    $("topk").value = String(preset.defaultK);
+    rebuild();
+  });
+  $("scenario").addEventListener("change", rebuild);
+  $("topk").addEventListener("change", rebuild);
+  $("speed").addEventListener("change", () => { state.speed = Number($("speed").value); });
+  $("play").addEventListener("click", play);
+  $("previous").addEventListener("click", () => setPhase(state.phase - 1));
+  $("next").addEventListener("click", () => setPhase(state.phase + 1));
+  $("about").addEventListener("click", () => openModule("about"));
+  $("stage-buttons").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-phase]");
+    if (button) setPhase(Number(button.dataset.phase));
+  });
+  $("scrub").addEventListener("input", () => {
+    const value = Number($("scrub").value) / 100;
+    setPhase(Math.floor(Math.min(value, 5)), value >= 5 ? value - 5 : value % 1);
+  });
+  $("zoom-in").addEventListener("click", () => {
+    const box = svg.getBoundingClientRect();
+    zoom(.78, box.left + box.width / 2, box.top + box.height / 2);
+  });
+  $("zoom-out").addEventListener("click", () => {
+    const box = svg.getBoundingClientRect();
+    zoom(1.28, box.left + box.width / 2, box.top + box.height / 2);
+  });
+  $("fit").addEventListener("click", () => setBox(homeBox()));
+  root.addEventListener("resize", () => {
+    if ((root.innerWidth <= 780) !== (state.box.w === 560)) setBox(homeBox());
+  });
+  svg.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    zoom(event.deltaY > 0 ? 1.13 : .885, event.clientX, event.clientY);
+  }, { passive: false });
+  svg.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    state.drag = { x: event.clientX, y: event.clientY, box: { ...state.box }, module: event.target.closest(".module-card")?.dataset.module };
+    state.dragged = false;
+    svg.setPointerCapture(event.pointerId);
+  });
+  svg.addEventListener("pointermove", (event) => {
+    if (!state.drag) return;
+    const dx = event.clientX - state.drag.x, dy = event.clientY - state.drag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 5) state.dragged = true;
+    if (!state.dragged) return;
+    svg.classList.add("dragging");
+    const bounds = svg.getBoundingClientRect();
+    setBox({
+      ...state.drag.box,
+      x: state.drag.box.x - dx * state.drag.box.w / bounds.width,
+      y: state.drag.box.y - dy * state.drag.box.h / bounds.height
+    });
+  });
+  const endDrag = (event) => {
+    const module = event.type === "pointerup" && !state.dragged ? state.drag?.module : null;
+    state.drag = null;
+    svg.classList.remove("dragging");
+    setTimeout(() => { state.dragged = false; }, 0);
+    if (module) openModule(module);
+  };
+  svg.addEventListener("pointerup", endDrag);
+  svg.addEventListener("pointercancel", endDrag);
+  svg.addEventListener("keydown", (event) => {
+    if ((event.key === "Enter" || event.key === " ") && event.target.classList.contains("module-card")) {
+      event.preventDefault();
+      openModule(event.target.dataset.module);
+    }
+  });
+})(window);
